@@ -22,7 +22,6 @@
 package com.eightkdata.mongowp.mongoserver;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -100,9 +99,7 @@ public class MongoServer implements RequestIdGenerator {
             ChannelFuture channelFuture = bootstrap.bind(port).awaitUninterruptibly();
 
             try {
-            	Channel channel = channelFuture.channel();
-            	channel.closeFuture();
-            	channelFuture.sync();
+                channelFuture.channel().closeFuture().sync();
             } catch (InterruptedException interruptedException) {
                 LOGGER.error("Error", interruptedException);
                 // TODO: perform proper shutdown
