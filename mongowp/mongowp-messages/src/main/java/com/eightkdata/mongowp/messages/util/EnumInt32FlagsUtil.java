@@ -42,9 +42,7 @@ public class EnumInt32FlagsUtil {
             bitSet.set(t.getFlagBitPosition());
         }
 
-        long[] longsMask = bitSet.toLongArray();
-        assert longsMask.length == 1;
-        return (int) longsMask[0];
+        return convert(bitSet);
     }
 
     public static <T extends Enum<T> & EnumBitFlags> int getInt32Flags(@Nullable Set<T> flags) {
@@ -81,7 +79,7 @@ public class EnumInt32FlagsUtil {
             throw new IllegalArgumentException("Unsupported flags within int (" + flags + ")");
         }
 
-        BitSet bitSet = BitSet.valueOf(new long[]{flags});
+        BitSet bitSet = convert(flags);
         EnumSet<T> flagEnumSet = EnumSet.noneOf(enumClass);
         for(T flag : enumClass.getEnumConstants()) {
             if(bitSet.get(flag.getFlagBitPosition())) {
@@ -90,5 +88,28 @@ public class EnumInt32FlagsUtil {
         }
 
         return flagEnumSet;
+    }
+
+    public static int convert(BitSet bits) {
+        assert bits.length() <= 32;
+
+        int value = 0;
+        for (int i = 0; i < bits.length(); ++i) {
+            value += bits.get(i) ? (1 << i) : 0;
+        }
+        return value;
+    }
+
+    public static BitSet convert(int value) {
+        BitSet bits = new BitSet();
+        int index = 0;
+        while (value != 0) {
+            if (value % 2 != 0) {
+                bits.set(index);
+            }
+            ++index;
+            value = value >>> 1;
+        }
+        return bits;
     }
 }
