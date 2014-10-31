@@ -81,7 +81,7 @@
             <dependency>
                 <groupId>com.8kdata.netty-bson</groupId>
                 <artifactId>bson-mongo-driver</artifactId>
-                <version>0.10</version>
+                <version>0.11</version>
             </dependency>
             <dependency>
                 <groupId>javax.inject</groupId>
