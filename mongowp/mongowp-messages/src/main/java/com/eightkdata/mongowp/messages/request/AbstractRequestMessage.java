@@ -60,7 +60,7 @@ public abstract class AbstractRequestMessage {
 	protected String[] splitFullCollectionName(String fullCollectionName) {
 		String[] splittedFullCollectionName = new String[2];
 		
-		int indexOfSeparator = fullCollectionName.indexOf(".");
+		int indexOfSeparator = fullCollectionName.indexOf('.');
         if(indexOfSeparator == -1) {
             throw new IllegalArgumentException("Invalid full collection name '" + fullCollectionName + "'");
         }
