@@ -11,7 +11,7 @@
     <parent>
         <artifactId>mongowp-parent</artifactId>
         <groupId>com.8kdata.mongowp</groupId>
-        <version>0.10</version>
+        <version>0.11</version>
     </parent>
 
     <dependencies>
