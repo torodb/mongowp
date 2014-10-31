@@ -47,6 +47,7 @@ import com.eightkdata.mongowp.mongoserver.api.commands.SystemEventsAuditingQuery
 import com.eightkdata.mongowp.mongoserver.api.commands.TestingQueryCommand;
 import com.eightkdata.mongowp.mongoserver.api.commands.UserManagementQueryCommand;
 import com.eightkdata.nettybson.api.BSONDocument;
+import java.util.Locale;
 
 /**
  *
@@ -78,7 +79,7 @@ public interface QueryCommandProcessor {
 	        for(QueryCommandGroup commandGroup : values()) {
 		        for(QueryCommand command : commandGroup.queryCommands) {
 		        	// 	Some driver use lower case version of the command so we must take it into account
-		        	String key = command.getKey().toLowerCase();
+		        	String key = command.getKey().toLowerCase(Locale.ROOT);
 		        	if (COMMANDS_MAP.containsKey(key)) {
 		        		throw new RuntimeException("Key " + key + " is not unique, found in enum " + 
 		        				COMMANDS_MAP.get(key).getClass().getName() + " and in enum " + 
@@ -103,7 +104,7 @@ public interface QueryCommandProcessor {
 	        // matching it with the # of args of the commands, which could be registered as enum fields
 	        for(String possibleCommand : queryDocument.getKeys()) {
 	            // Some driver use lower case version of the command so we must take it into account
-	        	possibleCommand = possibleCommand.toLowerCase();
+	        	possibleCommand = possibleCommand.toLowerCase(Locale.ROOT);
 	            if(COMMANDS_MAP.containsKey(possibleCommand)) {
 	                return COMMANDS_MAP.get(possibleCommand);
 	            }

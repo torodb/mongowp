@@ -57,21 +57,27 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
     	ctx.attr(REQUEST_OP_CODE).set(requestMessage.getOpCode());
         switch (requestMessage.getOpCode()) {
 	        case OP_QUERY:
+                assert requestMessage instanceof QueryMessage;
 	            requestProcessor.queryMessage((QueryMessage) requestMessage, messageReplier);
 	            break;
 	        case OP_GET_MORE:
+                assert requestMessage instanceof GetMoreMessage;
 	            requestProcessor.getMore((GetMoreMessage) requestMessage, messageReplier);
 	            break;
 	        case OP_KILL_CURSORS:
+                assert requestMessage instanceof KillCursorsMessage;
 	            requestProcessor.killCursors((KillCursorsMessage) requestMessage, messageReplier);
 	            break;
 	        case OP_INSERT:
+                assert requestMessage instanceof InsertMessage;
 	            requestProcessor.insert((InsertMessage) requestMessage, messageReplier);
 	            break;
 	        case OP_UPDATE:
+                assert requestMessage instanceof UpdateMessage;
 	            requestProcessor.update((UpdateMessage) requestMessage, messageReplier);
 	            break;
 	        case OP_DELETE:
+                assert requestMessage instanceof DeleteMessage;
 	            requestProcessor.delete((DeleteMessage) requestMessage, messageReplier);
 	            break;
             // TODO: implement missing cases

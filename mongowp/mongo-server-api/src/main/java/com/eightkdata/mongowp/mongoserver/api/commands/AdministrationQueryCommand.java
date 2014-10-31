@@ -33,6 +33,7 @@ import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor.ProcessorCaller;
 import com.eightkdata.nettybson.api.BSONDocument;
+import java.util.Locale;
 
 /**
  * 
@@ -120,7 +121,7 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
     static {
         for(AdministrationQueryCommand command : values()) {
             // Some driver use lower case version of the command so we must take it into account
-            COMMANDS_MAP.put(command.key.toLowerCase(), command);
+            COMMANDS_MAP.put(command.key.toLowerCase(Locale.ROOT), command);
         }
     }
 
@@ -138,7 +139,7 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
         // matching it with the # of args of the commands, which could be registered as enum fields
         for(String possibleCommand : queryDocument.getKeys()) {
             // Some driver use lower case version of the command so we must take it into account
-        	possibleCommand = possibleCommand.toLowerCase();
+        	possibleCommand = possibleCommand.toLowerCase(Locale.ROOT);
             if(COMMANDS_MAP.containsKey(possibleCommand)) {
                 return COMMANDS_MAP.get(possibleCommand);
             }

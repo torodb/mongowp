@@ -21,6 +21,7 @@
 
 package com.eightkdata.mongowp.mongoserver.protocol;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Ints;
 
 /**
@@ -34,11 +35,11 @@ public class MongoWP {
 			VERSION_MAJOR + "." + 
 			VERSION_MINOR + "." + 
 			VERSION_PATCH;
-	public static final int[] VERSION = new int[] { 
+	public static final ImmutableList VERSION = ImmutableList.of(
 		MongoWP.VERSION_MAJOR, 
 		MongoWP.VERSION_MINOR, 
 		MongoWP.VERSION_PATCH 
-	};
+    );
 	
     public static final int MAX_WIRE_VERSION = 2;
     public static final int MIN_WIRE_VERSION = 0;
