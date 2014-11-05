@@ -25,7 +25,6 @@ package com.eightkdata.nettybson.api;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import java.util.Set;
 
@@ -35,7 +34,7 @@ import java.util.Set;
 @Immutable
 public interface BSONDocument {
     public boolean hasKey(@Nonnull String key);
-    @Nullable public Set<String> getKeys();
+    @Nonnull public Set<String> getKeys();
     public Object getValue(@Nonnull String key);
 
     /**
