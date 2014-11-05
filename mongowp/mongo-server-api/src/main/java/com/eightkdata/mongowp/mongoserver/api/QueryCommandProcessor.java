@@ -160,6 +160,10 @@ public interface QueryCommandProcessor {
         	queryCommandProcessor.createIndexes(document, messageReplier);
         }
         
+        public void create(@Nonnull BSONDocument document) throws Exception {
+        	queryCommandProcessor.create(document, messageReplier);
+        }
+        
         public void drop(@Nonnull BSONDocument document) throws Exception {
         	queryCommandProcessor.drop(document, messageReplier);
         }
@@ -211,6 +215,8 @@ public interface QueryCommandProcessor {
     public void drop(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
 
     public void createIndexes(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
+    
+    public void create(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
     
     /**
      * Either w or majority will be set, but not both at the same time.
