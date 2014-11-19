@@ -56,7 +56,12 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
 			caller.createIndexes(query);
 		}
     },
-    create,
+    create {
+    	@Override
+    	public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
+			caller.create(query);
+    	}
+    },
     dropDatabase,
     dropIndexes,
     drop {
