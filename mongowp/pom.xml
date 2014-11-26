@@ -44,6 +44,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <S3.bucket>maven.torodb.com</S3.bucket>
         <netty.version>4.0.17.Final</netty.version>
+        <netty-bson.version>0.11</netty-bson.version>
     </properties>
 
     <dependencyManagement>
@@ -81,7 +82,7 @@
             <dependency>
                 <groupId>com.8kdata.netty-bson</groupId>
                 <artifactId>bson-mongo-driver</artifactId>
-                <version>0.11</version>
+                <version>${netty-bson.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.inject</groupId>
@@ -91,7 +92,7 @@
             <dependency>
                 <groupId>com.8kdata.netty-bson</groupId>
                 <artifactId>netty-bson-api</artifactId>
-                <version>0.10</version>
+                <version>${netty-bson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.inject</groupId>
