@@ -68,9 +68,22 @@ public enum DiagnosticQueryCommand implements QueryCommandProcessor.QueryCommand
     //indexStats,
     //isSelf,
     listCommands,
-    listDatabases(true),
+    listDatabases(true) {
+        
+        @Override
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+            caller.listDatabases();
+        }
+    },
     //netstat,
-    ping,
+    ping {
+
+        @Override
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
+            caller.ping();
+        }
+        
+    },
     profile,
     serverStatus,
     shardConnPoolStats,

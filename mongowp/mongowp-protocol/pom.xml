@@ -10,7 +10,7 @@
     <parent>
         <artifactId>mongowp-parent</artifactId>
         <groupId>com.8kdata.mongowp</groupId>
-        <version>0.12</version>
+        <version>0.13</version>
     </parent>
 
     <properties>

@@ -63,7 +63,12 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
     	}
     },
     dropDatabase,
-    dropIndexes,
+    dropIndexes {
+        @Override
+		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
+			caller.dropIndexes(query);
+		}
+    },
     drop {
 		@Override
 		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {

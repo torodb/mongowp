@@ -53,7 +53,8 @@ import java.util.Locale;
  *
  */
 public interface QueryCommandProcessor {
-	public enum QueryCommandGroup {
+
+    public enum QueryCommandGroup {
 		Aggregation(AggregationQueryCommand.values()),
 		Geospatial(GeospatialQueryCommand.values()),
 		QueryAndWriteOperations(QueryAndWriteOperationsQueryCommand.values()),
@@ -168,6 +169,10 @@ public interface QueryCommandProcessor {
         	queryCommandProcessor.drop(document, messageReplier);
         }
 
+        public void dropIndexes(BSONDocument query) {
+            queryCommandProcessor.dropIndex(query, messageReplier);
+        }
+
         public void getLastError(
         		@Nullable Object w, boolean j, boolean fsync,
                 @Nonnegative @Nullable int wtimeout
@@ -195,12 +200,20 @@ public interface QueryCommandProcessor {
         	queryCommandProcessor.buildInfo(messageReplier);
         }
         
+        public void ping() {
+            queryCommandProcessor.ping(messageReplier);
+        }
+        
         public void getLog(@Nonnull GetLogType log) {
         	queryCommandProcessor.getLog(log, messageReplier);
         }
 
         public void unimplemented(@Nonnull QueryCommand userCommand) throws Exception {
         	queryCommandProcessor.unimplemented(userCommand, messageReplier);
+        }
+
+        public void listDatabases() throws Exception {
+            queryCommandProcessor.listDatabases(messageReplier);
         }
     }
 
@@ -213,6 +226,8 @@ public interface QueryCommandProcessor {
     public void delete(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
     
     public void drop(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
+
+    public void dropIndex(BSONDocument query, MessageReplier messageReplier);
 
     public void createIndexes(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
     
@@ -234,6 +249,10 @@ public interface QueryCommandProcessor {
 
 	public void validate(@Nonnull String database, @Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier);
 
+    public void ping(MessageReplier messageReplier);
+
+    public void listDatabases(MessageReplier messageReplier) throws Exception;
+	
     public void whatsmyuri(@Nonnull String host, @Nonnull int port, @Nonnull MessageReplier messageReplier);
 
     public void replSetGetStatus(@Nonnull MessageReplier messageReplier);
