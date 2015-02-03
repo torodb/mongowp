@@ -55,6 +55,10 @@ public class MongoBSONDocument implements BSONDocument {
     public MongoBSONDocument(Map<String,Object> keyValues) {
         bson = new BasicBSONObject(keyValues);
     }
+
+    public MongoBSONDocument(BSONObject keyValues) {
+        bson = new BasicBSONObject(keyValues.toMap());
+    }
     
     public BSONObject getBSONObject() {
     	return bson;
