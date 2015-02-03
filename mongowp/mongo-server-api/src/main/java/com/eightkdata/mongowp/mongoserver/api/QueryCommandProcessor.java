@@ -169,8 +169,8 @@ public interface QueryCommandProcessor {
         	queryCommandProcessor.drop(document, messageReplier);
         }
 
-        public void dropIndexes(BSONDocument query) {
-            queryCommandProcessor.dropIndex(query, messageReplier);
+        public void dropIndexes(BSONDocument query) throws Exception {
+            queryCommandProcessor.dropIndexes(query, messageReplier);
         }
 
         public void getLastError(
@@ -227,7 +227,7 @@ public interface QueryCommandProcessor {
     
     public void drop(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
 
-    public void dropIndex(BSONDocument query, MessageReplier messageReplier);
+    public void dropIndexes(BSONDocument query, MessageReplier messageReplier) throws Exception;
 
     public void createIndexes(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
     
