@@ -46,12 +46,15 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
     public static final AttributeKey<QueryCommand> QUERY_COMMAND = AttributeKey.valueOf("queryCommand");
 
     private final QueryCommandProcessor queryCommandProcessor;
+    private final MetaQueryProcessor metaQueryProcessor;
 
     @Inject
     public AbstractRequestProcessor(
-            @Nonnull QueryCommandProcessor queryCommandProcessor
+            @Nonnull QueryCommandProcessor queryCommandProcessor,
+            @Nonnull MetaQueryProcessor metaQueryProcessor
     ) {
         this.queryCommandProcessor = queryCommandProcessor;
+        this.metaQueryProcessor = metaQueryProcessor;
     }
 
     @Override
@@ -78,6 +81,8 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
             		requestBaseMessage, query, new QueryCommandProcessor.ProcessorCaller(
             				queryMessage.getDatabase(), queryCommandProcessor, messageReplier)
             );
+        } else if (metaQueryProcessor.isMetaQuery(queryMessage)) {
+            metaQueryProcessor.queryMetaInf(queryMessage, messageReplier);
         } else {
             queryNonCommand(queryMessage, messageReplier);
         }
