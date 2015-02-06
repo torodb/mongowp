@@ -86,6 +86,15 @@ public class MessageReplier {
     public void replyMessageNoCursor(BSONDocument document) {
         replyMessage(0, 0, document);
     }
+    
+    public void replyMessageNoCursor(Iterable<BSONDocument> documents) {
+        ReplyMessage.Builder builder = new ReplyMessage.Builder(requestId, 0, 0);
+        Iterator<BSONDocument> iterator = documents.iterator();
+        while (iterator.hasNext()) {
+            builder.addBSONDocument(iterator.next());
+        }
+        replyMessageBuilder(builder);
+    }
 
     private ReplyMessage.Builder getReplyMessageBuilder(
             long cursorId, int startingFrom, @Nonnull BSONDocument firstDocument, @Nonnull BSONDocument... documents
