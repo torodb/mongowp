@@ -6,7 +6,7 @@
 
     <groupId>com.8kdata.netty-bson</groupId>
     <artifactId>netty-bson-parent</artifactId>
-    <version>0.11</version>
+    <version>0.12</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -48,7 +48,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.7</version>
+                <version>1.7.10</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -71,7 +71,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.11</version>
+                <version>4.12</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
