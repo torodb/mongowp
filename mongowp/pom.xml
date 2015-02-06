@@ -6,7 +6,7 @@
 
     <groupId>com.8kdata.mongowp</groupId>
     <artifactId>mongowp-parent</artifactId>
-    <version>0.13</version>
+    <version>0.14</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -43,8 +43,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <S3.bucket>maven.torodb.com</S3.bucket>
-        <netty.version>4.0.17.Final</netty.version>
-        <netty-bson.version>0.11</netty-bson.version>
+        <netty.version>4.0.25.Final</netty.version>
+        <netty-bson.version>0.12</netty-bson.version>
     </properties>
 
     <dependencyManagement>
@@ -67,7 +67,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.7</version>
+                <version>1.7.10</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -110,7 +110,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.11</version>
+                <version>4.12</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
