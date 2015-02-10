@@ -2,6 +2,7 @@
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
+import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
 import com.eightkdata.nettybson.api.BSONDocument;
 import java.util.EnumSet;
 import javax.annotation.Nonnull;
@@ -9,7 +10,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
-public class QueryReply {
+public class QueryReply implements Reply {
 
     private final long cursorId;
     private final int startingFrom;
@@ -41,6 +42,15 @@ public class QueryReply {
 
     public EnumSet<ReplyMessage.Flag> getFlags() {
         return flags;
+    }
+    
+    @Override
+    public void reply(MessageReplier replier) {
+        replier.replyMessageMultipleDocuments(
+                getCursorId(), 
+                getStartingFrom(), 
+                getDocuments()
+        );
     }
     
     public static class Builder {

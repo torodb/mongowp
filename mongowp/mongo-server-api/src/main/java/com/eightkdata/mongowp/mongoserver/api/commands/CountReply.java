@@ -1,6 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
+import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.nettybson.api.BSONDocument;
 import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
@@ -13,7 +14,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
-public class CountReply implements Supplier<Iterable<? extends BSONDocument>> {
+public class CountReply implements Reply {
     
     private final Double ok;
     private final int count;
@@ -38,12 +39,13 @@ public class CountReply implements Supplier<Iterable<? extends BSONDocument>> {
     }
 
     @Override
-    public Iterable<? extends BSONDocument> get() {
+    public void reply(MessageReplier replier) {
         Map<String, Object> keyValues = Maps.newHashMapWithExpectedSize(2);
         if (ok.equals(MongoWP.OK)) {
             keyValues.put("n", count);
         }
         keyValues.put("ok", ok);
-        return Collections.singleton(new MongoBSONDocument(keyValues));
+        
+        replier.replyMessageNoCursor(new MongoBSONDocument(keyValues));
     }
 }

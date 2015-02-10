@@ -163,7 +163,7 @@ public interface QueryCommandProcessor {
             else {
                 reply = queryCommandProcessor.count(requestBuilder.build());
             }
-            messageReplier.replyMessageNoCursor(reply.get());
+            reply.reply(messageReplier);
         }
         
         public void insert(@Nonnull BSONDocument document) throws Exception {

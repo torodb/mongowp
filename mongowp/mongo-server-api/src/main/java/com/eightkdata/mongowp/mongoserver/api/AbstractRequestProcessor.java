@@ -141,11 +141,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
         else {
             reply = query(requestBuilder.build());
         }
-        messageReplier.replyMessageMultipleDocuments(
-                reply.getCursorId(), 
-                reply.getStartingFrom(), 
-                reply.getDocuments()
-        );
+        reply.reply(messageReplier);
     }
 	
 	public abstract void noSuchCommand(@Nonnull BSONDocument query, @Nonnull MessageReplier messageReplier) throws Exception;
@@ -164,6 +160,6 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
     			}
     		}
     	}
-        return null;
+        return query;
     }
 }
