@@ -1,0 +1,49 @@
+
+package com.eightkdata.mongowp.mongoserver.api.commands;
+
+import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
+import com.eightkdata.nettybson.api.BSONDocument;
+import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
+import com.google.common.base.Supplier;
+import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.Map;
+import javax.annotation.Nonnull;
+
+/**
+ *
+ */
+public class CountReply implements Supplier<Iterable<? extends BSONDocument>> {
+    
+    private final Double ok;
+    private final int count;
+
+    public CountReply(int count) {
+        this.ok = MongoWP.OK;
+        this.count = count;
+    }
+    
+    public CountReply(@Nonnull Double ok) {
+        assert ok != null;
+        this.ok = ok;
+        this.count = 0;
+    }
+
+    public Double getOk() {
+        return ok;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    @Override
+    public Iterable<? extends BSONDocument> get() {
+        Map<String, Object> keyValues = Maps.newHashMapWithExpectedSize(2);
+        if (ok.equals(MongoWP.OK)) {
+            keyValues.put("n", count);
+        }
+        keyValues.put("ok", ok);
+        return Collections.singleton(new MongoBSONDocument(keyValues));
+    }
+}

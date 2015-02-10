@@ -34,7 +34,11 @@ import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor.QueryCommand
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor.QueryCommandGroup;
 import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.api.callback.RequestProcessor;
+import com.eightkdata.mongowp.mongoserver.api.commands.QueryReply;
+import com.eightkdata.mongowp.mongoserver.api.commands.QueryRequest;
 import com.eightkdata.nettybson.api.BSONDocument;
+import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
+import org.bson.BSONObject;
 
 /**
  *
@@ -78,13 +82,17 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
             
         	attributeMap.attr(QUERY_COMMAND).set(queryCommand);
             queryCommand.call(
-            		requestBaseMessage, query, new QueryCommandProcessor.ProcessorCaller(
-            				queryMessage.getDatabase(), queryCommandProcessor, messageReplier)
+                    requestBaseMessage, 
+                    query, 
+                    new QueryCommandProcessor.ProcessorCaller(
+                            queryMessage.getDatabase(), 
+                            queryCommandProcessor, 
+                            metaQueryProcessor, 
+                            messageReplier
+                    )
             );
-        } else if (metaQueryProcessor.isMetaQuery(queryMessage)) {
-            metaQueryProcessor.queryMetaInf(queryMessage, messageReplier);
         } else {
-            queryNonCommand(queryMessage, messageReplier);
+            query(queryMessage, messageReplier);
         }
     }
 
@@ -101,9 +109,61 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 		return false;
 	}
 
-	public abstract void queryNonCommand(@Nonnull QueryMessage queryMessage, @Nonnull MessageReplier messageReplier) throws Exception;
+	public void query(@Nonnull QueryMessage queryMessage, @Nonnull MessageReplier messageReplier) throws Exception {
+        QueryRequest.Builder requestBuilder = new QueryRequest.Builder(
+                messageReplier.getAttributeMap()
+        );
+        requestBuilder.setCollection(queryMessage.getCollection())
+                .setQuery(extractQuery(queryMessage.getDocument()))
+                .setProjection(null)
+                .setNumberToSkip(queryMessage.getNumberToSkip())
+                .setLimit(queryMessage.getNumberToReturn())
+                .setAwaitData(queryMessage.isFlagSet(QueryMessage.Flag.AWAIT_DATA))
+                .setExhaust(queryMessage.isFlagSet(QueryMessage.Flag.EXHAUST))
+                .setNoCursorTimeout(queryMessage.isFlagSet(QueryMessage.Flag.NO_CURSOR_TIMEOUT))
+                .setOplogReplay(queryMessage.isFlagSet(QueryMessage.Flag.OPLOG_REPLAY))
+                .setPartial(queryMessage.isFlagSet(QueryMessage.Flag.PARTIAL))
+                .setSlaveOk(queryMessage.isFlagSet(QueryMessage.Flag.SLAVE_OK))
+                .setTailable(queryMessage.isFlagSet(QueryMessage.Flag.TAILABLE_CURSOR));
+        
+        if (requestBuilder.getLimit() < 0) {
+            requestBuilder.setAutoclose(true);
+            requestBuilder.setLimit(-requestBuilder.getLimit());
+        }
+        else if (requestBuilder.getLimit() == 1) {
+            requestBuilder.setAutoclose(true);
+        }
+        
+        QueryReply reply;
+        if (metaQueryProcessor.isMetaQuery(queryMessage)) {
+            reply = metaQueryProcessor.query(requestBuilder.build());
+        }
+        else {
+            reply = query(requestBuilder.build());
+        }
+        messageReplier.replyMessageMultipleDocuments(
+                reply.getCursorId(), 
+                reply.getStartingFrom(), 
+                reply.getDocuments()
+        );
+    }
 	
 	public abstract void noSuchCommand(@Nonnull BSONDocument query, @Nonnull MessageReplier messageReplier) throws Exception;
 	
 	public abstract void adminOnlyCommand(@Nonnull QueryCommand queryCommand, @Nonnull MessageReplier messageReplier) throws Exception;
+
+    public abstract QueryReply query(QueryRequest build) throws Exception;
+    
+    private BSONObject extractQuery(BSONDocument document) {
+        BSONObject query = ((MongoBSONDocument) document).getBSONObject();
+        for (String key : query.keySet()) {
+    		if ("query".equals(key) || "$query".equals(key)) {
+    			Object queryObject = query.get(key);
+    			if (queryObject != null && queryObject instanceof BSONObject) {
+    				return (BSONObject) queryObject;
+    			}
+    		}
+    	}
+        return null;
+    }
 }

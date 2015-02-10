@@ -33,21 +33,10 @@ import com.google.common.base.Preconditions;
 
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
-import com.eightkdata.mongowp.mongoserver.api.commands.AdministrationQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.AggregationQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.AuthenticationQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.DiagnosticQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.GeospatialQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.InternalQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.QueryAndWriteOperationsQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.ReplicationQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.RoleManagementQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.ShardingQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.SystemEventsAuditingQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.TestingQueryCommand;
-import com.eightkdata.mongowp.mongoserver.api.commands.UserManagementQueryCommand;
+import com.eightkdata.mongowp.mongoserver.api.commands.*;
 import com.eightkdata.nettybson.api.BSONDocument;
 import java.util.Locale;
+import org.bson.BSONObject;
 
 /**
  *
@@ -132,17 +121,49 @@ public interface QueryCommandProcessor {
 
     public class ProcessorCaller extends QueryCommandProcessorCaller {
         @Nonnull private final QueryCommandProcessor queryCommandProcessor;
+        @Nonnull private final MetaQueryProcessor metaQueryProcessor;
 
         @Inject
-        public ProcessorCaller(@Nonnull String database,
-                @Nonnull QueryCommandProcessor queryCommandProcessor, @Nonnull MessageReplier messageReplier
-        ) {
+        public ProcessorCaller(
+                @Nonnull String database,
+                @Nonnull QueryCommandProcessor queryCommandProcessor, 
+                @Nonnull MetaQueryProcessor metaQueryProcessor,
+                @Nonnull MessageReplier messageReplier) {
             super(database, messageReplier);
             this.queryCommandProcessor = queryCommandProcessor;
+            this.metaQueryProcessor = metaQueryProcessor;
         }
 
 		public void count(@Nonnull BSONDocument document) throws Exception {
-        	queryCommandProcessor.count(document, messageReplier);
+            CountRequest.Builder requestBuilder = new CountRequest.Builder(
+                    messageReplier.getAttributeMap()
+            );
+            String collection;
+            if (document.hasKey("count")) {
+                collection = (String) document.getValue("count");
+            }
+            else {
+                throw new RuntimeException("attribute count must be an String");
+            }
+            String hint = document.hasKey("hint") ? (String) document.getValue("hint") : null;
+            int limit = document.hasKey("limit") ? (Integer) document.getValue("limit") : 0;
+            int skip = document.hasKey("skip") ? (Integer) document.getValue("skip") : 0;
+            BSONObject query = document.hasKey("query") ? (BSONObject) document.getValue("query") : null;
+            
+            requestBuilder.setCollection(collection)
+                    .setLimit(limit)
+                    .setHint(hint)
+                    .setQuery(query)
+                    .setSkip(skip);
+            
+            CountReply reply;
+            if (metaQueryProcessor.isMetaCollection(requestBuilder.getCollection())) {
+                reply = metaQueryProcessor.count(requestBuilder.build());
+            }
+            else {
+                reply = queryCommandProcessor.count(requestBuilder.build());
+            }
+            messageReplier.replyMessageNoCursor(reply.get());
         }
         
         public void insert(@Nonnull BSONDocument document) throws Exception {
@@ -217,7 +238,8 @@ public interface QueryCommandProcessor {
         }
     }
 
-    public void count(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
+    @Nonnull
+    public CountReply count(@Nonnull CountRequest request) throws Exception;
     
     public void insert(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
 
