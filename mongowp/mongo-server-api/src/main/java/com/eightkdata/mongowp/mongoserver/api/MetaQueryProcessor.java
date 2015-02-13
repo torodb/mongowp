@@ -1,15 +1,13 @@
 package com.eightkdata.mongowp.mongoserver.api;
 
 import com.eightkdata.mongowp.messages.request.QueryMessage;
-import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
-import com.eightkdata.mongowp.mongoserver.api.commands.CountReply;
-import com.eightkdata.mongowp.mongoserver.api.commands.CountRequest;
-import com.eightkdata.mongowp.mongoserver.api.commands.QueryReply;
-import com.eightkdata.mongowp.mongoserver.api.commands.QueryRequest;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
+import com.eightkdata.mongowp.mongoserver.api.commands.*;
 import com.eightkdata.nettybson.api.BSONDocument;
+import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import io.netty.util.AttributeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import org.bson.BSONObject;
 
@@ -41,6 +39,11 @@ public abstract class MetaQueryProcessor {
     protected abstract Iterable<BSONDocument> queryJS(
             @Nonnull AttributeMap attributeMap,
             @Nonnull BSONObject query
+    ) throws Exception;
+    
+    public abstract CollStatsReply collStats(
+            @Nonnull CollStatsRequest request, 
+            @Nonnull Supplier<Iterable<BSONDocument>> docsSupplier
     ) throws Exception;
 
     public boolean isMetaCollection(@Nonnull String collection) {
@@ -108,6 +111,21 @@ public abstract class MetaQueryProcessor {
                 )
         );
         return new CountReply(count);
+    }
+    
+    public CollStatsReply collStats(final CollStatsRequest request) throws Exception {
+        return collStats(request, new Supplier<Iterable<BSONDocument>>() {
+
+            @Override
+            public Iterable<BSONDocument> get() {
+                try {
+                    return getDocuments(request.getAttributes(), JS_COLLECTION, null);
+                }
+                catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
     }
     
     public static enum META_COLLECTION {

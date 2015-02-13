@@ -42,7 +42,15 @@ public enum DiagnosticQueryCommand implements QueryCommandProcessor.QueryCommand
         	caller.buildInfo();
         }
     },
-    collStats,
+    collStats {
+
+        @Override
+        public void doCall(RequestBaseMessage queryMessage, BSONDocument query, QueryCommandProcessor.ProcessorCaller caller)
+                throws Exception {
+            caller.collStats(query);
+        }
+        
+    },
     connPoolStats,
     cursorInfo,
     dataSize,

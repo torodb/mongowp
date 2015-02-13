@@ -136,6 +136,7 @@ public interface QueryCommandProcessor {
 
 		public void count(@Nonnull BSONDocument document) throws Exception {
             CountRequest.Builder requestBuilder = new CountRequest.Builder(
+                    getDatabase(),
                     messageReplier.getAttributeMap()
             );
             String collection;
@@ -162,6 +163,45 @@ public interface QueryCommandProcessor {
             }
             else {
                 reply = queryCommandProcessor.count(requestBuilder.build());
+            }
+            reply.reply(messageReplier);
+        }
+
+        public void collStats(BSONDocument query) throws Exception {
+            String collection = (String) query.getValue("collstats");
+            if (collection == null) { //Mongodb and its problems with capital letters
+                collection = (String) query.getValue("collStats");
+            }
+            Number scale;
+            if (!query.hasKey("scale")) {
+                scale = 1;
+            }
+            else {
+                Object scaleBsonValue = query.getValue("scale");
+                if (scaleBsonValue instanceof Number) {
+                    scale = (Number) scaleBsonValue;
+                }
+                else if (scaleBsonValue instanceof BSONObject) {
+                    scale = (Number) ((BSONObject) scaleBsonValue).get("scale");
+                }
+                else {
+                    throw new IllegalArgumentException("Scale must be a number or "
+                            + "an object that contains a key 'scale' whose value is "
+                            + "a number");
+                }
+            }
+            CollStatsRequest request = new CollStatsRequest(
+                    getDatabase(),
+                    messageReplier.getAttributeMap(), 
+                    collection,
+                    scale
+            );
+            CollStatsReply reply;
+            if (metaQueryProcessor.isMetaCollection(collection)) {
+                reply = metaQueryProcessor.collStats(request);
+            }
+            else {
+                reply = queryCommandProcessor.collStats(request);
             }
             reply.reply(messageReplier);
         }
@@ -316,4 +356,8 @@ public interface QueryCommandProcessor {
 			throws Exception;
 
     public void unimplemented(@Nonnull QueryCommand userCommand, @Nonnull MessageReplier messageReplier) throws Exception;
+    
+    public CollStatsReply collStats(CollStatsRequest request) throws Exception ;
+
+    
 }

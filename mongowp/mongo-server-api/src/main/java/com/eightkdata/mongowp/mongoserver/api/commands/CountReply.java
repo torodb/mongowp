@@ -3,11 +3,8 @@ package com.eightkdata.mongowp.mongoserver.api.commands;
 
 import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.nettybson.api.BSONDocument;
 import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
-import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
-import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nonnull;
 

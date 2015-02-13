@@ -19,13 +19,14 @@ public class CountRequest extends CollectionCommandRequest {
     private final String hint;
 
     private CountRequest(
+            String database,
             AttributeMap attributes,
             String collection, 
             BSONObject query, 
             int limit, 
             int skip, 
             String hint) {
-        super(attributes, collection);
+        super(database, attributes, collection);
         this.query = query;
         this.limit = limit;
         this.skip = skip;
@@ -63,6 +64,7 @@ public class CountRequest extends CollectionCommandRequest {
     }
     
     public static class Builder {
+        private final String database;
         private final AttributeMap attributes;
         private String collection;
         private BSONObject query;
@@ -70,21 +72,26 @@ public class CountRequest extends CollectionCommandRequest {
         private int skip;
         private String hint;
 
-        public Builder(@Nonnull AttributeMap attributes) {
+        public Builder(@Nonnull String database, @Nonnull AttributeMap attributes) {
+            this.database = database;
             this.attributes = attributes;
         }
 
         public Builder(
+                @Nonnull String database, 
                 @Nonnull AttributeMap attributes, 
                 @Nonnull String collection) {
+            this.database = database;
             this.attributes = attributes;
             this.collection = collection;
         }
 
         public Builder(
+                @Nonnull String database, 
                 @Nonnull AttributeMap attributes, 
                 @Nonnull String collection, 
                 @Nonnull BSONObject query) {
+            this.database = database;
             this.attributes = attributes;
             this.collection = collection;
             this.query = query;
@@ -139,7 +146,7 @@ public class CountRequest extends CollectionCommandRequest {
         
         public CountRequest build() {
             Preconditions.checkState(collection != null);
-            return new CountRequest(attributes, collection, query, limit, skip, hint);
+            return new CountRequest(database, attributes, collection, query, limit, skip, hint);
         }
     }
     

@@ -111,6 +111,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
 
 	public void query(@Nonnull QueryMessage queryMessage, @Nonnull MessageReplier messageReplier) throws Exception {
         QueryRequest.Builder requestBuilder = new QueryRequest.Builder(
+                queryMessage.getDatabase(),
                 messageReplier.getAttributeMap()
         );
         requestBuilder.setCollection(queryMessage.getCollection())

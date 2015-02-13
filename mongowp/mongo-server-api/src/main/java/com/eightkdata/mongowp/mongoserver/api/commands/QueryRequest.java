@@ -24,6 +24,7 @@ public class QueryRequest extends CollectionCommandRequest {
     private final boolean partial;    
 
     private QueryRequest(
+            String database,
             AttributeMap attributes, 
             String collection, 
             BSONObject query, 
@@ -38,7 +39,7 @@ public class QueryRequest extends CollectionCommandRequest {
             boolean awaitData, 
             boolean exhaust, 
             boolean partial) {
-        super(attributes, collection);
+        super(database, attributes, collection);
         this.query = query;
         this.projection = projection;
         this.numberToSkip = numberToSkip;
@@ -107,6 +108,7 @@ public class QueryRequest extends CollectionCommandRequest {
 
     public static class Builder {
 
+        private final String database;
         private final AttributeMap attributes;
         private String collection;
         private BSONObject query;
@@ -122,11 +124,13 @@ public class QueryRequest extends CollectionCommandRequest {
         private boolean exhaust;
         private boolean partial;    
 
-        public Builder(AttributeMap attributes) {
+        public Builder(String database, AttributeMap attributes) {
+            this.database = database;
             this.attributes = attributes;
         }
 
-        public Builder(AttributeMap attributes, String collection) {
+        public Builder(String database, AttributeMap attributes, String collection) {
+            this.database = database;
             this.attributes = attributes;
             this.collection = collection;
         }
@@ -250,6 +254,7 @@ public class QueryRequest extends CollectionCommandRequest {
         
         public QueryRequest build() {
             return new QueryRequest(
+                    database,
                     attributes, 
                     collection, 
                     query, 
