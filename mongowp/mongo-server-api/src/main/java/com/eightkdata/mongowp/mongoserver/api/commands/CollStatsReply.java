@@ -1,6 +1,7 @@
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
 import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
+import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -83,6 +84,7 @@ public class CollStatsReply implements Reply {
         if (maxIfCapped != null) {
             keyValue.put("max", toIntIfPossible(maxIfCapped));
         }
+        keyValue.put("ok", MongoWP.OK);
         
         replier.replyMessageNoCursor(new MongoBSONDocument(keyValue));
     }
