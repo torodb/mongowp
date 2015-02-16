@@ -41,6 +41,7 @@ import java.util.Locale;
  */
 public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCommand {
     //clean,
+//clean,
     cloneCollectionAsCapped,
     cloneCollection,
     clone,
@@ -63,10 +64,10 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
     	}
     },
     dropDatabase,
-    dropIndexes {
+    deleteIndexes {
         @Override
 		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
-			caller.dropIndexes(query);
+			caller.deleteIndexes(query);
 		}
     },
     drop {
