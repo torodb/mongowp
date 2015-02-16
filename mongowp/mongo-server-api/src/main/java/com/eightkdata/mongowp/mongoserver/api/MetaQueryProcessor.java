@@ -6,8 +6,6 @@ import com.eightkdata.nettybson.api.BSONDocument;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import io.netty.util.AttributeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import org.bson.BSONObject;
 
@@ -22,26 +20,31 @@ public abstract class MetaQueryProcessor {
     private static final String JS_COLLECTION = "system.js";
 
     protected abstract Iterable<BSONDocument> queryNamespaces(
+            @Nonnull String database,
             @Nonnull AttributeMap attributeMap,
             @Nonnull BSONObject query
     ) throws Exception;
 
     protected abstract Iterable<BSONDocument> queryIndexes(
+            @Nonnull String database,
             @Nonnull AttributeMap attributeMap,
             @Nonnull BSONObject query
     ) throws Exception;
 
     protected abstract Iterable<BSONDocument> queryProfile(
+            @Nonnull String database,
             @Nonnull AttributeMap attributeMap,
             @Nonnull BSONObject query
     ) throws Exception;
 
     protected abstract Iterable<BSONDocument> queryJS(
+            @Nonnull String database,
             @Nonnull AttributeMap attributeMap,
             @Nonnull BSONObject query
     ) throws Exception;
     
     public abstract CollStatsReply collStats(
+            @Nonnull String database,
             @Nonnull CollStatsRequest request, 
             @Nonnull Supplier<Iterable<BSONDocument>> docsSupplier
     ) throws Exception;
@@ -63,20 +66,21 @@ public abstract class MetaQueryProcessor {
     
     private Iterable<BSONDocument> getDocuments(
             AttributeMap attributeMap,
+            @Nonnull String database,
             String collection,
             BSONObject query) 
             throws Exception {
         if (NAMESPACES_COLLECTION.equals(collection)) {
-            return queryNamespaces(attributeMap, query);
+            return queryNamespaces(database, attributeMap, query);
         }
         else if (INDEXES_COLLECTION.equals(collection)) {
-            return queryIndexes(attributeMap, query);
+            return queryIndexes(database, attributeMap, query);
         }
         else if (PROFILE_COLLECTION.equals(collection)) {
-            return queryProfile(attributeMap, query);
+            return queryProfile(database, attributeMap, query);
         }
         else if (JS_COLLECTION.equals(collection)) {
-            return queryJS(attributeMap, query);
+            return queryJS(database, attributeMap, query);
         }
         else {
             throw new IllegalArgumentException("The given query is not a meta query");
@@ -92,6 +96,7 @@ public abstract class MetaQueryProcessor {
         }
         Iterable<BSONDocument> documents = getDocuments(
                 request.getAttributes(),
+                request.getDatabase(),
                 request.getCollection(),
                 request.getQuery()
         );
@@ -106,6 +111,7 @@ public abstract class MetaQueryProcessor {
         int count = Iterables.size(
                 getDocuments(
                         request.getAttributes(),
+                        request.getDatabase(),
                         request.getCollection(), 
                         request.getQuery()
                 )
@@ -114,12 +120,12 @@ public abstract class MetaQueryProcessor {
     }
     
     public CollStatsReply collStats(final CollStatsRequest request) throws Exception {
-        return collStats(request, new Supplier<Iterable<BSONDocument>>() {
+        return collStats(request.getDatabase(), request, new Supplier<Iterable<BSONDocument>>() {
 
             @Override
             public Iterable<BSONDocument> get() {
                 try {
-                    return getDocuments(request.getAttributes(), JS_COLLECTION, null);
+                    return getDocuments(request.getAttributes(), request.getDatabase(), request.getCollection(), null);
                 }
                 catch (Exception ex) {
                     throw new RuntimeException(ex);
