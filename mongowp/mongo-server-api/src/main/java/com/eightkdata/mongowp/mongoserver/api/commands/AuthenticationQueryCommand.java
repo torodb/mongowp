@@ -37,7 +37,12 @@ public enum AuthenticationQueryCommand implements QueryCommandProcessor.QueryCom
     authSchemaUpgrade(true),
     authenticate,
     copydbgetnonce(true),
-    getnonce,
+    getnonce {
+		@Override
+		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+			caller.getnonce();
+		}
+    },
     logout
     ;
     

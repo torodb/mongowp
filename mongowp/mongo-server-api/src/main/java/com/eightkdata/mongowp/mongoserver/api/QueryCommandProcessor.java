@@ -276,6 +276,10 @@ public interface QueryCommandProcessor {
         public void listDatabases() throws Exception {
             queryCommandProcessor.listDatabases(messageReplier);
         }
+        
+        public void getnonce() {
+            queryCommandProcessor.getnonce(messageReplier);
+        }
     }
 
     @Nonnull
@@ -358,6 +362,7 @@ public interface QueryCommandProcessor {
     public void unimplemented(@Nonnull QueryCommand userCommand, @Nonnull MessageReplier messageReplier) throws Exception;
     
     public CollStatsReply collStats(CollStatsRequest request) throws Exception ;
-
+    
+    public void getnonce(MessageReplier messageReplier);
     
 }
