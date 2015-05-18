@@ -280,6 +280,14 @@ public interface QueryCommandProcessor {
         public void getnonce() {
             queryCommandProcessor.getnonce(messageReplier);
         }
+
+        public void listCollections(BSONDocument query) throws Exception {
+            queryCommandProcessor.listCollections(messageReplier, query);
+        }
+
+        public void listIndexes(String collection) throws Exception {
+            queryCommandProcessor.listIndexes(messageReplier, collection);
+        }
     }
 
     @Nonnull
@@ -322,6 +330,10 @@ public interface QueryCommandProcessor {
     public void whatsmyuri(@Nonnull String host, @Nonnull int port, @Nonnull MessageReplier messageReplier);
 
     public void replSetGetStatus(@Nonnull MessageReplier messageReplier);
+    
+    public void listCollections(@Nonnull MessageReplier messageReplier, BSONDocument query) throws Exception;
+    
+    public void listIndexes(MessageReplier messageReplier, String collection) throws Exception;
 
     public enum GetLogType {
         global("global"),

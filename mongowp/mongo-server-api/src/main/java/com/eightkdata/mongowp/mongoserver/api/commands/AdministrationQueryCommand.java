@@ -79,6 +79,23 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
     filemd5,
     fsync(true),
     getParameter(true),
+    listCollections {
+		@Override
+		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
+			caller.listCollections(query);
+		}
+    },
+    listIndexes {
+
+        @Override
+        public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
+            Object value = query.getValue("listIndexes");
+            if (!(value instanceof String)) {
+                throw new RuntimeException("Argument to listIndexes must be of type String");
+            }
+            caller.listIndexes((String) value);
+        }
+    },
     logRotate(true),
     reIndex,
     renameCollection(true),
