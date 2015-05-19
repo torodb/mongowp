@@ -6,7 +6,7 @@
 
     <groupId>com.8kdata.mongowp</groupId>
     <artifactId>mongowp-parent</artifactId>
-    <version>0.15-SNAPSHOT</version>
+    <version>0.15</version>
     <packaging>pom</packaging>
 
     <organization>
