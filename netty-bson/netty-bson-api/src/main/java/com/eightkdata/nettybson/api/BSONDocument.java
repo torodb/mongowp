@@ -23,6 +23,7 @@ package com.eightkdata.nettybson.api;
 
 
 import io.netty.buffer.ByteBuf;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -36,6 +37,8 @@ public interface BSONDocument {
     public boolean hasKey(@Nonnull String key);
     @Nonnull public Set<String> getKeys();
     public Object getValue(@Nonnull String key);
+    
+    public Map<String, Object> asMap();
 
     /**
      * Writes the BSON document to the given ByteBuf.

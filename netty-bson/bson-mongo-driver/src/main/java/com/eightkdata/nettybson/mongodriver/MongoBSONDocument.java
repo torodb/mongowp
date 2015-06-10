@@ -52,6 +52,11 @@ public class MongoBSONDocument implements BSONDocument {
         bson = bsonDecoder.readObject(bsonBytes);
     }
 
+    @Override
+    public Map<String, Object> asMap() {
+        return bson.toMap();
+    }
+
     public MongoBSONDocument(Map<String,Object> keyValues) {
         bson = new BasicBSONObject(keyValues);
     }
