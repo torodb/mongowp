@@ -34,15 +34,18 @@ import com.google.common.base.Preconditions;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.api.commands.*;
+import com.eightkdata.mongowp.mongoserver.api.pojos.InsertResponse;
 import com.eightkdata.nettybson.api.BSONDocument;
+import io.netty.util.AttributeMap;
 import java.util.Locale;
+import java.util.concurrent.Future;
 import org.bson.BSONObject;
 
 /**
  *
  */
 public interface QueryCommandProcessor {
-
+    
     public enum QueryCommandGroup {
 		Aggregation(AggregationQueryCommand.values()),
 		Geospatial(GeospatialQueryCommand.values()),
@@ -110,6 +113,7 @@ public interface QueryCommandProcessor {
          * @param requestBaseMessage
          * @param query
          * @param caller
+         * @throws java.lang.Exception
          * @throws java.lang.IllegalArgumentException If either query or caller are null
          */
         public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull ProcessorCaller caller) throws Exception;
@@ -121,13 +125,13 @@ public interface QueryCommandProcessor {
 
     public class ProcessorCaller extends QueryCommandProcessorCaller {
         @Nonnull private final QueryCommandProcessor queryCommandProcessor;
-        @Nonnull private final MetaQueryProcessor metaQueryProcessor;
+        @Nonnull private final MetaCommandProcessor metaQueryProcessor;
 
         @Inject
         public ProcessorCaller(
                 @Nonnull String database,
                 @Nonnull QueryCommandProcessor queryCommandProcessor, 
-                @Nonnull MetaQueryProcessor metaQueryProcessor,
+                @Nonnull MetaCommandProcessor metaQueryProcessor,
                 @Nonnull MessageReplier messageReplier) {
             super(database, messageReplier);
             this.queryCommandProcessor = queryCommandProcessor;
@@ -207,7 +211,15 @@ public interface QueryCommandProcessor {
         }
         
         public void insert(@Nonnull BSONDocument document) throws Exception {
-        	queryCommandProcessor.insert(document, messageReplier);
+            String collection = (String) document.getValue("insert");
+            InsertResponse response;
+            if (metaQueryProcessor.isMetaCollection(collection)) {
+                response = metaQueryProcessor.insert(messageReplier.getAttributeMap(), collection, document).get();
+            }
+            else {
+                response = queryCommandProcessor.insert(document, messageReplier.getAttributeMap());
+            }
+            response.renderize(messageReplier);
         }
         
         public void update(@Nonnull BSONDocument document) throws Exception {
@@ -293,7 +305,7 @@ public interface QueryCommandProcessor {
     @Nonnull
     public CountReply count(@Nonnull CountRequest request) throws Exception;
     
-    public void insert(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
+    public InsertResponse insert(@Nonnull BSONDocument document, @Nonnull AttributeMap attributeMap) throws Exception;
 
     public void update(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
     

@@ -50,15 +50,15 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
     public static final AttributeKey<QueryCommand> QUERY_COMMAND = AttributeKey.valueOf("queryCommand");
 
     private final QueryCommandProcessor queryCommandProcessor;
-    private final MetaQueryProcessor metaQueryProcessor;
+    private final MetaCommandProcessor metaCommandProcessor;
 
     @Inject
     public AbstractRequestProcessor(
             @Nonnull QueryCommandProcessor queryCommandProcessor,
-            @Nonnull MetaQueryProcessor metaQueryProcessor
+            @Nonnull MetaCommandProcessor metaCommandProcessor
     ) {
         this.queryCommandProcessor = queryCommandProcessor;
-        this.metaQueryProcessor = metaQueryProcessor;
+        this.metaCommandProcessor = metaCommandProcessor;
     }
 
     @Override
@@ -87,7 +87,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
                     new QueryCommandProcessor.ProcessorCaller(
                             queryMessage.getDatabase(), 
                             queryCommandProcessor, 
-                            metaQueryProcessor, 
+                            metaCommandProcessor, 
                             messageReplier
                     )
             );
@@ -136,8 +136,8 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
         }
         
         QueryReply reply;
-        if (metaQueryProcessor.isMetaQuery(queryMessage)) {
-            reply = metaQueryProcessor.query(requestBuilder.build());
+        if (metaCommandProcessor.isMetaQuery(queryMessage)) {
+            reply = metaCommandProcessor.query(requestBuilder.build());
         }
         else {
             reply = query(requestBuilder.build());
