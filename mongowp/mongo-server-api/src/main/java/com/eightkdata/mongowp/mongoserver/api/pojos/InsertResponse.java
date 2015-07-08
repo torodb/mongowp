@@ -1,10 +1,10 @@
 
 package com.eightkdata.mongowp.mongoserver.api.pojos;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.LastError;
-import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
+import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import com.google.common.collect.ImmutableList;
-import com.mongodb.annotations.Immutable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  *
@@ -40,7 +40,7 @@ public abstract class InsertResponse {
         return writeConcernErrors;
     }
     
-    public abstract LastError renderizeAsLastError();
+    public abstract WriteOpResult renderizeAsLastError();
     
     public abstract void renderize(MessageReplier replier);
 

@@ -21,13 +21,11 @@
 
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
-import javax.annotation.Nonnull;
-
-import com.google.common.base.Preconditions;
-
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor;
-import com.eightkdata.nettybson.api.BSONDocument;
+import com.google.common.base.Preconditions;
+import javax.annotation.Nonnull;
+import org.bson.BsonDocument;
 
 /**
  * 
@@ -39,7 +37,7 @@ public enum AuthenticationQueryCommand implements QueryCommandProcessor.QueryCom
     copydbgetnonce(true),
     getnonce {
 		@Override
-		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+		public void doCall(RequestBaseMessage queryMessage, BsonDocument query, QueryCommandProcessor.ProcessorCaller caller) throws Exception {
 			caller.getnonce();
 		}
     },
@@ -74,12 +72,12 @@ public enum AuthenticationQueryCommand implements QueryCommandProcessor.QueryCom
     	return adminOnly;
     }
 
-    public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+    public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
     	caller.unimplemented(this);
     }
 
     @Override
-    public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+    public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
         Preconditions.checkNotNull(query);
         Preconditions.checkNotNull(caller);
 

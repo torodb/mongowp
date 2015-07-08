@@ -23,11 +23,10 @@ package com.eightkdata.mongowp.messages.request;
 
 import com.eightkdata.mongowp.messages.util.EnumBitFlags;
 import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-import com.eightkdata.nettybson.api.BSONDocument;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
+import org.bson.BsonDocument;
 
 /**
  *
@@ -68,12 +67,12 @@ public class QueryMessage extends AbstractRequestMessageWithFlags<QueryMessage.F
     @Nonnull private final String collection;
     @Nonnegative private final int numberToSkip;
     @Nonnegative private final int numberToReturn;
-    @Nonnull private final BSONDocument document;
-    private final BSONDocument returnFieldsSelector;
+    @Nonnull private final BsonDocument document;
+    private final BsonDocument returnFieldsSelector;
 
     public QueryMessage(
             @Nonnull RequestBaseMessage requestBaseMessage, int flags, @Nonnull String fullCollectionName, int numberToSkip,
-            int numberToReturn, @Nonnull BSONDocument document, BSONDocument returnFieldsSelector
+            int numberToReturn, @Nonnull BsonDocument document, BsonDocument returnFieldsSelector
     ) {
         super(requestBaseMessage, Flag.class, Flag.FLAG_INT32_MASK, flags);
         String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
@@ -104,11 +103,11 @@ public class QueryMessage extends AbstractRequestMessageWithFlags<QueryMessage.F
     }
 
     @Nonnull
-    public BSONDocument getDocument() {
+    public BsonDocument getDocument() {
         return document;
     }
 
-    public BSONDocument getReturnFieldsSelector() {
+    public BsonDocument getReturnFieldsSelector() {
         return returnFieldsSelector;
     }
 

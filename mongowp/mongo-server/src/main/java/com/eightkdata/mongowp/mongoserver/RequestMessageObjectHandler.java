@@ -22,15 +22,15 @@
 package com.eightkdata.mongowp.mongoserver;
 
 import com.eightkdata.mongowp.messages.request.*;
-import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
-import com.eightkdata.mongowp.mongoserver.api.callback.RequestProcessor;
+import com.eightkdata.mongowp.mongoserver.callback.DefaultMessageReplier;
+import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
+import com.eightkdata.mongowp.mongoserver.callback.RequestProcessor;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
+import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.inject.Inject;
 
 /**
  *
@@ -50,10 +50,10 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         RequestMessage requestMessage = (RequestMessage) msg;
-    	ctx.attr(MessageReplier.REQUEST_ID).set(requestMessage.getBaseMessage().getRequestId());
+    	ctx.attr(DefaultMessageReplier.REQUEST_ID).set(requestMessage.getBaseMessage().getRequestId());
         LOGGER.debug("Received message type: {}, data: {}", requestMessage.getOpCode(), requestMessage);
 
-        MessageReplier messageReplier = new MessageReplier(ctx);
+        MessageReplier messageReplier = new DefaultMessageReplier(ctx);
     	ctx.attr(REQUEST_OP_CODE).set(requestMessage.getOpCode());
         switch (requestMessage.getOpCode()) {
 	        case OP_QUERY:
@@ -92,7 +92,7 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         LOGGER.error("Error while processing request", cause);
 
-        MessageReplier messageReplier = new MessageReplier(ctx);
+        MessageReplier messageReplier = new DefaultMessageReplier(ctx);
         requestProcessor.handleError(ctx.attr(REQUEST_OP_CODE).get(), messageReplier, cause);
     }
 

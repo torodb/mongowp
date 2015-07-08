@@ -24,8 +24,9 @@ package com.eightkdata.mongowp.mongoserver.encoder;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
 import com.eightkdata.mongowp.messages.response.ResponseOpCode;
 import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-import com.eightkdata.nettybson.api.BSONDocument;
+import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
 import io.netty.buffer.ByteBuf;
+import org.bson.BsonDocument;
 
 /**
  *
@@ -43,8 +44,8 @@ public class ReplyMessageEncoder {
         buffer.writeInt(message.getStartingFrom());
         buffer.writeInt(message.getDocuments().size());
 
-        for(BSONDocument document : message.getDocuments()) {
-            document.writeToByteBuf(buffer);
+        for(BsonDocument document : message.getDocuments()) {
+            ByteBufUtil.writeBsonDocument(buffer, document);
         }
     }
 }

@@ -19,19 +19,11 @@
  */
 
 
-package com.eightkdata.mongowp.mongoserver.api.callback;
+package com.eightkdata.mongowp.mongoserver.callback;
 
+import com.eightkdata.mongowp.messages.request.*;
 import io.netty.util.AttributeMap;
-
 import javax.annotation.Nonnull;
-
-import com.eightkdata.mongowp.messages.request.DeleteMessage;
-import com.eightkdata.mongowp.messages.request.GetMoreMessage;
-import com.eightkdata.mongowp.messages.request.InsertMessage;
-import com.eightkdata.mongowp.messages.request.KillCursorsMessage;
-import com.eightkdata.mongowp.messages.request.QueryMessage;
-import com.eightkdata.mongowp.messages.request.RequestOpCode;
-import com.eightkdata.mongowp.messages.request.UpdateMessage;
 
 /**
  *
@@ -43,7 +35,7 @@ public interface RequestProcessor {
     public void getMore(@Nonnull GetMoreMessage getMoreMessage, @Nonnull MessageReplier messageReplier) throws Exception;
     public void killCursors(@Nonnull KillCursorsMessage killCursorsMessage, @Nonnull MessageReplier messageReplier) throws Exception;
     public void insert(@Nonnull InsertMessage insertMessage, @Nonnull MessageReplier messageReplier) throws Exception;
-    public void update(@Nonnull UpdateMessage deleteMessage, @Nonnull MessageReplier messageReplier) throws Exception;
+    public void update(@Nonnull UpdateMessage updateMessage, @Nonnull MessageReplier messageReplier) throws Exception;
     public void delete(@Nonnull DeleteMessage deleteMessage, @Nonnull MessageReplier messageReplier) throws Exception;
     public boolean handleError(@Nonnull RequestOpCode requestOpCode, @Nonnull MessageReplier messageReplier, @Nonnull Throwable throwable) throws Exception;
 }

@@ -39,7 +39,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.RequestProcessor;
+import com.eightkdata.mongowp.mongoserver.callback.RequestProcessor;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.util.LengthFieldPrependerLittleEndian;
 

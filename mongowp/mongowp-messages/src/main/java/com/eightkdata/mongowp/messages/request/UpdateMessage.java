@@ -23,11 +23,10 @@ package com.eightkdata.mongowp.messages.request;
 
 import com.eightkdata.mongowp.messages.util.EnumBitFlags;
 import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-import com.eightkdata.nettybson.api.BSONDocument;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
+import org.bson.BsonDocument;
 
 /**
  *
@@ -61,12 +60,12 @@ public class UpdateMessage extends AbstractRequestMessageWithFlags<UpdateMessage
 
     @Nonnull private final String database;
     @Nonnull private final String collection;
-    @Nonnull private final BSONDocument selector;
-    @Nonnull private final BSONDocument update;
+    @Nonnull private final BsonDocument selector;
+    @Nonnull private final BsonDocument update;
 
     public UpdateMessage(
             @Nonnull RequestBaseMessage requestBaseMessage, int flags, @Nonnull String fullCollectionName, 
-            @Nonnull BSONDocument selector, @Nonnull BSONDocument update
+            @Nonnull BsonDocument selector, @Nonnull BsonDocument update
     ) {
         super(requestBaseMessage, Flag.class, Flag.FLAG_INT32_MASK, flags);
         String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
@@ -87,12 +86,12 @@ public class UpdateMessage extends AbstractRequestMessageWithFlags<UpdateMessage
     }
 
     @Nonnull
-    public BSONDocument getSelector() {
+    public BsonDocument getSelector() {
         return selector;
     }
 
     @Nonnull
-    public BSONDocument getupdate() {
+    public BsonDocument getUpdate() {
         return update;
     }
 

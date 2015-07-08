@@ -28,8 +28,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.8kdata.netty-bson</groupId>
-            <artifactId>netty-bson-api</artifactId>
+            <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
         </dependency>
     </dependencies>
 

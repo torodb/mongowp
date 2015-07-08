@@ -22,22 +22,19 @@
 package com.eightkdata.mongowp.messages.response;
 
 import com.eightkdata.mongowp.messages.util.EnumBitFlags;
-import com.eightkdata.nettybson.api.BSONDocument;
-
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.NotThreadSafe;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.List;
+import org.bson.BsonDocument;
 
 /**
  *
  */
-@Immutable
 public class ReplyMessage {
     public enum Flag implements EnumBitFlags {
         CURSOR_NOT_FOUND(0),
@@ -64,19 +61,28 @@ public class ReplyMessage {
         @Nullable private EnumSet<Flag> flags;
         private final long cursorId;
         private final int startingFrom;
-        @Nonnull final private List<BSONDocument> documents = new ArrayList<BSONDocument>();
+        @Nonnull final private List<BsonDocument> documents;
 
         public Builder(int requestId, long cursorId, int startingFrom) {
             this.requestId = requestId;
             this.cursorId = cursorId;
             this.startingFrom = startingFrom;
+            this.documents = new ArrayList<BsonDocument>();
         }
 
-        public Builder(int requestId, long cursorId, int startingFrom, BSONDocument firstDocument) {
+        public Builder(int requestId, long cursorId, int startingFrom, BsonDocument firstDocument) {
             this.requestId = requestId;
             this.cursorId = cursorId;
             this.startingFrom = startingFrom;
+            this.documents = new ArrayList<BsonDocument>();
             documents.add(firstDocument);
+        }
+
+        public Builder(int requestId, long cursorId, int startingFrom, List<BsonDocument> documents) {
+            this.requestId = requestId;
+            this.cursorId = cursorId;
+            this.startingFrom = startingFrom;
+            this.documents = documents;
         }
 
         public Builder setFlags(EnumSet<Flag> flags) {
@@ -95,7 +101,7 @@ public class ReplyMessage {
             return this;
         }
 
-        public Builder addBSONDocument(BSONDocument document) {
+        public Builder addBsonDocument(BsonDocument document) {
             documents.add(document);
 
             return this;
@@ -110,17 +116,24 @@ public class ReplyMessage {
     @Nullable private final EnumSet<Flag> flags;
     private final long cursorId;
     private final int startingFrom;
-    @Nonnull final private Collection<BSONDocument> documents;
+    @Nonnull final private ImmutableList<BsonDocument> documents;
 
-    private ReplyMessage(
+    public ReplyMessage(
+            int requestId, long cursorId, int startingFrom,
+            @Nonnull List<BsonDocument> documents
+    ) {
+        this(requestId, EnumSet.noneOf(Flag.class), cursorId, startingFrom, documents);
+    }
+
+    public ReplyMessage(
             int requestId, EnumSet<Flag> flags, long cursorId, int startingFrom,
-            @Nonnull Collection<BSONDocument> documents
+            @Nonnull List<BsonDocument> documents
     ) {
         this.responseTo = requestId;
         this.flags = flags;
         this.cursorId = cursorId;
         this.startingFrom = startingFrom;
-        this.documents = documents;
+        this.documents = ImmutableList.copyOf(documents);
     }
 
     public long getCursorId() {
@@ -141,7 +154,14 @@ public class ReplyMessage {
     }
 
     @Nonnull
-    public Collection<BSONDocument> getDocuments() {
+    public ImmutableList<BsonDocument> getDocuments() {
         return documents;
+    }
+
+    @Override
+    public String toString() {
+        return "ReplyMessage{" + "responseTo=" + responseTo + ", flags=" + flags +
+                ", cursorId=" + cursorId + ", startingFrom=" + startingFrom +
+                ", documents=" + documents + '}';
     }
 }

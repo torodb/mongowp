@@ -25,12 +25,10 @@ import com.eightkdata.mongowp.messages.request.QueryMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
-import com.eightkdata.nettybson.api.BSONDocument;
-import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
 import io.netty.buffer.ByteBuf;
-
 import javax.annotation.Nonnegative;
 import javax.inject.Singleton;
+import org.bson.BsonDocument;
 
 /**
  *
@@ -44,8 +42,8 @@ public class QueryMessageDecoder implements MessageDecoder<QueryMessage> {
         String fullCollectionName = ByteBufUtil.readCString(buffer);
         int numberToSkip = buffer.readInt();
         int numberToReturn = buffer.readInt();
-        BSONDocument document = new MongoBSONDocument(buffer);
-        BSONDocument returnFieldsSelector = buffer.readableBytes() > 0 ? new MongoBSONDocument(buffer) : null;
+        BsonDocument document = ByteBufUtil.readBsonDocument(buffer);
+        BsonDocument returnFieldsSelector = buffer.readableBytes() > 0 ? ByteBufUtil.readBsonDocument(buffer) : null;
 
         return new QueryMessage(
                 requestBaseMessage, flags, fullCollectionName, numberToSkip, numberToReturn, document, returnFieldsSelector

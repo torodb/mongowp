@@ -3,8 +3,6 @@ package com.eightkdata.mongowp.mongoserver.api;
 import com.eightkdata.mongowp.messages.request.QueryMessage;
 import com.eightkdata.mongowp.mongoserver.api.commands.*;
 import com.eightkdata.mongowp.mongoserver.api.pojos.InsertResponse;
-import com.eightkdata.nettybson.api.BSONDocument;
-import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -14,7 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
-import org.bson.BSONObject;
+import org.bson.BsonArray;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 
 /**
  *
@@ -26,60 +26,60 @@ public abstract class MetaCommandProcessor {
     private static final String PROFILE_COLLECTION = "system.profile";
     private static final String JS_COLLECTION = "system.js";
 
-    protected abstract Iterable<BSONDocument> queryNamespaces(
+    protected abstract Iterable<BsonDocument> queryNamespaces(
             @Nonnull String database,
             @Nonnull AttributeMap attributeMap,
-            @Nonnull BSONObject query
+            @Nonnull BsonDocument query
     ) throws Exception;
 
-    protected abstract Iterable<BSONDocument> queryIndexes(
+    protected abstract Iterable<BsonDocument> queryIndexes(
             @Nonnull String database,
             @Nonnull AttributeMap attributeMap,
-            @Nonnull BSONObject query
+            @Nonnull BsonDocument query
     ) throws Exception;
 
-    protected abstract Iterable<BSONDocument> queryProfile(
+    protected abstract Iterable<BsonDocument> queryProfile(
             @Nonnull String database,
             @Nonnull AttributeMap attributeMap,
-            @Nonnull BSONObject query
+            @Nonnull BsonDocument query
     ) throws Exception;
 
-    protected abstract Iterable<BSONDocument> queryJS(
+    protected abstract Iterable<BsonDocument> queryJS(
             @Nonnull String database,
             @Nonnull AttributeMap attributeMap,
-            @Nonnull BSONObject query
+            @Nonnull BsonDocument query
     ) throws Exception;
     
     public abstract CollStatsReply collStats(
             @Nonnull String database,
             @Nonnull CollStatsRequest request, 
-            @Nonnull Supplier<Iterable<BSONDocument>> docsSupplier
+            @Nonnull Supplier<Iterable<BsonDocument>> docsSupplier
     ) throws Exception;
     
     public abstract Future<InsertResponse> insertIndex(
             @Nonnull AttributeMap attributeMap,
-            @Nonnull List<BSONDocument> docsToInsert,
+            @Nonnull List<BsonDocument> docsToInsert,
             boolean ordered,
             @Nonnull WriteConcern wc
     ) throws Exception;
     
     public abstract Future<InsertResponse> insertNamespace(
             @Nonnull AttributeMap attributeMap,
-            @Nonnull List<BSONDocument> docsToInsert,
+            @Nonnull List<BsonDocument> docsToInsert,
             boolean ordered,
             @Nonnull WriteConcern wc
     ) throws Exception;
     
     public abstract Future<InsertResponse> insertProfile(
             @Nonnull AttributeMap attributeMap,
-            @Nonnull List<BSONDocument> docsToInsert,
+            @Nonnull List<BsonDocument> docsToInsert,
             boolean ordered,
             @Nonnull WriteConcern wc
     ) throws Exception;
     
     public abstract Future<InsertResponse> insertJS(
             @Nonnull AttributeMap attributeMap,
-            @Nonnull List<BSONDocument> docsToInsert,
+            @Nonnull List<BsonDocument> docsToInsert,
             boolean ordered,
             @Nonnull WriteConcern wc
     ) throws Exception;
@@ -96,11 +96,11 @@ public abstract class MetaCommandProcessor {
         return isMetaCollection(collection);
     }
     
-    private Iterable<BSONDocument> getDocuments(
+    private Iterable<BsonDocument> getDocuments(
             AttributeMap attributeMap,
             @Nonnull String database,
             String collection,
-            BSONObject query) 
+            BsonDocument query)
             throws Exception {
         if (NAMESPACES_COLLECTION.equals(collection)) {
             return queryNamespaces(database, attributeMap, query);
@@ -120,13 +120,13 @@ public abstract class MetaCommandProcessor {
     }
     
     QueryReply query(QueryRequest request) throws Exception {
-        BSONObject projection = request.getProjection();
+        BsonDocument projection = request.getProjection();
         if (projection != null && !projection.keySet().isEmpty()) {
             throw new UnsupportedOperationException(
                     "Projections are not supported on meta collections queries"
             );
         }
-        Iterable<BSONDocument> documents = getDocuments(
+        Iterable<BsonDocument> documents = getDocuments(
                 request.getAttributes(),
                 request.getDatabase(),
                 request.getCollection(),
@@ -152,10 +152,10 @@ public abstract class MetaCommandProcessor {
     }
     
     public CollStatsReply collStats(final CollStatsRequest request) throws Exception {
-        return collStats(request.getDatabase(), request, new Supplier<Iterable<BSONDocument>>() {
+        return collStats(request.getDatabase(), request, new Supplier<Iterable<BsonDocument>>() {
 
             @Override
-            public Iterable<BSONDocument> get() {
+            public Iterable<BsonDocument> get() {
                 try {
                     return getDocuments(request.getAttributes(), request.getDatabase(), request.getCollection(), null);
                 }
@@ -169,25 +169,25 @@ public abstract class MetaCommandProcessor {
     public Future<InsertResponse> insert(
             @Nonnull AttributeMap attributeMap,
             String collection, 
-            BSONDocument document) throws Exception {
+            BsonDocument document) throws Exception {
         assert isMetaCollection(collection);
-        Object o;
+        BsonValue o;
         
-        o = document.getValue("documents");
-        List<BSONDocument> documents;
-        if (o instanceof List) {
-            List<BSONObject> objs = (List<BSONObject>) o;
-            documents = Lists.newArrayListWithCapacity(objs.size());
-            for (BSONObject obj : objs) {
-                documents.add(new MongoBSONDocument(obj));
+        o = document.get("documents");
+        List<BsonDocument> documents;
+        if (o.isArray()) {
+            BsonArray uncastedDocs = o.asArray();
+            documents = Lists.newArrayListWithCapacity(uncastedDocs.size());
+            for (BsonValue bsonValue : uncastedDocs) {
+                documents.add(bsonValue.asDocument());
             }
         }
         else {
             documents = Collections.emptyList();
         }
         
-        o = document.getValue("ordered");
-        boolean ordered = o instanceof Boolean && ((Boolean) o);
+        o = document.get("ordered");
+        boolean ordered = o != null && o.isBoolean() && o.asBoolean().getValue();
         
         WriteConcern writeConcern = getWriteConcern(document);
         
@@ -208,35 +208,32 @@ public abstract class MetaCommandProcessor {
         }
     }
 
-	private WriteConcern getWriteConcern(BSONDocument document) {
+	private WriteConcern getWriteConcern(BsonDocument document) {
 		WriteConcern writeConcern = WriteConcern.ACKNOWLEDGED;
-    	if (document.hasKey("writeConcern")) {
-	    	BSONObject writeConcernObject = (BSONObject) document.getValue("writeConcern");
-	    	Object w = writeConcernObject.get("w");
+    	if (document.containsKey("writeConcern")) {
+	    	BsonDocument writeConcernObject = document.get("writeConcern").asDocument();
+	    	BsonValue w = writeConcernObject.get("w");
 	        int wtimeout = 0;
 	        boolean fsync = false;
 	        boolean j = false;
-	        boolean continueOnError = false;
-	        Object jObject = writeConcernObject.get("j");
-	        if (jObject !=null && jObject instanceof Boolean && 
-	        		(Boolean)jObject) {
+	        BsonValue jObject = writeConcernObject.get("j");
+	        if (jObject !=null && jObject.isBoolean() && jObject.asBoolean().getValue()) {
 	        	fsync = true;
 	        	j = true;
-	        	continueOnError = true;
 	        }
-	        Object wtimeoutObject = writeConcernObject.get("wtimneout");
-	        if (wtimeoutObject !=null && wtimeoutObject instanceof Number) {
-	        	wtimeout = ((Number)wtimeoutObject).intValue();
+	        BsonValue wtimeoutObject = writeConcernObject.get("wtimneout");
+	        if (wtimeoutObject !=null && wtimeoutObject.isNumber()) {
+	        	wtimeout = wtimeoutObject.asNumber().intValue();
 	        }
 	    	if (w != null) {
-	    		if (w instanceof Number) {
-	    			if (((Number) w).intValue() <= 1 && wtimeout > 0) {
+	    		if (w.isNumber()) {
+                    if (w.asNumber().intValue() <= 1 && wtimeout > 0) {
 	    				throw new IllegalArgumentException("wtimeout cannot be grater than 0 for w <= 1");
 	    			}
 	    			
-	    			writeConcern = new WriteConcern(((Number) w).intValue(), wtimeout, fsync, j);
+	    			writeConcern = new WriteConcern(w.asNumber().intValue(), wtimeout, fsync, j);
 	    		} else
-	       		if (w instanceof String && w.equals("majority")) {
+	       		if (w.isString() && w.asString().getValue().equals("majority")) {
 	       			if (wtimeout > 0) {
 	       				throw new IllegalArgumentException("wtimeout cannot be grater than 0 for w <= 1");
 	       			}

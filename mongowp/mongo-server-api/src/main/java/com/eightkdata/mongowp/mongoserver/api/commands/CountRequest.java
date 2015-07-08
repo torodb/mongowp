@@ -6,14 +6,14 @@ import io.netty.util.AttributeMap;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.bson.BSONObject;
+import org.bson.BsonDocument;
 
 /**
  *
  */
 public class CountRequest extends CollectionCommandRequest {
 
-    private final BSONObject query;
+    private final BsonDocument query;
     private final int limit;
     private final int skip;
     private final String hint;
@@ -22,7 +22,7 @@ public class CountRequest extends CollectionCommandRequest {
             String database,
             AttributeMap attributes,
             String collection, 
-            BSONObject query, 
+            BsonDocument query,
             int limit, 
             int skip, 
             String hint) {
@@ -39,7 +39,7 @@ public class CountRequest extends CollectionCommandRequest {
      * @return the filter or null if all documents shall be count
      */
     @Nullable
-    public BSONObject getQuery() {
+    public BsonDocument getQuery() {
         return query;
     }
 
@@ -67,7 +67,7 @@ public class CountRequest extends CollectionCommandRequest {
         private final String database;
         private final AttributeMap attributes;
         private String collection;
-        private BSONObject query;
+        private BsonDocument query;
         private int limit;
         private int skip;
         private String hint;
@@ -90,7 +90,7 @@ public class CountRequest extends CollectionCommandRequest {
                 @Nonnull String database, 
                 @Nonnull AttributeMap attributes, 
                 @Nonnull String collection, 
-                @Nonnull BSONObject query) {
+                @Nonnull BsonDocument query) {
             this.database = database;
             this.attributes = attributes;
             this.collection = collection;
@@ -106,11 +106,11 @@ public class CountRequest extends CollectionCommandRequest {
             return this;
         }
 
-        public BSONObject getQuery() {
+        public BsonDocument getQuery() {
             return query;
         }
 
-        public Builder setQuery(BSONObject query) {
+        public Builder setQuery(BsonDocument query) {
             this.query = query;
             return this;
         }

@@ -21,13 +21,13 @@
 
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
-import javax.annotation.Nonnull;
-
-import com.google.common.base.Preconditions;
-
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor;
-import com.eightkdata.nettybson.api.BSONDocument;
+import com.google.common.base.Preconditions;
+import javax.annotation.Nonnull;
+import org.bson.BsonDocument;
+import org.bson.BsonInt32;
+import org.bson.BsonValue;
 
 /**
  * 
@@ -36,7 +36,7 @@ import com.eightkdata.nettybson.api.BSONDocument;
 public enum QueryAndWriteOperationsQueryCommand implements QueryCommandProcessor.QueryCommand {
     delete {
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
         	caller.delete(query);
         }
     },
@@ -44,19 +44,19 @@ public enum QueryAndWriteOperationsQueryCommand implements QueryCommandProcessor
     findAndModify,
     getLastError {
         @Override
-        public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+        public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
             // TODO: no data type checking is being performed. ClassCastExceptions may be thrown
-            Object w = query.hasKey("w") ? query.getValue("w") : 1;
-            boolean j = query.hasKey("j") ? (Boolean) query.getValue("j") : false;
-            boolean fsync = query.hasKey("fsync") ? (Boolean) query.getValue("fsync") : false;
-            int wtimeout = query.hasKey("wtimeout") ? (Integer) query.getValue("wtimeout") : 0;
+            BsonValue w = query.containsKey("w") ? query.get("w") : new BsonInt32(1);
+            boolean j = query.containsKey("j") ? query.get("j").asBoolean().getValue() : false;
+            boolean fsync = query.containsKey("fsync") ? query.get("fsync").asBoolean().getValue() : false;
+            int wtimeout = query.containsKey("wtimeout") ? query.get("wtimeout").asNumber().intValue() : 0;
             caller.getLastError(w, j, fsync, wtimeout);
         }
     },
     getPrevError,
     insert {
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
         	caller.insert(query);
         }
     },
@@ -65,7 +65,7 @@ public enum QueryAndWriteOperationsQueryCommand implements QueryCommandProcessor
     text,
     update {
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
         	caller.update(query);
         }
     }
@@ -91,12 +91,12 @@ public enum QueryAndWriteOperationsQueryCommand implements QueryCommandProcessor
     	return false;
     }
 
-    public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+    public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
     	caller.unimplemented(this);
     }
 
     @Override
-    public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+    public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
         Preconditions.checkNotNull(query);
         Preconditions.checkNotNull(caller);
 

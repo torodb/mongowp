@@ -1,14 +1,13 @@
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
+import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.bson.*;
 
 /**
  *
@@ -63,56 +62,51 @@ public class CollStatsReply implements Reply {
 
     @Override
     public void reply(MessageReplier replier) {
-        Map<String, Object> keyValue = Maps.newHashMapWithExpectedSize(15);
-        keyValue.put("ns", database + '.' + collection);
-        keyValue.put("count", toIntIfPossible(count));
-        keyValue.put("size", toIntIfPossible(size));
+        BsonDocument doc = new BsonDocument();
+        doc.put("ns", new BsonString(database + '.' + collection));
+        doc.put("count", toIntIfPossible(count));
+        doc.put("size", toIntIfPossible(size));
         if (count.longValue() != 0) {
             Number avgObjSize = scale * size.longValue() / count.longValue();
-            keyValue.put("avgObjSize", toIntIfPossible(avgObjSize));
+            doc.put("avgObjSize", toIntIfPossible(avgObjSize));
         }
-        keyValue.put("storageSize", toIntIfPossible(storageSize));
-        keyValue.put("numExtents", numExtents);
-        keyValue.put("nindexes", sizeByIndex.size());
-        keyValue.put("lastExtentSize", lastExtentSize);
-        keyValue.put("paddingFactor", paddingFactor);
-        keyValue.put("systemFlags", _idIndexExists ? 1 : 0);
-        keyValue.put("userFlags", usePowerOf2Sizes ? 1 : 0);
-        keyValue.put("totalIndexSize", getTotalIndexSize());
-        keyValue.put("indexSizes", toIntIfPossible(sizeByIndex));
-        keyValue.put("capped", capped);
+        doc.put("storageSize", toIntIfPossible(storageSize));
+        doc.put("numExtents", toIntIfPossible(numExtents));
+        doc.put("nindexes", new BsonInt32(sizeByIndex.size()));
+        doc.put("lastExtentSize", toIntIfPossible(lastExtentSize));
+        doc.put("paddingFactor", toIntIfPossible(paddingFactor));
+        doc.put("systemFlags", new BsonInt32(_idIndexExists ? 1 : 0));
+        doc.put("userFlags", new BsonInt32(usePowerOf2Sizes ? 1 : 0));
+        doc.put("totalIndexSize", getTotalIndexSize());
+        doc.put("indexSizes", toIntIfPossible(sizeByIndex));
+        doc.put("capped", BsonBoolean.valueOf(capped));
         if (maxIfCapped != null) {
-            keyValue.put("max", toIntIfPossible(maxIfCapped));
+            doc.put("max", toIntIfPossible(maxIfCapped));
         }
-        keyValue.put("ok", MongoWP.OK);
+        doc.put("ok", MongoWP.BSON_OK);
         
-        replier.replyMessageNoCursor(new MongoBSONDocument(keyValue));
+        replier.replyMessageNoCursor(doc);
     }
     
-    private Number toIntIfPossible(Number number) {
+    private BsonNumber toIntIfPossible(Number number) {
         if (number instanceof Double && (((Double) number).isInfinite() || ((Double) number).isNaN())) {
-            return number;
+            return new BsonDouble(number.doubleValue());
         }
         if (number.longValue() < Integer.MAX_VALUE) {
-            return number.intValue();
+            return new BsonInt32(number.intValue());
         }
-        return number;
+        return new BsonInt64(number.longValue());
     }
     
-    private Map<String, Number> toIntIfPossible(Map<String, ? extends Number> old) {
-        Map<String, Number> result = Maps.newHashMapWithExpectedSize(old.size());
+    private BsonDocument toIntIfPossible(Map<String, ? extends Number> old) {
+        BsonDocument result = new BsonDocument();
         for (Map.Entry<String, ? extends Number> entry : old.entrySet()) {
-            if (entry.getValue().longValue() < Integer.MAX_VALUE) {
-                result.put(entry.getKey(), entry.getValue().intValue());
-            }
-            else {
-                result.put(entry.getKey(), entry.getValue());
-            }
+            result.put(entry.getKey(), toIntIfPossible(entry.getValue()));
         }
         return result;
     }
     
-    private Number getTotalIndexSize() {
+    private BsonNumber getTotalIndexSize() {
         long totalSize = 0;
         for (Number indexSize : sizeByIndex.values()) {
             totalSize += indexSize.longValue();

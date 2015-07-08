@@ -21,25 +21,21 @@
 
 package com.eightkdata.mongowp.mongoserver.api;
 
+import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
+import com.eightkdata.mongowp.mongoserver.api.commands.*;
+import com.eightkdata.mongowp.mongoserver.api.pojos.InsertResponse;
+import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
+import com.google.common.base.Preconditions;
+import io.netty.util.AttributeMap;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-
-import com.google.common.base.Preconditions;
-
-import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
-import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
-import com.eightkdata.mongowp.mongoserver.api.commands.*;
-import com.eightkdata.mongowp.mongoserver.api.pojos.InsertResponse;
-import com.eightkdata.nettybson.api.BSONDocument;
-import io.netty.util.AttributeMap;
-import java.util.Locale;
-import java.util.concurrent.Future;
-import org.bson.BSONObject;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 
 /**
  *
@@ -90,12 +86,12 @@ public interface QueryCommandProcessor {
 	     * @throws IllegalArgumentException If queryDocument is null
 	     */
 	    @Nullable
-	    public static QueryCommand byQueryDocument(@Nonnull BSONDocument queryDocument) {
+	    public static QueryCommand byQueryDocument(@Nonnull BsonDocument queryDocument) {
 	        Preconditions.checkNotNull(queryDocument);
 
 	        // TODO: if might be worth to improve searching taking into account the # of keys of the document,
 	        // matching it with the # of args of the commands, which could be registered as enum fields
-	        for(String possibleCommand : queryDocument.getKeys()) {
+	        for(String possibleCommand : queryDocument.keySet()) {
 	            // Some driver use lower case version of the command so we must take it into account
 	        	possibleCommand = possibleCommand.toLowerCase(Locale.ROOT);
 	            if(COMMANDS_MAP.containsKey(possibleCommand)) {
@@ -116,7 +112,7 @@ public interface QueryCommandProcessor {
          * @throws java.lang.Exception
          * @throws java.lang.IllegalArgumentException If either query or caller are null
          */
-        public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull ProcessorCaller caller) throws Exception;
+        public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull ProcessorCaller caller) throws Exception;
         
         public String getKey();
         
@@ -138,22 +134,22 @@ public interface QueryCommandProcessor {
             this.metaQueryProcessor = metaQueryProcessor;
         }
 
-		public void count(@Nonnull BSONDocument document) throws Exception {
+		public void count(@Nonnull BsonDocument document) throws Exception {
             CountRequest.Builder requestBuilder = new CountRequest.Builder(
                     getDatabase(),
                     messageReplier.getAttributeMap()
             );
             String collection;
-            if (document.hasKey("count")) {
-                collection = (String) document.getValue("count");
+            if (document.containsKey("count")) {
+                collection = document.get("count").asString().getValue();
             }
             else {
                 throw new RuntimeException("attribute count must be an String");
             }
-            String hint = document.hasKey("hint") ? (String) document.getValue("hint") : null;
-            int limit = document.hasKey("limit") ? (Integer) document.getValue("limit") : 0;
-            int skip = document.hasKey("skip") ? (Integer) document.getValue("skip") : 0;
-            BSONObject query = document.hasKey("query") ? (BSONObject) document.getValue("query") : null;
+            String hint = document.containsKey("hint") ? (String) document.get("hint").asString().getValue() : null;
+            int limit = document.containsKey("limit") ? (Integer) document.get("limit").asInt32().intValue() : 0;
+            int skip = document.containsKey("skip") ? (Integer) document.get("skip").asInt32().intValue() : 0;
+            BsonDocument query = document.containsKey("query") ? document.get("query").asDocument() : null;
             
             requestBuilder.setCollection(collection)
                     .setLimit(limit)
@@ -171,22 +167,22 @@ public interface QueryCommandProcessor {
             reply.reply(messageReplier);
         }
 
-        public void collStats(BSONDocument query) throws Exception {
-            String collection = (String) query.getValue("collstats");
+        public void collStats(BsonDocument query) throws Exception {
+            String collection = query.get("collstats").asString().getValue();
             if (collection == null) { //Mongodb and its problems with capital letters
-                collection = (String) query.getValue("collStats");
+                collection = (String) query.get("collStats").asString().getValue();
             }
             Number scale;
-            if (!query.hasKey("scale")) {
+            if (!query.containsKey("scale")) {
                 scale = 1;
             }
             else {
-                Object scaleBsonValue = query.getValue("scale");
-                if (scaleBsonValue instanceof Number) {
-                    scale = (Number) scaleBsonValue;
+                BsonValue scaleBsonValue = query.get("scale");
+                if (scaleBsonValue.isNumber()) {
+                    scale = scaleBsonValue.asNumber().longValue();
                 }
-                else if (scaleBsonValue instanceof BSONObject) {
-                    scale = (Number) ((BSONObject) scaleBsonValue).get("scale");
+                else if (scaleBsonValue.isDocument()) {
+                    scale = scaleBsonValue.asDocument().get("scale").asNumber().longValue();
                 }
                 else {
                     throw new IllegalArgumentException("Scale must be a number or "
@@ -210,8 +206,8 @@ public interface QueryCommandProcessor {
             reply.reply(messageReplier);
         }
         
-        public void insert(@Nonnull BSONDocument document) throws Exception {
-            String collection = (String) document.getValue("insert");
+        public void insert(@Nonnull BsonDocument document) throws Exception {
+            String collection = (String) document.get("insert").asString().getValue();
             InsertResponse response;
             if (metaQueryProcessor.isMetaCollection(collection)) {
                 response = metaQueryProcessor.insert(messageReplier.getAttributeMap(), collection, document).get();
@@ -222,38 +218,38 @@ public interface QueryCommandProcessor {
             response.renderize(messageReplier);
         }
         
-        public void update(@Nonnull BSONDocument document) throws Exception {
+        public void update(@Nonnull BsonDocument document) throws Exception {
         	queryCommandProcessor.update(document, messageReplier);
         }
         
-        public void delete(@Nonnull BSONDocument document) throws Exception {
+        public void delete(@Nonnull BsonDocument document) throws Exception {
         	queryCommandProcessor.delete(document, messageReplier);
         }
         
-        public void createIndexes(@Nonnull BSONDocument document) throws Exception {
+        public void createIndexes(@Nonnull BsonDocument document) throws Exception {
         	queryCommandProcessor.createIndexes(document, messageReplier);
         }
         
-        public void create(@Nonnull BSONDocument document) throws Exception {
+        public void create(@Nonnull BsonDocument document) throws Exception {
         	queryCommandProcessor.create(document, messageReplier);
         }
         
-        public void drop(@Nonnull BSONDocument document) throws Exception {
+        public void drop(@Nonnull BsonDocument document) throws Exception {
         	queryCommandProcessor.drop(document, messageReplier);
         }
 
-        public void deleteIndexes(BSONDocument query) throws Exception {
+        public void deleteIndexes(BsonDocument query) throws Exception {
             queryCommandProcessor.deleteIndexes(query, messageReplier);
         }
 
         public void getLastError(
-        		@Nullable Object w, boolean j, boolean fsync,
+        		@Nullable BsonValue w, boolean j, boolean fsync,
                 @Nonnegative @Nullable int wtimeout
         ) throws Exception {
             queryCommandProcessor.getLastError(w, j, fsync, wtimeout, messageReplier);
         }
         
-        public void validate(@Nonnull String database, @Nonnull BSONDocument document) {
+        public void validate(@Nonnull String database, @Nonnull BsonDocument document) throws Exception {
         	queryCommandProcessor.validate(database, document, messageReplier);
         }
         
@@ -293,7 +289,7 @@ public interface QueryCommandProcessor {
             queryCommandProcessor.getnonce(messageReplier);
         }
 
-        public void listCollections(BSONDocument query) throws Exception {
+        public void listCollections(BsonDocument query) throws Exception {
             queryCommandProcessor.listCollections(messageReplier, query);
         }
 
@@ -305,19 +301,19 @@ public interface QueryCommandProcessor {
     @Nonnull
     public CountReply count(@Nonnull CountRequest request) throws Exception;
     
-    public InsertResponse insert(@Nonnull BSONDocument document, @Nonnull AttributeMap attributeMap) throws Exception;
+    public InsertResponse insert(@Nonnull BsonDocument document, @Nonnull AttributeMap attributeMap) throws Exception;
 
-    public void update(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
+    public void update(@Nonnull BsonDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
     
-    public void delete(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
+    public void delete(@Nonnull BsonDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
     
-    public void drop(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
+    public void drop(@Nonnull BsonDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
 
-    public void deleteIndexes(BSONDocument query, MessageReplier messageReplier) throws Exception;
+    public void deleteIndexes(BsonDocument query, MessageReplier messageReplier) throws Exception;
 
-    public void createIndexes(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
+    public void createIndexes(@Nonnull BsonDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
     
-    public void create(@Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
+    public void create(@Nonnull BsonDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
     
     /**
      * Either w or majority will be set, but not both at the same time.
@@ -333,7 +329,7 @@ public interface QueryCommandProcessor {
             @Nonnegative @Nullable int wtimeout, @Nonnull MessageReplier messageReplier
     ) throws Exception;
 
-	public void validate(@Nonnull String database, @Nonnull BSONDocument document, @Nonnull MessageReplier messageReplier);
+	public void validate(@Nonnull String database, @Nonnull BsonDocument document, @Nonnull MessageReplier messageReplier) throws Exception;
 
     public void ping(MessageReplier messageReplier);
 
@@ -343,7 +339,7 @@ public interface QueryCommandProcessor {
 
     public void replSetGetStatus(@Nonnull MessageReplier messageReplier);
     
-    public void listCollections(@Nonnull MessageReplier messageReplier, BSONDocument query) throws Exception;
+    public void listCollections(@Nonnull MessageReplier messageReplier, BsonDocument query) throws Exception;
     
     public void listIndexes(MessageReplier messageReplier, String collection) throws Exception;
 

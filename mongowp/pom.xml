@@ -38,13 +38,14 @@
         <module>mongowp-messages</module>
         <module>mongo-server-api</module>
         <module>mongowp-protocol</module>
+        <module>mongo-server-api-safe</module>
+        <module>library</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <S3.bucket>maven.torodb.com</S3.bucket>
         <netty.version>4.0.28.Final</netty.version>
-        <netty-bson.version>0.13-SNAPSHOT</netty-bson.version>
     </properties>
 
     <dependencyManagement>
@@ -80,11 +81,6 @@
                 <version>18.0</version>
             </dependency>
             <dependency>
-                <groupId>com.8kdata.netty-bson</groupId>
-                <artifactId>bson-mongo-driver</artifactId>
-                <version>${netty-bson.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.inject</groupId>
                 <artifactId>javax.inject</artifactId>
                 <version>1</version>
@@ -106,12 +102,29 @@
                 <version>3.0.0</version>
                 <scope>provided</scope>
             </dependency>
+            
+            <dependency>
+                <groupId>org.threeten</groupId>
+                <artifactId>threetenbp</artifactId>
+                <version>1.2</version>
+            </dependency>
 
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
                 <scope>test</scope>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-core</artifactId>
+                <version>3.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>bson</artifactId>
+                <version>3.0.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

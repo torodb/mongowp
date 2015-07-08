@@ -23,11 +23,10 @@ package com.eightkdata.mongowp.messages.request;
 
 import com.eightkdata.mongowp.messages.util.EnumBitFlags;
 import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-import com.eightkdata.nettybson.api.BSONDocument;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
+import org.bson.BsonDocument;
 
 /**
  *
@@ -60,11 +59,11 @@ public class DeleteMessage extends AbstractRequestMessageWithFlags<DeleteMessage
 
     @Nonnull private final String database;
     @Nonnull private final String collection;
-    @Nonnull private final BSONDocument document;
+    @Nonnull private final BsonDocument document;
 
     public DeleteMessage(
             @Nonnull RequestBaseMessage requestBaseMessage, int flags, @Nonnull String fullCollectionName, 
-            @Nonnull BSONDocument document
+            @Nonnull BsonDocument document
     ) {
         super(requestBaseMessage, Flag.class, Flag.FLAG_INT32_MASK, flags);
         String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
@@ -84,7 +83,7 @@ public class DeleteMessage extends AbstractRequestMessageWithFlags<DeleteMessage
     }
 
     @Nonnull
-    public BSONDocument getDocument() {
+    public BsonDocument getDocument() {
         return document;
     }
 

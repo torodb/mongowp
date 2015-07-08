@@ -3,15 +3,15 @@ package com.eightkdata.mongowp.mongoserver.api.commands;
 import io.netty.util.AttributeMap;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
-import org.bson.BSONObject;
+import org.bson.BsonDocument;
 
 /**
  *
  */
 public class QueryRequest extends CollectionCommandRequest {
 
-    private final BSONObject query;
-    private final BSONObject projection;
+    private final BsonDocument query;
+    private final BsonDocument projection;
     private final int numberToSkip;
     private final int limit;
     private final boolean autoclose;
@@ -27,8 +27,8 @@ public class QueryRequest extends CollectionCommandRequest {
             String database,
             AttributeMap attributes, 
             String collection, 
-            BSONObject query, 
-            BSONObject projection, 
+            BsonDocument query,
+            BsonDocument projection,
             int numberToSkip, 
             int limit, 
             boolean autoclose, 
@@ -55,12 +55,12 @@ public class QueryRequest extends CollectionCommandRequest {
     }
 
     @Nullable
-    public BSONObject getQuery() {
+    public BsonDocument getQuery() {
         return query;
     }
 
     @Nullable
-    public BSONObject getProjection() {
+    public BsonDocument getProjection() {
         return projection;
     }
 
@@ -111,8 +111,8 @@ public class QueryRequest extends CollectionCommandRequest {
         private final String database;
         private final AttributeMap attributes;
         private String collection;
-        private BSONObject query;
-        private BSONObject projection;
+        private BsonDocument query;
+        private BsonDocument projection;
         private int numberToSkip;
         private int limit;
         private boolean autoclose;
@@ -144,20 +144,20 @@ public class QueryRequest extends CollectionCommandRequest {
             return this;
         }
 
-        public BSONObject getQuery() {
+        public BsonDocument getQuery() {
             return query;
         }
 
-        public Builder setQuery(BSONObject query) {
+        public Builder setQuery(BsonDocument query) {
             this.query = query;
             return this;
         }
 
-        public BSONObject getProjection() {
+        public BsonDocument getProjection() {
             return projection;
         }
 
-        public Builder setProjection(BSONObject projection) {
+        public Builder setProjection(BsonDocument projection) {
             this.projection = projection;
             return this;
         }

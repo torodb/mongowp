@@ -21,24 +21,23 @@
 
 package com.eightkdata.mongowp.mongoserver.api;
 
-import io.netty.util.AttributeKey;
-import io.netty.util.AttributeMap;
-
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
-
 import com.eightkdata.mongowp.messages.request.QueryMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.messages.request.RequestOpCode;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor.QueryCommand;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor.QueryCommandGroup;
-import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
-import com.eightkdata.mongowp.mongoserver.api.callback.RequestProcessor;
 import com.eightkdata.mongowp.mongoserver.api.commands.QueryReply;
 import com.eightkdata.mongowp.mongoserver.api.commands.QueryRequest;
-import com.eightkdata.nettybson.api.BSONDocument;
-import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
-import org.bson.BSONObject;
+import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
+import com.eightkdata.mongowp.mongoserver.callback.RequestProcessor;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.CommandNotFoundException;
+import io.netty.util.AttributeKey;
+import io.netty.util.AttributeMap;
+import java.util.Map.Entry;
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 
 /**
  *
@@ -62,36 +61,39 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
     }
 
     @Override
-    public void queryMessage(@Nonnull QueryMessage queryMessage, @Nonnull MessageReplier messageReplier) throws Exception {
-    	AttributeMap attributeMap = messageReplier.getAttributeMap();
-    	RequestBaseMessage requestBaseMessage = queryMessage.getBaseMessage();
-        BSONDocument query = queryMessage.getDocument();
+    public void queryMessage(@Nonnull QueryMessage queryMessage, @Nonnull MessageReplier messageReplier)
+            throws Exception {
+        AttributeMap attributeMap = messageReplier.getAttributeMap();
+        RequestBaseMessage requestBaseMessage = queryMessage.getBaseMessage();
+        BsonDocument query = queryMessage.getDocument();
 
-    	attributeMap.attr(QUERY_COMMAND).set(null);
-        if(QUERY_MESSAGE_COMMAND_COLLECTION.equals(queryMessage.getCollection())) {
+        attributeMap.attr(QUERY_COMMAND).set(null);
+        if (QUERY_MESSAGE_COMMAND_COLLECTION.equals(queryMessage.getCollection())) {
             QueryCommand queryCommand = QueryCommandGroup.byQueryDocument(query);
-            if(null == queryCommand) {
-            	noSuchCommand(query, messageReplier);
+            if (null == queryCommand) {
+                noSuchCommand(query, messageReplier);
                 return;
             }
-            
-            if(queryCommand.isAdminOnly() && !QUERY_MESSAGE_ADMIN_DATABASE.equals(queryMessage.getDatabase())) {
-            	adminOnlyCommand(queryCommand, messageReplier);
-            	return;
+
+            if (queryCommand.isAdminOnly()
+                    && !QUERY_MESSAGE_ADMIN_DATABASE.equals(queryMessage.getDatabase())) {
+                adminOnlyCommand(queryCommand, messageReplier);
+                return;
             }
-            
-        	attributeMap.attr(QUERY_COMMAND).set(queryCommand);
+
+            attributeMap.attr(QUERY_COMMAND).set(queryCommand);
             queryCommand.call(
-                    requestBaseMessage, 
-                    query, 
+                    requestBaseMessage,
+                    query,
                     new QueryCommandProcessor.ProcessorCaller(
-                            queryMessage.getDatabase(), 
-                            queryCommandProcessor, 
-                            metaCommandProcessor, 
+                            queryMessage.getDatabase(),
+                            queryCommandProcessor,
+                            metaCommandProcessor,
                             messageReplier
                     )
             );
-        } else {
+        }
+        else {
             query(queryMessage, messageReplier);
         }
     }
@@ -145,22 +147,22 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
         reply.reply(messageReplier);
     }
 	
-	public abstract void noSuchCommand(@Nonnull BSONDocument query, @Nonnull MessageReplier messageReplier) throws Exception;
+	public abstract void noSuchCommand(@Nonnull BsonDocument query, @Nonnull MessageReplier messageReplier) throws CommandNotFoundException;
 	
 	public abstract void adminOnlyCommand(@Nonnull QueryCommand queryCommand, @Nonnull MessageReplier messageReplier) throws Exception;
 
     public abstract QueryReply query(QueryRequest build) throws Exception;
     
-    private BSONObject extractQuery(BSONDocument document) {
-        BSONObject query = ((MongoBSONDocument) document).getBSONObject();
-        for (String key : query.keySet()) {
-    		if ("query".equals(key) || "$query".equals(key)) {
-    			Object queryObject = query.get(key);
-    			if (queryObject != null && queryObject instanceof BSONObject) {
-    				return (BSONObject) queryObject;
+    private BsonDocument extractQuery(BsonDocument query) {
+        for (Entry<String, BsonValue> entrySet : query.entrySet()) {
+            String key = entrySet.getKey();
+            if ("query".equals(key) || "$query".equals(key)) {
+    			BsonValue queryObject = entrySet.getValue();
+    			if (queryObject != null && queryObject.isDocument()) {
+    				return query.asDocument();
     			}
     		}
-    	}
+        }
         return query;
     }
 }

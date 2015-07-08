@@ -21,14 +21,12 @@
 
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
-import javax.annotation.Nonnull;
-
-import com.google.common.base.Preconditions;
-
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.nettybson.api.BSONDocument;
+import com.google.common.base.Preconditions;
+import javax.annotation.Nonnull;
+import org.bson.BsonDocument;
 
 /**
  * 
@@ -38,14 +36,14 @@ public enum DiagnosticQueryCommand implements QueryCommandProcessor.QueryCommand
     availableQueryOptions,
     buildInfo {
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
         	caller.buildInfo();
         }
     },
     collStats {
 
         @Override
-        public void doCall(RequestBaseMessage queryMessage, BSONDocument query, QueryCommandProcessor.ProcessorCaller caller)
+        public void doCall(RequestBaseMessage queryMessage, BsonDocument query, QueryCommandProcessor.ProcessorCaller caller)
                 throws Exception {
             caller.collStats(query);
         }
@@ -62,8 +60,8 @@ public enum DiagnosticQueryCommand implements QueryCommandProcessor.QueryCommand
     getCmdLineOpts(true),
     getLog(true) {
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
-            String log = (String) query.getValue("getLog");
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
+            String log = query.get("getLog").asString().getValue();
             QueryCommandProcessor.GetLogType getLogType = QueryCommandProcessor.GetLogType.getByLog(log);
             if(null == getLogType) {
                 caller.replyFailure(MongoWP.ErrorCode.INVALID_GET_LOG_LOG, log);
@@ -79,7 +77,7 @@ public enum DiagnosticQueryCommand implements QueryCommandProcessor.QueryCommand
     listDatabases(true) {
         
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
             caller.listDatabases();
         }
     },
@@ -87,7 +85,7 @@ public enum DiagnosticQueryCommand implements QueryCommandProcessor.QueryCommand
     ping {
 
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
             caller.ping();
         }
         
@@ -98,13 +96,13 @@ public enum DiagnosticQueryCommand implements QueryCommandProcessor.QueryCommand
     top(true),
     validate {
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
             caller.validate(caller.getDatabase(), query);
         }
     },
     whatsmyuri {
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
             caller.whatsmyuri(requestBaseMessage.getClientAddressString(), requestBaseMessage.getClientPort());
         }
     }
@@ -138,12 +136,12 @@ public enum DiagnosticQueryCommand implements QueryCommandProcessor.QueryCommand
     	return adminOnly;
     }
 
-    public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+    public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
     	caller.unimplemented(this);
     }
 
     @Override
-    public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+    public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
         Preconditions.checkNotNull(query);
         Preconditions.checkNotNull(caller);
 

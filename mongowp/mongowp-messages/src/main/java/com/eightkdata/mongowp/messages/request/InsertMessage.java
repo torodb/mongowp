@@ -21,15 +21,13 @@
 
 package com.eightkdata.mongowp.messages.request;
 
+import com.eightkdata.mongowp.messages.util.EnumBitFlags;
+import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
 import java.util.List;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-
-import com.eightkdata.mongowp.messages.util.EnumBitFlags;
-import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-import com.eightkdata.nettybson.api.BSONDocument;
+import org.bson.BsonDocument;
 
 /**
  *
@@ -62,11 +60,11 @@ public class InsertMessage extends AbstractRequestMessageWithFlags<InsertMessage
 
     @Nonnull private final String database;
     @Nonnull private final String collection;
-    @Nonnull private final List<BSONDocument> documents;
+    @Nonnull private final List<BsonDocument> documents;
 
     public InsertMessage(
             @Nonnull RequestBaseMessage requestBaseMessage, int flags, @Nonnull String fullCollectionName, 
-            @Nonnull List<BSONDocument> documents
+            @Nonnull List<BsonDocument> documents
     ) {
         super(requestBaseMessage, Flag.class, Flag.FLAG_INT32_MASK, flags);
         String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
@@ -86,7 +84,7 @@ public class InsertMessage extends AbstractRequestMessageWithFlags<InsertMessage
     }
 
     @Nonnull
-    public List<BSONDocument> getDocuments() {
+    public List<BsonDocument> getDocuments() {
         return documents;
     }
 

@@ -2,10 +2,10 @@
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
-import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
-import com.eightkdata.nettybson.api.BSONDocument;
+import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import java.util.EnumSet;
 import javax.annotation.Nonnull;
+import org.bson.BsonDocument;
 
 /**
  *
@@ -14,13 +14,13 @@ public class QueryReply implements Reply {
 
     private final long cursorId;
     private final int startingFrom;
-    private final @Nonnull Iterable<BSONDocument> documents;
+    private final @Nonnull Iterable<BsonDocument> documents;
     private final @Nonnull EnumSet<ReplyMessage.Flag> flags;
 
     private QueryReply(
             long cursorId, 
             int startingFrom, 
-            Iterable<BSONDocument> documents, 
+            Iterable<BsonDocument> documents,
             EnumSet<ReplyMessage.Flag> flags) {
         this.cursorId = cursorId;
         this.startingFrom = startingFrom;
@@ -36,7 +36,7 @@ public class QueryReply implements Reply {
         return startingFrom;
     }
 
-    public Iterable<BSONDocument> getDocuments() {
+    public Iterable<BsonDocument> getDocuments() {
         return documents;
     }
 
@@ -56,7 +56,7 @@ public class QueryReply implements Reply {
     public static class Builder {
         private long cursorId;
         private int startingFrom;
-        private Iterable<BSONDocument> documents;
+        private Iterable<BsonDocument> documents;
 
         public long getCursorId() {
             return cursorId;
@@ -76,11 +76,11 @@ public class QueryReply implements Reply {
             return this;
         }
 
-        public Iterable<BSONDocument> getDocuments() {
+        public Iterable<BsonDocument> getDocuments() {
             return documents;
         }
 
-        public Builder setDocuments(Iterable<BSONDocument> documents) {
+        public Builder setDocuments(Iterable<BsonDocument> documents) {
             this.documents = documents;
             return this;
         }

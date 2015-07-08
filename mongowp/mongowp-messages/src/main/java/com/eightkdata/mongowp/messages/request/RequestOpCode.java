@@ -57,4 +57,8 @@ public enum RequestOpCode {
     public static RequestOpCode getByOpcode(int opCode) {
         return OP_CODES_MAP.get(opCode);
     }
+
+    public boolean canReply() {
+        return this.equals(OP_QUERY) || this.equals(OP_GET_MORE);
+    }
 }

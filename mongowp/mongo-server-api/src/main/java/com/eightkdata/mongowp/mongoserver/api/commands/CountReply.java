@@ -1,12 +1,12 @@
 
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
+import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
-import com.google.common.collect.Maps;
-import java.util.Map;
 import javax.annotation.Nonnull;
+import org.bson.BsonDocument;
+import org.bson.BsonDouble;
+import org.bson.BsonInt32;
 
 /**
  *
@@ -37,12 +37,12 @@ public class CountReply implements Reply {
 
     @Override
     public void reply(MessageReplier replier) {
-        Map<String, Object> keyValues = Maps.newHashMapWithExpectedSize(2);
+        BsonDocument result = new BsonDocument();
         if (ok.equals(MongoWP.OK)) {
-            keyValues.put("n", count);
+            result.put("n", new BsonInt32(count));
         }
-        keyValues.put("ok", ok);
+        result.put("ok", new BsonDouble(ok));
         
-        replier.replyMessageNoCursor(new MongoBSONDocument(keyValues));
+        replier.replyMessageNoCursor(result);
     }
 }

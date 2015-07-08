@@ -20,11 +20,15 @@
 
 package com.eightkdata.mongowp.mongoserver.api.callback;
 
+import org.bson.BsonDocument;
+
 /**
  * 
  */
-public interface LastError {
+public interface WriteOpResult {
 
-	public void getLastError(Object w, boolean j, boolean fsync, int wtimeout, MessageReplier messageReplier) throws Exception;
+    public boolean errorOcurred();
+
+	public BsonDocument marshall();
 	
 }

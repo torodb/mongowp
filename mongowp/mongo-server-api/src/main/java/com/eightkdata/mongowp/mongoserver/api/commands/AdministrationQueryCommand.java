@@ -21,19 +21,17 @@
 
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import com.google.common.base.Preconditions;
-
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor.ProcessorCaller;
-import com.eightkdata.nettybson.api.BSONDocument;
+import com.google.common.base.Preconditions;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 
 /**
  * 
@@ -53,26 +51,26 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
     copydb(true),
     createIndexes {
 		@Override
-		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
+		public void doCall(RequestBaseMessage queryMessage, BsonDocument query, ProcessorCaller caller) throws Exception {
 			caller.createIndexes(query);
 		}
     },
     create {
     	@Override
-    	public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
+    	public void doCall(RequestBaseMessage queryMessage, BsonDocument query, ProcessorCaller caller) throws Exception {
 			caller.create(query);
     	}
     },
     dropDatabase,
     deleteIndexes {
         @Override
-		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
+		public void doCall(RequestBaseMessage queryMessage, BsonDocument query, ProcessorCaller caller) throws Exception {
 			caller.deleteIndexes(query);
 		}
     },
     drop {
 		@Override
-		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
+		public void doCall(RequestBaseMessage queryMessage, BsonDocument query, ProcessorCaller caller) throws Exception {
 			caller.drop(query);
 		}
     },
@@ -81,19 +79,19 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
     getParameter(true),
     listCollections {
 		@Override
-		public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
+		public void doCall(RequestBaseMessage queryMessage, BsonDocument query, ProcessorCaller caller) throws Exception {
 			caller.listCollections(query);
 		}
     },
     listIndexes {
 
         @Override
-        public void doCall(RequestBaseMessage queryMessage, BSONDocument query, ProcessorCaller caller) throws Exception {
-            Object value = query.getValue("listIndexes");
-            if (!(value instanceof String)) {
+        public void doCall(RequestBaseMessage queryMessage, BsonDocument query, ProcessorCaller caller) throws Exception {
+            BsonValue value = query.get("listIndexes");
+            if (!value.isString()) {
                 throw new RuntimeException("Argument to listIndexes must be of type String");
             }
-            caller.listIndexes((String) value);
+            caller.listIndexes(value.asString().getValue());
         }
     },
     logRotate(true),
@@ -133,12 +131,12 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
     	return adminOnly;
     }
 
-    public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+    public void doCall(@Nonnull RequestBaseMessage queryMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
     	caller.unimplemented(this);
     }
 
     @Override
-    public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BSONDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
+    public void call(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws Exception {
         Preconditions.checkNotNull(query);
         Preconditions.checkNotNull(caller);
 
@@ -160,12 +158,12 @@ public enum AdministrationQueryCommand implements QueryCommandProcessor.QueryCom
      * @throws IllegalArgumentException If queryDocument is null
      */
     @Nullable
-    public static AdministrationQueryCommand byQueryDocument(@Nonnull BSONDocument queryDocument) {
+    public static AdministrationQueryCommand byQueryDocument(@Nonnull BsonDocument queryDocument) {
         Preconditions.checkNotNull(queryDocument);
 
         // TODO: if might be worth to improve searching taking into account the # of keys of the document,
         // matching it with the # of args of the commands, which could be registered as enum fields
-        for(String possibleCommand : queryDocument.getKeys()) {
+        for(String possibleCommand : queryDocument.keySet()) {
             // Some driver use lower case version of the command so we must take it into account
         	possibleCommand = possibleCommand.toLowerCase(Locale.ROOT);
             if(COMMANDS_MAP.containsKey(possibleCommand)) {

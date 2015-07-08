@@ -21,16 +21,14 @@
 
 package com.eightkdata.mongowp.mongoserver.decoder;
 
-import com.eightkdata.mongowp.messages.request.UpdateMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
+import com.eightkdata.mongowp.messages.request.UpdateMessage;
 import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
-import com.eightkdata.nettybson.api.BSONDocument;
-import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
 import io.netty.buffer.ByteBuf;
-
 import javax.annotation.Nonnegative;
 import javax.inject.Singleton;
+import org.bson.BsonDocument;
 
 /**
  *
@@ -43,8 +41,8 @@ public class UpdateMessageDecoder implements MessageDecoder<UpdateMessage> {
     	buffer.skipBytes(4);
         String fullCollectionName = ByteBufUtil.readCString(buffer);
         int flags = buffer.readInt();
-        BSONDocument selector = new MongoBSONDocument(buffer);
-        BSONDocument update = new MongoBSONDocument(buffer);
+        BsonDocument selector = ByteBufUtil.readBsonDocument(buffer);
+        BsonDocument update = ByteBufUtil.readBsonDocument(buffer);
 
         return new UpdateMessage(
                 requestBaseMessage, flags, fullCollectionName, selector, update

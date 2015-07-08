@@ -23,12 +23,18 @@ package com.eightkdata.mongowp.mongoserver.util;
 
 import com.google.common.base.Charsets;
 import io.netty.buffer.ByteBuf;
+import org.bson.*;
+import org.bson.codecs.BsonDocumentCodec;
+import org.bson.codecs.DecoderContext;
+import org.bson.codecs.EncoderContext;
 
 /**
  *
  */
 public class ByteBufUtil {
     public static final byte CSTRING_BYTE_TERMINATION = (byte) '\0';
+
+    private static final BsonDocumentCodec BSON_CODEC = new BsonDocumentCodec();
 
     /**
      * A method that reads a C-string from a ByteBuf.
@@ -48,5 +54,20 @@ public class ByteBufUtil {
         buffer.readByte();  // Discard the termination byte
 
         return new String(bytes, Charsets.UTF_8);
+    }
+
+    public static BsonDocument readBsonDocument(ByteBuf buffer) {
+        BsonReader reader = new BsonBinaryReader(new ByteBufBsonInputAdaptor(buffer));
+
+        DecoderContext context = DecoderContext.builder().build();
+        return BSON_CODEC.decode(reader, context);
+    }
+
+    public static void writeBsonDocument(ByteBuf buffer, BsonDocument bson) {
+        BsonWriter writer = new BsonBinaryWriter(new ByteBufBsonOutputAdaptor(buffer));
+
+        EncoderContext context = EncoderContext.builder().build();
+
+        BSON_CODEC.encode(writer, bson, context);
     }
 }

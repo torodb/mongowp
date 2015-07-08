@@ -25,14 +25,12 @@ import com.eightkdata.mongowp.messages.request.InsertMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
-import com.eightkdata.nettybson.api.BSONDocument;
-import com.eightkdata.nettybson.mongodriver.MongoBSONDocument;
+import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
-
+import java.util.List;
 import javax.annotation.Nonnegative;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.List;
+import org.bson.BsonDocument;
 
 /**
  *
@@ -44,9 +42,9 @@ public class InsertMessageDecoder implements MessageDecoder<InsertMessage> {
     InsertMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidMessageException {
         int flags = buffer.readInt();
         String fullCollectionName = ByteBufUtil.readCString(buffer);
-        List<BSONDocument> documents = new ArrayList<BSONDocument>();
+        List<BsonDocument> documents = Lists.newArrayList();
         while(buffer.readableBytes() > 0) {
-        	documents.add(new MongoBSONDocument(buffer));
+        	documents.add(ByteBufUtil.readBsonDocument(buffer));
         }
 
         return new InsertMessage(

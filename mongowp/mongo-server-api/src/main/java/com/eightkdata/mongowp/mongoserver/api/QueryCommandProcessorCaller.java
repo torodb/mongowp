@@ -21,7 +21,7 @@
 
 package com.eightkdata.mongowp.mongoserver.api;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.MessageReplier;
+import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 
 import javax.annotation.Nonnegative;
