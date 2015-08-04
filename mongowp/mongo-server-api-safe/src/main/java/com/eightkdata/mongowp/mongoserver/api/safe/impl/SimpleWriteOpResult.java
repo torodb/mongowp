@@ -1,10 +1,10 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.impl;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
 import java.text.MessageFormat;
@@ -19,33 +19,37 @@ public class SimpleWriteOpResult implements WriteOpResult {
 
     private static final BsonField<String> ERR_FIELD_NAME = BsonField.create("err");
     private static final BsonField<Integer> CODE_FIELD_NAME = BsonField.create("code");
-    private static final BsonField<Long> N_FIELD_NAME = BsonField.create("n");
+    private static final BsonField<Double> N_FIELD_NAME = BsonField.create("n");
 
     private final @Nonnull MongoWP.ErrorCode error;
     private final @Nullable String errorDesc;
     private final @Nullable ReplicationInformation replInfo;
     private final @Nullable ShardingInformation shardInfo;
+    private final @Nonnull OpTime optime;
 
     public SimpleWriteOpResult(
             @Nonnull ErrorCode error,
-            @Nonnull String errorDesc,
+            @Nullable String errorDesc,
             @Nullable ReplicationInformation replInfo,
-            @Nullable ShardingInformation shardInfo) {
+            @Nullable ShardingInformation shardInfo,
+            @Nonnull OpTime optime) {
         this.error = error;
         this.replInfo = replInfo;
         this.shardInfo = shardInfo;
 
-        if (error.equals(MongoWP.ErrorCode.OK)) {
+        if (errorDesc != null && error.equals(MongoWP.ErrorCode.OK)) {
             throw new IllegalArgumentException("Error description must be "
                     + "null when the given error code is OK");
         }
         this.errorDesc = errorDesc;
+        this.optime = optime;
     }
 
     public SimpleWriteOpResult(
             @Nonnull ErrorCode error,
             @Nullable ReplicationInformation replInfo,
             @Nullable ShardingInformation shardInfo,
+            @Nonnull OpTime optime,
             Object... args) {
         this.error = error;
         this.replInfo = replInfo;
@@ -61,6 +65,12 @@ public class SimpleWriteOpResult implements WriteOpResult {
         else {
             errorDesc = MessageFormat.format(error.getErrorMessage(), args);
         }
+        this.optime = optime;
+    }
+
+    @Override
+    public OpTime getOptime() {
+        return optime;
     }
 
     public ErrorCode getError() {

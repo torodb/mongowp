@@ -1,6 +1,6 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.oplog;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import javax.annotation.concurrent.Immutable;
 
 /**

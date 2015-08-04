@@ -5,7 +5,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.mongoserver.api.safe.oplog.*;
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
 import java.util.Locale;
 import javax.annotation.Nonnull;

@@ -1,7 +1,6 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.CommandReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
@@ -9,10 +8,11 @@ import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConcernMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.FailedToParseException;
@@ -75,11 +75,13 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
         private final @Nullable OpTime wOpTime;
         private final @Nullable ObjectId wElectionId;
         private final @Nullable String badGLEMessage;
+        private final ErrorCode badGLEErrorCode;
 
         public GetLastErrorArgument(
                 WriteConcern writeConcern,
                 BsonDocument badGLE,
                 String badGLEMessage,
+                @Nonnull ErrorCode badGLEErrorCode,
                 OpTime wOpTime,
                 ObjectId wElectionId,
                 Command command) {
@@ -87,6 +89,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
             this.writeConcern = writeConcern;
             this.badGLE = badGLE;
             this.badGLEMessage = badGLEMessage;
+            this.badGLEErrorCode = badGLEErrorCode;
             this.wOpTime = wOpTime;
             this.wElectionId = wElectionId;
         }
@@ -97,6 +100,11 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
 
         public String getBadGLEMessage() {
             return badGLEMessage;
+        }
+
+        @Nonnull
+        public ErrorCode getBadGLEErrorCode() {
+            return badGLEErrorCode;
         }
 
         @Nullable
@@ -110,12 +118,12 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
         }
 
         @Nullable
-        public OpTime getwOpTime() {
+        public OpTime getWOpTime() {
             return wOpTime;
         }
 
         @Nullable
-        public ObjectId getwElectionId() {
+        public ObjectId getWElectionId() {
             return wElectionId;
         }
 
@@ -125,39 +133,80 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
                 opTime = BsonReaderTool.getOpTime(requestDoc, W_OP_TIME_FIELD, null);
             }
             catch (TypesMismatchException ex) {
-                return new GetLastErrorArgument(null, requestDoc, ex.getLocalizedMessage(), null, null, command);
+                return new GetLastErrorArgument(
+                        null,
+                        requestDoc,
+                        ex.getLocalizedMessage(),
+                        ex.getErrorCode(),
+                        null,
+                        null,
+                        command
+                );
             }
             ObjectId electionId;
             try {
                 electionId = BsonReaderTool.getObjectId(requestDoc, W_ELECTION_ID_FIELD, null);
             } catch (TypesMismatchException ex) {
-                return new GetLastErrorArgument(null, requestDoc, ex.getLocalizedMessage(), opTime, null, command);
+                return new GetLastErrorArgument(
+                        null,
+                        requestDoc,
+                        ex.getLocalizedMessage(),
+                        ex.getErrorCode(),
+                        opTime,
+                        null,
+                        command
+                );
             }
             WriteConcern wc;
             try {
                 wc = WriteConcernMarshaller.unmarshall(requestDoc);
             }
             catch (TypesMismatchException ex) {
-                return new GetLastErrorArgument(null, requestDoc, ex.getLocalizedMessage(), opTime, electionId, command);
+                return new GetLastErrorArgument(
+                        null,
+                        requestDoc,
+                        ex.getLocalizedMessage(),
+                        ex.getErrorCode(),
+                        opTime,
+                        electionId,
+                        command
+                );
             }
             catch (FailedToParseException ex) {
-                return new GetLastErrorArgument(null, requestDoc, ex.getLocalizedMessage(), opTime, electionId, command);
+                return new GetLastErrorArgument(
+                        null,
+                        requestDoc,
+                        ex.getLocalizedMessage(),
+                        ex.getErrorCode(),
+                        opTime,
+                        electionId,
+                        command
+                );
             }
-            return new GetLastErrorArgument(wc, null, null, opTime, electionId, command);
+            return new GetLastErrorArgument(
+                    wc,
+                    null,
+                    null,
+                    ErrorCode.OK,
+                    opTime,
+                    electionId,
+                    command
+            );
         }
 
     }
 
     public static class GetLastErrorReply implements CommandReply {
-        private static final BsonField<Long> CONNECTION_ID_FIELD = BsonField.create("connectionId");
+        private static final BsonField<Double> OK_FIELD = BsonField.create("ok");
+        private static final BsonField<Double> CONNECTION_ID_FIELD = BsonField.create("connectionId");
         private static final BsonField<BsonDocument> BAD_GLE_FIELD = BsonField.create("badGLE");
         private static final BsonField<String> ERR_MSG_FIELD = BsonField.create("errmsg");
         private static final BsonField<String> ERR_FIELD = BsonField.create("err");
         private static final BsonField<Integer> CODE_FIELD = BsonField.create("code");
 
 
-        private final GetLastErrorCommand command;
-        private final MongoWP.ErrorCode thisError;
+        private final Command<? extends GetLastErrorArgument, ? extends GetLastErrorReply> command;
+        private final @Nonnull MongoWP.ErrorCode thisError;
         private final @Nullable String thisErrorMessage;
         private final long connectionId;
         private final @Nullable WriteOpResult writeOpResult;
@@ -165,11 +214,10 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
         private final @Nullable WriteConcernEnforcementResult wcer;
 
         public GetLastErrorReply(
-                GetLastErrorCommand command,
+                Command<? extends GetLastErrorArgument, ? extends GetLastErrorReply> command,
                 @Nonnull ErrorCode thisError,
                 @Nullable String thisErrorMessage,
                 long connectionId,
-                @Nonnegative Long syncMillis,
                 @Nullable WriteOpResult writeOpResult,
                 @Nonnull GetLastErrorArgument arg,
                 @Nullable WriteConcernEnforcementResult wcer) {
@@ -184,7 +232,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
 
         @Override
         public boolean isOk() {
-            return thisError != null;
+            return thisError.equals(ErrorCode.OK);
         }
 
         @Override
@@ -198,7 +246,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
         }
 
         @Override
-        public Command getCommand() {
+        public Command<? extends GetLastErrorArgument, ? extends GetLastErrorReply> getCommand() {
             return command;
         }
 
@@ -212,20 +260,28 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
                 return builder.build();
             }
 
-            for (Entry<String, BsonValue> entry : writeOpResult.marshall().entrySet()) {
-                builder.appendUnsafe(entry.getKey(), entry.getValue());
+            if (writeOpResult != null) {
+                for (Entry<String, BsonValue> entry : writeOpResult.marshall().entrySet()) {
+                    builder.appendUnsafe(entry.getKey(), entry.getValue());
+                }
+
+                if (writeOpResult.errorOcurred()) {
+                    return builder.build();
+                }
             }
 
-            if (writeOpResult.errorOcurred()) {
-                return builder.build();
+            if (wcer != null) {
+                wcer.marshall(builder);
             }
 
-            if (thisError != null) {
-                builder.append(ERR_FIELD, thisErrorMessage);
+            if (thisError != null && !thisError.equals(MongoWP.ErrorCode.OK)) {
                 builder.append(CODE_FIELD, thisError.getErrorCode());
+                if (thisErrorMessage != null) {
+                    builder.append(ERR_FIELD, thisErrorMessage);
+                }
             }
 
-            wcer.marshall(builder);
+            builder.append(OK_FIELD, isOk() ? MongoWP.OK : MongoWP.KO);
 
             return builder.build();
         }
@@ -252,11 +308,11 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
         public WriteConcernEnforcementResult(
                 @Nonnull WriteConcern writeConcern,
                 @Nullable String err,
-                @Nullable @Nonnegative Integer syncMillis,
-                @Nullable @Nonnegative Integer fsyncFiles,
+                @Nullable Integer syncMillis,
+                @Nullable Integer fsyncFiles,
                 boolean wTimedOut,
-                @Nullable @Nonnegative Integer wTime,
-                ImmutableList<HostAndPort> writtenTo) {
+                @Nullable Integer wTime,
+                @Nullable ImmutableList<HostAndPort> writtenTo) {
             this.writeConcern = writeConcern;
             this.err = err;
             this.syncMillis = syncMillis;
@@ -300,7 +356,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
                 builder.append(W_TIMEDOUT_FIELD, wTimedOut);
             }
 
-            if (!writtenTo.isEmpty()) {
+            if (writtenTo != null && !writtenTo.isEmpty()) {
                 BsonArray array = new BsonArray();
                 for (HostAndPort w : writtenTo) {
                     array.add(new BsonString(w.toString()));

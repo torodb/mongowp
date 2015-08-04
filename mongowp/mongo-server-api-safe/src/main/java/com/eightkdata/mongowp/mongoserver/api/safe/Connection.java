@@ -1,9 +1,10 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import io.netty.util.AttributeMap;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -27,6 +28,7 @@ public class Connection {
         return attributeMap;
     }
 
+    @Nullable
     public Future<? extends WriteOpResult> getLastWriteOp() {
         return lastWriteOp;
     }

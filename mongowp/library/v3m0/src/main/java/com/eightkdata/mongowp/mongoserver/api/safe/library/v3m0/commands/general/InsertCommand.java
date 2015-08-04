@@ -1,7 +1,6 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.CommandArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.CommandReply;
@@ -15,6 +14,8 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConce
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.FailedToParseException;
@@ -79,7 +80,13 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertReply>{
         private final boolean ordered;
         private final @Nullable BsonDocument metadata; //TODO: parse metadata
 
-        public InsertArgument(InsertCommand command, String collection, ImmutableList<BsonDocument> documents, WriteConcern writeConcern, boolean ordered, BsonDocument metadata) {
+        public InsertArgument(
+                InsertCommand command,
+                String collection,
+                ImmutableList<BsonDocument> documents,
+                WriteConcern writeConcern,
+                boolean ordered,
+                @Nullable BsonDocument metadata) {
             this.command = command;
             this.collection = collection;
             this.documents = documents;
@@ -93,14 +100,17 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertReply>{
             return command;
         }
 
+        @Nonnull
         public String getCollection() {
             return collection;
         }
 
+        @Nonnull
         public ImmutableList<BsonDocument> getDocuments() {
             return documents;
         }
 
+        @Nonnull
         public WriteConcern getWriteConcern() {
             return writeConcern;
         }
@@ -109,6 +119,7 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertReply>{
             return ordered;
         }
 
+        @Nullable
         public BsonDocument getMetadata() {
             return metadata;
         }
@@ -130,13 +141,24 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertReply>{
             }
             ImmutableList documents = documentsBuilder.build();
 
-            WriteConcern writeConcern = WriteConcernMarshaller.unmarshall(
-                    BsonReaderTool.getDocument(doc, WRITE_CONCERN_FIELD)
+            BsonDocument writeConcernDoc = BsonReaderTool.getDocument(
+                    doc,
+                    WRITE_CONCERN_FIELD,
+                    null
             );
+            WriteConcern writeConcern;
+            if (writeConcernDoc != null) {
+                writeConcern = WriteConcernMarshaller.unmarshall(
+                        writeConcernDoc
+                );
+            }
+            else {
+                writeConcern = WriteConcern.ACKNOWLEDGED;
+            }
 
             boolean orderend = BsonReaderTool.getBoolean(doc, ORDERED_FIELD);
 
-            BsonDocument metadata = BsonReaderTool.getDocument(doc, METADATA_FIELD);
+            BsonDocument metadata = BsonReaderTool.getDocument(doc, METADATA_FIELD, null);
 
             return new InsertArgument(command, collection, documents, writeConcern, orderend, metadata);
         }
@@ -156,12 +178,14 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertReply>{
         private final ImmutableList<WriteConcernError> writeConcernErrors;
         private final ReplicationInformation replInfo;
         private final ShardingInformation shardInfo;
+        private final OpTime optime;
 
         public InsertReply(
                 Command<? extends InsertArgument, ? extends InsertReply> command,
                 int n,
                 @Nullable ReplicationInformation replInfo,
-                @Nullable ShardingInformation shardInfo) {
+                @Nullable ShardingInformation shardInfo,
+                @Nonnull OpTime optime) {
             this.command = command;
             this.n = n;
             this.writeErrors = ImmutableList.of();
@@ -170,6 +194,7 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertReply>{
             this.errorMessage = null;
             this.replInfo = replInfo;
             this.shardInfo = shardInfo;
+            this.optime = optime;
         }
 
         public InsertReply(
@@ -180,7 +205,8 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertReply>{
                 ImmutableList<WriteError> writeErrors,
                 ImmutableList<WriteConcernError> writeConcernErrors,
                 @Nullable ReplicationInformation replInfo,
-                @Nullable ShardingInformation shardInfo) {
+                @Nullable ShardingInformation shardInfo,
+                @Nonnull OpTime optime) {
             this.command = command;
             this.n = n;
             this.writeErrors = writeErrors;
@@ -189,11 +215,12 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertReply>{
             this.errorMessage = errorMessage;
             this.replInfo = replInfo;
             this.shardInfo = shardInfo;
+            this.optime = optime;
         }
 
         @Override
         public WriteOpResult getWriteOpResult() {
-            return new SimpleWriteOpResult(errorCode, errorMessage, replInfo, shardInfo);
+            return new SimpleWriteOpResult(errorCode, errorMessage, replInfo, shardInfo, optime);
         }
 
         public int getN() {

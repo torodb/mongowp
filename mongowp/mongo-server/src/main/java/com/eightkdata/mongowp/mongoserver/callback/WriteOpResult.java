@@ -18,8 +18,9 @@
  *     
  */
 
-package com.eightkdata.mongowp.mongoserver.api.callback;
+package com.eightkdata.mongowp.mongoserver.callback;
 
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import org.bson.BsonDocument;
 
 /**
@@ -30,5 +31,7 @@ public interface WriteOpResult {
     public boolean errorOcurred();
 
 	public BsonDocument marshall();
+
+    public OpTime getOptime();
 	
 }

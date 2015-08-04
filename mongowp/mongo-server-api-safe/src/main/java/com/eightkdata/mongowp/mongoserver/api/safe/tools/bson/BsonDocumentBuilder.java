@@ -1,7 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.tools.bson;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;

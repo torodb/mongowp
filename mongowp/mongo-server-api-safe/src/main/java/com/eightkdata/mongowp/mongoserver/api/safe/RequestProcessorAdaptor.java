@@ -3,11 +3,11 @@ package com.eightkdata.mongowp.mongoserver.api.safe;
 
 import com.eightkdata.mongowp.messages.request.*;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
-import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.SafeRequestProcessor.SubRequestProcessor;
 import com.eightkdata.mongowp.mongoserver.api.safe.pojos.QueryRequest;
 import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.callback.RequestProcessor;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.CommandNotFoundException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
@@ -103,53 +103,51 @@ public class RequestProcessorAdaptor implements RequestProcessor {
     }
 
     @Override
-    public void queryMessage(QueryMessage queryMessage, MessageReplier messageReplier) {
+    public void queryMessage(QueryMessage queryMessage, MessageReplier messageReplier) throws MongoServerException {
         Connection connection = getConnection(messageReplier.getAttributeMap());
-        try {
-            if (QUERY_MESSAGE_COMMAND_COLLECTION.equals(queryMessage.getCollection())) {
-                executeCommand(connection, queryMessage, messageReplier);
-            }
-            else {
-                QueryRequest.Builder requestBuilder = new QueryRequest.Builder(
+
+        if (QUERY_MESSAGE_COMMAND_COLLECTION.equals(queryMessage.getCollection())) {
+            executeCommand(connection, queryMessage, messageReplier);
+        }
+        else {
+            QueryRequest.Builder requestBuilder = new QueryRequest.Builder(
                     queryMessage.getDatabase(),
                     queryMessage.getCollection()
-                );
-                requestBuilder.setCollection(queryMessage.getCollection())
-                        .setQuery(extractQuery(queryMessage.getDocument()))
-                        .setProjection(null)
-                        .setNumberToSkip(queryMessage.getNumberToSkip())
-                        .setLimit(queryMessage.getNumberToReturn())
-                        .setAwaitData(queryMessage.isFlagSet(QueryMessage.Flag.AWAIT_DATA))
-                        .setExhaust(queryMessage.isFlagSet(QueryMessage.Flag.EXHAUST))
-                        .setNoCursorTimeout(queryMessage.isFlagSet(QueryMessage.Flag.NO_CURSOR_TIMEOUT))
-                        .setOplogReplay(queryMessage.isFlagSet(QueryMessage.Flag.OPLOG_REPLAY))
-                        .setPartial(queryMessage.isFlagSet(QueryMessage.Flag.PARTIAL))
-                        .setSlaveOk(queryMessage.isFlagSet(QueryMessage.Flag.SLAVE_OK))
-                        .setTailable(queryMessage.isFlagSet(QueryMessage.Flag.TAILABLE_CURSOR));
+            );
+            requestBuilder.setCollection(queryMessage.getCollection())
+                    .setQuery(extractQuery(queryMessage.getDocument()))
+                    .setProjection(null)
+                    .setNumberToSkip(queryMessage.getNumberToSkip())
+                    .setLimit(queryMessage.getNumberToReturn())
+                    .setAwaitData(queryMessage.isFlagSet(QueryMessage.Flag.AWAIT_DATA))
+                    .setExhaust(queryMessage.isFlagSet(QueryMessage.Flag.EXHAUST))
+                    .setNoCursorTimeout(queryMessage.isFlagSet(QueryMessage.Flag.NO_CURSOR_TIMEOUT))
+                    .setOplogReplay(queryMessage.isFlagSet(QueryMessage.Flag.OPLOG_REPLAY))
+                    .setPartial(queryMessage.isFlagSet(QueryMessage.Flag.PARTIAL))
+                    .setSlaveOk(queryMessage.isFlagSet(QueryMessage.Flag.SLAVE_OK))
+                    .setTailable(queryMessage.isFlagSet(QueryMessage.Flag.TAILABLE_CURSOR));
 
-                if (requestBuilder.getLimit() < 0) {
-                    requestBuilder.setAutoclose(true);
-                    requestBuilder.setLimit(-requestBuilder.getLimit());
-                }
-                else if (requestBuilder.getLimit() == 1) {
-                    requestBuilder.setAutoclose(true);
-                }
-                SubRequestProcessor subRP = getSubRequestProcessor(queryMessage.getCollection());
-
-                ReplyMessage reply = subRP.query(
-                        new Request(
-                                connection,
-                                messageReplier.getRequestId(),
-                                queryMessage.getDatabase(),
-                                queryMessage.getClientAddress(),
-                                queryMessage.getClientPort()
-                        ),
-                        requestBuilder.build()
-                );
-                messageReplier.replyMessage(reply);
+            if (requestBuilder.getLimit() < 0) {
+                requestBuilder.setAutoclose(true);
+                requestBuilder.setLimit(-requestBuilder.getLimit());
             }
-        } catch (MongoServerException ex) {
-            errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
+            else if (requestBuilder.getLimit() == 1) {
+                requestBuilder.setAutoclose(true);
+            }
+            SubRequestProcessor subRP
+                    = getSubRequestProcessor(queryMessage.getCollection());
+
+            ReplyMessage reply = subRP.query(
+                    new Request(
+                            connection,
+                            messageReplier.getRequestId(),
+                            queryMessage.getDatabase(),
+                            queryMessage.getClientAddress(),
+                            queryMessage.getClientPort()
+                    ),
+                    requestBuilder.build()
+            );
+            messageReplier.replyMessage(reply);
         }
 
     }

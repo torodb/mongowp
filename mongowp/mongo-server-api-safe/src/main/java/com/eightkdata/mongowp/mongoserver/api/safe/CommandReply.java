@@ -19,7 +19,7 @@
  */
 package com.eightkdata.mongowp.mongoserver.api.safe;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

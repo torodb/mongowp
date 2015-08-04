@@ -1,7 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.tools.bson;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
@@ -251,6 +251,9 @@ public class BsonReaderTool {
     @Nullable
     public static OpTime getOpTime(BsonDocument doc, String fieldId, OpTime defaultValue) throws TypesMismatchException {
         BsonValue object = doc.get(fieldId);
+        if (object == null) {
+            return defaultValue;
+        }
         if (object.isDateTime()) {
             Instant.ofEpochMilli(object.asDateTime().getValue());
         }
@@ -311,7 +314,7 @@ public class BsonReaderTool {
     
     public static long getLong(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
         BsonValue object = getField(doc, fieldId);
-        if (object.isNumber()) {
+        if (!object.isNumber()) {
             String foundType = toStringBsonType(object.getBsonType());
             throw new TypesMismatchException(
                     fieldId, "integer", object.getBsonType(),
@@ -326,7 +329,7 @@ public class BsonReaderTool {
         if (object == null) {
             return defaultValue;
         }
-        if (object.isNumber()) {
+        if (!object.isNumber()) {
             String foundType = toStringBsonType(object.getBsonType());
             throw new TypesMismatchException(
                     fieldId, "integer", object.getBsonType(),
@@ -451,7 +454,7 @@ public class BsonReaderTool {
     @Nonnull
     public static String getString(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
         BsonValue object = getField(doc, fieldId);
-        if (object.isString()) {
+        if (!object.isString()) {
             throw new TypesMismatchException(fieldId, "string", object.getBsonType());
         }
         return object.asString().getValue();
@@ -463,7 +466,7 @@ public class BsonReaderTool {
         if (object == null) {
             return defaultValue;
         }
-        if (object.isString()) {
+        if (!object.isString()) {
             throw new TypesMismatchException(fieldId, "string", object.getBsonType());
         }
         return object.asString().getValue();

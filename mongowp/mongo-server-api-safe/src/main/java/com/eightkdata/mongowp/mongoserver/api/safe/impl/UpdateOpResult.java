@@ -3,6 +3,7 @@ package com.eightkdata.mongowp.mongoserver.api.safe.impl;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
 import javax.annotation.Nullable;
 import org.bson.BsonDocument;
@@ -20,29 +21,57 @@ public class UpdateOpResult extends SimpleWriteOpResult {
     private final boolean updateObjects;
     private final @Nullable ObjectId upsertedId;
 
-    public UpdateOpResult(long matchedDocumentsCounter, boolean updateObjects, ErrorCode error, String errorDesc, ReplicationInformation replInfo, ShardingInformation shardInfo) {
-        super(error, errorDesc, replInfo, shardInfo);
+    public UpdateOpResult(
+            long matchedDocumentsCounter,
+            boolean updateObjects,
+            ErrorCode error,
+            String errorDesc,
+            ReplicationInformation replInfo,
+            ShardingInformation shardInfo,
+            OpTime optime) {
+        super(error, errorDesc, replInfo, shardInfo, optime);
         this.matchedDocumentsCounter = matchedDocumentsCounter;
         this.updateObjects = updateObjects;
         this.upsertedId = null;
     }
 
-    public UpdateOpResult(long matchedDocumentsCounter, boolean updateObjects, ErrorCode error, ReplicationInformation replInfo, ShardingInformation shardInfo, Object... args) {
-        super(error, replInfo, shardInfo, args);
+    public UpdateOpResult(
+            long matchedDocumentsCounter,
+            boolean updateObjects,
+            ErrorCode error,
+            ReplicationInformation replInfo,
+            ShardingInformation shardInfo,
+            OpTime optime,
+            Object... args) {
+        super(error, replInfo, shardInfo, optime, args);
         this.matchedDocumentsCounter = matchedDocumentsCounter;
         this.updateObjects = updateObjects;
         this.upsertedId = null;
     }
 
-    public UpdateOpResult(ObjectId upsertedId, boolean updateObjects, ErrorCode error, String errorDesc, ReplicationInformation replInfo, ShardingInformation shardInfo) {
-        super(error, errorDesc, replInfo, shardInfo);
+    public UpdateOpResult(
+            ObjectId upsertedId,
+            boolean updateObjects,
+            ErrorCode error,
+            String errorDesc,
+            ReplicationInformation replInfo,
+            ShardingInformation shardInfo,
+            OpTime optime) {
+        super(error, errorDesc, replInfo, shardInfo, optime);
         this.matchedDocumentsCounter = 0;
         this.updateObjects = updateObjects;
         this.upsertedId = upsertedId;
     }
 
-    public UpdateOpResult(ObjectId upsertedId, boolean updateObjects, ErrorCode error, ReplicationInformation replInfo, ShardingInformation shardInfo, Object... args) {
-        super(error, replInfo, shardInfo, args);
+    public UpdateOpResult(
+            ObjectId upsertedId,
+            boolean updateObjects,
+            ErrorCode error,
+            ReplicationInformation replInfo,
+            ShardingInformation shardInfo,
+            OpTime optime,
+            Object... args) {
+        super(error, replInfo, shardInfo, optime, args);
         this.matchedDocumentsCounter = 0;
         this.updateObjects = updateObjects;
         this.upsertedId = upsertedId;

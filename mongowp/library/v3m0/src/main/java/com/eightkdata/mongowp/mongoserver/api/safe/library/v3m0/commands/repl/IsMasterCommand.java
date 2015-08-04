@@ -1,7 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.CommandReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;

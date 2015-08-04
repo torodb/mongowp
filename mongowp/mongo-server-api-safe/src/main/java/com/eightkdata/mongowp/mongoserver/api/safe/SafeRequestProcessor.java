@@ -2,7 +2,7 @@ package com.eightkdata.mongowp.mongoserver.api.safe;
 
 import com.eightkdata.mongowp.messages.request.*;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
-import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.pojos.QueryRequest;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
 import java.util.concurrent.Future;

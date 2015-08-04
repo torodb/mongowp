@@ -1,7 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.api.pojos;
 
-import com.eightkdata.mongowp.mongoserver.api.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import com.google.common.collect.ImmutableList;
 import javax.annotation.concurrent.Immutable;

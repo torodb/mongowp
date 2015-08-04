@@ -89,7 +89,7 @@ public class NameBasedCommandsLibrary implements CommandsLibrary {
             }
         }
         
-        return null;
+        return result;
     }
     
 }
