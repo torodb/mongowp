@@ -192,7 +192,7 @@ public class RequestProcessorAdaptor implements RequestProcessor {
             CommandReply reply = subRP.execute(command, request);
 
             if (reply.getWriteOpResult() != null) {
-                connection.setLastWriteOp(Futures.immediateFuture(reply.getWriteOpResult()));
+                connection.setAppliedWriteOp(Futures.immediateFuture(reply.getWriteOpResult()));
             }
             BsonDocument bsonReply = command.marshallReply(reply);
 
@@ -259,7 +259,7 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                             insertMessage
                     );
 
-            connection.setLastWriteOp(futureWriteOp);
+            connection.setAppliedWriteOp(futureWriteOp);
         } catch (MongoServerException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
@@ -281,7 +281,7 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                             updateMessage
                     );
 
-            connection.setLastWriteOp(futureWriteOp);
+            connection.setAppliedWriteOp(futureWriteOp);
         } catch (MongoServerException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
@@ -303,7 +303,7 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                             deleteMessage
                     );
 
-            connection.setLastWriteOp(futureWriteOp);
+            connection.setAppliedWriteOp(futureWriteOp);
         }
         catch (MongoServerException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);

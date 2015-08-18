@@ -2,6 +2,8 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.oplog;
 
 import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
 
 /**
  *
@@ -15,6 +17,12 @@ public class DbOplogOperation extends OplogOperation {
     @Override
     public OplogOperationType getType() {
         return OplogOperationType.DB;
+    }
+
+    @Override
+    public BsonDocument toDescriptiveBson() {
+        return super.toDescriptiveBson()
+                .append("op", new BsonString(getType().getOplogName()));
     }
 
     @Override

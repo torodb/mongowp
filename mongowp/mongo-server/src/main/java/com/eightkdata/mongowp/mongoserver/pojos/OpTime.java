@@ -13,6 +13,8 @@ import org.threeten.bp.Instant;
  */
 public class OpTime implements Comparable<OpTime> {
 
+    public static final OpTime EPOCH = new OpTime(0, 0);
+
     private final int secs;
     private final int term;
 

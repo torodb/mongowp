@@ -434,6 +434,9 @@ public class BsonReaderTool {
         if (object == null) {
             return defaultValue;
         }
+        if (object.isBoolean()) {
+            return object.asBoolean().getValue();
+        }
         String foundType = toStringBsonType(object.getBsonType());
         throw new TypesMismatchException(
                 fieldId, "boolean", object.getBsonType(),

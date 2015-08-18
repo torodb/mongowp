@@ -3,6 +3,7 @@ package com.eightkdata.mongowp.mongoserver.api.safe.oplog;
 
 import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import org.bson.BsonDocument;
+import org.bson.BsonString;
 
 /**
  *
@@ -33,6 +34,13 @@ public class DbCmdOplogOperation extends OplogOperation {
     @Override
     public OplogOperationType getType() {
         return OplogOperationType.DB_CMD;
+    }
+
+    @Override
+    public BsonDocument toDescriptiveBson() {
+        return super.toDescriptiveBson()
+                .append("op", new BsonString(getType().getOplogName()))
+                .append("o", request);
     }
 
     @Override

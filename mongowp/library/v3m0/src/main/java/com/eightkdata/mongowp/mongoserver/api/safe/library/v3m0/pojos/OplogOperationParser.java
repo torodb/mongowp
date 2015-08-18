@@ -1,12 +1,12 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
+import com.eightkdata.mongowp.mongoserver.api.safe.oplog.*;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.mongoserver.api.safe.oplog.*;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
 import java.util.Locale;
 import javax.annotation.Nonnull;
 import org.bson.BsonDocument;
@@ -64,7 +64,7 @@ public class OplogOperationParser {
         
         OpTime optime = new OpTime(BsonReaderTool.getInstant(doc, "ts"));
         long h = BsonReaderTool.getLong(doc, "h");
-        OplogVersion version = OplogVersion.valueOf(BsonReaderTool.getString(doc, "v"));
+        OplogVersion version = OplogVersion.valueOf(BsonReaderTool.getInteger(doc, "v"));
         boolean fromMigrate = doc.containsKey("fromMigrate"); //Note: Mongodb v3 checks if the key exists or not, but doesn't check the value
         BsonDocument o = BsonReaderTool.getDocument(doc, "o");
 
@@ -108,7 +108,7 @@ public class OplogOperationParser {
                         fromMigrate
                 );
             case NOOP:
-                return new NoopOplogOperation(db, optime, h, version, fromMigrate);
+                return new NoopOplogOperation(o, db, optime, h, version, fromMigrate);
             case UPDATE:
                 return new UpdateOplogOperation(
                         o,

@@ -3,7 +3,9 @@ package com.eightkdata.mongowp.mongoserver.api.safe.oplog;
 
 import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import javax.annotation.concurrent.Immutable;
+import org.bson.BsonBoolean;
 import org.bson.BsonDocument;
+import org.bson.BsonString;
 
 /**
  *
@@ -39,6 +41,14 @@ public class DeleteOplogOperation extends CollectionOplogOperation {
     @Override
     public OplogOperationType getType() {
         return OplogOperationType.DELETE;
+    }
+
+    @Override
+    public BsonDocument toDescriptiveBson() {
+        return super.toDescriptiveBson()
+                .append("op", new BsonString(getType().getOplogName()))
+                .append("o", filter)
+                .append("b", BsonBoolean.valueOf(justOne));
     }
 
     @Override

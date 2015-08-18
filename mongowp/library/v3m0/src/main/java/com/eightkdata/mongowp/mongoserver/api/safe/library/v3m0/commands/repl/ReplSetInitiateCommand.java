@@ -9,6 +9,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSet
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.SimpleReplyMarshaller;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import javax.annotation.Nullable;
 import org.bson.BsonDocument;
 
 /**
@@ -30,7 +31,13 @@ public class ReplSetInitiateCommand extends AbstractCommand<ReplSetInitiateArgum
     @Override
     public ReplSetInitiateArgument unmarshallArg(BsonDocument requestDoc) throws
             MongoServerException {
-        BsonDocument configDoc = BsonReaderTool.getDocument(requestDoc, getCommandName());
+        BsonDocument configDoc;
+        if (requestDoc == null || requestDoc.isEmpty()) {
+            configDoc = null;
+        }
+        else {
+            configDoc = BsonReaderTool.getDocument(requestDoc, getCommandName());
+        }
         return new ReplSetInitiateArgument(this, ReplicaSetConfig.fromDocument(configDoc));
     }
 
@@ -49,11 +56,19 @@ public class ReplSetInitiateCommand extends AbstractCommand<ReplSetInitiateArgum
 
         private final ReplicaSetConfig config;
 
-        public ReplSetInitiateArgument(Command command, ReplicaSetConfig config) {
+        public ReplSetInitiateArgument(Command command, @Nullable ReplicaSetConfig config) {
             super(command);
             this.config = config;
         }
 
+        /**
+         * The initial configuration.
+         *
+         * Null indicates that the default configuration must be used.
+         * 
+         * @return
+         */
+        @Nullable
         public ReplicaSetConfig getConfig() {
             return config;
         }

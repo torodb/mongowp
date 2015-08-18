@@ -274,7 +274,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
                 wcer.marshall(builder);
             }
 
-            if (thisError != null && !thisError.equals(MongoWP.ErrorCode.OK)) {
+            if (!thisError.equals(MongoWP.ErrorCode.OK)) {
                 builder.append(CODE_FIELD, thisError.getErrorCode());
                 if (thisErrorMessage != null) {
                     builder.append(ERR_FIELD, thisErrorMessage);
