@@ -6,7 +6,7 @@
 
     <groupId>com.8kdata.mongowp</groupId>
     <artifactId>mongowp-parent</artifactId>
-    <version>0.16-SNAPSHOT</version>
+    <version>0.16</version>
     <packaging>pom</packaging>
 
     <organization>
@@ -44,7 +44,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <S3.bucket>maven.torodb.com</S3.bucket>
         <netty.version>4.0.28.Final</netty.version>
-        <netty-bson.version>0.13-SNAPSHOT</netty-bson.version>
+        <netty-bson.version>0.14</netty-bson.version>
     </properties>
 
     <dependencyManagement>
