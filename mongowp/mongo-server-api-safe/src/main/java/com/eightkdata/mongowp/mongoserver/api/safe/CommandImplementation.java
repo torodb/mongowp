@@ -1,12 +1,14 @@
 package com.eightkdata.mongowp.mongoserver.api.safe;
 
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
+import javax.annotation.Nonnull;
 
 /**
  *
  */
-public interface CommandImplementation<Arg extends CommandArgument, Rep extends CommandReply> {
+public interface CommandImplementation<Arg, Result> {
 
-    public Rep apply(Command<? extends Arg, ? extends Rep> command, CommandRequest<Arg> req) throws MongoServerException;
+    @Nonnull
+    public CommandResult<Result> apply(Command<? super Arg, ? super Result> command, CommandRequest<Arg> req) throws MongoException;
 
 }

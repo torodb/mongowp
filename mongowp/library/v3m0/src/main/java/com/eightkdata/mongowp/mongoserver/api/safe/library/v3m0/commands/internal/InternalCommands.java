@@ -3,8 +3,6 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.intern
 
 import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.CommandImplementation;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.HandshakeCommand.HandshakeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectReply;
@@ -14,6 +12,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.interna
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
@@ -41,17 +40,17 @@ public class InternalCommands implements Iterable<Command> {
 
     public static abstract class InternalCommandsImplementationsBuilder implements Iterable<Entry<Command, CommandImplementation>> {
 
-        public abstract CommandImplementation<HandshakeArgument, SimpleReply> getHandshakeImplementation();
+        public abstract CommandImplementation<HandshakeArgument, Empty> getHandshakeImplementation();
 
         public abstract CommandImplementation<ReplSetElectArgument, ReplSetElectReply> getReplSetElectImplementation();
 
         public abstract CommandImplementation<ReplSetFreshArgument, ReplSetFreshReply> getReplSetFreshImplementation();
 
-        public abstract CommandImplementation<SimpleArgument, ReplSetGetRBIDReply> getReplSetGetRBIDImplementation();
+        public abstract CommandImplementation<Empty, ReplSetGetRBIDReply> getReplSetGetRBIDImplementation();
 
         public abstract CommandImplementation<ReplSetHeartbeatArgument, ReplSetHeartbeatReply> getReplSetHeartbeatImplementation();
 
-        public abstract CommandImplementation<ReplSetUpdatePositionArgument, SimpleReply> getReplSetUpdateImplementation();
+        public abstract CommandImplementation<ReplSetUpdatePositionArgument, Empty> getReplSetUpdateImplementation();
 
         private Map<Command, CommandImplementation> createMap() {
             return ImmutableMap.<Command, CommandImplementation>builder()

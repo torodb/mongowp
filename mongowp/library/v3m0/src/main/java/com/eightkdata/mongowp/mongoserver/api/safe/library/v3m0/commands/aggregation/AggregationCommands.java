@@ -4,7 +4,6 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggreg
 import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.CommandImplementation;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation.CountCommand.CountArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation.CountCommand.CountReply;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
@@ -26,7 +25,7 @@ public class AggregationCommands implements Iterable<Command> {
 
     public static abstract class AggregationCommandsImplementationsBuilder implements Iterable<Map.Entry<Command, CommandImplementation>> {
 
-        public abstract CommandImplementation<CountArgument, CountReply> getCountImplementation();
+        public abstract CommandImplementation<CountArgument, Long> getCountImplementation();
 
         private Map<Command, CommandImplementation> createMap() {
             return ImmutableMap.<Command, CommandImplementation>builder()

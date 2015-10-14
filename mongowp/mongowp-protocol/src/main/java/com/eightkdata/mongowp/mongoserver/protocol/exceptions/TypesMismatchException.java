@@ -26,7 +26,7 @@ import org.bson.BsonType;
 /**
  *
  */
-public class TypesMismatchException extends MongoServerException {
+public class TypesMismatchException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     private final String fieldId;

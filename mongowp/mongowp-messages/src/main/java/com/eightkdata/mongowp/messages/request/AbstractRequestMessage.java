@@ -21,8 +21,9 @@
 
 package com.eightkdata.mongowp.messages.request;
 
-import javax.annotation.Nonnull;
 import java.net.InetAddress;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -39,12 +40,12 @@ public abstract class AbstractRequestMessage {
         return requestBaseMessage;
     }
 
-    @Nonnull
+    @Nullable 
     public InetAddress getClientAddress() {
         return requestBaseMessage.getClientAddress();
     }
 
-    @Nonnull
+    @Nullable 
     public String getClientAddressString() {
         return requestBaseMessage.getClientAddressString();
     }

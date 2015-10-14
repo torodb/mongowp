@@ -27,6 +27,6 @@ import javax.annotation.Nonnull;
  *
  */
 public interface RequestMessage {
-    public RequestOpCode getOpCode();
-    @Nonnull public RequestBaseMessage getBaseMessage();
+    RequestOpCode getOpCode();
+    @Nonnull RequestBaseMessage getBaseMessage();
 }

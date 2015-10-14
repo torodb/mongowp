@@ -19,16 +19,18 @@
  */
 package com.eightkdata.mongowp.mongoserver.api.safe;
 
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.bson.BsonDocument;
 
 /**
  * A Command represents a MongoDB command as a function signature represents a
  * function in programming languages like C++ or Java.
  * @param <Arg>
- * @param <Rep>
+ * @param <Result>
  */
-public interface Command<Arg extends CommandArgument, Rep extends CommandReply> {
+public interface Command<Arg, Result> {
     
     public String getCommandName();
 
@@ -57,18 +59,51 @@ public interface Command<Arg extends CommandArgument, Rep extends CommandReply> 
      * @return iff the command can be executed while the server is in recovering state
      */
     public boolean isAllowedOnMaintenance();
+
+    /**
+     *
+     * @return iff the command can change the replication state
+     */
+    public boolean canChangeReplicationState();
+
+    /**
+     * Returns true if {@link #marshallResult(org.bson.BsonDocument) } produces
+     * documents that already contains correction fields like <em>ok</em>,
+     * <em>errmsg</em> or whatever special field used by the protocol to specify
+     * errors on the execution.
+     *
+     * If true is returned, then a non null object is returned when
+     * {@linkplain #marshallResult(java.lang.Object) } is called with the same
+     * argument.
+     * @param r
+     * @return
+     */
+    public boolean isReadyToReplyResult(Result r);
     
     public Class<? extends Arg> getArgClass();
+
+    @Nonnull
+    public Arg unmarshallArg(@Nonnull BsonDocument requestDoc) throws BadValueException, TypesMismatchException, NoSuchKeyException, FailedToParseException;
+
+    @Nonnull
+    public BsonDocument marshallArg(Arg request) throws MarshalException;
     
-    public Arg unmarshallArg(BsonDocument requestDoc) throws MongoServerException;
-    
-    public BsonDocument marshallArg(Arg request) throws MongoServerException, UnsupportedOperationException;
-    
-    public Class<? extends Rep> getReplyClass();
-    
-    public Rep unmarshallReply(BsonDocument replyDoc) throws MongoServerException, UnsupportedOperationException;
-    
-    public BsonDocument marshallReply(Rep reply) throws MongoServerException;
+    public Class<? extends Result> getResultClass();
+
+    @Nonnull
+    public Result unmarshallResult(@Nonnull BsonDocument resultDoc) throws BadValueException, TypesMismatchException, NoSuchKeyException, FailedToParseException, MongoException;
+
+    /**
+     * Translate the result to a bson document.
+     *
+     * The fields
+     * @param result
+     * @return
+     * @throws com.eightkdata.mongowp.mongoserver.api.safe.MarshalException
+     * @throws MongoException
+     */
+    @Nullable
+    public BsonDocument marshallResult(Result result) throws MarshalException ;
     
     /**
      * Two commands are equal iff their class is the same.

@@ -22,7 +22,7 @@
 package com.eightkdata.mongowp.mongoserver;
 
 import com.eightkdata.mongowp.messages.request.*;
-import com.eightkdata.mongowp.mongoserver.callback.DefaultMessageReplier;
+import com.eightkdata.mongowp.mongoserver.callback.NettyMessageReplier;
 import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.callback.RequestProcessor;
 import io.netty.channel.ChannelHandlerContext;
@@ -50,10 +50,10 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         RequestMessage requestMessage = (RequestMessage) msg;
-    	ctx.attr(DefaultMessageReplier.REQUEST_ID).set(requestMessage.getBaseMessage().getRequestId());
+    	ctx.attr(NettyMessageReplier.REQUEST_ID).set(requestMessage.getBaseMessage().getRequestId());
         LOGGER.debug("Received message type: {}, data: {}", requestMessage.getOpCode(), requestMessage);
 
-        MessageReplier messageReplier = new DefaultMessageReplier(ctx);
+        MessageReplier messageReplier = new NettyMessageReplier(ctx);
     	ctx.attr(REQUEST_OP_CODE).set(requestMessage.getOpCode());
         switch (requestMessage.getOpCode()) {
 	        case OP_QUERY:
@@ -92,7 +92,7 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         LOGGER.error("Error while processing request", cause);
 
-        MessageReplier messageReplier = new DefaultMessageReplier(ctx);
+        MessageReplier messageReplier = new NettyMessageReplier(ctx);
         requestProcessor.handleError(ctx.attr(REQUEST_OP_CODE).get(), messageReplier, cause);
     }
 

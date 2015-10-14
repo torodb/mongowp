@@ -5,6 +5,9 @@ import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
+import java.util.Map.Entry;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.bson.*;
 import org.bson.types.ObjectId;
 import org.threeten.bp.Instant;
@@ -22,18 +25,47 @@ public class BsonDocumentBuilder {
         built = false;
     }
 
-    public boolean containsField(BsonField<Integer> field) {
+    public BsonDocumentBuilder(BsonDocument doc) {
+        this.doc = doc;
+        built = false;
+    }
+
+    public boolean containsField(@Nonnull BsonField<Integer> field) {
         return doc.containsKey(field.getFieldName());
     }
 
-    public BsonDocumentBuilder appendUnsafe(String fieldName, BsonValue value) {
+    public BsonDocumentBuilder copy(@Nonnull BsonDocument otherDoc) {
+        for (Entry<String, BsonValue> entrySet : otherDoc.entrySet()) {
+            doc.append(entrySet.getKey(), entrySet.getValue());
+        }
+        return this;
+    }
+
+    public BsonDocumentBuilder appendUnsafe(String fieldName, @Nullable BsonValue value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            doc.append(fieldName,  BsonNull.VALUE);
+            return this;
+        }
         doc.append(fieldName, value);
+        return this;
+    }
+
+    public BsonDocumentBuilder append(BsonField<BsonValue> field, @Nullable BsonValue value) {
+        Preconditions.checkState(!built);
+        if (value == null) {
+            doc.append(field.getFieldName(),  BsonNull.VALUE);
+            return this;
+        }
+        doc.append(field.getFieldName(), value);
         return this;
     }
 
     public <T> BsonDocumentBuilder append(BsonField<T> field, T value, Function<T, BsonValue> translator) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(field.getFieldName(), translator.apply(value));
         return this;
     }
@@ -44,8 +76,11 @@ public class BsonDocumentBuilder {
         return this;
     }
 
-    public BsonDocumentBuilder appendNumber(BsonField<Number> field, Number value) {
+    public BsonDocumentBuilder appendNumber(BsonField<? extends Number> field, Number value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(field.getFieldName(), toBsonNumber(value));
         return this;
     }
@@ -67,13 +102,13 @@ public class BsonDocumentBuilder {
         throw new IllegalArgumentException("Numbers of class " + number.getClass() + " are not supported");
     }
 
-    public BsonDocumentBuilder appendNumber(BsonField<Number> field, int value) {
+    public BsonDocumentBuilder appendNumber(BsonField<? extends Number> field, int value) {
         Preconditions.checkState(!built);
         doc.append(field.getFieldName(), new BsonInt32(value));
         return this;
     }
 
-    public BsonDocumentBuilder appendNumber(BsonField<Number> field, long value) {
+    public BsonDocumentBuilder appendNumber(BsonField<? extends Number> field, long value) {
         Preconditions.checkState(!built);
         if (value < Integer.MAX_VALUE && value > Integer.MIN_VALUE) {
             doc.append(field.getFieldName(), new BsonInt32((int) value));
@@ -98,6 +133,9 @@ public class BsonDocumentBuilder {
 
     public BsonDocumentBuilder append(BsonField<String> field, String value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(field.getFieldName(), new BsonString(value));
         return this;
     }
@@ -110,6 +148,9 @@ public class BsonDocumentBuilder {
 
     public BsonDocumentBuilder append(BsonField<Instant> field, Instant value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(field.getFieldName(), new BsonDateTime(value.toEpochMilli()));
         return this;
     }
@@ -128,6 +169,9 @@ public class BsonDocumentBuilder {
 
     public BsonDocumentBuilder append(BsonField<OpTime> field, OpTime value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(
                 field.getFieldName(),
                 value.asBsonTimestamp()
@@ -137,30 +181,45 @@ public class BsonDocumentBuilder {
 
     public BsonDocumentBuilder append(BsonField<BsonArray> field, BsonArray value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(field.getFieldName(), value);
         return this;
     }
 
     public BsonDocumentBuilder append(BsonField<BsonDocument> field, BsonDocument value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(field.getFieldName(), value);
         return this;
     }
 
     public BsonDocumentBuilder append(BsonField<BsonDocument> field, BsonDocumentBuilder value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(field.getFieldName(), value.build());
         return this;
     }
 
     public BsonDocumentBuilder append(BsonField<HostAndPort> field, HostAndPort value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(field.getFieldName(), new BsonString(value.toString()));
         return this;
     }
 
     public BsonDocumentBuilder append(BsonField<ObjectId> field, ObjectId value) {
         Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
         doc.append(field.getFieldName(), new BsonObjectId(value));
         return this;
     }

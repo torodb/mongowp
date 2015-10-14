@@ -11,15 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * This message replier writes and flush the reply to the given netty channel.
  */
-public class DefaultMessageReplier extends MessageReplier {
+public class NettyMessageReplier extends MessageReplier {
     private static final Logger LOGGER
-            = LoggerFactory.getLogger(DefaultMessageReplier.class);
-	/**
-	 * The connectionId must be unique for each connection
-	 */
-    public static final AttributeKey<Integer> CONNECTION_ID = AttributeKey.valueOf("connectionId");
+            = LoggerFactory.getLogger(NettyMessageReplier.class);
 	/**
 	 * The requestId must be unique for each request
 	 */
@@ -27,7 +23,7 @@ public class DefaultMessageReplier extends MessageReplier {
 
     private final ChannelHandlerContext channelHandlerContext;
 
-    public DefaultMessageReplier(@Nonnull ChannelHandlerContext channelHandlerContext) {
+    public NettyMessageReplier(@Nonnull ChannelHandlerContext channelHandlerContext) {
         Preconditions.checkNotNull(channelHandlerContext);
 
         this.channelHandlerContext = channelHandlerContext;
@@ -36,11 +32,6 @@ public class DefaultMessageReplier extends MessageReplier {
     @Override
     public int getRequestId() {
         return channelHandlerContext.attr(REQUEST_ID).get();
-    }
-
-    @Override
-    public int getConnectionId() {
-    	return channelHandlerContext.attr(CONNECTION_ID).get();
     }
 
     @Override

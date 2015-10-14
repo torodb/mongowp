@@ -7,6 +7,7 @@ import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,6 +21,7 @@ public class SimpleWriteOpResult implements WriteOpResult {
     private static final BsonField<String> ERR_FIELD_NAME = BsonField.create("err");
     private static final BsonField<Integer> CODE_FIELD_NAME = BsonField.create("code");
     private static final BsonField<Double> N_FIELD_NAME = BsonField.create("n");
+    private static final long serialVersionUID = 1L;
 
     private final @Nonnull MongoWP.ErrorCode error;
     private final @Nullable String errorDesc;
@@ -69,11 +71,12 @@ public class SimpleWriteOpResult implements WriteOpResult {
     }
 
     @Override
-    public OpTime getOptime() {
+    public OpTime getOpTime() {
         return optime;
     }
 
-    public ErrorCode getError() {
+    @Override
+    public ErrorCode getErrorCode() {
         return error;
     }
 
@@ -126,8 +129,9 @@ public class SimpleWriteOpResult implements WriteOpResult {
         return !error.equals(ErrorCode.OK);
     }
 
-    public static class ReplicationInformation {
+    public static class ReplicationInformation implements Serializable {
         private static final BsonField<OpTime> LAST_OP_FIELD = BsonField.create("lastOp");
+        private static final long serialVersionUID = 1L;
         private final @Nonnull OpTime precedingOpTime;
 
         public ReplicationInformation(@Nonnull OpTime precedingOpTime) {
@@ -144,7 +148,8 @@ public class SimpleWriteOpResult implements WriteOpResult {
     }
 
     //TODO: Implement this class
-    public static class ShardingInformation {
+    public static class ShardingInformation implements Serializable {
+        private static final long serialVersionUID = 1L;
         private ShardingInformation() {}
 
         private void marshall(BsonDocumentBuilder builder) {

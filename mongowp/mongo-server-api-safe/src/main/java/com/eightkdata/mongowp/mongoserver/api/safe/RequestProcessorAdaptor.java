@@ -3,14 +3,13 @@ package com.eightkdata.mongowp.mongoserver.api.safe;
 
 import com.eightkdata.mongowp.messages.request.*;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
-import com.eightkdata.mongowp.mongoserver.api.safe.SafeRequestProcessor.SubRequestProcessor;
 import com.eightkdata.mongowp.mongoserver.api.safe.pojos.QueryRequest;
 import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.callback.RequestProcessor;
 import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.CommandNotFoundException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import com.google.common.util.concurrent.Futures;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
@@ -28,11 +27,6 @@ import org.bson.BsonValue;
 public class RequestProcessorAdaptor implements RequestProcessor {
     public final static AttributeKey<Connection> CONNECTION =
 			AttributeKey.valueOf(RequestProcessorAdaptor.class.getCanonicalName() + ".connection");
-
-    private static final String NAMESPACES_COLLECTION = "system.namespaces";
-    private static final String INDEXES_COLLECTION = "system.indexes";
-    private static final String PROFILE_COLLECTION = "system.profile";
-    private static final String JS_COLLECTION = "system.js";
 
     public static final String QUERY_MESSAGE_COMMAND_COLLECTION = "$cmd";
     public static final String QUERY_MESSAGE_ADMIN_DATABASE = "admin";
@@ -85,25 +79,9 @@ public class RequestProcessorAdaptor implements RequestProcessor {
             safeRequestProcessor.onConnectionInactive(connection);
         }
     }
-
-    private SafeRequestProcessor.SubRequestProcessor getSubRequestProcessor(String collection) {
-        if (NAMESPACES_COLLECTION.equals(collection)) {
-            return safeRequestProcessor.getNamespacesRequestProcessor();
-        }
-        if(INDEXES_COLLECTION.equals(collection)) {
-            return safeRequestProcessor.getIndexRequestProcessor();
-        }
-        if (PROFILE_COLLECTION.equals(collection)) {
-            return safeRequestProcessor.getProfileRequestProcessor();
-        }
-        if (JS_COLLECTION.equals(collection)) {
-            return safeRequestProcessor.getJSProcessor();
-        }
-        return safeRequestProcessor.getStantardRequestProcessor();
-    }
-
+    
     @Override
-    public void queryMessage(QueryMessage queryMessage, MessageReplier messageReplier) throws MongoServerException {
+    public void queryMessage(QueryMessage queryMessage, MessageReplier messageReplier) throws MongoException {
         Connection connection = getConnection(messageReplier.getAttributeMap());
 
         if (QUERY_MESSAGE_COMMAND_COLLECTION.equals(queryMessage.getCollection())) {
@@ -134,10 +112,8 @@ public class RequestProcessorAdaptor implements RequestProcessor {
             else if (requestBuilder.getLimit() == 1) {
                 requestBuilder.setAutoclose(true);
             }
-            SubRequestProcessor subRP
-                    = getSubRequestProcessor(queryMessage.getCollection());
 
-            ReplyMessage reply = subRP.query(
+            ReplyMessage reply = safeRequestProcessor.query(
                     new Request(
                             connection,
                             messageReplier.getRequestId(),
@@ -152,15 +128,14 @@ public class RequestProcessorAdaptor implements RequestProcessor {
 
     }
 
+    @SuppressWarnings("unchecked")
     private void executeCommand(
             Connection connection,
             QueryMessage queryMessage,
-            MessageReplier messageReplier) throws MongoServerException {
+            MessageReplier messageReplier) throws MongoException {
         try {
-            SubRequestProcessor subRP = getSubRequestProcessor(queryMessage.getCollection());
-
             BsonDocument document = queryMessage.getDocument();
-            Command command = subRP.getCommandsLibrary().find(document);
+            Command command = safeRequestProcessor.getCommandsLibrary().find(document);
             if (command == null) {
                 if (document.isEmpty()) {
                     throw new CommandNotFoundException("Empty document query");
@@ -180,21 +155,22 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                 }
             }
 
-            CommandArgument arg = command.unmarshallArg(document);
+            Object arg = command.unmarshallArg(document);
             CommandRequest request = new CommandRequest(
                     connection,
                     queryMessage.getRequestId(),
                     queryMessage.getDatabase(),
                     queryMessage.getClientAddress(),
                     queryMessage.getClientPort(),
-                    arg
+                    arg,
+                    queryMessage.isFlagSet(QueryMessage.Flag.SLAVE_OK)
             );
-            CommandReply reply = subRP.execute(command, request);
+            CommandReply reply = safeRequestProcessor.execute(command, request);
 
             if (reply.getWriteOpResult() != null) {
                 connection.setAppliedWriteOp(Futures.immediateFuture(reply.getWriteOpResult()));
             }
-            BsonDocument bsonReply = command.marshallReply(reply);
+            BsonDocument bsonReply = reply.marshall();
 
             messageReplier.replyMessageNoCursor(bsonReply);
         }
@@ -220,7 +196,7 @@ public class RequestProcessorAdaptor implements RequestProcessor {
 
             ReplyMessage reply = safeRequestProcessor.getMore(req, getMoreMessage);
             messageReplier.replyMessage(reply);
-        } catch (MongoServerException ex) {
+        } catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
     }
@@ -237,7 +213,7 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                     killCursorsMessage.getClientPort()
             );
             safeRequestProcessor.killCursors(req, killCursorsMessage);
-        } catch (MongoServerException ex) {
+        } catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
     }
@@ -253,14 +229,14 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                     insertMessage.getClientAddress(),
                     insertMessage.getClientPort()
             );
-            Future<? extends WriteOpResult> futureWriteOp = getSubRequestProcessor(insertMessage.getCollection())
+            Future<? extends WriteOpResult> futureWriteOp = safeRequestProcessor
                     .insert(
                             req,
                             insertMessage
                     );
 
             connection.setAppliedWriteOp(futureWriteOp);
-        } catch (MongoServerException ex) {
+        } catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
     }
@@ -275,14 +251,14 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                     updateMessage.getDatabase(),
                     updateMessage.getClientAddress(),
                     updateMessage.getClientPort());
-            Future<? extends WriteOpResult> futureWriteOp = getSubRequestProcessor(updateMessage.getCollection())
+            Future<? extends WriteOpResult> futureWriteOp = safeRequestProcessor
                     .update(
                             req,
                             updateMessage
                     );
 
             connection.setAppliedWriteOp(futureWriteOp);
-        } catch (MongoServerException ex) {
+        } catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
     }
@@ -297,7 +273,7 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                     deleteMessage.getDatabase(),
                     deleteMessage.getClientAddress(),
                     deleteMessage.getClientPort());
-            Future<? extends WriteOpResult> futureWriteOp = getSubRequestProcessor(deleteMessage.getCollection())
+            Future<? extends WriteOpResult> futureWriteOp = safeRequestProcessor
                     .delete(
                             req,
                             deleteMessage
@@ -305,7 +281,7 @@ public class RequestProcessorAdaptor implements RequestProcessor {
 
             connection.setAppliedWriteOp(futureWriteOp);
         }
-        catch (MongoServerException ex) {
+        catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
     }
@@ -315,12 +291,11 @@ public class RequestProcessorAdaptor implements RequestProcessor {
         Connection connection = getConnection(messageReplier);
 
         ReplyMessage handleMongodbException;
-        if (throwable instanceof MongoServerException) {
-            handleMongodbException = errorHandler.handleMongodbException(
-                    connection,
+        if (throwable instanceof MongoException) {
+            handleMongodbException = errorHandler.handleMongodbException(connection,
                     messageReplier.getRequestId(),
                     requestOpCode.canReply(),
-                    (MongoServerException) throwable
+                    (MongoException) throwable
             );
         }
         else {

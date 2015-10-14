@@ -2,16 +2,18 @@ package com.eightkdata.mongowp.mongoserver.api.safe;
 
 import com.eightkdata.mongowp.messages.request.*;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
-import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.api.safe.impl.UpdateOpResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.pojos.QueryRequest;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
-import java.util.concurrent.Future;
+import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.CommandNotSupportedException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
+import com.google.common.util.concurrent.ListenableFuture;
 import javax.annotation.Nonnull;
 
 /**
  *
  */
-public interface SafeRequestProcessor {
+public interface SafeRequestProcessor extends CommandsExecutor{
 
     public void onConnectionActive(Connection connection);
 
@@ -19,37 +21,29 @@ public interface SafeRequestProcessor {
 
     @Nonnull
     public ReplyMessage getMore(Request request, GetMoreMessage getMoreMessage)
-            throws MongoServerException;
+            throws MongoException;
 
-    public Future<?> killCursors(Request request, KillCursorsMessage killCursorsMessage)
-            throws MongoServerException;
+    public ListenableFuture<?> killCursors(Request request, KillCursorsMessage killCursorsMessage)
+            throws MongoException;
 
-    public SubRequestProcessor getStantardRequestProcessor();
+    public CommandsLibrary getCommandsLibrary();
 
-    public SubRequestProcessor getNamespacesRequestProcessor();
+    @Override
+    public <Arg, Result> CommandReply<Result> execute(
+            Command<? super Arg, ? super Result> command,
+            CommandRequest<Arg> request) throws MongoException, CommandNotSupportedException;
 
-    public SubRequestProcessor getIndexRequestProcessor();
+    @Nonnull
+    public ReplyMessage query(Request request, QueryRequest queryMessage)
+            throws MongoException;
 
-    public SubRequestProcessor getJSProcessor();
+    public ListenableFuture<? extends WriteOpResult> insert(Request request, InsertMessage insertMessage)
+            throws MongoException;
 
-    public SubRequestProcessor getProfileRequestProcessor();
+    public ListenableFuture<? extends UpdateOpResult> update(Request request, UpdateMessage deleteMessage)
+            throws MongoException;
 
-    public static interface SubRequestProcessor extends CommandsExecutor {
+    public ListenableFuture<? extends WriteOpResult> delete(Request request, DeleteMessage deleteMessage)
+            throws MongoException;
 
-        @Nonnull
-        public ReplyMessage query(Request request, QueryRequest queryMessage)
-                throws MongoServerException;
-
-        public CommandsLibrary getCommandsLibrary();
-
-        public Future<? extends WriteOpResult> insert(Request request, InsertMessage insertMessage)
-                throws MongoServerException;
-
-        public Future<? extends WriteOpResult> update(Request request, UpdateMessage deleteMessage)
-                throws MongoServerException;
-
-        public Future<? extends WriteOpResult> delete(Request request, DeleteMessage deleteMessage)
-                throws MongoServerException;
-
-    }
 }

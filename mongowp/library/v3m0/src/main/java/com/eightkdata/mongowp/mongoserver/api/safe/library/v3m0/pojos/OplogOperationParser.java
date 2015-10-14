@@ -7,6 +7,7 @@ import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.google.common.base.Function;
 import java.util.Locale;
 import javax.annotation.Nonnull;
 import org.bson.BsonDocument;
@@ -17,7 +18,15 @@ import org.bson.BsonValue;
  */
 public class OplogOperationParser {
 
-    public static OplogOperation fromBson(@Nonnull BsonValue uncastedOp) throws BadValueException, TypesMismatchException, NoSuchKeyException {
+    private OplogOperationParser() {
+    }
+
+    public static Function<BsonDocument, OplogOperation> asFunction() {
+        return AsFunction.INSTANCE;
+    }
+
+    public static OplogOperation fromBson(@Nonnull BsonValue uncastedOp) throws
+            BadValueException, TypesMismatchException, NoSuchKeyException {
         if (!uncastedOp.isDocument()) {
             throw new BadValueException("found a "
                     + uncastedOp.getBsonType().toString().toLowerCase(Locale.ROOT)
@@ -98,6 +107,7 @@ public class OplogOperationParser {
                         BsonReaderTool.getBoolean(doc, "b", false)
                 );
             case INSERT:
+                //TODO: parse b
                 return new InsertOplogOperation(
                         o,
                         db,
@@ -111,18 +121,40 @@ public class OplogOperationParser {
                 return new NoopOplogOperation(o, db, optime, h, version, fromMigrate);
             case UPDATE:
                 return new UpdateOplogOperation(
-                        o,
+                        BsonReaderTool.getDocument(doc, "o2"),
                         db,
                         collection,
                         optime,
                         h,
                         version,
                         fromMigrate,
-                        BsonReaderTool.getDocument(doc, "o2"),
+                        o,
                         BsonReaderTool.getBoolean(doc, "b", false)
                 );
             default:
                 throw new AssertionError(OplogOperationParser.class + " is not prepared to work with oplog operations of type " + opType);
         }
+    }
+
+    private static class AsFunction implements Function<BsonDocument, OplogOperation> {
+
+        private static final AsFunction INSTANCE = new AsFunction();
+
+        @Override
+        public OplogOperation apply(BsonDocument input) {
+            if (input == null) {
+                return null;
+            }
+            try {
+                return fromBson(input);
+            } catch (BadValueException ex) {
+                throw new IllegalArgumentException(ex);
+            } catch (TypesMismatchException ex) {
+                throw new IllegalArgumentException(ex);
+            } catch (NoSuchKeyException ex) {
+                throw new IllegalArgumentException(ex);
+            }
+        }
+
     }
 }

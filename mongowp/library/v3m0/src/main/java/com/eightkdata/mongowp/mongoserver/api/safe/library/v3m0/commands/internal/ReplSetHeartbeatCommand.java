@@ -1,17 +1,15 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplSetProtocolVersion;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
 import com.google.common.collect.Sets;
@@ -34,40 +32,42 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
     }
 
     @Override
+    public boolean isReadyToReplyResult(ReplSetHeartbeatReply r) {
+        return true;
+    }
+
+    @Override
     public Class<? extends ReplSetHeartbeatArgument> getArgClass() {
         return ReplSetHeartbeatArgument.class;
     }
 
     @Override
     public ReplSetHeartbeatArgument unmarshallArg(BsonDocument requestDoc)
-            throws MongoServerException {
-        return ReplSetHeartbeatArgument.fromDocument(requestDoc, this);
+            throws TypesMismatchException, NoSuchKeyException, BadValueException {
+        return ReplSetHeartbeatArgument.fromDocument(requestDoc);
     }
 
     @Override
-    public BsonDocument marshallArg(ReplSetHeartbeatArgument request) throws
-            MongoServerException, UnsupportedOperationException {
+    public BsonDocument marshallArg(ReplSetHeartbeatArgument request) {
         return request.toBSON();
     }
 
     @Override
-    public Class<? extends ReplSetHeartbeatReply> getReplyClass() {
+    public Class<? extends ReplSetHeartbeatReply> getResultClass() {
         return ReplSetHeartbeatReply.class;
     }
 
     @Override
-    public BsonDocument marshallReply(ReplSetHeartbeatReply reply) throws
-            MongoServerException {
+    public BsonDocument marshallResult(ReplSetHeartbeatReply reply) {
         return reply.toBSON();
     }
 
     @Override
-    public ReplSetHeartbeatReply unmarshallReply(BsonDocument replyDoc) throws
-            MongoServerException, UnsupportedOperationException {
-        return ReplSetHeartbeatReply.fromDocument(replyDoc, this);
+    public ReplSetHeartbeatReply unmarshallResult(BsonDocument replyDoc) throws NoSuchKeyException, TypesMismatchException, FailedToParseException, MongoException {
+        return ReplSetHeartbeatReply.fromDocument(replyDoc);
     }
 
-    public static class ReplSetHeartbeatArgument extends SimpleArgument {
+    public static class ReplSetHeartbeatArgument {
 
         private static final String CHECK_EMPTY_FIELD_NAME = "checkEmpty";
         private static final String PROTOCOL_VERSION_FIELD_NAME = "pv";
@@ -93,14 +93,12 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
         private final boolean checkEmpty;
 
         public ReplSetHeartbeatArgument(
-                ReplSetHeartbeatCommand command,
                 boolean checkEmpty,
                 @Nonnull ReplSetProtocolVersion protocolVersion,
                 long configVersion,
                 long senderId,
                 String setName,
                 @Nullable HostAndPort senderHost) {
-            super(command);
             this.checkEmpty = checkEmpty;
             this.protocolVersion = protocolVersion;
             this.configVersion = configVersion;
@@ -173,10 +171,10 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
          * @param bson
          * @param command
          * @return
-         * @throws MongoServerException
+         * @throws MongoException
          */
-        public static ReplSetHeartbeatArgument fromDocument(BsonDocument bson, ReplSetHeartbeatCommand command)
-                throws MongoServerException {
+        public static ReplSetHeartbeatArgument fromDocument(BsonDocument bson) 
+                throws BadValueException, TypesMismatchException, NoSuchKeyException {
 
             BsonReaderTool.checkOnlyHasFields("ReplSetHeartbeatArgs", bson, VALID_FIELD_NAMES);
 
@@ -194,11 +192,11 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
 
             HostAndPort senderHost = BsonReaderTool.getHostAndPort(bson, SENDER_HOST_FIELD_NAME, null);
             
-            return new ReplSetHeartbeatArgument(command, checkEmpty, protocolVersion, configVersion, senderId, setName, senderHost);
+            return new ReplSetHeartbeatArgument(checkEmpty, protocolVersion, configVersion, senderId, setName, senderHost);
         }
     }
 
-    public static class ReplSetHeartbeatReply extends SimpleReply {
+    public static class ReplSetHeartbeatReply {
 
         private static final BsonField<BsonDocument> CONFIG_FIELD_NAME =  BsonField.create("config");
         private static final BsonField<Long> CONFIG_VERSION_FIELD_NAME = BsonField.create("v");
@@ -234,7 +232,6 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
         private final @Nullable ReplicaSetConfig config;
 
         public ReplSetHeartbeatReply(
-                ReplSetHeartbeatCommand command,
                 @Nonnull OpTime electionTime,
                 @Nullable Long time,
                 @Nullable OpTime opTime,
@@ -249,7 +246,6 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                 @Nonnull String hbmsg,
                 @Nullable HostAndPort syncingTo,
                 @Nullable ReplicaSetConfig config) {
-            super(command);
             this.electionTime = electionTime;
             this.time = time;
             this.opTime = opTime;
@@ -363,7 +359,8 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             return doc.build();
         }
 
-        public static ReplSetHeartbeatReply fromDocument(BsonDocument bson, ReplSetHeartbeatCommand command) throws MongoServerException {
+        public static ReplSetHeartbeatReply fromDocument(BsonDocument bson) 
+                throws TypesMismatchException, NoSuchKeyException, BadValueException, FailedToParseException, MongoException {
 
             // Old versions set this even though they returned not "ok"
             boolean mismatch = BsonReaderTool.getBoolean(bson, MISMATCH_FIELD_NAME, false);
@@ -390,7 +387,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                 try {
                     int errorCode;
                     errorCode = BsonReaderTool.getNumeric(bson, ERROR_CODE_FIELD_NAME).intValue();
-                    throw new MongoServerException(errMsg, MongoWP.ErrorCode.fromErrorCode(errorCode));
+                    throw new MongoException(errMsg, MongoWP.ErrorCode.fromErrorCode(errorCode));
                 } catch (TypesMismatchException ex) {
                     throw new BadValueException(ERROR_CODE_FIELD_NAME + " is not a number");
                 } catch (NoSuchKeyException ex) {
@@ -516,7 +513,6 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             }
 
             return new ReplSetHeartbeatReply(
-                    command,
                     electionTime,
                     time,
                     opTime,

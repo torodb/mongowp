@@ -24,7 +24,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 /**
  *
  */
-public class CommandNotSupportedException extends MongoServerException {
+public class CommandNotSupportedException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     private final String commandName;

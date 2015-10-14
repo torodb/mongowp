@@ -6,7 +6,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
 /**
  *
  */
-public class InternalErrorException extends MongoServerException {
+public class InternalErrorException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     public InternalErrorException(String customMessage) {

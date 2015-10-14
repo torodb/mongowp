@@ -42,8 +42,6 @@ public abstract class MessageReplier {
 
     public abstract int getRequestId();
     
-    public abstract int getConnectionId();
-    
     public abstract AttributeMap getAttributeMap();
 
     public abstract void replyMessage(ReplyMessage replyMessage);

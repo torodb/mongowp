@@ -3,6 +3,7 @@ package com.eightkdata.mongowp.mongoserver.pojos;
 
 import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedInts;
+import java.io.Serializable;
 import org.bson.BsonTimestamp;
 import org.threeten.bp.Instant;
 
@@ -11,9 +12,10 @@ import org.threeten.bp.Instant;
  * number. OpTime can be used to label every op in an oplog with a unique
  * identifier.
  */
-public class OpTime implements Comparable<OpTime> {
+public class OpTime implements Comparable<OpTime>, Serializable {
 
     public static final OpTime EPOCH = new OpTime(0, 0);
+    private static final long serialVersionUID = 1L;
 
     private final int secs;
     private final int term;
@@ -92,5 +94,10 @@ public class OpTime implements Comparable<OpTime> {
             return diff;
         }
         return UnsignedInts.compare(term, o.term);
+    }
+
+    @Override
+    public String toString() {
+        return "{t: " + UnsignedInteger.fromIntBits(secs) + ", i: "+ UnsignedInteger.fromIntBits(term) + "}";
     }
 }

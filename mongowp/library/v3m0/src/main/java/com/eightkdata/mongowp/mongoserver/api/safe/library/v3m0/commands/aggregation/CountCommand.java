@@ -1,19 +1,12 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation.CountCommand.CountArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation.CountCommand.CountReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.SimpleReplyMarshaller;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
 import javax.annotation.Nonnegative;
@@ -26,7 +19,9 @@ import org.bson.BsonValue;
 /**
  *
  */
-public class CountCommand extends AbstractCommand<CountArgument, CountReply>{
+public class CountCommand extends AbstractCommand<CountArgument, Long>{
+
+    private static final BsonField<Number> N_FIELD = BsonField.create("n");
 
     public static final CountCommand INSTANCE = new CountCommand();
 
@@ -40,24 +35,34 @@ public class CountCommand extends AbstractCommand<CountArgument, CountReply>{
     }
 
     @Override
-    public CountArgument unmarshallArg(BsonDocument requestDoc) throws
-            MongoServerException {
-        return CountArgument.unmarshall(requestDoc, this);
+    public CountArgument unmarshallArg(BsonDocument requestDoc) 
+            throws TypesMismatchException, NoSuchKeyException, BadValueException  {
+        return CountArgument.unmarshall(requestDoc);
     }
 
     @Override
-    public Class<? extends CountReply> getReplyClass() {
-        return CountReply.class;
+    public BsonDocument marshallArg(CountArgument request) {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
     }
 
     @Override
-    public BsonDocument marshallReply(CountReply reply) throws
-            MongoServerException {
-        return reply.marshall();
+    public Class<? extends Long> getResultClass() {
+        return Long.class;
     }
 
+    @Override
+    public BsonDocument marshallResult(Long reply) {
+        return new BsonDocumentBuilder()
+                .appendNumber(N_FIELD, reply)
+                .build();
+    }
 
-    public static class CountArgument extends SimpleArgument {
+    @Override
+    public Long unmarshallResult(BsonDocument resultDoc) throws TypesMismatchException, NoSuchKeyException {
+        return BsonReaderTool.getNumeric(resultDoc, N_FIELD).longValue();
+    }
+
+    public static class CountArgument {
 
         private final BsonDocument query; //TODO(gortiz) parse query
         private final String collection;
@@ -66,13 +71,11 @@ public class CountCommand extends AbstractCommand<CountArgument, CountReply>{
         private final long skip;
 
         public CountArgument(
-                Command command,
                 @Nonnull String collection,
                 @Nonnull BsonDocument query,
                 @Nullable String hint,
                 @Nonnegative long limit,
                 @Nonnegative long skip) {
-            super(command);
             this.collection = collection;
             this.query = query;
             this.hint = hint;
@@ -110,13 +113,17 @@ public class CountCommand extends AbstractCommand<CountArgument, CountReply>{
             return hint;
         }
 
+        public String getCollection() {
+            return collection;
+        }
+
         private static final BsonField<String> COUNT_FIELD = BsonField.create("count");
         private static final BsonField<Long> SKIP_FIELD = BsonField.create("skip");
         private static final BsonField<Long> LIMIT_FIELD = BsonField.create("limit");
         private static final BsonField<BsonDocument> QUERY_FIELD = BsonField.create("query");
         private static final String HINT_FIELD_NAME = "hint";
 
-        public static CountArgument unmarshall(BsonDocument doc, CountCommand command) throws TypesMismatchException, BadValueException, NoSuchKeyException {
+        public static CountArgument unmarshall(BsonDocument doc) throws TypesMismatchException, BadValueException, NoSuchKeyException {
             long skip = BsonReaderTool.getLong(doc, SKIP_FIELD, 0);
             if (skip < 0) {
                 throw new BadValueException("Skip value is negative in the count query");
@@ -157,46 +164,7 @@ public class CountCommand extends AbstractCommand<CountArgument, CountReply>{
 
             String collection = BsonReaderTool.getString(doc, COUNT_FIELD);
 
-            return new CountArgument(command, collection, query, hint, limit, skip);
-        }
-    }
-
-
-
-    public static class CountReply extends SimpleReply {
-
-        private static final BsonField<Number> N_FIELD = BsonField.create("n");
-
-        private final long count;
-
-        public CountReply(CountCommand command, long count) {
-            super(command);
-            this.count = count;
-        }
-
-        public CountReply(CountCommand command, MongoWP.ErrorCode errorCode, String errorMessage) {
-            super(command, errorCode, errorMessage);
-            this.count = 0;
-        }
-
-        public CountReply(CountCommand command, MongoWP.ErrorCode errorCode, Object... args) {
-            super(command, errorCode, args);
-            this.count = 0;
-        }
-
-        public long getCount() {
-            return count;
-        }
-
-        BsonDocument marshall() {
-            BsonDocumentBuilder builder = new BsonDocumentBuilder();
-            SimpleReplyMarshaller.marshall(this, builder);
-
-            if (getErrorCode().equals(MongoWP.ErrorCode.OK)) {
-                builder.appendNumber(N_FIELD, count);
-            }
-
-            return builder.build();
+            return new CountArgument(collection, query, hint, limit, skip);
         }
     }
 

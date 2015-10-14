@@ -21,17 +21,21 @@
 package com.eightkdata.mongowp.mongoserver.callback;
 
 import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
+import java.io.Serializable;
 import org.bson.BsonDocument;
 
 /**
  * 
  */
-public interface WriteOpResult {
+public interface WriteOpResult extends Serializable {
 
     public boolean errorOcurred();
 
+    public MongoWP.ErrorCode getErrorCode();
+
 	public BsonDocument marshall();
 
-    public OpTime getOptime();
+    public OpTime getOpTime();
 	
 }

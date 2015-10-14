@@ -146,9 +146,9 @@ public interface QueryCommandProcessor {
             else {
                 throw new RuntimeException("attribute count must be an String");
             }
-            String hint = document.containsKey("hint") ? (String) document.get("hint").asString().getValue() : null;
-            int limit = document.containsKey("limit") ? (Integer) document.get("limit").asInt32().intValue() : 0;
-            int skip = document.containsKey("skip") ? (Integer) document.get("skip").asInt32().intValue() : 0;
+            String hint = document.containsKey("hint") ? document.get("hint").asString().getValue() : null;
+            int limit = document.containsKey("limit") ? document.get("limit").asInt32().intValue() : 0;
+            int skip = document.containsKey("skip") ? document.get("skip").asInt32().intValue() : 0;
             BsonDocument query = document.containsKey("query") ? document.get("query").asDocument() : null;
             
             requestBuilder.setCollection(collection)
@@ -170,7 +170,7 @@ public interface QueryCommandProcessor {
         public void collStats(BsonDocument query) throws Exception {
             String collection = query.get("collstats").asString().getValue();
             if (collection == null) { //Mongodb and its problems with capital letters
-                collection = (String) query.get("collStats").asString().getValue();
+                collection = query.get("collStats").asString().getValue();
             }
             Number scale;
             if (!query.containsKey("scale")) {
@@ -207,7 +207,7 @@ public interface QueryCommandProcessor {
         }
         
         public void insert(@Nonnull BsonDocument document) throws Exception {
-            String collection = (String) document.get("insert").asString().getValue();
+            String collection = document.get("insert").asString().getValue();
             InsertResponse response;
             if (metaQueryProcessor.isMetaCollection(collection)) {
                 response = metaQueryProcessor.insert(messageReplier.getAttributeMap(), collection, document).get();

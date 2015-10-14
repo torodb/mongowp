@@ -21,33 +21,34 @@
 
 package com.eightkdata.mongowp.messages.request;
 
+import java.net.InetAddress;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import java.net.InetAddress;
 
 /**
  *
  */
 @Immutable
 public class RequestBaseMessage {
-    @Nonnull private final InetAddress clientAddress;
+    @Nullable private final InetAddress clientAddress;
     @Nonnegative private final int clientPort;
     private final int requestId;
 
-    public RequestBaseMessage(@Nonnull InetAddress clientAddress, int clientPort, int requestId) {
+    public RequestBaseMessage(@Nullable InetAddress clientAddress, int clientPort, int requestId) {
         this.clientAddress = clientAddress;
         this.clientPort = clientPort;
         this.requestId = requestId;
     }
 
-    @Nonnull
+    @Nullable
     public InetAddress getClientAddress() {
         return clientAddress;
     }
 
     @Nonnull public String getClientAddressString() {
-        return clientAddress.getHostAddress();
+        return clientAddress != null ? clientAddress.getHostAddress() : "null";
     }
 
     public int getClientPort() {

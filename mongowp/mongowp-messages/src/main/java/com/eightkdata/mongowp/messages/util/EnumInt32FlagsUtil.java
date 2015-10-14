@@ -23,10 +23,9 @@ package com.eightkdata.mongowp.messages.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
-
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
 
 /**
  *
@@ -95,7 +94,7 @@ public class EnumInt32FlagsUtil {
 
         int value = 0;
         for (int i = 0; i < bits.length(); ++i) {
-            value += bits.get(i) ? (1 << i) : 0;
+            value += bits.get(i) ? 1 << i : 0;
         }
         return value;
     }

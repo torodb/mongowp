@@ -1,12 +1,10 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetStepDownCommand.ReplSetStepDownArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.SimpleReplyMarshaller;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
 import javax.annotation.concurrent.Immutable;
 import org.bson.BsonDocument;
 import org.bson.BsonInt32;
@@ -14,7 +12,7 @@ import org.bson.BsonInt32;
 /**
  *
  */
-public class ReplSetStepDownCommand extends AbstractCommand<ReplSetStepDownArgument, SimpleReply> {
+public class ReplSetStepDownCommand extends AbstractCommand<ReplSetStepDownArgument, Empty> {
 
     private static final BsonInt32 DEFAULT_STEP_DOWN_SECS = new BsonInt32(60);
     public static final ReplSetStepDownCommand INSTANCE = new ReplSetStepDownCommand();
@@ -29,8 +27,12 @@ public class ReplSetStepDownCommand extends AbstractCommand<ReplSetStepDownArgum
     }
 
     @Override
-    public ReplSetStepDownArgument unmarshallArg(BsonDocument requestDoc) throws
-            MongoServerException {
+    public boolean canChangeReplicationState() {
+        return true;
+    }
+
+    @Override
+    public ReplSetStepDownArgument unmarshallArg(BsonDocument requestDoc) throws TypesMismatchException {
 
         boolean force = BsonReaderTool.getBoolean(requestDoc, "force", false);
         long seconds = BsonReaderTool.getNumeric(
@@ -51,29 +53,37 @@ public class ReplSetStepDownCommand extends AbstractCommand<ReplSetStepDownArgum
                 defaultSecondaryCatchUpPeriodSecs
         );
 
-        return new ReplSetStepDownArgument(this, seconds, catchUpPeriodSecs, force);
+        return new ReplSetStepDownArgument(seconds, catchUpPeriodSecs, force);
     }
 
     @Override
-    public Class<? extends SimpleReply> getReplyClass() {
-        return SimpleReply.class;
+    public BsonDocument marshallArg(ReplSetStepDownArgument request) {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
     }
 
     @Override
-    public BsonDocument marshallReply(SimpleReply reply) throws
-            MongoServerException {
-        return SimpleReplyMarshaller.marshall(reply);
+    public Class<? extends Empty> getResultClass() {
+        return Empty.class;
+    }
+
+    @Override
+    public BsonDocument marshallResult(Empty reply) {
+        return null;
+    }
+
+    @Override
+    public Empty unmarshallResult(BsonDocument resultDoc) {
+        return Empty.getInstance();
     }
 
     @Immutable
-    public class ReplSetStepDownArgument extends SimpleArgument {
+    public class ReplSetStepDownArgument {
 
         private final long seconds;
         private final long catchUpPeriodSecs;
         private final boolean force;
 
-        public ReplSetStepDownArgument(ReplSetStepDownCommand command, long seconds, long catchUpPeriodSecs, boolean force) {
-            super(command);
+        public ReplSetStepDownArgument(long seconds, long catchUpPeriodSecs, boolean force) {
             this.seconds = seconds;
             this.catchUpPeriodSecs = catchUpPeriodSecs;
             this.force = force;

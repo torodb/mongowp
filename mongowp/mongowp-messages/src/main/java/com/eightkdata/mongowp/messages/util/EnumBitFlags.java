@@ -27,5 +27,5 @@ import javax.annotation.Nonnegative;
  *
  */
 public interface EnumBitFlags {
-    public @Nonnegative int getFlagBitPosition();
+    @Nonnegative int getFlagBitPosition();
 }

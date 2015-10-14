@@ -3,10 +3,13 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.genera
 
 import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.CommandImplementation;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.DeleteCommand.DeleteArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertReply;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertResult;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.UpdateCommand.UpdateArgument;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.UpdateCommand.UpdateResult;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
@@ -19,8 +22,10 @@ import java.util.Map.Entry;
 public class GeneralCommands implements Iterable<Command> {
 
     private final ImmutableList<Command> commands = ImmutableList.<Command>of(
+            DeleteCommand.INSTANCE,
             InsertCommand.INSTANCE,
-            GetLastErrorCommand.INSTANCE
+            GetLastErrorCommand.INSTANCE,
+            UpdateCommand.INSTANCE
     );
 
     @Override
@@ -32,12 +37,18 @@ public class GeneralCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<GetLastErrorArgument, GetLastErrorReply> getGetLastErrrorImplementation();
 
-        public abstract CommandImplementation<InsertArgument, InsertReply> getInsertImplementation();
+        public abstract CommandImplementation<InsertArgument, InsertResult> getInsertImplementation();
+
+        public abstract CommandImplementation<DeleteArgument, Long> getDeleteImplementation();
+
+        public abstract CommandImplementation<UpdateArgument, UpdateResult> getUpdateImplementation();
 
         private Map<Command, CommandImplementation> createMap() {
             return ImmutableMap.<Command, CommandImplementation>builder()
+                    .put(DeleteCommand.INSTANCE, getDeleteImplementation())
                     .put(InsertCommand.INSTANCE, getInsertImplementation())
                     .put(GetLastErrorCommand.INSTANCE, getGetLastErrrorImplementation())
+                    .put(UpdateCommand.INSTANCE, getUpdateImplementation())
                     .build();
         }
 

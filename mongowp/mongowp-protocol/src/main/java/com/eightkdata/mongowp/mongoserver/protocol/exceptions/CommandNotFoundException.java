@@ -24,7 +24,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 /**
  *
  */
-public class CommandNotFoundException extends MongoServerException {
+public class CommandNotFoundException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     private final String commandName;

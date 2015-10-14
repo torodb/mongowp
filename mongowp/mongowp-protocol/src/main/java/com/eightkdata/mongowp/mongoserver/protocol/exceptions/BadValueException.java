@@ -24,11 +24,15 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 /**
  *
  */
-public class BadValueException extends MongoServerException {
+public class BadValueException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     public BadValueException(String customMessage) {
         super(customMessage, MongoWP.ErrorCode.BAD_VALUE);
+    }
+
+    public BadValueException(String customMessage, Throwable cause) {
+        super(customMessage, cause, MongoWP.ErrorCode.BAD_VALUE);
     }
     
 }

@@ -24,7 +24,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 /**
  *
  */
-public class NoSuchKeyException extends MongoServerException {
+public class NoSuchKeyException extends MongoException {
     private static final long serialVersionUID = 1L;
     private final String key;
 

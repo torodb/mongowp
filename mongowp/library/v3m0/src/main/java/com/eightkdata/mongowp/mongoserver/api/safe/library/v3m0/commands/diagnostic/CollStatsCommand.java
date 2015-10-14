@@ -1,17 +1,12 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.CollStatsCommand.CollStatsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.CollStatsCommand.CollStatsReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.SimpleReplyMarshaller;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
 import com.google.common.base.Preconditions;
@@ -47,24 +42,34 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
     }
 
     @Override
-    public CollStatsArgument unmarshallArg(BsonDocument requestDoc) throws
-            MongoServerException {
-        return CollStatsArgument.unmarshall(requestDoc, this);
+    public CollStatsArgument unmarshallArg(BsonDocument requestDoc) 
+            throws TypesMismatchException, BadValueException, NoSuchKeyException {
+        return CollStatsArgument.unmarshall(requestDoc);
     }
 
     @Override
-    public Class<? extends CollStatsReply> getReplyClass() {
+    public BsonDocument marshallArg(CollStatsArgument request) {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    }
+
+    @Override
+    public Class<? extends CollStatsReply> getResultClass() {
         return CollStatsReply.class;
     }
 
     @Override
-    public BsonDocument marshallReply(CollStatsReply reply) throws
-            MongoServerException {
+    public BsonDocument marshallResult(CollStatsReply reply) {
         return reply.marshall();
     }
 
+    @Override
+    public CollStatsReply unmarshallResult(BsonDocument resultDoc) throws
+            BadValueException, TypesMismatchException, NoSuchKeyException {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    }
+
     @Immutable
-    public static class CollStatsArgument extends SimpleArgument {
+    public static class CollStatsArgument {
 
         private static final BsonField<String> COLLECTION_FIELD = BsonField.create("collStats");
         private static final BsonField<Number> SCALE_FIELD = BsonField.create("scale");
@@ -74,11 +79,9 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
         private final boolean verbose;
 
         public CollStatsArgument(
-                @Nonnull CollStatsCommand command,
                 @Nonnull String collection,
                 @Nonnegative int scale,
                 boolean verbose) {
-            super(command);
             this.collection = collection;
             this.scale = scale;
             this.verbose = verbose;
@@ -93,7 +96,8 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
             return verbose;
         }
 
-        protected static CollStatsArgument unmarshall(BsonDocument doc, CollStatsCommand command) throws TypesMismatchException, BadValueException, NoSuchKeyException {
+        protected static CollStatsArgument unmarshall(BsonDocument doc)
+                throws TypesMismatchException, BadValueException, NoSuchKeyException {
             String collection = BsonReaderTool.getString(doc, COLLECTION_FIELD);
             int scale = BsonReaderTool.getNumeric(doc, SCALE_FIELD, new BsonInt32(1)).intValue();
             if (scale <= 0) {
@@ -101,7 +105,7 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
             }
             boolean verbose = BsonReaderTool.getBooleanOrNumeric(doc, VERBOSE_FIELD, false);
 
-            return new CollStatsArgument(command, collection, scale, verbose);
+            return new CollStatsArgument(collection, scale, verbose);
         }
 
         public String getCollection() {
@@ -111,7 +115,7 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
     }
 
     //TODO(gortiz): This reply is not prepared to respond on error cases!
-    public static class CollStatsReply extends SimpleReply {
+    public static class CollStatsReply {
 
         private static final BsonField<String> NS_FIELD = BsonField.create("ns");
         private static final BsonField<Number> COUNT_FIELD = BsonField.create("count");
@@ -138,7 +142,6 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
         private final @Nonnull ImmutableMap<String, ? extends Number> sizeByIndex;
 
         public CollStatsReply(
-                Command<? extends CollStatsArgument, ? extends CollStatsReply> command,
                 @Nonnegative int scale,
                 String database,
                 String collection,
@@ -150,7 +153,6 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
                 Number maxIfCapped,
                 BsonDocument indexDetails,
                 ImmutableMap<String, ? extends Number> sizeByIndex) {
-            super(command);
             this.scale = scale;
             this.database = database;
             this.collection = collection;
@@ -182,7 +184,6 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
             if (maxIfCapped != null) {
                 builder.appendNumber(MAX_FIELD, maxIfCapped);
             }
-            SimpleReplyMarshaller.marshall(this, builder);
 
             return builder.build();
         }
@@ -205,7 +206,6 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
 
         public static class Builder {
 
-            private final Command<? extends CollStatsArgument, ? extends CollStatsReply> command;
             private int scale;
             private final @Nonnull String database;
             private final @Nonnull String collection;
@@ -218,8 +218,7 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
             private BsonDocument indexDetails;
             private Map<String, ? extends Number> sizeByIndex;
 
-            public Builder(Command<? extends CollStatsArgument, ? extends CollStatsReply> command, @Nonnull String database, @Nonnull String collection) {
-                this.command = command;
+            public Builder(@Nonnull String database, @Nonnull String collection) {
                 this.database = database;
                 this.collection = collection;
             }
@@ -351,7 +350,6 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
             }
 
             public CollStatsReply build() {
-                assert command != null;
                 assert scale > 0;
                 assert database != null;
                 assert collection != null;
@@ -363,7 +361,6 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
 
 
                 return new CollStatsReply(
-                        command,
                         scale,
                         database,
                         collection,

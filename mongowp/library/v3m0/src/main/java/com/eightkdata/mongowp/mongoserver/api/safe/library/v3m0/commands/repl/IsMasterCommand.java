@@ -1,17 +1,13 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
-import com.eightkdata.mongowp.mongoserver.api.safe.CommandReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.IsMasterCommand.IsMasterReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.SimpleArgumentMarshaller;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -29,7 +25,7 @@ import org.bson.types.ObjectId;
 /**
  *
  */
-public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterReply> {
+public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
 
     public static final IsMasterCommand INSTANCE = new IsMasterCommand();
 
@@ -38,42 +34,39 @@ public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterRep
     }
 
     @Override
-    public Class<? extends SimpleArgument> getArgClass() {
-        return SimpleArgument.class;
+    public Class<? extends Empty> getArgClass() {
+        return Empty.class;
     }
 
     @Override
-    public SimpleArgument unmarshallArg(BsonDocument requestDoc) throws
-            MongoServerException {
-        return new SimpleArgument(this);
+    public Empty unmarshallArg(BsonDocument requestDoc) {
+        return Empty.getInstance();
     }
 
     @Override
-    public BsonDocument marshallArg(SimpleArgument request) throws
-            MongoServerException, UnsupportedOperationException {
-        return SimpleArgumentMarshaller.marshall(request);
+    public BsonDocument marshallArg(Empty request) {
+        return EmptyCommandArgumentMarshaller.marshallEmptyArgument(this);
     }
 
     @Override
-    public Class<? extends IsMasterReply> getReplyClass() {
+    public Class<? extends IsMasterReply> getResultClass() {
         return IsMasterReply.class;
     }
 
     @Override
-    public BsonDocument marshallReply(IsMasterReply reply) throws
-            MongoServerException {
+    public BsonDocument marshallResult(IsMasterReply reply) {
         return reply.toBson();
     }
 
     @Override
-    public IsMasterReply unmarshallReply(BsonDocument replyDoc) throws
-            MongoServerException, UnsupportedOperationException {
-        return IsMasterReply.fromDocument(replyDoc, this);
+    public IsMasterReply unmarshallResult(BsonDocument replyDoc) throws TypesMismatchException, NoSuchKeyException, FailedToParseException {
+        return IsMasterReply.fromDocument(replyDoc);
     }
 
     @Immutable
-    public static class IsMasterReply implements CommandReply {
+    public static class IsMasterReply {
 
+        private static final IsMasterReply NOT_CONFIGURED = new IsMasterReply();
         private static final BsonField<Boolean> IS_MASTER_FIELD = BsonField.create("ismaster");
         private static final BsonField<Boolean> SECONDARY_FIELD = BsonField.create("secondary");
         private static final BsonField<String> SET_NAME_FIELD = BsonField.create("setName");
@@ -93,7 +86,6 @@ public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterRep
         private static final BsonField<String> INFO_FIELD = BsonField.create("info");
         private static final BsonField<Boolean> IS_REPLICA_SET_FIELD = BsonField.create("isreplicaset");
 
-        private final IsMasterCommand command;
         private final Boolean master;
         private final Boolean secondary;
         private final String setName;
@@ -111,10 +103,8 @@ public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterRep
         private final HostAndPort me;
         private final ObjectId electionId;
         private final boolean configSet;
-        private final boolean shutdownInProgress;
 
         public IsMasterReply(
-                IsMasterCommand command,
                 boolean master,
                 @Nonnull String setName,
                 int setVersion,
@@ -130,7 +120,6 @@ public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterRep
                 @Nullable ImmutableMap<String, String> tags,
                 @Nonnull HostAndPort me,
                 @Nullable ObjectId electionId) {
-            this.command = command;
             this.master = master;
             this.secondary = !master;
             this.setName = setName;
@@ -149,18 +138,10 @@ public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterRep
             this.electionId = electionId;
 
             configSet = true;
-            shutdownInProgress = false;
         }
 
-        public IsMasterReply(IsMasterCommand command, boolean configSet, boolean shutdownInProgress) {
-            this.command = command;
-            if (configSet && !shutdownInProgress) {
-                throw new AssertionError("This constructor must be used when "
-                        + "config set is not correctly set or when a shutdown is "
-                        + "in progress");
-            }
-            this.configSet = configSet;
-            this.shutdownInProgress = shutdownInProgress;
+        private IsMasterReply() {
+            this.configSet = false;
 
             this.master = null;
             this.secondary = null;
@@ -180,35 +161,9 @@ public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterRep
             this.electionId = null;
         }
 
-        @Override
-        public boolean isOk() {
-            return getErrorCode().equals(ErrorCode.OK);
-        }
-
-        @Override
-        public ErrorCode getErrorCode() {
-            if (shutdownInProgress) {
-                return ErrorCode.SHUTDOWN_IN_PROGRESS;
-            }
-            return ErrorCode.OK;
-        }
-
-        @Override
-        public Command getCommand() {
-            return command;
-        }
-
-        @Override
-        public WriteOpResult getWriteOpResult() {
-            return null;
-        }
-
-        private BsonDocument toBson() throws ShutdownInProgressException {
+        private BsonDocument toBson() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
 
-            if (shutdownInProgress) {
-                throw new ShutdownInProgressException();
-            }
             if (!configSet) {
                 builder.append(IS_MASTER_FIELD, false);
                 builder.append(SECONDARY_FIELD, false);
@@ -282,35 +237,33 @@ public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterRep
             return doc;
         }
 
-        private static ImmutableList<HostAndPort> fromBSONArray(BsonDocument bson, BsonField field)
+        private static ImmutableList<HostAndPort> fromBSONArray(BsonDocument bson, BsonField<BsonArray> field)
                 throws TypesMismatchException, NoSuchKeyException {
             if (!bson.containsKey(field.getFieldName())) {
                 return ImmutableList.of();
             }
             else {
                 ImmutableList.Builder<HostAndPort> resultBuilder = ImmutableList.builder();
-                BsonDocument uncastedList = BsonReaderTool.getDocument(bson, field);
-                for (String subField : uncastedList.keySet()) {
-                    try {
-                        resultBuilder.add(HostAndPort.fromString(BsonReaderTool.getString(bson, subField)
-                                )
-                        );
-                    } catch (TypesMismatchException ex) {
+                BsonArray uncastedList = BsonReaderTool.getArray(bson, field);
+                for (int i = 0; i < uncastedList.size(); i++) {
+                    BsonValue uncastedValue = uncastedList.get(i);
+                    if (!uncastedValue.isString()) {
                         throw new TypesMismatchException(
-                                subField,
+                                Integer.toString(i),
                                 "string",
-                                ex.getFoundType(),
+                                uncastedValue.getBsonType(),
                                 "Elements in \"" + field + "\" array of isMaster "
                                         + "response must be of type string but "
-                                        + "found type " + ex.getFoundType()
+                                        + "found type " + uncastedValue.getBsonType()
                         );
                     }
+                    resultBuilder.add(HostAndPort.fromString(uncastedList.asString().getValue()));
                 }
                 return resultBuilder.build();
             }
         }
 
-        private static IsMasterReply fromDocument(BsonDocument bson, IsMasterCommand command) throws TypesMismatchException, NoSuchKeyException, FailedToParseException {
+        private static IsMasterReply fromDocument(BsonDocument bson) throws TypesMismatchException, NoSuchKeyException, FailedToParseException {
             boolean master = BsonReaderTool.getBoolean(bson, IS_MASTER_FIELD);
             boolean secondary = BsonReaderTool.getBoolean(bson, SECONDARY_FIELD);
             if (bson.containsKey(INFO_FIELD.getFieldName())) {
@@ -322,7 +275,7 @@ public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterRep
                             + "config loaded, but other fields weren't as we "
                             + "expected");
                 }
-                return new IsMasterReply(command, false, false);
+                return NOT_CONFIGURED;
             }
             else if (bson.containsKey(IS_REPLICA_SET_FIELD.getFieldName())) {
                 throw new FailedToParseException("Found \"" + IS_REPLICA_SET_FIELD
@@ -375,7 +328,6 @@ public class IsMasterCommand extends AbstractCommand<SimpleArgument, IsMasterRep
             HostAndPort me = BsonReaderTool.getHostAndPort(bson, ME_FIELD, null);
 
             return new IsMasterReply(
-                    command,
                     master,
                     setName,
                     setVersion,

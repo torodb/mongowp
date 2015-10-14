@@ -27,6 +27,10 @@ public class BsonReaderTool {
         return type.toString().toLowerCase(Locale.ROOT);
     }
 
+    public static boolean containsField(BsonDocument doc, BsonField<?> field) {
+        return doc.containsKey(field.getFieldName());
+    }
+
     /**
      * Confirms that the given bson document only contains fields whose names given.
      *
@@ -65,13 +69,19 @@ public class BsonReaderTool {
     }
     
     @Nonnull
-    public static BsonValue getField(BsonDocument doc, String fieldId) throws NoSuchKeyException {
+    public static BsonValue getValue(BsonDocument doc, String fieldId) throws NoSuchKeyException {
         BsonValue object = doc.get(fieldId);
         if (object == null) {
             throw new NoSuchKeyException(fieldId);
         }
         return object;
     }
+
+    @Nonnull
+    public static BsonValue getValue(BsonDocument doc, BsonField field) throws NoSuchKeyException {
+        return getValue(doc, field.getFieldName());
+    }
+
 
     @Nonnull
     public static BsonDocument getDocument(BsonDocument doc, BsonField<BsonDocument> field) throws TypesMismatchException, NoSuchKeyException {
@@ -85,7 +95,7 @@ public class BsonReaderTool {
 
     @Nonnull
     public static BsonDocument getDocument(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (!object.isDocument()) {
             throw new TypesMismatchException(fieldId, BsonType.DOCUMENT, object.getBsonType());
         }
@@ -116,7 +126,7 @@ public class BsonReaderTool {
 
     @Nonnull
     public static BsonArray getArray(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (!object.isArray()) {
             throw new TypesMismatchException(fieldId, BsonType.ARRAY, object.getBsonType());
         }
@@ -147,7 +157,7 @@ public class BsonReaderTool {
     
     @Nonnull
     public static BsonNumber getNumeric(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (!object.isNumber()) {
             String foundType = object.getBsonType().toString().toLowerCase(Locale.ROOT);
             throw new TypesMismatchException(
@@ -186,7 +196,7 @@ public class BsonReaderTool {
     
     @Nonnull
     public static Instant getInstant(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (object.isDateTime()) {
             return Instant.ofEpochMilli(object.asDateTime().getValue());
         }
@@ -228,7 +238,7 @@ public class BsonReaderTool {
 
     @Nonnull
     public static OpTime getOpTime(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (object.isDateTime()) {
             BsonDateTime asDateTime = object.asDateTime();
             UnsignedInteger secs = UnsignedInteger.valueOf(asDateTime.getValue() / 1000);
@@ -277,7 +287,7 @@ public class BsonReaderTool {
     }
 
     public static int getInteger(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (!object.isInt32()) {
             String foundType = toStringBsonType(object.getBsonType());
             throw new TypesMismatchException(
@@ -313,7 +323,7 @@ public class BsonReaderTool {
     }
     
     public static long getLong(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (!object.isNumber()) {
             String foundType = toStringBsonType(object.getBsonType());
             throw new TypesMismatchException(
@@ -349,7 +359,7 @@ public class BsonReaderTool {
     }
 
     public static double getDouble(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (!object.isDouble()) {
             String foundType = toStringBsonType(object.getBsonType());
             throw new TypesMismatchException(
@@ -415,7 +425,7 @@ public class BsonReaderTool {
     public static boolean getBoolean(
             BsonDocument doc,
             String fieldId) throws TypesMismatchException, NoSuchKeyException{
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (object.isBoolean()) {
             return object.asBoolean().getValue();
         }
@@ -456,7 +466,7 @@ public class BsonReaderTool {
 
     @Nonnull
     public static String getString(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (!object.isString()) {
             throw new TypesMismatchException(fieldId, "string", object.getBsonType());
         }
@@ -519,7 +529,7 @@ public class BsonReaderTool {
     
     @Nonnull
     public static ObjectId getObjectId(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getField(doc, fieldId);
+        BsonValue object = getValue(doc, fieldId);
         if (!object.isObjectId()) {
             throw new TypesMismatchException(fieldId, "objectId", object.getBsonType());
         }
@@ -537,5 +547,4 @@ public class BsonReaderTool {
         }
         return object.asObjectId().getValue();
     }
-
 }

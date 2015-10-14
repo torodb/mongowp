@@ -2,15 +2,11 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.impl;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.Command;
-import com.eightkdata.mongowp.mongoserver.api.safe.CommandArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.CommandReply;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
-import org.bson.BsonDocument;
 
 /**
  *
  */
-public abstract class AbstractCommand<Arg extends CommandArgument, Rep extends CommandReply> implements Command<Arg, Rep> {
+public abstract class AbstractCommand<Arg, Result> implements Command<Arg, Result> {
 
     private final String commandName;
 
@@ -39,6 +35,11 @@ public abstract class AbstractCommand<Arg extends CommandArgument, Rep extends C
     }
 
     @Override
+    public boolean canChangeReplicationState() {
+        return false;
+    }
+
+    @Override
     public boolean shouldAffectCommandCounter() {
         return true;
     }
@@ -49,14 +50,12 @@ public abstract class AbstractCommand<Arg extends CommandArgument, Rep extends C
     }
 
     @Override
-    public BsonDocument marshallArg(Arg request) 
-            throws MongoServerException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported.");
+    public boolean isReadyToReplyResult(Result r) {
+        return false;
     }
 
     @Override
-    public Rep unmarshallReply(BsonDocument replyDoc) 
-            throws MongoServerException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported.");
+    public String toString() {
+        return getCommandName();
     }
 }

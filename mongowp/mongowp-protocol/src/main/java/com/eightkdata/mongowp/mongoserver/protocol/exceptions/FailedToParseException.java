@@ -24,7 +24,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 /**
  *
  */
-public class FailedToParseException extends MongoServerException {
+public class FailedToParseException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     public FailedToParseException() {

@@ -14,14 +14,26 @@ public class Request {
     private final Connection connection;
     private final int requestId;
     private final String database;
-    @Nonnull private final InetAddress clientAddress;
+    @Nullable private final InetAddress clientAddress;
     @Nonnegative private final int clientPort;
 
+    /**
+     *
+     * @param connection
+     * @param requestId
+     * @param database
+     * @param clientAddress the client address if this is a remote request or
+     *                      null if this is a request
+     * @param clientPort    a non negative value that represents the port of the
+     *                      client in a remote request or its ignored in a local
+     *                      request
+     * @see #isLocal()
+     */
     public Request(
             @Nonnull Connection connection,
             int requestId,
             @Nullable String database,
-            @Nonnull InetAddress clientAddress,
+            @Nullable InetAddress clientAddress,
             @Nonnegative int clientPort) {
         this.connection = connection;
         this.requestId = requestId;
@@ -44,7 +56,15 @@ public class Request {
         return database;
     }
 
-    @Nonnull
+    /**
+     * Returns true iff the request is done locally.
+     * @return true iff the request is done locally
+     */
+    public boolean isLocal() {
+        return clientAddress == null;
+    }
+
+    @Nullable
     public InetAddress getClientAddress() {
         return clientAddress;
     }

@@ -8,6 +8,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
  *
  */
 public class DeleteOpResult extends SimpleWriteOpResult {
+    private static final long serialVersionUID = 1L;
 
     private final long deletedDocsCounter;
 

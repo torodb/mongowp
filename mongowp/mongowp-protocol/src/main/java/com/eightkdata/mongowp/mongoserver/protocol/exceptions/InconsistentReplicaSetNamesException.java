@@ -24,7 +24,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
 /**
  *
  */
-public class InconsistentReplicaSetNamesException extends MongoServerException {
+public class InconsistentReplicaSetNamesException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     public InconsistentReplicaSetNamesException() {

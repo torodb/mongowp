@@ -2,13 +2,13 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.HandshakeCommand.HandshakeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.SimpleReplyMarshaller;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
 import javax.annotation.Nullable;
 import org.bson.BsonDocument;
 import org.bson.types.ObjectId;
@@ -16,7 +16,7 @@ import org.bson.types.ObjectId;
 /**
  *
  */
-public class HandshakeCommand extends AbstractCommand<HandshakeArgument, SimpleReply>{
+public class HandshakeCommand extends AbstractCommand<HandshakeArgument, Empty>{
 
     public static final HandshakeCommand INSTANCE = new HandshakeCommand();
 
@@ -35,8 +35,8 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, SimpleR
     }
 
     @Override
-    public HandshakeArgument unmarshallArg(BsonDocument requestDoc) throws
-            MongoServerException {
+    public HandshakeArgument unmarshallArg(BsonDocument requestDoc)
+            throws BadValueException, TypesMismatchException, NoSuchKeyException {
 
         BsonReaderTool.checkOnlyHasFields(
                 "HandshakeArgs",
@@ -64,21 +64,30 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, SimpleR
             memberConfig = MemberConfig.fromDocument(configBson);
         }
 
-        return new HandshakeArgument(this, rid, memberId, memberConfig);
+        return new HandshakeArgument(rid, memberId, memberConfig);
     }
 
     @Override
-    public Class<? extends SimpleReply> getReplyClass() {
-        return SimpleReply.class;
+    public BsonDocument marshallArg(HandshakeArgument request) {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
     }
 
     @Override
-    public BsonDocument marshallReply(SimpleReply reply) throws
-            MongoServerException {
-        return SimpleReplyMarshaller.marshall(reply);
+    public Class<? extends Empty> getResultClass() {
+        return Empty.class;
     }
 
-    public static class HandshakeArgument extends SimpleArgument {
+    @Override
+    public BsonDocument marshallResult(Empty reply) {
+        return null;
+    }
+
+    @Override
+    public Empty unmarshallResult(BsonDocument resultDoc) {
+        return Empty.getInstance();
+    }
+
+    public static class HandshakeArgument {
         private final ObjectId rid;
         private final Long memberId;
         /**
@@ -88,11 +97,9 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, SimpleR
         private final @Nullable MemberConfig config;
 
         public HandshakeArgument(
-                HandshakeCommand command,
                 ObjectId rid,
                 Long memberId,
                 @Nullable MemberConfig config) {
-            super(command);
             this.rid = rid;
             this.memberId = memberId;
             this.config = config;

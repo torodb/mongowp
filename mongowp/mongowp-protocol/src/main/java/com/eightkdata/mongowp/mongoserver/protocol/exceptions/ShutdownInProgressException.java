@@ -24,7 +24,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 /**
  *
  */
-public class ShutdownInProgressException extends MongoServerException {
+public class ShutdownInProgressException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     public ShutdownInProgressException() {

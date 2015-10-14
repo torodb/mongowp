@@ -20,7 +20,7 @@
 package com.eightkdata.mongowp.mongoserver.api.safe;
 
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.CommandNotSupportedException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import javax.annotation.Nonnull;
 
 /**
@@ -29,9 +29,9 @@ import javax.annotation.Nonnull;
 public interface CommandsExecutor {
 
     @Nonnull
-    public <Arg extends CommandArgument, Rep extends CommandReply> Rep execute(
-            @Nonnull Command<? extends Arg, ? extends Rep> command, 
+    public <Arg, Result> CommandReply<Result> execute(
+            @Nonnull Command<? super Arg, ? super Result> command,
             @Nonnull CommandRequest<Arg> request) 
-            throws MongoServerException, CommandNotSupportedException;
+            throws MongoException, CommandNotSupportedException;
     
 }

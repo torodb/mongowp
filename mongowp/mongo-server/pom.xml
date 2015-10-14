@@ -12,7 +12,7 @@
 
     <artifactId>mongo-server</artifactId>
     
-    <name>Mongo Sever: Core</name>
+    <name>Mongo Server: Core</name>
 
     <dependencies>
         <dependency>

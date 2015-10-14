@@ -2,12 +2,8 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetFreezeCommand.ReplSetFreezeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetFreezeCommand.ReplSetFreezeReply;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.bson.*;
 
@@ -31,21 +27,24 @@ public class ReplSetFreezeCommand extends AbstractCommand<ReplSetFreezeArgument,
     }
 
     @Override
-    public ReplSetFreezeArgument unmarshallArg(BsonDocument requestDoc)
-            throws MongoServerException {
+    public ReplSetFreezeArgument unmarshallArg(BsonDocument requestDoc) {
         int freezeSecs = requestDoc.getInt32("replSetFreeze").getValue();
         
-        return new ReplSetFreezeArgument(this, freezeSecs);
+        return new ReplSetFreezeArgument(freezeSecs);
     }
 
     @Override
-    public Class<? extends ReplSetFreezeReply> getReplyClass() {
+    public BsonDocument marshallArg(ReplSetFreezeArgument request) {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    }
+
+    @Override
+    public Class<? extends ReplSetFreezeReply> getResultClass() {
         return ReplSetFreezeReply.class;
     }
 
     @Override
-    public BsonDocument marshallReply(ReplSetFreezeReply reply) throws
-            MongoServerException {
+    public BsonDocument marshallResult(ReplSetFreezeReply reply) {
         BsonDocument doc = new BsonDocument();
 
         String info = reply.getInfo();
@@ -59,13 +58,17 @@ public class ReplSetFreezeCommand extends AbstractCommand<ReplSetFreezeArgument,
         
         return doc;
     }
+
+    @Override
+    public ReplSetFreezeReply unmarshallResult(BsonDocument resultDoc) {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    }
     
-    public static class ReplSetFreezeArgument extends SimpleArgument {
+    public static class ReplSetFreezeArgument {
 
         private final int freezeSecs;
 
-        public ReplSetFreezeArgument(ReplSetFreezeCommand command, int freezeSecs) {
-            super(command);
+        public ReplSetFreezeArgument(int freezeSecs) {
             this.freezeSecs = freezeSecs;
         }
 
@@ -74,13 +77,12 @@ public class ReplSetFreezeCommand extends AbstractCommand<ReplSetFreezeArgument,
         }
     }
     
-    public static class ReplSetFreezeReply extends SimpleReply {
+    public static class ReplSetFreezeReply {
 
         private final String info;
         private final String warning;
 
-        public ReplSetFreezeReply(@Nonnull ReplSetFreezeCommand command, @Nullable String info, @Nullable String warning) {
-            super(command);
+        public ReplSetFreezeReply(@Nullable String info, @Nullable String warning) {
             this.info = info;
             this.warning = warning;
         }

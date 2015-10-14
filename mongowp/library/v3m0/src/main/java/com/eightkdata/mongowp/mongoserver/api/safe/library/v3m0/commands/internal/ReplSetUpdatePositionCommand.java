@@ -2,15 +2,12 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument.UpdateInfo;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.SimpleReplyMarshaller;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
 import com.google.common.collect.ImmutableList;
@@ -24,7 +21,7 @@ import org.bson.types.ObjectId;
 /**
  *
  */
-public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdatePositionArgument, SimpleReply> {
+public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdatePositionArgument, Empty> {
 
     public static final ReplSetUpdatePositionCommand INSTANCE = new ReplSetUpdatePositionCommand();
 
@@ -42,7 +39,7 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
 
     @Override
     public ReplSetUpdatePositionArgument unmarshallArg(BsonDocument requestDoc)
-            throws MongoServerException {
+            throws TypesMismatchException, NoSuchKeyException, BadValueException {
         if (requestDoc.containsKey("handshake")) {
             throw new IllegalArgumentException("A handshake command wrapped "
                     + "inside a replSetUpdatePosition has been recived, but it "
@@ -56,28 +53,35 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
             updateInfo.add(new UpdateInfo(element.asDocument()));
         }
 
-        return new ReplSetUpdatePositionArgument(this, updateInfo.build());
+        return new ReplSetUpdatePositionArgument(updateInfo.build());
     }
 
     @Override
-    public Class<? extends SimpleReply> getReplyClass() {
-        return SimpleReply.class;
+    public BsonDocument marshallArg(ReplSetUpdatePositionArgument request) {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
     }
 
     @Override
-    public BsonDocument marshallReply(SimpleReply reply) throws
-            MongoServerException {
-        return SimpleReplyMarshaller.marshall(reply);
+    public Class<? extends Empty> getResultClass() {
+        return Empty.class;
     }
 
-    public static class ReplSetUpdatePositionArgument extends SimpleArgument {
+    @Override
+    public BsonDocument marshallResult(Empty reply) {
+        return null;
+    }
+
+    @Override
+    public Empty unmarshallResult(BsonDocument resultDoc) {
+        return Empty.getInstance();
+    }
+
+    public static class ReplSetUpdatePositionArgument {
 
         private final ImmutableList<UpdateInfo> updates;
 
         public ReplSetUpdatePositionArgument(
-                ReplSetUpdatePositionCommand command,
                 List<UpdateInfo> updates) {
-            super(command);
             this.updates = ImmutableList.copyOf(updates);
         }
 

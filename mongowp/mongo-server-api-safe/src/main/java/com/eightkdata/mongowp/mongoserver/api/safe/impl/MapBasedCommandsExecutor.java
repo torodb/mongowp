@@ -21,7 +21,7 @@ package com.eightkdata.mongowp.mongoserver.api.safe.impl;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.*;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.CommandNotSupportedException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
+@SuppressWarnings("unchecked")
 public class MapBasedCommandsExecutor implements CommandsExecutor {
     private static final Logger LOGGER
             = LoggerFactory.getLogger(MapBasedCommandsExecutor.class);
@@ -53,54 +54,100 @@ public class MapBasedCommandsExecutor implements CommandsExecutor {
     }
     
     @Override
-    public <Arg extends CommandArgument, Rep extends CommandReply> Rep execute(
-            Command<? extends Arg, ? extends Rep> command, 
-            CommandRequest<Arg> request)
-            throws MongoServerException {
-        CommandImplementation<Arg, Rep> implementation = implementations.get(command);
+    public <Arg, Result> CommandReply<Result> execute(
+            @Nonnull Command<? super Arg, ? super Result> command,
+            @Nonnull CommandRequest<Arg> request)
+            throws MongoException, CommandNotSupportedException {
+        CommandImplementation<Arg, Result> implementation = implementations.get(command);
         if (implementation == null) {
             throw new CommandNotSupportedException(command.getCommandName());
         }
-        return implementation.apply(command, request);
+        try {
+            CommandResult<Result> result = implementation.apply(command, request);
+            if (command.isReadyToReplyResult(result.getResult())) {
+                return new DelegateCommandReply<Result>(command, result);
+            }
+            else {
+                return new CorrectCommandReply<Result>(command, result);
+            }
+        } catch (MongoException ex) {
+            return new FailedCommandReply<Result>(ex);
+        }
     }
     
     
     public static Builder fromLibraryBuilder(CommandsLibrary library) {
         return new FromLibraryBuilder(library);
     }
+
+    public static Builder builder() {
+        return new UnsafeBuilder();
+    }
     
     public static interface Builder {
         
-        public <Req extends CommandArgument, Rep extends CommandReply> Builder addImplementation(
-                @Nonnull Command<Req, Rep> command,
-                @Nonnull CommandImplementation<Req, Rep> implementation);
+        public <Req, Result> Builder addImplementation(
+                @Nonnull Command<Req, Result> command,
+                @Nonnull CommandImplementation<Req, Result> implementation);
 
-        public <Req extends CommandArgument, Rep extends CommandReply> Builder addImplementations(
+        public <Req, Result> Builder addImplementations(
                 Iterable<Map.Entry<Command, CommandImplementation>> entries);
         
         public MapBasedCommandsExecutor build();
     }
+
+    private static class UnsafeBuilder implements Builder {
+
+        private final Map<Command, CommandImplementation> implementations = Maps.newHashMap();
+
+        @Override
+        public <Req, Result> Builder addImplementations(
+                Iterable<Map.Entry<Command, CommandImplementation>> entries) {
+            for (Entry<Command, CommandImplementation> entry : entries) {
+                addImplementation(entry.getKey(), entry.getValue());
+            }
+            return this;
+        }
+
+        @Override
+        public <Req, Result> Builder addImplementation(
+                Command<Req, Result> command,
+                CommandImplementation<Req, Result> implementation) {
+            if (implementations.containsKey(command)) {
+                throw new IllegalArgumentException(
+                        "There is another implementation ("
+                        + implementations.get(command) + " associated to "
+                        + command);
+            }
+
+            implementations.put(command, implementation);
+
+            return this;
+        }
+
+        @Override
+        public MapBasedCommandsExecutor build() {
+            return new MapBasedCommandsExecutor(
+                    ImmutableMap.copyOf(implementations)
+            );
+        }
+    }
     
-    private static class FromLibraryBuilder implements Builder {
-        private final Map<Command, CommandImplementation> implementations;
+    private static class FromLibraryBuilder extends UnsafeBuilder {
         private final @Nullable Set<Command> notImplementedCommands;
 
         public FromLibraryBuilder(CommandsLibrary library) {
             this.notImplementedCommands = library.getSupportedCommands();
             if (this.notImplementedCommands == null) {
                 LOGGER.warn("An unsafe commands library has been used to "
-                        + "create an executor. It is not possible to check at "
+                        + "create an executor. It is impossible to check at "
                         + "creation time if all commands supported by the "
                         + "library have an associated implementation");
-                this.implementations = Maps.newHashMap();
-            }
-            else {
-                this.implementations = Maps.newHashMapWithExpectedSize(notImplementedCommands.size());
             }
         }
 
         @Override
-        public <Req extends CommandArgument, Rep extends CommandReply> Builder addImplementations(
+        public <Req, Result> Builder addImplementations(
                 Iterable<Map.Entry<Command, CommandImplementation>> entries) {
             for (Entry<Command, CommandImplementation> entry : entries) {
                 addImplementation(entry.getKey(), entry.getValue());
@@ -109,24 +156,14 @@ public class MapBasedCommandsExecutor implements CommandsExecutor {
         }
         
         @Override
-        public <Req extends CommandArgument, Rep extends CommandReply> Builder addImplementation(
-                Command<Req, Rep> command,
-                CommandImplementation<Req, Rep> implementation) {
-            if (implementations.containsKey(command)) {
-                throw new IllegalArgumentException(
-                        "There is another implementation ("
-                        + implementations.get(command) + " associated to "
-                        + command);
-            }
-
+        public <Req, Result> Builder addImplementation(
+                Command<Req, Result> command,
+                CommandImplementation<Req, Result> implementation) {
             if (notImplementedCommands != null && !notImplementedCommands.remove(command)) {
                 throw new IllegalArgumentException("Command " + command + " is "
-                        + "not supported by the given collection");
+                        + "not supported by the given library");
             }
-            
-            implementations.put(command, implementation);
-            
-            return this;
+            return super.addImplementation(command, implementation);
         }
         
         @Override
@@ -138,9 +175,7 @@ public class MapBasedCommandsExecutor implements CommandsExecutor {
                         notImplementedCommands
                 );
             }
-            return new MapBasedCommandsExecutor(
-                    ImmutableMap.copyOf(implementations)
-            );
+            return super.build();
         }
     }
     

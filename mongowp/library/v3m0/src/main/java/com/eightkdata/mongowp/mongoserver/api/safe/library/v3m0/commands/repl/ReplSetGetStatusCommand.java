@@ -1,20 +1,19 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetGetStatusCommand.ReplSetGetStatusReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberHeartbeatData;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.BsonValueComparator;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
@@ -34,7 +33,7 @@ import org.threeten.bp.Instant;
  * Report status of a replica set from the POV of this server.
  */
 @Immutable
-public class ReplSetGetStatusCommand extends AbstractCommand<SimpleArgument, ReplSetGetStatusReply>{
+public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetStatusReply>{
 
     public static final ReplSetGetStatusCommand INSTANCE = new ReplSetGetStatusCommand();
 
@@ -43,34 +42,38 @@ public class ReplSetGetStatusCommand extends AbstractCommand<SimpleArgument, Rep
     }
 
     @Override
-    public Class<? extends SimpleArgument> getArgClass() {
-        return SimpleArgument.class;
+    public Class<? extends Empty> getArgClass() {
+        return Empty.class;
     }
 
     @Override
-    public SimpleArgument unmarshallArg(BsonDocument requestDoc) throws
-            MongoServerException {
-        return new SimpleArgument(this);
+    public Empty unmarshallArg(BsonDocument requestDoc) {
+        return Empty.getInstance();
     }
 
     @Override
-    public Class<? extends ReplSetGetStatusReply> getReplyClass() {
+    public BsonDocument marshallArg(Empty request) {
+        return EmptyCommandArgumentMarshaller.marshallEmptyArgument(this);
+    }
+
+    @Override
+    public Class<? extends ReplSetGetStatusReply> getResultClass() {
         return ReplSetGetStatusReply.class;
     }
 
     @Override
-    public BsonDocument marshallReply(ReplSetGetStatusReply reply) throws
-            MongoServerException {
+    public BsonDocument marshallResult(ReplSetGetStatusReply reply) {
         return reply.marshall();
     }
 
+    @Override
+    public ReplSetGetStatusReply unmarshallResult(BsonDocument resultDoc) throws
+            MongoException, UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    }
+
     @Immutable
-    public static abstract class ReplSetGetStatusReply extends SimpleReply {
-
-        public ReplSetGetStatusReply(Command command) {
-            super(command);
-        }
-
+    public static abstract class ReplSetGetStatusReply {
         protected abstract BsonDocument marshall();
     }
 
@@ -87,9 +90,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<SimpleArgument, Rep
                 Duration uptime,
                 OpTime optime,
                 int maintenanceModeCalls,
-                String heartbeatMessage,
-                Command command) {
-            super(command);
+                String heartbeatMessage) {
             this.state = state;
             this.uptime = uptime;
             this.optime = optime;
@@ -163,7 +164,6 @@ public class ReplSetGetStatusCommand extends AbstractCommand<SimpleArgument, Rep
         private final ReplicaSetConfig replConfig;
 
         public CorrectReplSetGetStatusReply(
-                Command command,
                 SelfData selfData,
                 String setName,
                 Instant now,
@@ -172,7 +172,6 @@ public class ReplSetGetStatusCommand extends AbstractCommand<SimpleArgument, Rep
                 ImmutableMap<MemberConfig, MemberHeartbeatData> membersInfo,
                 ImmutableMap<MemberConfig, Integer> pings,
                 ReplicaSetConfig replConfig) {
-            super(command);
             this.selfData = selfData;
             this.setName = setName;
             this.now = now;

@@ -45,7 +45,7 @@ public abstract class OplogOperation {
         return database;
     }
 
-    public OpTime getOptime() {
+    public OpTime getOpTime() {
         return optime;
     }
 

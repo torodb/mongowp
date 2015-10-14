@@ -20,25 +20,31 @@
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
+import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
 import java.text.MessageFormat;
 import javax.annotation.Nonnull;
 
 /**
  *
  */
-public class MongoServerException extends Exception {
+public class MongoException extends Exception {
     private static final long serialVersionUID = 1L;
 
     private final MongoWP.ErrorCode errorCode;
 
-    public MongoServerException(
+    public MongoException(ErrorCode errorCode) {
+        super(errorCode.getErrorMessage());
+        this.errorCode = errorCode;
+    }
+
+    public MongoException(
             @Nonnull String customMessage, 
             @Nonnull MongoWP.ErrorCode errorCode) {
         super(customMessage);
         this.errorCode = errorCode;
     }
 
-    public MongoServerException(
+    public MongoException(
             @Nonnull String customMessage, 
             @Nonnull Throwable cause, 
             @Nonnull MongoWP.ErrorCode errorCode) {
@@ -46,14 +52,14 @@ public class MongoServerException extends Exception {
         this.errorCode = errorCode;
     }
     
-    public MongoServerException(
+    public MongoException(
             @Nonnull MongoWP.ErrorCode errorCode, 
             @Nonnull Object... args) {
         super(MessageFormat.format(errorCode.getErrorMessage(), args));
         this.errorCode = errorCode;
     }
 
-    public MongoServerException(
+    public MongoException(
             @Nonnull Throwable cause, 
             @Nonnull MongoWP.ErrorCode errorCode, 
             @Nonnull Object... args) {

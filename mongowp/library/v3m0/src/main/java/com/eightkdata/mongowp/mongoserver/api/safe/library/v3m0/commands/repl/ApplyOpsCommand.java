@@ -1,10 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.SimpleReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.OplogOperationParser;
@@ -12,9 +9,8 @@ import com.eightkdata.mongowp.mongoserver.api.safe.oplog.OplogOperation;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
 import com.google.common.collect.ImmutableList;
@@ -44,35 +40,43 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
     }
 
     @Override
-    public ApplyOpsArgument unmarshallArg(BsonDocument requestDoc) throws
-            MongoServerException {
-        return ApplyOpsArgument.fromBson(requestDoc, this);
+    public ApplyOpsArgument unmarshallArg(BsonDocument requestDoc) 
+            throws BadValueException, TypesMismatchException, NoSuchKeyException {
+        return ApplyOpsArgument.fromBson(requestDoc);
     }
 
     @Override
-    public Class<? extends ApplyOpsReply> getReplyClass() {
+    public BsonDocument marshallArg(ApplyOpsArgument request) {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    }
+
+    @Override
+    public Class<? extends ApplyOpsReply> getResultClass() {
         return ApplyOpsReply.class;
     }
 
     @Override
-    public BsonDocument marshallReply(ApplyOpsReply reply) throws
-            MongoServerException {
+    public BsonDocument marshallResult(ApplyOpsReply reply) {
         return reply.marshall();
     }
 
+    @Override
+    public ApplyOpsReply unmarshallResult(BsonDocument resultDoc) throws
+            MongoException, UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    }
+
     @Immutable
-    public static class ApplyOpsArgument extends SimpleArgument {
+    public static class ApplyOpsArgument {
 
         private final boolean alwaysUpsert;
         private final ImmutableList<OplogOperation> operations;
         private final ImmutableList<Precondition> preconditions;
 
         public ApplyOpsArgument(
-                ApplyOpsCommand command,
                 boolean alwaysUpsert,
                 ImmutableList<OplogOperation> operations,
                 ImmutableList<Precondition> preconditions) {
-            super(command);
             this.alwaysUpsert = alwaysUpsert;
             this.operations = operations;
             this.preconditions = preconditions;
@@ -90,9 +94,9 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
             return preconditions;
         }
 
-        private static ApplyOpsArgument fromBson(BsonDocument requestDoc, ApplyOpsCommand command) 
+        private static ApplyOpsArgument fromBson(BsonDocument requestDoc) 
                 throws BadValueException, TypesMismatchException, NoSuchKeyException {
-            final String commandName = command.getCommandName();
+            final String commandName = "applyOps";
             if (!requestDoc.containsKey(commandName) || !requestDoc.get(commandName).isArray()) {
                 throw new BadValueException("ops has to be an array");
             }
@@ -111,7 +115,7 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
                     preconditions.add(Precondition.fromBson(uncastedPrecondition));
                 }
             }
-            return new ApplyOpsArgument(command, alwaysUpsert, ops.build(), preconditions.build());
+            return new ApplyOpsArgument(alwaysUpsert, ops.build(), preconditions.build());
         }
 
 
@@ -157,7 +161,7 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
     }
 
     @Immutable
-    public static class ApplyOpsReply extends SimpleReply {
+    public static class ApplyOpsReply {
         private static final BsonField<BsonDocument> GOT_FIELD = BsonField.create("got");
         private static final BsonField<BsonDocument> WHAT_FAILED_FIELD = BsonField.create("whatFailed");
         private static final BsonField<String> ERRMSG_FIELD = BsonField.create("errmsg");
@@ -170,10 +174,8 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
         private final BsonDocument whatFailed;
 
         private ApplyOpsReply(
-                ApplyOpsCommand command,
                 BsonDocument got,
                 BsonDocument whatFailed) {
-            super(command, ErrorCode.COMMAND_FAILED);
 
             this.got = got;
             this.whatFailed = whatFailed;
@@ -182,8 +184,7 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
             this.results = ImmutableList.of();
         }
 
-        public ApplyOpsReply(int num, ImmutableList<Boolean> results, Command command) {
-            super(command);
+        public ApplyOpsReply(int num, ImmutableList<Boolean> results) {
             this.num = num;
             this.results = results;
 
@@ -209,14 +210,9 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
             return whatFailed;
         }
 
-        @Override
-        public ApplyOpsCommand getCommand() {
-            return (ApplyOpsCommand) super.getCommand();
-        }
-
         private BsonDocument marshall() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
-            if (!isOk()) {
+            if (got != null) {
                 builder.append(GOT_FIELD, got)
                         .append(WHAT_FAILED_FIELD, whatFailed)
                         .append(ERRMSG_FIELD, "pre-condition failed");

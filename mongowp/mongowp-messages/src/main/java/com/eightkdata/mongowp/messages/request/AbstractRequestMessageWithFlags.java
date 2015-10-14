@@ -23,10 +23,9 @@ package com.eightkdata.mongowp.messages.request;
 
 import com.eightkdata.mongowp.messages.util.EnumBitFlags;
 import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-
-import javax.annotation.Nonnull;
 import java.util.EnumSet;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -52,10 +51,5 @@ public abstract class AbstractRequestMessageWithFlags<T extends Enum<T> & EnumBi
     @Nonnull
     public Set<T> getFlags() {
         return flags;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
     }
 }

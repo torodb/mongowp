@@ -2,7 +2,7 @@
 package com.eightkdata.mongowp.mongoserver.api.safe;
 
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoServerException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import javax.annotation.Nullable;
 
 /**
@@ -22,5 +22,5 @@ public interface ErrorHandler {
             Connection connection,
             int requestId,
             boolean canReply,
-            MongoServerException exception);
+            MongoException exception);
 }
