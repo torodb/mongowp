@@ -255,8 +255,14 @@ public class MongoConnectionWrapper implements MongoConnection {
                 DeadCursorException {
             Preconditions.checkState(!close, "This cursor is closed");
             long start = System.currentTimeMillis();
+
+            List<BsonDocument> docs = Lists.newArrayList();
+
+            if (!cursor.hasNext()) {
+                return new SimpleBatch<BsonDocument>(docs, start);
+            }
+            docs.add(cursor.next());
             
-            List<BsonDocument> docs = Lists.newArrayListWithCapacity(maxBatchSize);
             while (docs.size() < maxBatchSize && System.currentTimeMillis() - start < MAX_WAIT_TIME) {
                 BsonDocument next = cursor.tryNext();
                 if (next == null) {
