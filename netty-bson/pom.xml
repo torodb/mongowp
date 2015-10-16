@@ -6,7 +6,7 @@
 
     <groupId>com.8kdata.netty-bson</groupId>
     <artifactId>netty-bson-parent</artifactId>
-    <version>0.13-SNAPSHOT</version>
+    <version>0.14</version>
     <packaging>pom</packaging>
 
     <modules>
