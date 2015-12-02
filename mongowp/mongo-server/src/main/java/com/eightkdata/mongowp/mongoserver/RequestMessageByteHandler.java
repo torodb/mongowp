@@ -21,19 +21,6 @@
 
 package com.eightkdata.mongowp.mongoserver;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.EmptyByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-
-import java.util.List;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.primitives.Ints;
-
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.messages.request.RequestOpCode;
 import com.eightkdata.mongowp.mongoserver.decoder.BaseMessageDecoder;
@@ -41,6 +28,14 @@ import com.eightkdata.mongowp.mongoserver.decoder.MessageDecoder;
 import com.eightkdata.mongowp.mongoserver.decoder.MessageDecoderLocator;
 import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
 import com.eightkdata.mongowp.mongoserver.util.ChannelLittleEndianHandler;
+import com.google.common.primitives.Ints;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.EmptyByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import java.util.List;
+import javax.annotation.concurrent.NotThreadSafe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -48,8 +43,8 @@ import com.eightkdata.mongowp.mongoserver.util.ChannelLittleEndianHandler;
 @NotThreadSafe
 public class RequestMessageByteHandler extends ChannelLittleEndianHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestMessageByteHandler.class);
-    private static final String INVALID_OPCODE_MESSAGE = "Received and invalid message with opCode {}";
-    private static final String OPERATION_NOT_IMPLEMENTED = "Message decoder not implemented for opCode {}";
+    private static final String INVALID_OPCODE_MESSAGE = "Received and invalid message with opCode ";
+    private static final String OPERATION_NOT_IMPLEMENTED = "Message decoder not implemented for opCode ";
     
 
     @Override
@@ -67,14 +62,14 @@ public class RequestMessageByteHandler extends ChannelLittleEndianHandler {
         int requestOpCodeInt = byteBuf.readInt();
         RequestOpCode requestOpCode = RequestOpCode.getByOpcode(requestOpCodeInt);
         if (null == requestOpCode) {
-            LOGGER.warn(INVALID_OPCODE_MESSAGE, requestOpCodeInt);
+            LOGGER.warn(INVALID_OPCODE_MESSAGE + requestOpCodeInt);
             throw new InvalidMessageException(INVALID_OPCODE_MESSAGE + requestOpCodeInt);
         }
 
         // Body
         MessageDecoder<?> messageDecoder = MessageDecoderLocator.getByOpCode(requestOpCode);
         if(null == messageDecoder) {
-            LOGGER.error(OPERATION_NOT_IMPLEMENTED, requestOpCode);
+            LOGGER.error(OPERATION_NOT_IMPLEMENTED + requestOpCode);
             throw new UnsupportedOperationException(OPERATION_NOT_IMPLEMENTED + requestOpCode);
         }
 
