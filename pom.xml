@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.8kdata.mongowp</groupId>
+    <artifactId>pom-parent</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>netty-bson</module>
+        <module>mongowp</module>
+    </modules>
+
+    <organization>
+        <name>8Kdata</name>
+        <url>www.8kdata.com</url>
+    </organization>
+
+    <url>www.8kdata.com</url>
+    <inceptionYear>2014</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>GNU AFFERO PUBLIC LICENSE, Version 3, 19 November 2007</name>
+            <url>http://www.gnu.org/licenses/agpl-3.0-standalone.html</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>Commercial License</name>
+            <distribution>manual</distribution>
+            <comments>
+                Commercial licensing for use is available upon request.
+                Please contact sales at 8kdata dot com
+            </comments>
+        </license>
+    </licenses>
+
+    <properties>
+        <S3.bucket>maven.torodb.com</S3.bucket>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+</project>
