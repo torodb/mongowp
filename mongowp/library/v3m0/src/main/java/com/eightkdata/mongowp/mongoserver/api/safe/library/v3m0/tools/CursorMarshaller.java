@@ -161,7 +161,7 @@ public class CursorMarshaller {
         
         @Override
         public Batch<T> fetchBatch() {
-            if (!consumed) {
+            if (consumed) {
                 throw new DeadCursorException();
             }
             consumed = true;
