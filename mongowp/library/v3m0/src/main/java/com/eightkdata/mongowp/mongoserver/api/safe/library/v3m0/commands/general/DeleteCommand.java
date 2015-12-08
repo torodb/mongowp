@@ -13,12 +13,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mongodb.WriteConcern;
-import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  *
@@ -190,7 +191,7 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
     public static class DeleteStatement {
 
         private static final BsonField<BsonDocument> QUERY_FIELD = BsonField.create("q");
-        private static final BsonField<Integer> LIMIT_FIELD = BsonField.create("limit");
+        private static final BsonField<Double> LIMIT_FIELD = BsonField.create("limit");
 
         private final BsonDocument query;
         private final boolean justOne;
@@ -211,14 +212,14 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
         private static DeleteStatement unmarshall(BsonDocument uncastedStatement) throws TypesMismatchException, NoSuchKeyException {
             return new DeleteStatement(
                     BsonReaderTool.getDocument(uncastedStatement, QUERY_FIELD),
-                    BsonReaderTool.getInteger(uncastedStatement, LIMIT_FIELD) != 0
+                    BsonReaderTool.getNumeric(uncastedStatement, LIMIT_FIELD).asNumber().longValue() != 0
             );
         }
 
         private BsonDocument marshall() {
             return new BsonDocumentBuilder()
                     .append(QUERY_FIELD, query)
-                    .append(LIMIT_FIELD, justOne ? 1 : 0)
+                    .append(LIMIT_FIELD, justOne ? 1.0d : 0.0d)
                     .build();
         }
     }
