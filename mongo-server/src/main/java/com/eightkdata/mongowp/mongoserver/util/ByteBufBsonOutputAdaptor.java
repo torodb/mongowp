@@ -1,6 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.util;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import org.bson.BsonSerializationException;
 import org.bson.io.BsonOutput;
@@ -11,6 +12,10 @@ import static java.lang.String.format;
 /**
  *
  */
+@SuppressFBWarnings(
+        value="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+        justification = "It seems FindBugs considers ByteBuf methods are not side effect"
+)
 public class ByteBufBsonOutputAdaptor implements BsonOutput {
 
     private final ByteBuf buffer;

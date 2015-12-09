@@ -23,4 +23,4 @@ mongowp is built with maven, and the artifacts are currently hosted on a [public
 [1]: http://docs.mongodb.org/meta-driver/latest/legacy/mongodb-wire-protocol/
 [2]: http://netty.io/
 [3]: http://www.torodb.com
-[4]: http://maven.torodb.com/
+[4]: https://oss.sonatype.org/content/groups/public/com/8kdata/mongowp/
