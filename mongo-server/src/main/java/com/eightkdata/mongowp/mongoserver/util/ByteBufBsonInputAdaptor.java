@@ -2,6 +2,7 @@
 package com.eightkdata.mongowp.mongoserver.util;
 
 import com.google.common.base.Charsets;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import java.nio.charset.Charset;
 import org.bson.io.BsonInput;
@@ -10,6 +11,10 @@ import org.bson.types.ObjectId;
 /**
  *
  */
+@SuppressFBWarnings(
+        value="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+        justification = "It seems FindBugs considers ByteBuf methods are not side effect"
+)
 public class ByteBufBsonInputAdaptor implements BsonInput {
     private static final Charset UTF8_CHARSET = Charsets.UTF_8;
 

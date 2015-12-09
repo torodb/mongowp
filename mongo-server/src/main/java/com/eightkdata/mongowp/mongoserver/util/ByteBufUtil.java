@@ -22,6 +22,7 @@
 package com.eightkdata.mongowp.mongoserver.util;
 
 import com.google.common.base.Charsets;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import org.bson.*;
 import org.bson.codecs.BsonDocumentCodec;
@@ -31,6 +32,10 @@ import org.bson.codecs.EncoderContext;
 /**
  *
  */
+@SuppressFBWarnings(
+        value="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+        justification = "It seems FindBugs considers ByteBuf methods are not side effect"
+)
 public class ByteBufUtil {
     public static final byte CSTRING_BYTE_TERMINATION = (byte) '\0';
 

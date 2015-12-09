@@ -25,12 +25,17 @@ import com.eightkdata.mongowp.messages.response.ReplyMessage;
 import com.eightkdata.mongowp.messages.response.ResponseOpCode;
 import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import org.bson.BsonDocument;
 
 /**
  *
  */
+@SuppressFBWarnings(
+        value="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+        justification = "It seems FindBugs considers ByteBuf methods are not side effect"
+)
 public class ReplyMessageEncoder {
     public static void encodeMessageHeader(ByteBuf buffer, ReplyMessage message, int requestId) {
         buffer.writeInt(requestId);
