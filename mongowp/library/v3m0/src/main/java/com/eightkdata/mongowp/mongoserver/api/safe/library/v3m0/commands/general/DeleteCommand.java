@@ -191,7 +191,7 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
     public static class DeleteStatement {
 
         private static final BsonField<BsonDocument> QUERY_FIELD = BsonField.create("q");
-        private static final BsonField<Double> LIMIT_FIELD = BsonField.create("limit");
+        private static final BsonField<Boolean> LIMIT_FIELD = BsonField.create("limit");
 
         private final BsonDocument query;
         private final boolean justOne;
@@ -212,14 +212,14 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
         private static DeleteStatement unmarshall(BsonDocument uncastedStatement) throws TypesMismatchException, NoSuchKeyException {
             return new DeleteStatement(
                     BsonReaderTool.getDocument(uncastedStatement, QUERY_FIELD),
-                    BsonReaderTool.getNumeric(uncastedStatement, LIMIT_FIELD).asNumber().longValue() != 0
+                    BsonReaderTool.getBooleanOrNumeric(uncastedStatement, LIMIT_FIELD, false)
             );
         }
 
         private BsonDocument marshall() {
             return new BsonDocumentBuilder()
                     .append(QUERY_FIELD, query)
-                    .append(LIMIT_FIELD, justOne ? 1.0d : 0.0d)
+                    .append(LIMIT_FIELD, justOne ? true : false)
                     .build();
         }
     }
