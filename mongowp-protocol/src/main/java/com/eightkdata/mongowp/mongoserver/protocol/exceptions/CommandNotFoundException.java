@@ -24,6 +24,7 @@ import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 /**
  *
  */
+//TODO: MongoDB also returns a "bad cmd" document with the request command!
 public class CommandNotFoundException extends MongoException {
     private static final long serialVersionUID = 1L;
 

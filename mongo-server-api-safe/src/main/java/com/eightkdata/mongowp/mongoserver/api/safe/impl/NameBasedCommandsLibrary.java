@@ -68,7 +68,7 @@ public class NameBasedCommandsLibrary implements CommandsLibrary {
     @Override
     public Command find(BsonDocument requestDocument) {
         if (requestDocument.keySet().isEmpty()) {
-            throw new IllegalArgumentException("An empty request document is not a valid request");
+            return null;
         }
         String commandName = requestDocument.keySet().iterator().next();
         Command result = commandsMap.get(commandName);
