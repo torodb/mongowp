@@ -55,7 +55,7 @@ public class MongoException extends Exception {
     public MongoException(
             @Nonnull MongoWP.ErrorCode errorCode, 
             @Nonnull Object... args) {
-        super(MessageFormat.format(errorCode.getErrorMessage(), args));
+        super(calculateMessage(errorCode, args));
         this.errorCode = errorCode;
     }
 
@@ -63,11 +63,19 @@ public class MongoException extends Exception {
             @Nonnull Throwable cause, 
             @Nonnull MongoWP.ErrorCode errorCode, 
             @Nonnull Object... args) {
-        super(MessageFormat.format(errorCode.getErrorMessage(), args), cause);
+        super(calculateMessage(errorCode, args), cause);
         this.errorCode = errorCode;
     }
 
     public MongoWP.ErrorCode getErrorCode() {
         return errorCode;
+    }
+
+    private static String calculateMessage(ErrorCode errorCode, Object... args) {
+        try {
+            return MessageFormat.format(errorCode.getErrorMessage(), args);
+        } catch (IllegalArgumentException ex) {
+            return "Unknown error message";
+        }
     }
 }
