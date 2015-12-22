@@ -1,0 +1,233 @@
+
+package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
+
+import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsArgument;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsReply;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.OplogOperationParser;
+import com.eightkdata.mongowp.mongoserver.api.safe.oplog.OplogOperation;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
+import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.google.common.collect.ImmutableList;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+import org.bson.*;
+
+/**
+ *
+ */
+public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsReply> {
+
+    public static final ApplyOpsCommand INSTANCE = new ApplyOpsCommand();
+
+    private ApplyOpsCommand() {
+        super("applyOps");
+    }
+
+    @Override
+    public boolean isSlaveOk() {
+        return false;
+    }
+
+    @Override
+    public Class<? extends ApplyOpsArgument> getArgClass() {
+        return ApplyOpsArgument.class;
+    }
+
+    @Override
+    public ApplyOpsArgument unmarshallArg(BsonDocument requestDoc) 
+            throws BadValueException, TypesMismatchException, NoSuchKeyException {
+        return ApplyOpsArgument.fromBson(requestDoc);
+    }
+
+    @Override
+    public BsonDocument marshallArg(ApplyOpsArgument request) {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    }
+
+    @Override
+    public Class<? extends ApplyOpsReply> getResultClass() {
+        return ApplyOpsReply.class;
+    }
+
+    @Override
+    public BsonDocument marshallResult(ApplyOpsReply reply) {
+        return reply.marshall();
+    }
+
+    @Override
+    public ApplyOpsReply unmarshallResult(BsonDocument resultDoc) throws
+            MongoException, UnsupportedOperationException {
+        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    }
+
+    @Immutable
+    public static class ApplyOpsArgument {
+
+        private final boolean alwaysUpsert;
+        private final ImmutableList<OplogOperation> operations;
+        private final ImmutableList<Precondition> preconditions;
+
+        public ApplyOpsArgument(
+                boolean alwaysUpsert,
+                ImmutableList<OplogOperation> operations,
+                ImmutableList<Precondition> preconditions) {
+            this.alwaysUpsert = alwaysUpsert;
+            this.operations = operations;
+            this.preconditions = preconditions;
+        }
+
+        public boolean isAlwaysUpsert() {
+            return alwaysUpsert;
+        }
+
+        public ImmutableList<OplogOperation> getOperations() {
+            return operations;
+        }
+
+        public ImmutableList<Precondition> getPreconditions() {
+            return preconditions;
+        }
+
+        private static ApplyOpsArgument fromBson(BsonDocument requestDoc) 
+                throws BadValueException, TypesMismatchException, NoSuchKeyException {
+            final String commandName = "applyOps";
+            if (!requestDoc.containsKey(commandName) || !requestDoc.get(commandName).isArray()) {
+                throw new BadValueException("ops has to be an array");
+            }
+
+            boolean alwaysUpsert = BsonReaderTool.getBoolean(requestDoc, "alwaysUpsert", true);
+
+            BsonArray opsArray = requestDoc.get(commandName).asArray();
+            ImmutableList.Builder<OplogOperation> ops = ImmutableList.builder();
+            for (BsonValue uncastedOp : opsArray) {
+                ops.add(OplogOperationParser.fromBson(uncastedOp));
+            }
+
+            ImmutableList.Builder<Precondition> preconditions = ImmutableList.builder();
+            if (requestDoc.containsKey("preCondition") && requestDoc.get("preCondition").isArray()) {
+                for (BsonValue uncastedPrecondition : requestDoc.get("preCondition").asArray()) {
+                    preconditions.add(Precondition.fromBson(uncastedPrecondition));
+                }
+            }
+            return new ApplyOpsArgument(alwaysUpsert, ops.build(), preconditions.build());
+        }
+
+
+        public static class Precondition {
+
+            private final String namespace;
+            private final BsonDocument query;
+            private final BsonDocument restriction;
+
+            public Precondition(String namespace, BsonDocument query, BsonDocument restriction) {
+                this.namespace = namespace;
+                this.query = query;
+                this.restriction = restriction;
+            }
+
+            public String getNamespace() {
+                return namespace;
+            }
+
+            public BsonDocument getQuery() {
+                return query;
+            }
+
+            public BsonDocument getRestriction() {
+                return restriction;
+            }
+
+            private static Precondition fromBson(BsonValue uncastedPrecondition) throws BadValueException, TypesMismatchException, NoSuchKeyException {
+                if (!uncastedPrecondition.isDocument()) {
+                    throw new BadValueException("applyOps preconditions must "
+                            + "be an array of documents, but one of their "
+                            + "elements has the non document value '"+uncastedPrecondition);
+                }
+                BsonDocument preconditionDoc = uncastedPrecondition.asDocument();
+                String namespace = BsonReaderTool.getString(preconditionDoc, "ns");
+                BsonDocument query = BsonReaderTool.getDocument(preconditionDoc, "q");
+                BsonDocument req = BsonReaderTool.getDocument(preconditionDoc, "res");
+
+                return new Precondition(namespace, query, req);
+            }
+        }
+
+    }
+
+    @Immutable
+    public static class ApplyOpsReply {
+        private static final BsonField<BsonDocument> GOT_FIELD = BsonField.create("got");
+        private static final BsonField<BsonDocument> WHAT_FAILED_FIELD = BsonField.create("whatFailed");
+        private static final BsonField<String> ERRMSG_FIELD = BsonField.create("errmsg");
+        private static final BsonField<Integer> APPLIED_FIELD = BsonField.create("applied");
+        private static final BsonField<BsonArray> RESULT_FIELD = BsonField.create("result");
+
+        private final int num;
+        private final ImmutableList<Boolean> results;
+        private final BsonDocument got;
+        private final BsonDocument whatFailed;
+
+        private ApplyOpsReply(
+                BsonDocument got,
+                BsonDocument whatFailed) {
+
+            this.got = got;
+            this.whatFailed = whatFailed;
+
+            this.num = 0;
+            this.results = ImmutableList.of();
+        }
+
+        public ApplyOpsReply(int num, ImmutableList<Boolean> results) {
+            this.num = num;
+            this.results = results;
+
+            this.got = null;
+            this.whatFailed = null;
+        }
+
+        public int getNum() {
+            return num;
+        }
+
+        public ImmutableList<Boolean> getResults() {
+            return results;
+        }
+
+        @Nullable
+        public BsonDocument getGot() {
+            return got;
+        }
+
+        @Nullable
+        public BsonDocument getWhatFailed() {
+            return whatFailed;
+        }
+
+        private BsonDocument marshall() {
+            BsonDocumentBuilder builder = new BsonDocumentBuilder();
+            if (got != null) {
+                builder.append(GOT_FIELD, got)
+                        .append(WHAT_FAILED_FIELD, whatFailed)
+                        .append(ERRMSG_FIELD, "pre-condition failed");
+            }
+            else {
+                builder.append(APPLIED_FIELD, getNum());
+
+                BsonArray bsonResult = new BsonArray();
+                for (Boolean iestResult : results) {
+                    bsonResult.add(BsonBoolean.valueOf(iestResult));
+                }
+                builder.append(RESULT_FIELD, bsonResult);
+            }
+            return builder.build();
+        }
+    }
+
+}
