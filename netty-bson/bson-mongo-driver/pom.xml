@@ -12,6 +12,7 @@
     </parent>
 
     <artifactId>bson-mongo-driver</artifactId>
+    <name>bson-mongo-driver</name>
 
     <dependencies>
         <dependency>

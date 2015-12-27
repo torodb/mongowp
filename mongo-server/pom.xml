@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
 
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.8kdata.mongowp</groupId>
         <artifactId>mongowp-parent</artifactId>
@@ -13,8 +15,22 @@
     <artifactId>mongo-server</artifactId>
     
     <name>Mongo Server: Core</name>
+    <description>
+        The MongoWP project that contains the core classes
+    </description>
 
     <dependencies>
+        <dependency>
+            <groupId>com.8kdata.mongowp</groupId>
+            <artifactId>mongowp-messages</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.8kdata.mongowp</groupId>
+            <artifactId>mongowp-protocol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
@@ -44,16 +60,6 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongowp-messages</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongowp-protocol</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
         </dependency>
@@ -74,4 +80,5 @@
             <artifactId>annotations</artifactId>
         </dependency>
     </dependencies>
+
 </project>

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
 
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <artifactId>mongowp-parent</artifactId>
         <groupId>com.8kdata.mongowp</groupId>
@@ -13,11 +15,36 @@
     <artifactId>mongo-server-api</artifactId>
     
     <name>Mongo Server: Unsafe API</name>
+    <description>
+        First MongoWP Server API version, usually called unsafe because
+        callbacks are less type safe than the newer versions
+    </description>
 
     <dependencies>
         <dependency>
+            <groupId>com.8kdata.mongowp</groupId>
+            <artifactId>mongowp-messages</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.8kdata.mongowp</groupId>
+            <artifactId>mongowp-protocol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mongo-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <type>jar</type>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
@@ -40,32 +67,13 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongowp-messages</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongowp-protocol</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport</artifactId>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>mongo-server</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-core</artifactId>
         </dependency>
     </dependencies>
+
 </project>
