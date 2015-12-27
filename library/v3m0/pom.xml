@@ -1,22 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
+
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>com.8kdata.mongowp.api.safe.library</groupId>
         <artifactId>library</artifactId>
-        <version>0.20-SNAPSHOT</version>
+        <version>0.20</version>
     </parent>
+
     <artifactId>v3m0</artifactId>
     <packaging>jar</packaging>
     
     <name>Mongo Server: Command Library 3.0</name>
+    <description>
+        Mongo library that emulates MongoDB 3.0 commands
+    </description>
+    
     <dependencies>
         <dependency>
             <groupId>com.8kdata.mongowp</groupId>
             <artifactId>mongo-server-api-safe</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+        <dependency>
+            <groupId>com.8kdata.mongowp</groupId>
+            <artifactId>mongowp-protocol</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.8kdata.mongowp</groupId>
+            <artifactId>mongo-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
@@ -38,18 +58,9 @@
             <artifactId>bson</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongowp-protocol</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongo-server</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
+
 </project>

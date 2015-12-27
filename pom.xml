@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+>
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.8kdata.mongowp</groupId>
     <artifactId>mongowp-parent</artifactId>
-    <version>0.20-SNAPSHOT</version>
+    <version>0.20</version>
     <packaging>pom</packaging>
-    
-    <name>MongoWP Parent</name>
 
     <modules>
         <module>mongo-server</module>
@@ -22,13 +22,19 @@
         <module>netty-bson</module>
     </modules>
     
+    <name>MongoWP Parent</name>
+	<description>
+		mongowp is a Java layer that enables the development of server-side MongoDB wire protocol implementations.
+		Any application designed to act as a mongo server could rely on this layer to implement the wire protocol.
+		Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
+        to name a few.
+	</description>
+    <url>https://www.8kdata.com</url>
+
     <organization>
         <name>8Kdata</name>
         <url>www.8kdata.com</url>
     </organization>
-
-    <url>www.8kdata.com</url>
-    <inceptionYear>2014</inceptionYear>
 
     <licenses>
         <license>
@@ -46,6 +52,23 @@
         </license>
     </licenses>
 
+	<developers>
+    	<developer>
+      		<id>mongowp.8kdata.com</id>
+     		<name>MongoWP Project Contributors</name>
+      		<email>mongowp@8kdata.com</email>
+      		<url>https://github.com/8kdata/mongowp</url>
+      		<organization>The MongoWP Project</organization>
+      		<organizationUrl>https://8kdata.com</organizationUrl>
+    	</developer>
+	</developers>
+
+	<scm>
+		<connection>scm:git:git@github.com:8kdata/mongowp.git</connection>
+  		<developerConnection>scm:git:git@github.com:8kdata/mongowp.git</developerConnection>
+  		<url>git@github.com:8kdata/mongowp.git</url>
+	</scm>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netty.version>4.0.33.Final</netty.version>
@@ -53,6 +76,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.8kdata.netty-bson</groupId>
+                <artifactId>netty-bson-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
@@ -71,7 +100,7 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.12</version>
+                <version>1.7.13</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -81,7 +110,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>18.0</version>
+                <version>19.0</version>
             </dependency>
             <dependency>
                 <groupId>javax.inject</groupId>
@@ -89,43 +118,15 @@
                 <version>1</version>
             </dependency>
             <dependency>
-                <groupId>com.8kdata.netty-bson</groupId>
-                <artifactId>netty-bson-api</artifactId>
-                <version>${netty-bson.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
                 <version>4.0</version>
             </dependency>
-
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>3.0.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>annotations</artifactId>
-                <version>3.0.1</version>
-                <scope>provided</scope>
-                <type>jar</type>
-            </dependency>
-            
             <dependency>
                 <groupId>org.threeten</groupId>
                 <artifactId>threetenbp</artifactId>
-                <version>1.3</version>
+                <version>1.3.1</version>
             </dependency>
-
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.12</version>
-                <scope>test</scope>
-            </dependency>
-            
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver-core</artifactId>
@@ -144,7 +145,28 @@
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
+                <version>3.0.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
                 <version>3.0.1</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>annotations</artifactId>
+                <version>3.0.1</version>
+                <scope>provided</scope>
+                <type>jar</type>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -329,6 +351,27 @@
                                         <include>%regex[.*integration.*]</include>
                                     </includes>
                                 </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
                             </execution>
                         </executions>
                     </plugin>
