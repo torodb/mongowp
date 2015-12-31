@@ -69,6 +69,11 @@
   		<url>git@github.com:8kdata/mongowp.git</url>
 	</scm>
 
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/8kdata/mongowp/issues</url>
+    </issueManagement>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netty.version>4.0.33.Final</netty.version>
