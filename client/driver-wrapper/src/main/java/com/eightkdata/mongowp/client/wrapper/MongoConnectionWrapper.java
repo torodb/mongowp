@@ -1,5 +1,5 @@
 
-package com.kdata.mongowp.client.wrapper;
+package com.eightkdata.mongowp.client.wrapper;
 
 import com.eightkdata.mongowp.client.core.MongoClient;
 import com.eightkdata.mongowp.client.core.MongoConnection;
