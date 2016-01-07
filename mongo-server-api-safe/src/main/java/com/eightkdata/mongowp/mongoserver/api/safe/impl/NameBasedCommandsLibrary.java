@@ -46,7 +46,7 @@ public class NameBasedCommandsLibrary implements CommandsLibrary {
         ImmutableMap.Builder<String, Command> commandsMapBuilder = ImmutableMap.builder();
         
         for (Command command : commands) {
-            commandsMapBuilder.put(command.getCommandName(), command);
+            commandsMapBuilder.put(command.getCommandName().toLowerCase(Locale.ENGLISH), command);
         }
         
         this.commandsMap = commandsMapBuilder.build();
@@ -70,7 +70,7 @@ public class NameBasedCommandsLibrary implements CommandsLibrary {
         if (requestDocument.keySet().isEmpty()) {
             return null;
         }
-        String commandName = requestDocument.keySet().iterator().next();
+        String commandName = requestDocument.keySet().iterator().next().toLowerCase(Locale.ENGLISH);
         Command result = commandsMap.get(commandName);
         
         if (result == null) {
