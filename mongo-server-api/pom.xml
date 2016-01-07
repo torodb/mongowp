@@ -9,7 +9,7 @@
     <parent>
         <artifactId>mongowp-parent</artifactId>
         <groupId>com.8kdata.mongowp</groupId>
-        <version>0.20</version>
+        <version>0.20-SNAPSHOT</version>
     </parent>
 
     <artifactId>mongo-server-api</artifactId>
