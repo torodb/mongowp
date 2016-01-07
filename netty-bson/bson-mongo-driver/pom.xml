@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.8kdata.netty-bson</groupId>
         <artifactId>netty-bson-parent</artifactId>
-        <version>0.20</version>
+        <version>0.40-SNAPSHOT</version>
     </parent>
 
     <artifactId>bson-mongo-driver</artifactId>
