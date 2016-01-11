@@ -2,7 +2,6 @@
 package com.eightkdata.mongowp.mongoserver.api.safe;
 
 import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import io.netty.util.AttributeMap;
 import java.util.concurrent.Future;
 import javax.annotation.Nullable;
@@ -17,8 +16,7 @@ public class Connection {
     private final int connectionId;
     private final AttributeMap attributeMap;
     private Future<? extends WriteOpResult> lastWriteOp;
-    private OpTime lastRequestedWriteOpTime;
-
+    
     public Connection(int connectionId, AttributeMap attributeMap) {
         this.connectionId = connectionId;
         this.attributeMap = attributeMap;
@@ -30,15 +28,6 @@ public class Connection {
 
     public AttributeMap getAttributeMap() {
         return attributeMap;
-    }
-
-    @Nullable
-    public OpTime getLastRequestedWriteOpTime() {
-        return lastRequestedWriteOpTime;
-    }
-
-    public void setLastRequestedWriteOpTime(OpTime lastRequestedWriteOpTime) {
-        this.lastRequestedWriteOpTime = lastRequestedWriteOpTime;
     }
 
     @Nullable
