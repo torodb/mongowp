@@ -9,6 +9,8 @@ import org.bson.io.BsonInput;
 import org.bson.types.ObjectId;
 
 /**
+ * This class is an adaptor that wraps a netty {@link ByteBuf} and shows it as
+ * a {@link BsonInput}.
  *
  */
 @SuppressFBWarnings(

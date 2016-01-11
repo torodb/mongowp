@@ -62,7 +62,11 @@ public class ByteBufUtil {
     }
 
     public static BsonDocument readBsonDocument(ByteBuf buffer) {
-        BsonReader reader = new BsonBinaryReader(new ByteBufBsonInputAdaptor(buffer));
+        BsonReader reader = new BsonBinaryReader(
+                new InternBsonInputDelegator(
+                        new ByteBufBsonInputAdaptor(buffer)
+                )
+        );
 
         DecoderContext context = DecoderContext.builder().build();
         return BSON_CODEC.decode(reader, context);
