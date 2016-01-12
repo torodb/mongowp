@@ -17,7 +17,7 @@ public class DropCollectionCommand extends AbstractCommand<CollectionCommandArgu
     public static final DropCollectionCommand INSTANCE = new DropCollectionCommand();
 
     private DropCollectionCommand() {
-        super("dropCollection");
+        super("drop");
     }
 
     @Override
