@@ -7,6 +7,8 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnos
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.CollStatsCommand.CollStatsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.CollStatsCommand.CollStatsReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.ListDatabasesCommand.ListDatabasesReply;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.ServerStatusCommand.ServerStatusArgument;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.ServerStatusCommand.ServerStatusReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -22,7 +24,8 @@ public class DiagnosticCommands implements Iterable<Command> {
     private final ImmutableList<Command> commands = ImmutableList.<Command>of(
             CollStatsCommand.INSTANCE,
             ListDatabasesCommand.INSTANCE,
-            BuildInfoCommand.INSTANCE
+            BuildInfoCommand.INSTANCE,
+            ServerStatusCommand.INSTANCE
     );
 
     @Override
@@ -38,11 +41,14 @@ public class DiagnosticCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<Empty, BuildInfoResult> getBuildInfoImplementation();
 
+        public abstract CommandImplementation<ServerStatusArgument, ServerStatusReply> getServerStatusImplementation();
+
         private Map<Command, CommandImplementation> createMap() {
             return ImmutableMap.<Command, CommandImplementation>builder()
                     .put(CollStatsCommand.INSTANCE, getCollStatsImplementation())
                     .put(ListDatabasesCommand.INSTANCE, getListDatabasesImplementation())
                     .put(BuildInfoCommand.INSTANCE, getBuildInfoImplementation())
+                    .put(ServerStatusCommand.INSTANCE, getServerStatusImplementation())
                     .build();
         }
 
