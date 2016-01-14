@@ -28,6 +28,7 @@ import com.eightkdata.mongowp.mongoserver.util.ByteBufIterableDocumentProvider;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
 import com.eightkdata.mongowp.mongoserver.util.EnumBitFlags;
 import com.eightkdata.mongowp.mongoserver.util.EnumInt32FlagsUtil;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnegative;
 import javax.inject.Singleton;
@@ -38,6 +39,9 @@ import javax.inject.Singleton;
 @Singleton
 public class InsertMessageDecoder extends AbstractMessageDecoder<InsertMessage> {
     @Override
+    @SuppressFBWarnings(value = {"RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT"},
+            justification = "Findbugs thinks ByteBuf#readerIndex(...) has no"
+                    + "side effect")
     public @Nonnegative
     InsertMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidNamespaceException {
         int flags = buffer.readInt();
