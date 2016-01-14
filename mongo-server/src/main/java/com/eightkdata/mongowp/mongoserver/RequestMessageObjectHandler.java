@@ -22,8 +22,8 @@
 package com.eightkdata.mongowp.mongoserver;
 
 import com.eightkdata.mongowp.messages.request.*;
-import com.eightkdata.mongowp.mongoserver.callback.NettyMessageReplier;
 import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
+import com.eightkdata.mongowp.mongoserver.callback.NettyMessageReplier;
 import com.eightkdata.mongowp.mongoserver.callback.RequestProcessor;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -49,42 +49,43 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        RequestMessage requestMessage = (RequestMessage) msg;
-    	ctx.attr(NettyMessageReplier.REQUEST_ID).set(requestMessage.getBaseMessage().getRequestId());
-        LOGGER.debug("Received message type: {}, data: {}", requestMessage.getOpCode(), requestMessage);
+        try (RequestMessage requestMessage = (RequestMessage) msg) {
+            ctx.attr(NettyMessageReplier.REQUEST_ID).set(requestMessage.getBaseMessage().getRequestId());
+            LOGGER.debug("Received message type: {}, data: {}", requestMessage.getOpCode(), requestMessage);
 
-        MessageReplier messageReplier = new NettyMessageReplier(ctx);
-    	ctx.attr(REQUEST_OP_CODE).set(requestMessage.getOpCode());
-        switch (requestMessage.getOpCode()) {
-	        case OP_QUERY:
-                assert requestMessage instanceof QueryMessage;
-	            requestProcessor.queryMessage((QueryMessage) requestMessage, messageReplier);
-	            break;
-	        case OP_GET_MORE:
-                assert requestMessage instanceof GetMoreMessage;
-	            requestProcessor.getMore((GetMoreMessage) requestMessage, messageReplier);
-	            break;
-	        case OP_KILL_CURSORS:
-                assert requestMessage instanceof KillCursorsMessage;
-	            requestProcessor.killCursors((KillCursorsMessage) requestMessage, messageReplier);
-	            break;
-	        case OP_INSERT:
-                assert requestMessage instanceof InsertMessage;
-	            requestProcessor.insert((InsertMessage) requestMessage, messageReplier);
-	            break;
-	        case OP_UPDATE:
-                assert requestMessage instanceof UpdateMessage;
-	            requestProcessor.update((UpdateMessage) requestMessage, messageReplier);
-	            break;
-	        case OP_DELETE:
-                assert requestMessage instanceof DeleteMessage;
-	            requestProcessor.delete((DeleteMessage) requestMessage, messageReplier);
-	            break;
-            // TODO: implement missing cases
-            default:
-                throw new UnsupportedOperationException(
-                        "Message replier not implemented for " + requestMessage.getOpCode() + " opCode"
-                );
+            MessageReplier messageReplier = new NettyMessageReplier(ctx);
+            ctx.attr(REQUEST_OP_CODE).set(requestMessage.getOpCode());
+            switch (requestMessage.getOpCode()) {
+                case OP_QUERY:
+                    assert requestMessage instanceof QueryMessage;
+                    requestProcessor.queryMessage((QueryMessage) requestMessage, messageReplier);
+                    break;
+                case OP_GET_MORE:
+                    assert requestMessage instanceof GetMoreMessage;
+                    requestProcessor.getMore((GetMoreMessage) requestMessage, messageReplier);
+                    break;
+                case OP_KILL_CURSORS:
+                    assert requestMessage instanceof KillCursorsMessage;
+                    requestProcessor.killCursors((KillCursorsMessage) requestMessage, messageReplier);
+                    break;
+                case OP_INSERT:
+                    assert requestMessage instanceof InsertMessage;
+                    requestProcessor.insert((InsertMessage) requestMessage, messageReplier);
+                    break;
+                case OP_UPDATE:
+                    assert requestMessage instanceof UpdateMessage;
+                    requestProcessor.update((UpdateMessage) requestMessage, messageReplier);
+                    break;
+                case OP_DELETE:
+                    assert requestMessage instanceof DeleteMessage;
+                    requestProcessor.delete((DeleteMessage) requestMessage, messageReplier);
+                    break;
+                default:
+                    throw new UnsupportedOperationException(
+                            "Message replier not implemented for "
+                            + requestMessage.getOpCode() + " opCode"
+                    );
+            }
         }
     }
 

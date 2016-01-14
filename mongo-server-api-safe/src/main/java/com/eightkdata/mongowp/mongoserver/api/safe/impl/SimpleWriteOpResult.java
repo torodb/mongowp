@@ -5,8 +5,9 @@ import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilde
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import javax.annotation.Nonnull;
@@ -23,7 +24,7 @@ public class SimpleWriteOpResult implements WriteOpResult {
     private static final BsonField<Double> N_FIELD_NAME = BsonField.create("n");
     private static final long serialVersionUID = 1L;
 
-    private final @Nonnull MongoWP.ErrorCode error;
+    private final @Nonnull ErrorCode error;
     private final @Nullable String errorDesc;
     private final @Nullable ReplicationInformation replInfo;
     private final @Nullable ShardingInformation shardInfo;
@@ -39,7 +40,7 @@ public class SimpleWriteOpResult implements WriteOpResult {
         this.replInfo = replInfo;
         this.shardInfo = shardInfo;
 
-        if (errorDesc != null && error.equals(MongoWP.ErrorCode.OK)) {
+        if (errorDesc != null && error.equals(ErrorCode.OK)) {
             throw new IllegalArgumentException("Error description must be "
                     + "null when the given error code is OK");
         }
@@ -57,7 +58,7 @@ public class SimpleWriteOpResult implements WriteOpResult {
         this.replInfo = replInfo;
         this.shardInfo = shardInfo;
 
-        if (error.equals(MongoWP.ErrorCode.OK)) {
+        if (error.equals(ErrorCode.OK)) {
             if (args.length != 0) {
                 throw new IllegalArgumentException("Error description must be "
                         + "null when the given error code is OK");
@@ -98,7 +99,7 @@ public class SimpleWriteOpResult implements WriteOpResult {
 
     protected void marshall(BsonDocumentBuilder builder) {
         if (errorDesc == null) {
-            assert error.equals(MongoWP.ErrorCode.OK);
+            assert error.equals(ErrorCode.OK);
             builder.appendNull(ERR_FIELD_NAME);
         }
         else {

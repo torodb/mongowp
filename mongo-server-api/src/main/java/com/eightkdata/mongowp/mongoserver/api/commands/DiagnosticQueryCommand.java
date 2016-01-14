@@ -23,7 +23,7 @@ package com.eightkdata.mongowp.mongoserver.api.commands;
 
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
 import com.google.common.base.Preconditions;
 import javax.annotation.Nonnull;
 import org.bson.BsonDocument;
@@ -60,11 +60,11 @@ public enum DiagnosticQueryCommand implements QueryCommandProcessor.QueryCommand
     getCmdLineOpts(true),
     getLog(true) {
         @Override
-        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) {
+        public void doCall(@Nonnull RequestBaseMessage requestBaseMessage, @Nonnull BsonDocument query, @Nonnull QueryCommandProcessor.ProcessorCaller caller) throws BadValueException {
             String log = query.get("getLog").asString().getValue();
             QueryCommandProcessor.GetLogType getLogType = QueryCommandProcessor.GetLogType.getByLog(log);
             if(null == getLogType) {
-                caller.replyFailure(MongoWP.ErrorCode.INVALID_GET_LOG_LOG, log);
+                throw new BadValueException("The value " + log + " is not a spected log value");
             } else {
                 caller.getLog(getLogType);
             }

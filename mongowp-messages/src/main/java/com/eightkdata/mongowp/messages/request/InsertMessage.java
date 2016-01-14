@@ -21,11 +21,10 @@
 
 package com.eightkdata.mongowp.messages.request;
 
-import com.eightkdata.mongowp.messages.util.EnumBitFlags;
-import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-import java.util.EnumSet;
-import java.util.List;
-import javax.annotation.Nonnegative;
+import com.eightkdata.mongowp.messages.utils.IterableDocumentProvider;
+import com.eightkdata.mongowp.messages.utils.SimpleIterableDocumentsProvider;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import org.bson.BsonDocument;
@@ -34,57 +33,40 @@ import org.bson.BsonDocument;
  *
  */
 @Immutable
-public class InsertMessage extends AbstractRequestMessageWithFlags<InsertMessage.Flag> implements RequestMessage {
-    public enum Flag implements EnumBitFlags {
-        CONTINUE_ON_ERROR(0);
+public class InsertMessage extends AbstractRequestMessage implements RequestMessage {
+    
+    public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_INSERT;
 
-        private static final int FLAG_INT32_MASK = EnumInt32FlagsUtil.getInt32AllFlagsMask(Flag.class);
+    @Nonnull private final String database;
+    @Nonnull private final String collection;
+    @Nonnull private final IterableDocumentProvider<?> documents;
 
-        @Nonnegative private final int flagBitPosition;
-
-        private Flag(@Nonnegative int flagBitPosition) {
-            this.flagBitPosition = flagBitPosition;
-        }
-
-        @Override
-        public int getFlagBitPosition() {
-            return flagBitPosition;
-        }
+    public InsertMessage(
+            @Nonnull RequestBaseMessage requestBaseMessage,
+            @Nonnull String database,
+            @Nonnull String collection,
+            boolean continueOnError,
+            @Nonnull IterableDocumentProvider<?> documents
+    ) {
+        super(requestBaseMessage);
+        this.database = database;
+        this.collection = collection;
+        this.documents = documents;
     }
 
-    public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_INSERT;
+    public InsertMessage(
+            @Nonnull RequestBaseMessage requestBaseMessage,
+            @Nonnull String database,
+            @Nonnull String collection,
+            boolean continueOnError,
+            @Nonnull Iterable<? extends BsonDocument> documents
+    ) {
+        this(requestBaseMessage, database, collection, continueOnError, new SimpleIterableDocumentsProvider<>(documents));
+    }
 
     @Override
     public RequestOpCode getOpCode() {
         return REQUEST_OP_CODE;
-    }
-
-    @Nonnull private final String database;
-    @Nonnull private final String collection;
-    @Nonnull private final List<? extends BsonDocument> documents;
-
-    public InsertMessage(
-            @Nonnull RequestBaseMessage requestBaseMessage,
-            EnumSet<InsertMessage.Flag> flags,
-            @Nonnull String fullCollectionName,
-            @Nonnull List<? extends BsonDocument> documents
-    ) {
-        super(requestBaseMessage, flags);
-        String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
-        this.database = splittedFullCollectionName[0];
-        this.collection = splittedFullCollectionName[1];
-        this.documents = documents;
-    }
-
-    public InsertMessage(
-            @Nonnull RequestBaseMessage requestBaseMessage, int flags, @Nonnull String fullCollectionName, 
-            @Nonnull List<? extends BsonDocument> documents
-    ) {
-        super(requestBaseMessage, Flag.class, Flag.FLAG_INT32_MASK, flags);
-        String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
-        this.database = splittedFullCollectionName[0];
-        this.collection = splittedFullCollectionName[1];
-        this.documents = documents;
     }
 
     @Nonnull
@@ -98,16 +80,23 @@ public class InsertMessage extends AbstractRequestMessageWithFlags<InsertMessage
     }
 
     @Nonnull
-    public List<? extends BsonDocument> getDocuments() {
+    public FluentIterable<? extends BsonDocument> getDocuments() {
         return documents;
     }
 
     @Override
+    public void close() throws Exception {
+        documents.close();
+    }
+
+    @Override
     public String toString() {
+        int docsLimit = 10;
         return "InsertMessage{" + super.toString() +
                 ", database='" + database + '\'' +
                 ", collection='" + collection + '\'' +
-                ", documents=" + documents +
+                ", documents (limited to " + docsLimit + ")="
+                + Iterables.toString(documents.limit(docsLimit)) +
                 '}';
     }
 }

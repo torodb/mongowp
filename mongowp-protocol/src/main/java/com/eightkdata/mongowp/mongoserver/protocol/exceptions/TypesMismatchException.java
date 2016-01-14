@@ -19,6 +19,7 @@
  */
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import java.util.Locale;
 import org.bson.BsonType;
@@ -34,28 +35,28 @@ public class TypesMismatchException extends MongoException {
     private final BsonType foundType;
 
     public TypesMismatchException(String fieldId, BsonType expectedType, BsonType foundType) {
-        super(MongoWP.ErrorCode.TYPE_MISMATCH, fieldId, expectedType, foundType);
+        super(ErrorCode.TYPE_MISMATCH, fieldId, expectedType, foundType);
         this.fieldId = fieldId;
         this.expectedType = expectedType.toString().toLowerCase(Locale.ROOT);
         this.foundType = foundType;
     }
 
     public TypesMismatchException(String fieldId, BsonType expectedType, BsonType foundType, String customMessage) {
-        super(customMessage, MongoWP.ErrorCode.TYPE_MISMATCH);
+        super(customMessage, ErrorCode.TYPE_MISMATCH);
         this.fieldId = fieldId;
         this.expectedType = expectedType.toString().toLowerCase(Locale.ROOT);
         this.foundType = foundType;
     }
 
     public TypesMismatchException(String fieldId, String expectedType, BsonType foundType) {
-        super(MongoWP.ErrorCode.TYPE_MISMATCH, fieldId, expectedType, foundType);
+        super(ErrorCode.TYPE_MISMATCH, fieldId, expectedType, foundType);
         this.fieldId = fieldId;
         this.expectedType = expectedType;
         this.foundType = foundType;
     }
     
     public TypesMismatchException(String fieldId, String expectedType, BsonType foundType, String customMessage) {
-        super(customMessage, MongoWP.ErrorCode.TYPE_MISMATCH);
+        super(customMessage, ErrorCode.TYPE_MISMATCH);
         this.fieldId = fieldId;
         this.expectedType = expectedType;
         this.foundType = foundType;

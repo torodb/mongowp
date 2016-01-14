@@ -4,7 +4,7 @@ package com.eightkdata.mongowp.mongoserver.api.safe.impl;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 import org.bson.BsonDocument;

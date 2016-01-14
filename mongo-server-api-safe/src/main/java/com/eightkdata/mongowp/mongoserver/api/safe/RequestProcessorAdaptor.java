@@ -1,15 +1,16 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe;
 
+import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.messages.request.*;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
 import com.eightkdata.mongowp.mongoserver.api.safe.pojos.QueryRequest;
 import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
 import com.eightkdata.mongowp.mongoserver.callback.RequestProcessor;
 import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.CommandNotFoundException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.UnauthorizedException;
 import com.google.common.util.concurrent.Futures;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
@@ -92,18 +93,19 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                     queryMessage.getDatabase(),
                     queryMessage.getCollection()
             );
+            QueryOptions queryOptions = queryMessage.getQueryOptions();
             requestBuilder.setCollection(queryMessage.getCollection())
                     .setQuery(extractQuery(queryMessage.getDocument()))
                     .setProjection(null)
                     .setNumberToSkip(queryMessage.getNumberToSkip())
                     .setLimit(queryMessage.getNumberToReturn())
-                    .setAwaitData(queryMessage.isFlagSet(QueryMessage.Flag.AWAIT_DATA))
-                    .setExhaust(queryMessage.isFlagSet(QueryMessage.Flag.EXHAUST))
-                    .setNoCursorTimeout(queryMessage.isFlagSet(QueryMessage.Flag.NO_CURSOR_TIMEOUT))
-                    .setOplogReplay(queryMessage.isFlagSet(QueryMessage.Flag.OPLOG_REPLAY))
-                    .setPartial(queryMessage.isFlagSet(QueryMessage.Flag.PARTIAL))
-                    .setSlaveOk(queryMessage.isFlagSet(QueryMessage.Flag.SLAVE_OK))
-                    .setTailable(queryMessage.isFlagSet(QueryMessage.Flag.TAILABLE_CURSOR));
+                    .setAwaitData(queryOptions.isAwaitData())
+                    .setExhaust(queryOptions.isExhaust())
+                    .setNoCursorTimeout(queryOptions.isNoCursorTimeout())
+                    .setOplogReplay(queryOptions.isOplogReplay())
+                    .setPartial(queryOptions.isPartial())
+                    .setSlaveOk(queryOptions.isSlaveOk())
+                    .setTailable(queryOptions.isTailable());
 
             if (requestBuilder.getLimit() < 0) {
                 requestBuilder.setAutoclose(true);
@@ -133,53 +135,44 @@ public class RequestProcessorAdaptor implements RequestProcessor {
             Connection connection,
             QueryMessage queryMessage,
             MessageReplier messageReplier) throws MongoException {
-        try {
-            BsonDocument document = queryMessage.getDocument();
-            Command command = safeRequestProcessor.getCommandsLibrary().find(document);
-            if (command == null) {
-                if (document.isEmpty()) {
-                    throw new CommandNotFoundException("Empty document query");
-                }
-                String firstKey = document.keySet().iterator().next();
-                throw new CommandNotFoundException(firstKey);
+        BsonDocument document = queryMessage.getDocument();
+        Command command
+                = safeRequestProcessor.getCommandsLibrary().find(document);
+        if (command == null) {
+            if (document.isEmpty()) {
+                throw new CommandNotFoundException("Empty document query");
             }
-
-            if (command.isAdminOnly()) {
-                if (!QUERY_MESSAGE_ADMIN_DATABASE.equals(queryMessage.getDatabase())) {
-                    messageReplier.replyQueryCommandFailure(
-                            "{0} may only be run against the admin database.",
-                            MongoWP.ErrorCode.UNAUTHORIZED.getErrorCode(),
-                            command.getCommandName()
-                    );
-                    return ;
-                }
-            }
-
-            Object arg = command.unmarshallArg(document);
-            CommandRequest request = new CommandRequest(
-                    connection,
-                    queryMessage.getRequestId(),
-                    queryMessage.getDatabase(),
-                    queryMessage.getClientAddress(),
-                    queryMessage.getClientPort(),
-                    arg,
-                    queryMessage.isFlagSet(QueryMessage.Flag.SLAVE_OK)
-            );
-            CommandReply reply = safeRequestProcessor.execute(command, request);
-
-            if (reply.getWriteOpResult() != null) {
-                connection.setAppliedWriteOp(Futures.immediateFuture(reply.getWriteOpResult()));
-            }
-            BsonDocument bsonReply = reply.marshall();
-
-            messageReplier.replyMessageNoCursor(bsonReply);
+            String firstKey = document.keySet().iterator().next();
+            throw new CommandNotFoundException(firstKey);
         }
-        catch (CommandNotFoundException ex) {
-            messageReplier.replyQueryCommandFailure(
-                    MongoWP.ErrorCode.COMMAND_NOT_FOUND,
-                    ex.getCommandName()
-            );
+
+        if (command.isAdminOnly()) {
+            if (!QUERY_MESSAGE_ADMIN_DATABASE.equals(queryMessage.getDatabase())) {
+                throw new UnauthorizedException(
+                        command.getCommandName() + "may only be run "
+                        + "against the admin database."
+                );
+            }
         }
+
+        Object arg = command.unmarshallArg(document);
+        CommandRequest request = new CommandRequest(
+                connection,
+                queryMessage.getRequestId(),
+                queryMessage.getDatabase(),
+                queryMessage.getClientAddress(),
+                queryMessage.getClientPort(),
+                arg,
+                queryMessage.getQueryOptions().isSlaveOk()
+        );
+        CommandReply reply = safeRequestProcessor.execute(command, request);
+
+        if (reply.getWriteOpResult() != null) {
+            connection.setAppliedWriteOp(Futures.immediateFuture(reply.getWriteOpResult()));
+        }
+        BsonDocument bsonReply = reply.marshall();
+
+        messageReplier.replyMessageNoCursor(bsonReply);
     }
 
     @Override

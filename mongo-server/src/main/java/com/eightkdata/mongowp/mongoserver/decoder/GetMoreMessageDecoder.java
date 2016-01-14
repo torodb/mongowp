@@ -21,31 +21,33 @@
 
 package com.eightkdata.mongowp.mongoserver.decoder;
 
-import io.netty.buffer.ByteBuf;
-
-import javax.annotation.Nonnegative;
-import javax.inject.Singleton;
-
 import com.eightkdata.mongowp.messages.request.GetMoreMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
-import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.InvalidNamespaceException;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
+import io.netty.buffer.ByteBuf;
+import javax.annotation.Nonnegative;
+import javax.inject.Singleton;
 
 /**
  *
  */
 @Singleton
-public class GetMoreMessageDecoder implements MessageDecoder<GetMoreMessage> {
+public class GetMoreMessageDecoder extends AbstractMessageDecoder<GetMoreMessage> {
     @Override
     public @Nonnegative
-    GetMoreMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidMessageException {
+    GetMoreMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidNamespaceException {
     	buffer.skipBytes(4);
         String fullCollectionName = ByteBufUtil.readCString(buffer);
         int numberToReturn = buffer.readInt();
         long cursorId = buffer.readLong();
 
         return new GetMoreMessage(
-                requestBaseMessage, fullCollectionName, numberToReturn, cursorId
+                requestBaseMessage,
+                getDatabase(fullCollectionName),
+                getCollection(fullCollectionName),
+                numberToReturn,
+                cursorId
         );
     }
 }

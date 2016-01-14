@@ -1,16 +1,13 @@
 
 package com.eightkdata.mongowp.client.core;
 
-import com.eightkdata.mongowp.messages.request.DeleteMessage;
-import com.eightkdata.mongowp.messages.request.QueryMessage;
-import com.eightkdata.mongowp.messages.request.UpdateMessage;
+import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.CommandReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.pojos.MongoCursor;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import com.mongodb.annotations.NotThreadSafe;
 import java.io.Closeable;
-import java.util.EnumSet;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,10 +26,10 @@ public interface MongoConnection extends Closeable {
     public MongoCursor<BsonDocument> query(
             String database,
             String collection,
-            EnumSet<QueryMessage.Flag> flags,
             @Nullable BsonDocument query,
             int numberToSkip,
             int numberToReturn,
+            @Nonnull QueryOptions queryOptions,
             @Nullable BsonDocument projection) throws MongoException;
 
     public void asyncKillCursors(@Nonnull Iterable<Long> cursors) throws
@@ -51,14 +48,15 @@ public interface MongoConnection extends Closeable {
     public void asyncUpdate(
             @Nonnull String database,
             @Nonnull String collection,
-            @Nonnull EnumSet<UpdateMessage.Flag> flags,
             @Nonnull BsonDocument selector,
-            @Nonnull BsonDocument update) throws MongoException;
+            @Nonnull BsonDocument update,
+            boolean upsert,
+            boolean multiUpdate) throws MongoException;
 
     public void asyncDelete(
             @Nonnull String database,
             @Nonnull String collection,
-            @Nonnull EnumSet<DeleteMessage.Flag> flags,
+            boolean singleRemove,
             @Nonnull BsonDocument selector) throws MongoException;
 
     /**

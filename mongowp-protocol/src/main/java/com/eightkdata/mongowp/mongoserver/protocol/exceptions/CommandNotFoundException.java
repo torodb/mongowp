@@ -19,6 +19,7 @@
  */
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 
 /**
@@ -31,7 +32,7 @@ public class CommandNotFoundException extends MongoException {
     private final String commandName;
 
     public CommandNotFoundException(String commandName) {
-        super(MongoWP.ErrorCode.COMMAND_NOT_FOUND, commandName);
+        super(ErrorCode.COMMAND_NOT_FOUND, commandName);
         this.commandName = commandName;
     }
 

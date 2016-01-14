@@ -23,7 +23,9 @@ package com.eightkdata.mongowp.mongoserver.decoder;
 
 import com.eightkdata.mongowp.messages.request.DeleteMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
-import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
+import com.eightkdata.mongowp.mongoserver.util.EnumBitFlags;
+import com.eightkdata.mongowp.mongoserver.util.EnumInt32FlagsUtil;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.InvalidNamespaceException;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnegative;
@@ -34,17 +36,39 @@ import org.bson.BsonDocument;
  *
  */
 @Singleton
-public class DeleteMessageDecoder implements MessageDecoder<DeleteMessage> {
+public class DeleteMessageDecoder extends AbstractMessageDecoder<DeleteMessage> {
     @Override
-    public @Nonnegative
-    DeleteMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidMessageException {
+    @Nonnegative
+    public DeleteMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidNamespaceException {
     	buffer.skipBytes(4);
         String fullCollectionName = ByteBufUtil.readCString(buffer);
         int flags = buffer.readInt();
         BsonDocument document = ByteBufUtil.readBsonDocument(buffer);
 
+        String database = getDatabase(fullCollectionName);
+        String collection = getCollection(database);
+
         return new DeleteMessage(
-                requestBaseMessage, flags, fullCollectionName, document
+                requestBaseMessage,
+                database,
+                collection,
+                document,
+                EnumInt32FlagsUtil.isActive(Flag.SINGLE_REMOVE, flags)
         );
+    }
+
+    private enum Flag implements EnumBitFlags {
+        SINGLE_REMOVE(0);
+
+        @Nonnegative private final int flagBitPosition;
+
+        private Flag(@Nonnegative int flagBitPosition) {
+            this.flagBitPosition = flagBitPosition;
+        }
+
+        @Override
+        public int getFlagBitPosition() {
+            return flagBitPosition;
+        }
     }
 }

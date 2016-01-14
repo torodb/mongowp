@@ -21,10 +21,6 @@
 
 package com.eightkdata.mongowp.messages.request;
 
-import com.eightkdata.mongowp.messages.util.EnumBitFlags;
-import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-import java.util.EnumSet;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 import org.bson.BsonDocument;
@@ -33,61 +29,37 @@ import org.bson.BsonDocument;
  *
  */
 @Immutable
-public class UpdateMessage extends AbstractRequestMessageWithFlags<UpdateMessage.Flag> implements RequestMessage {
-    public enum Flag implements EnumBitFlags {
-        UPSERT(0),
-        MULTI_UPDATE(1);
-
-        private static final int FLAG_INT32_MASK = EnumInt32FlagsUtil.getInt32AllFlagsMask(Flag.class);
-
-        @Nonnegative private final int flagBitPosition;
-
-        private Flag(@Nonnegative int flagBitPosition) {
-            this.flagBitPosition = flagBitPosition;
-        }
-
-        @Override
-        public int getFlagBitPosition() {
-            return flagBitPosition;
-        }
-    }
+public class UpdateMessage extends AbstractRequestMessage implements RequestMessage {
 
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_UPDATE;
-
-    @Override
-    public RequestOpCode getOpCode() {
-        return REQUEST_OP_CODE;
-    }
 
     @Nonnull private final String database;
     @Nonnull private final String collection;
     @Nonnull private final BsonDocument selector;
     @Nonnull private final BsonDocument update;
+    private final boolean upsert;
+    private final boolean multiUpdate;
 
     public UpdateMessage(
             @Nonnull RequestBaseMessage requestBaseMessage,
-            EnumSet<UpdateMessage.Flag> flags,
-            @Nonnull String fullCollectionName,
+            @Nonnull String database,
+            @Nonnull String collection,
             @Nonnull BsonDocument selector,
-            @Nonnull BsonDocument update) {
-        super(requestBaseMessage, flags);
-        String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
-        this.database = splittedFullCollectionName[0];
-        this.collection = splittedFullCollectionName[1];
+            @Nonnull BsonDocument update,
+            boolean upsert,
+            boolean multiUpdate) {
+        super(requestBaseMessage);
+        this.database = database;
+        this.collection = collection;
         this.selector = selector;
         this.update = update;
+        this.upsert = upsert;
+        this.multiUpdate = multiUpdate;
     }
-
-    public UpdateMessage(
-            @Nonnull RequestBaseMessage requestBaseMessage, int flags, @Nonnull String fullCollectionName, 
-            @Nonnull BsonDocument selector, @Nonnull BsonDocument update
-    ) {
-        super(requestBaseMessage, Flag.class, Flag.FLAG_INT32_MASK, flags);
-        String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
-        this.database = splittedFullCollectionName[0];
-        this.collection = splittedFullCollectionName[1];
-        this.selector = selector;
-        this.update = update;
+    
+    @Override
+    public RequestOpCode getOpCode() {
+        return REQUEST_OP_CODE;
     }
 
     @Nonnull
@@ -108,6 +80,18 @@ public class UpdateMessage extends AbstractRequestMessageWithFlags<UpdateMessage
     @Nonnull
     public BsonDocument getUpdate() {
         return update;
+    }
+
+    public boolean isUpsert() {
+        return upsert;
+    }
+
+    public boolean isMultiUpdate() {
+        return multiUpdate;
+    }
+
+    @Override
+    public void close() {
     }
 
     @Override

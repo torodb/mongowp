@@ -21,12 +21,10 @@
 
 package com.eightkdata.mongowp.mongoserver.decoder;
 
+import com.eightkdata.mongowp.messages.request.RequestOpCode;
 import java.util.EnumMap;
-
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-
-import com.eightkdata.mongowp.messages.request.RequestOpCode;
 
 /**
  *

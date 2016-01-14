@@ -19,6 +19,7 @@
  */
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 
 /**
@@ -30,7 +31,7 @@ public class CommandNotSupportedException extends MongoException {
     private final String commandName;
 
     public CommandNotSupportedException(String commandName) {
-        super(MongoWP.ErrorCode.COMMAND_NOT_SUPPORTED, commandName);
+        super(ErrorCode.COMMAND_NOT_SUPPORTED, commandName);
         this.commandName = commandName;
     }
 

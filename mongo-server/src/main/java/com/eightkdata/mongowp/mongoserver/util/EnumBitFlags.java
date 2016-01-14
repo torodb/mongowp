@@ -19,21 +19,13 @@
  */
 
 
-package com.eightkdata.mongowp.mongoserver.exception;
+package com.eightkdata.mongowp.mongoserver.util;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nonnegative;
 
 /**
  *
  */
-public class InvalidMessageException extends Exception {
-    private static final long serialVersionUID = 1L;
-    
-    public InvalidMessageException(@Nonnull String message) {
-        super(message);
-    }
-
-    public InvalidMessageException(@Nonnull String message, @Nonnull Throwable cause) {
-        super(message, cause);
-    }
+public interface EnumBitFlags {
+    @Nonnegative int getFlagBitPosition();
 }

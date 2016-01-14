@@ -58,19 +58,6 @@ public abstract class AbstractRequestMessage {
         return requestBaseMessage.getRequestId();
     }
 
-	protected String[] splitFullCollectionName(String fullCollectionName) {
-		String[] splittedFullCollectionName = new String[2];
-		
-		int indexOfSeparator = fullCollectionName.indexOf('.');
-        if(indexOfSeparator == -1) {
-            throw new IllegalArgumentException("Invalid full collection name '" + fullCollectionName + "'");
-        }
-        splittedFullCollectionName[0] = fullCollectionName.substring(0, indexOfSeparator);
-        splittedFullCollectionName[1] = fullCollectionName.substring(indexOfSeparator + 1);
-        
-		return splittedFullCollectionName;
-	}
-
     @Override
     public String toString() {
         return "clientAddress=" + requestBaseMessage.getClientAddressString() +

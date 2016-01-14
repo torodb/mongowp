@@ -23,10 +23,13 @@ package com.eightkdata.mongowp.mongoserver.encoder;
 
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
 import com.eightkdata.mongowp.messages.response.ResponseOpCode;
-import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
+import com.eightkdata.mongowp.mongoserver.util.EnumBitFlags;
+import com.eightkdata.mongowp.mongoserver.util.EnumInt32FlagsUtil;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
+import java.util.EnumSet;
+import javax.annotation.Nonnegative;
 import org.bson.BsonDocument;
 
 /**
@@ -37,6 +40,9 @@ import org.bson.BsonDocument;
         justification = "It seems FindBugs considers ByteBuf methods are not side effect"
 )
 public class ReplyMessageEncoder {
+    private ReplyMessageEncoder() {
+    }
+    
     public static void encodeMessageHeader(ByteBuf buffer, ReplyMessage message, int requestId) {
         buffer.writeInt(requestId);
         buffer.writeInt(message.getResponseTo());
@@ -44,13 +50,49 @@ public class ReplyMessageEncoder {
     }
 
     public static void encodeMessageBody(ByteBuf buffer, ReplyMessage message) {
-        buffer.writeInt(EnumInt32FlagsUtil.getInt32Flags(message.getFlags()));
+        buffer.writeInt(EnumInt32FlagsUtil.getInt32Flags(extractFlags(message)));
         buffer.writeLong(message.getCursorId());
         buffer.writeInt(message.getStartingFrom());
         buffer.writeInt(message.getDocuments().size());
 
         for(BsonDocument document : message.getDocuments()) {
             ByteBufUtil.writeBsonDocument(buffer, document);
+        }
+    }
+
+    private static EnumSet<Flag> extractFlags(ReplyMessage message) {
+        EnumSet<Flag> flags = EnumSet.noneOf(Flag.class);
+        if (message.isCursorNotFound()) {
+            flags.add(Flag.CURSOR_NOT_FOUND);
+        }
+        if (message.isQueryFailure()) {
+            flags.add(Flag.QUERY_FAILURE);
+        }
+        if (message.isShardConfigStale()) {
+            flags.add(Flag.SHARD_CONFIG_STALE);
+        }
+        if (message.isAwaitCapable()) {
+            flags.add(Flag.AWAIT_CAPABLE);
+        }
+        return flags;
+    }
+    
+    private enum Flag implements EnumBitFlags {
+        CURSOR_NOT_FOUND(0),
+        QUERY_FAILURE(1),
+        SHARD_CONFIG_STALE(2),
+        AWAIT_CAPABLE(3);
+
+        @Nonnegative
+        private final int flagBitPosition;
+
+        private Flag(@Nonnegative int flagBitPosition) {
+            this.flagBitPosition = flagBitPosition;
+        }
+
+        @Override
+        public int getFlagBitPosition() {
+            return flagBitPosition;
         }
     }
 }

@@ -22,9 +22,6 @@
 package com.eightkdata.mongowp.mongoserver.api;
 
 import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
@@ -45,12 +42,4 @@ public class QueryCommandProcessorCaller {
     public String getDatabase() {
 		return database;
 	}
-
-    public void replyFailure(@Nonnull String errorMessage, @Nonnegative int errorCode, Object...args) {
-        messageReplier.replyQueryCommandFailure(errorMessage, errorCode, args);
-    }
-
-    public void replyFailure(@Nonnull MongoWP.ErrorCode errorCode, Object...args) {
-        messageReplier.replyQueryCommandFailure(errorCode, args);
-    }
 }

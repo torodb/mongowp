@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
-public interface RequestMessage {
+public interface RequestMessage extends AutoCloseable {
     RequestOpCode getOpCode();
     @Nonnull RequestBaseMessage getBaseMessage();
 }

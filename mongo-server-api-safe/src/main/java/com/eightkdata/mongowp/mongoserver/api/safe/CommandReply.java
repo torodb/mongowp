@@ -21,8 +21,9 @@ package com.eightkdata.mongowp.mongoserver.api.safe;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.CommandFailed;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import javax.annotation.Nonnull;
@@ -42,7 +43,7 @@ public interface CommandReply<Result> {
     public boolean isOk();
 
     @Nonnull
-    public MongoWP.ErrorCode getErrorCode();
+    public ErrorCode getErrorCode();
 
     /**
      *

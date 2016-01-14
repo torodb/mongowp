@@ -23,7 +23,8 @@ package com.eightkdata.mongowp.mongoserver.decoder;
 
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.messages.request.RequestMessage;
-import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.InvalidNamespaceException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -33,9 +34,12 @@ public interface MessageDecoder<T extends RequestMessage> {
     /**
      * Decodes a message from a ByteBuf, positioned just before the body's content beginning
      * @param buffer
+     * @param requestBaseMessage
      * @return
-     * @throws com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException If the message contains invalid fields
-     * that do not match with a real T message
+     * @throws MongoException If it was impossible to decode the message
+     * @throws InvalidNamespaceException If the message expected a namespace but
+     *                                   an invalid namespace is provided
+     *
      */
-    public T decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidMessageException;
+    public T decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws MongoException, InvalidNamespaceException;
 }

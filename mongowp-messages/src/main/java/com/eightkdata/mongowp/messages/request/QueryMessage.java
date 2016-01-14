@@ -21,40 +21,19 @@
 
 package com.eightkdata.mongowp.messages.request;
 
-import com.eightkdata.mongowp.messages.util.EnumBitFlags;
-import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
+import java.util.Set;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.bson.BsonDocument;
+
+import static com.eightkdata.mongowp.messages.request.QueryMessage.QueryOption.*;
 
 /**
  *
  */
-@Immutable
-public class QueryMessage extends AbstractRequestMessageWithFlags<QueryMessage.Flag> implements RequestMessage {
-    public enum Flag implements EnumBitFlags {
-        TAILABLE_CURSOR(1),
-        SLAVE_OK(2),
-        OPLOG_REPLAY(3),
-        NO_CURSOR_TIMEOUT(4),
-        AWAIT_DATA(5),
-        EXHAUST(6),
-        PARTIAL(7);
-
-        private static final int FLAG_INT32_MASK = EnumInt32FlagsUtil.getInt32AllFlagsMask(Flag.class);
-
-        @Nonnegative private final int flagBitPosition;
-
-        private Flag(@Nonnegative int flagBitPosition) {
-            this.flagBitPosition = flagBitPosition;
-        }
-
-        @Override
-        public int getFlagBitPosition() {
-            return flagBitPosition;
-        }
-    }
+public class QueryMessage extends AbstractRequestMessage implements RequestMessage {
 
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_QUERY;
 
@@ -66,22 +45,29 @@ public class QueryMessage extends AbstractRequestMessageWithFlags<QueryMessage.F
     @Nonnull private final String database;
     @Nonnull private final String collection;
     @Nonnegative private final int numberToSkip;
-    @Nonnegative private final int numberToReturn;
+    private final int numberToReturn;
+    @Nonnull private final QueryOptions queryOptions;
     @Nonnull private final BsonDocument document;
-    private final BsonDocument returnFieldsSelector;
+    @Nullable private final BsonDocument returnFieldsSelector;
 
     public QueryMessage(
-            @Nonnull RequestBaseMessage requestBaseMessage, int flags, @Nonnull String fullCollectionName, int numberToSkip,
-            int numberToReturn, @Nonnull BsonDocument document, BsonDocument returnFieldsSelector
+            @Nonnull RequestBaseMessage requestBaseMessage,
+            @Nonnull String database,
+            @Nonnull String collection,
+            @Nonnegative int numberToSkip,
+            int numberToReturn,
+            QueryOptions queryOptions,
+            @Nonnull BsonDocument document,
+            BsonDocument returnFieldsSelector
     ) {
-        super(requestBaseMessage, Flag.class, Flag.FLAG_INT32_MASK, flags);
-        String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
-        this.database = splittedFullCollectionName[0];
-        this.collection = splittedFullCollectionName[1];
+        super(requestBaseMessage);
+        this.database = database;
+        this.collection = collection;
         this.numberToSkip = numberToSkip;
         this.numberToReturn = numberToReturn;
         this.document = document;
         this.returnFieldsSelector = returnFieldsSelector;
+        this.queryOptions = queryOptions;
     }
 
     @Nonnull
@@ -102,6 +88,10 @@ public class QueryMessage extends AbstractRequestMessageWithFlags<QueryMessage.F
         return numberToReturn;
     }
 
+    public QueryOptions getQueryOptions() {
+        return queryOptions;
+    }
+
     @Nonnull
     public BsonDocument getDocument() {
         return document;
@@ -109,6 +99,10 @@ public class QueryMessage extends AbstractRequestMessageWithFlags<QueryMessage.F
 
     public BsonDocument getReturnFieldsSelector() {
         return returnFieldsSelector;
+    }
+
+    @Override
+    public void close() {
     }
 
     @Override
@@ -121,5 +115,65 @@ public class QueryMessage extends AbstractRequestMessageWithFlags<QueryMessage.F
                 ", document=" + document +
                 ", returnFieldsSelector=" + returnFieldsSelector +
                 '}';
+    }
+
+    @Immutable
+    public static class QueryOptions {
+        final boolean tailable;
+        final boolean slaveOk;
+        final boolean oplogReplay;
+        final boolean noCursorTimeout;
+        final boolean awaitData;
+        final boolean exhaust;
+        final boolean partial;
+
+        public QueryOptions(Set<QueryOption> queryOptions) {
+            this.tailable = queryOptions.contains(TAILABLE_CURSOR);
+            this.slaveOk = queryOptions.contains(SLAVE_OK);
+            this.oplogReplay = queryOptions.contains(OPLOG_REPLAY);
+            this.noCursorTimeout = queryOptions.contains(NO_CURSOR_TIMEOUT);
+            this.awaitData = queryOptions.contains(AWAIT_DATA);
+            this.exhaust = queryOptions.contains(EXHAUST);
+            this.partial = queryOptions.contains(PARTIAL);
+        }
+
+        public boolean isTailable() {
+            return tailable;
+        }
+
+        public boolean isSlaveOk() {
+            return slaveOk;
+        }
+
+        public boolean isOplogReplay() {
+            return oplogReplay;
+        }
+
+        public boolean isNoCursorTimeout() {
+            return noCursorTimeout;
+        }
+
+        public boolean isAwaitData() {
+            return awaitData;
+        }
+
+        public boolean isExhaust() {
+            return exhaust;
+        }
+
+        public boolean isPartial() {
+            return partial;
+        }
+
+    }
+
+    public static enum QueryOption {
+        TAILABLE_CURSOR,
+        SLAVE_OK,
+        OPLOG_REPLAY,
+        NO_CURSOR_TIMEOUT,
+        AWAIT_DATA,
+        EXHAUST,
+        PARTIAL;
     }
 }
