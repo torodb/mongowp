@@ -19,13 +19,23 @@
  */
 
 
-package com.eightkdata.mongowp.messages.util;
+package com.eightkdata.mongowp.mongoserver.util;
 
-import javax.annotation.Nonnegative;
+import com.google.common.collect.Sets;
+
+import java.util.Set;
 
 /**
  *
  */
-public interface EnumBitFlags {
-    @Nonnegative int getFlagBitPosition();
+public class AssertSetsUtil {
+    public static <T> boolean assertSetsEqual(Set<T> a, Set<T> b) {
+        if(a == null || b == null) {
+            return a == b;
+        }
+        Set<T> diff1 = Sets.difference(a, b);
+        Set<T> diff2 = Sets.difference(b, a);
+
+        return diff1.size() == 0 && diff1.size() == diff2.size();
+    }
 }

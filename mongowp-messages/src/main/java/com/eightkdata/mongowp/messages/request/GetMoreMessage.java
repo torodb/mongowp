@@ -23,20 +23,13 @@ package com.eightkdata.mongowp.messages.request;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
 /**
  *
  */
-@Immutable
 public class GetMoreMessage extends AbstractRequestMessage implements RequestMessage {
 
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_GET_MORE;
-
-    @Override
-    public RequestOpCode getOpCode() {
-        return REQUEST_OP_CODE;
-    }
 
     @Nonnull private final String database;
     @Nonnull private final String collection;
@@ -44,15 +37,22 @@ public class GetMoreMessage extends AbstractRequestMessage implements RequestMes
     @Nonnegative private final long cursorId;
 
     public GetMoreMessage(
-            @Nonnull RequestBaseMessage requestBaseMessage, @Nonnull String fullCollectionName, 
-            int numberToReturn, long cursorId
+            @Nonnull RequestBaseMessage requestBaseMessage, 
+            @Nonnull String database,
+            @Nonnull String collection,
+            int numberToReturn,
+            long cursorId
     ) {
     	super(requestBaseMessage);
-        String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
-        this.database = splittedFullCollectionName[0];
-        this.collection = splittedFullCollectionName[1];
+        this.database = database;
+        this.collection = collection;
         this.numberToReturn = numberToReturn;
         this.cursorId = cursorId;
+    }
+
+    @Override
+    public RequestOpCode getOpCode() {
+        return REQUEST_OP_CODE;
     }
 
     @Nonnull
@@ -71,6 +71,10 @@ public class GetMoreMessage extends AbstractRequestMessage implements RequestMes
 
     public long getCursorId() {
         return cursorId;
+    }
+
+    @Override
+    public void close() {
     }
 
     @Override

@@ -23,8 +23,10 @@ package com.eightkdata.mongowp.mongoserver.decoder;
 
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.messages.request.UpdateMessage;
-import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.InvalidNamespaceException;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
+import com.eightkdata.mongowp.mongoserver.util.EnumBitFlags;
+import com.eightkdata.mongowp.mongoserver.util.EnumInt32FlagsUtil;
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnegative;
 import javax.inject.Singleton;
@@ -34,10 +36,10 @@ import org.bson.BsonDocument;
  *
  */
 @Singleton
-public class UpdateMessageDecoder implements MessageDecoder<UpdateMessage> {
+public class UpdateMessageDecoder extends AbstractMessageDecoder<UpdateMessage> {
     @Override
     public @Nonnegative
-    UpdateMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidMessageException {
+    UpdateMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidNamespaceException {
     	buffer.skipBytes(4);
         String fullCollectionName = ByteBufUtil.readCString(buffer);
         int flags = buffer.readInt();
@@ -45,7 +47,29 @@ public class UpdateMessageDecoder implements MessageDecoder<UpdateMessage> {
         BsonDocument update = ByteBufUtil.readBsonDocument(buffer);
 
         return new UpdateMessage(
-                requestBaseMessage, flags, fullCollectionName, selector, update
+                requestBaseMessage,
+                getDatabase(fullCollectionName),
+                getCollection(fullCollectionName),
+                selector,
+                update,
+                EnumInt32FlagsUtil.isActive(Flag.UPSERT, flags),
+                EnumInt32FlagsUtil.isActive(Flag.MULTI_UPDATE, flags)
         );
+    }
+    
+    private enum Flag implements EnumBitFlags {
+        UPSERT(0),
+        MULTI_UPDATE(1);
+
+        @Nonnegative private final int flagBitPosition;
+
+        private Flag(@Nonnegative int flagBitPosition) {
+            this.flagBitPosition = flagBitPosition;
+        }
+
+        @Override
+        public int getFlagBitPosition() {
+            return flagBitPosition;
+        }
     }
 }

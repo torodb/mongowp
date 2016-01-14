@@ -22,15 +22,12 @@
 package com.eightkdata.mongowp.messages.request;
 
 import java.util.Arrays;
-
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 
 /**
  *
  */
-@Immutable
 public class KillCursorsMessage extends AbstractRequestMessage implements RequestMessage {
 
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_KILL_CURSORS;
@@ -59,6 +56,10 @@ public class KillCursorsMessage extends AbstractRequestMessage implements Reques
     @Nonnull
     public long[] getCursorIds() {
         return Arrays.copyOf(cursorIds, cursorIds.length);
+    }
+
+    @Override
+    public void close() {
     }
 
     @Override

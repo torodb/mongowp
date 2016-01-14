@@ -10,8 +10,9 @@ import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
 import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
@@ -206,7 +207,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
         private static final BsonField<String> ERR_FIELD = BsonField.create("err");
         private static final BsonField<Integer> CODE_FIELD = BsonField.create("code");
 
-        private final @Nonnull MongoWP.ErrorCode thisError;
+        private final @Nonnull ErrorCode thisError;
         private final @Nullable String thisErrorMessage;
         private final long connectionId;
         private final @Nullable WriteOpResult writeOpResult;
@@ -252,7 +253,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
                 wcer.marshall(builder);
             }
 
-            if (!thisError.equals(MongoWP.ErrorCode.OK)) {
+            if (!thisError.equals(ErrorCode.OK)) {
                 builder.append(CODE_FIELD, thisError.getErrorCode());
                 if (thisErrorMessage != null) {
                     builder.append(ERR_FIELD, thisErrorMessage);

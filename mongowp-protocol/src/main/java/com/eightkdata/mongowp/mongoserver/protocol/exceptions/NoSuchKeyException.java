@@ -19,6 +19,7 @@
  */
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 
 /**
@@ -29,12 +30,12 @@ public class NoSuchKeyException extends MongoException {
     private final String key;
 
     public NoSuchKeyException(String key) {
-        super(MongoWP.ErrorCode.NO_SUCH_KEY, key);
+        super(ErrorCode.NO_SUCH_KEY, key);
         this.key = key;
     }
 
     public NoSuchKeyException(String key, String customMessage) {
-        super(customMessage, MongoWP.ErrorCode.NO_SUCH_KEY);
+        super(customMessage, ErrorCode.NO_SUCH_KEY);
         this.key = key;
     }
 

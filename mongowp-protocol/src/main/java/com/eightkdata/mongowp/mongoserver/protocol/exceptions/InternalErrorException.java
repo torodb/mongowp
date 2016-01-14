@@ -1,7 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 
 /**
  *
@@ -21,8 +21,8 @@ public class InternalErrorException extends MongoException {
         super(ErrorCode.INTERNAL_ERROR, args);
     }
 
-    public InternalErrorException(Throwable cause, Object... args) {
-        super(cause, ErrorCode.INTERNAL_ERROR, args);
+    public InternalErrorException(Throwable cause) {
+        super(cause, ErrorCode.INTERNAL_ERROR);
     }
 
 }

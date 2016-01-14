@@ -1,7 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.google.common.net.HostAndPort;
 
 /**

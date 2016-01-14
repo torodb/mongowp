@@ -23,32 +23,58 @@ package com.eightkdata.mongowp.mongoserver.decoder;
 
 import com.eightkdata.mongowp.messages.request.InsertMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
-import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.InvalidNamespaceException;
+import com.eightkdata.mongowp.mongoserver.util.ByteBufIterableDocumentProvider;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
-import com.google.common.collect.Lists;
+import com.eightkdata.mongowp.mongoserver.util.EnumBitFlags;
+import com.eightkdata.mongowp.mongoserver.util.EnumInt32FlagsUtil;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
-import java.util.List;
 import javax.annotation.Nonnegative;
 import javax.inject.Singleton;
-import org.bson.BsonDocument;
 
 /**
  *
  */
 @Singleton
-public class InsertMessageDecoder implements MessageDecoder<InsertMessage> {
+public class InsertMessageDecoder extends AbstractMessageDecoder<InsertMessage> {
     @Override
+    @SuppressFBWarnings(value = {"RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT"},
+            justification = "Findbugs thinks ByteBuf#readerIndex(...) has no"
+                    + "side effect")
     public @Nonnegative
-    InsertMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidMessageException {
+    InsertMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidNamespaceException {
         int flags = buffer.readInt();
         String fullCollectionName = ByteBufUtil.readCString(buffer);
-        List<BsonDocument> documents = Lists.newArrayList();
-        while(buffer.readableBytes() > 0) {
-        	documents.add(ByteBufUtil.readBsonDocument(buffer));
-        }
+
+        ByteBuf docBuf = buffer.slice(buffer.readerIndex(), buffer.readableBytes());
+        docBuf.retain();
+
+        buffer.readerIndex(buffer.writerIndex());
+
+        ByteBufIterableDocumentProvider documents = new ByteBufIterableDocumentProvider(docBuf);
 
         return new InsertMessage(
-                requestBaseMessage, flags, fullCollectionName, documents
+                requestBaseMessage,
+                getDatabase(fullCollectionName),
+                getCollection(fullCollectionName),
+                EnumInt32FlagsUtil.isActive(Flag.CONTINUE_ON_ERROR, flags),
+                documents
         );
+    }
+
+    private enum Flag implements EnumBitFlags {
+        CONTINUE_ON_ERROR(0);
+
+        @Nonnegative private final int flagBitPosition;
+
+        private Flag(@Nonnegative int flagBitPosition) {
+            this.flagBitPosition = flagBitPosition;
+        }
+
+        @Override
+        public int getFlagBitPosition() {
+            return flagBitPosition;
+        }
     }
 }

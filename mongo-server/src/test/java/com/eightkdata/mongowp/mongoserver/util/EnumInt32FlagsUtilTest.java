@@ -19,13 +19,10 @@
  */
 
 
-package com.eightkdata.mongowp.messages;
-
-import com.eightkdata.mongowp.messages.util.EnumBitFlags;
-import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-import org.junit.Test;
+package com.eightkdata.mongowp.mongoserver.util;
 
 import java.util.EnumSet;
+import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

@@ -26,7 +26,7 @@ import com.eightkdata.mongowp.messages.request.RequestOpCode;
 import com.eightkdata.mongowp.mongoserver.decoder.BaseMessageDecoder;
 import com.eightkdata.mongowp.mongoserver.decoder.MessageDecoder;
 import com.eightkdata.mongowp.mongoserver.decoder.MessageDecoderLocator;
-import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.IllegalOperationException;
 import com.eightkdata.mongowp.mongoserver.util.ChannelLittleEndianHandler;
 import com.google.common.primitives.Ints;
 import io.netty.buffer.ByteBuf;
@@ -63,7 +63,7 @@ public class RequestMessageByteHandler extends ChannelLittleEndianHandler {
         RequestOpCode requestOpCode = RequestOpCode.getByOpcode(requestOpCodeInt);
         if (null == requestOpCode) {
             LOGGER.warn(INVALID_OPCODE_MESSAGE + requestOpCodeInt);
-            throw new InvalidMessageException(INVALID_OPCODE_MESSAGE + requestOpCodeInt);
+            throw new IllegalOperationException(requestOpCodeInt);
         }
 
         // Body

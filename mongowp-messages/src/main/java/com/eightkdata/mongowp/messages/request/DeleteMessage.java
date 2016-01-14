@@ -21,68 +21,36 @@
 
 package com.eightkdata.mongowp.messages.request;
 
-import com.eightkdata.mongowp.messages.util.EnumBitFlags;
-import com.eightkdata.mongowp.messages.util.EnumInt32FlagsUtil;
-import java.util.EnumSet;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
 import org.bson.BsonDocument;
 
 /**
  *
  */
-@Immutable
-public class DeleteMessage extends AbstractRequestMessageWithFlags<DeleteMessage.Flag> implements RequestMessage {
-    public enum Flag implements EnumBitFlags {
-        SINGLE_REMOVE(0);
-
-        private static final int FLAG_INT32_MASK = EnumInt32FlagsUtil.getInt32AllFlagsMask(Flag.class);
-
-        @Nonnegative private final int flagBitPosition;
-
-        private Flag(@Nonnegative int flagBitPosition) {
-            this.flagBitPosition = flagBitPosition;
-        }
-
-        @Override
-        public int getFlagBitPosition() {
-            return flagBitPosition;
-        }
-    }
-
+public class DeleteMessage extends AbstractRequestMessage implements RequestMessage {
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_DELETE;
-
-    @Override
-    public RequestOpCode getOpCode() {
-        return REQUEST_OP_CODE;
-    }
 
     @Nonnull private final String database;
     @Nonnull private final String collection;
     @Nonnull private final BsonDocument document;
+    private final boolean singleRemove;
 
     public DeleteMessage(
             @Nonnull RequestBaseMessage requestBaseMessage,
-            EnumSet<DeleteMessage.Flag> flags,
-            @Nonnull String fullCollectionName,
-            @Nonnull BsonDocument document) {
-        super(requestBaseMessage, flags);
-        String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
-        this.database = splittedFullCollectionName[0];
-        this.collection = splittedFullCollectionName[1];
+            @Nonnull String database,
+            @Nonnull String collection,
+            @Nonnull BsonDocument document,
+            boolean singleRemove) {
+        super(requestBaseMessage);
+        this.database = database;
+        this.collection = collection;
         this.document = document;
+        this.singleRemove = singleRemove;
     }
-
-    public DeleteMessage(
-            @Nonnull RequestBaseMessage requestBaseMessage, int flags, @Nonnull String fullCollectionName, 
-            @Nonnull BsonDocument document
-    ) {
-        super(requestBaseMessage, Flag.class, Flag.FLAG_INT32_MASK, flags);
-        String[] splittedFullCollectionName = splitFullCollectionName(fullCollectionName);
-        this.database = splittedFullCollectionName[0];
-        this.collection = splittedFullCollectionName[1];
-        this.document = document;
+    
+    @Override
+    public RequestOpCode getOpCode() {
+        return REQUEST_OP_CODE;
     }
 
     @Nonnull
@@ -98,6 +66,14 @@ public class DeleteMessage extends AbstractRequestMessageWithFlags<DeleteMessage
     @Nonnull
     public BsonDocument getDocument() {
         return document;
+    }
+
+    public boolean isSingleRemove() {
+        return singleRemove;
+    }
+
+    @Override
+    public void close() {
     }
 
     @Override

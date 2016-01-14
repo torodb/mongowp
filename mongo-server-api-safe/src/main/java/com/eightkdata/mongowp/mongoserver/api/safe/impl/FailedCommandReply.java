@@ -5,7 +5,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.CommandReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

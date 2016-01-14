@@ -10,6 +10,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilde
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
 import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
 import com.google.common.collect.Sets;
@@ -387,7 +388,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                 try {
                     int errorCode;
                     errorCode = BsonReaderTool.getNumeric(bson, ERROR_CODE_FIELD_NAME).intValue();
-                    throw new MongoException(errMsg, MongoWP.ErrorCode.fromErrorCode(errorCode));
+                    throw new MongoException(errMsg, ErrorCode.fromErrorCode(errorCode));
                 } catch (TypesMismatchException ex) {
                     throw new BadValueException(ERROR_CODE_FIELD_NAME + " is not a number");
                 } catch (NoSuchKeyException ex) {

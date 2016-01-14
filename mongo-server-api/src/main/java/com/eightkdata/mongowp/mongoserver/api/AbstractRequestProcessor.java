@@ -22,6 +22,7 @@
 package com.eightkdata.mongowp.mongoserver.api;
 
 import com.eightkdata.mongowp.messages.request.QueryMessage;
+import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import com.eightkdata.mongowp.messages.request.RequestOpCode;
 import com.eightkdata.mongowp.mongoserver.api.QueryCommandProcessor.QueryCommand;
@@ -116,18 +117,19 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
                 queryMessage.getDatabase(),
                 messageReplier.getAttributeMap()
         );
+        QueryOptions queryOptions = queryMessage.getQueryOptions();
         requestBuilder.setCollection(queryMessage.getCollection())
                 .setQuery(extractQuery(queryMessage.getDocument()))
                 .setProjection(null)
                 .setNumberToSkip(queryMessage.getNumberToSkip())
                 .setLimit(queryMessage.getNumberToReturn())
-                .setAwaitData(queryMessage.isFlagSet(QueryMessage.Flag.AWAIT_DATA))
-                .setExhaust(queryMessage.isFlagSet(QueryMessage.Flag.EXHAUST))
-                .setNoCursorTimeout(queryMessage.isFlagSet(QueryMessage.Flag.NO_CURSOR_TIMEOUT))
-                .setOplogReplay(queryMessage.isFlagSet(QueryMessage.Flag.OPLOG_REPLAY))
-                .setPartial(queryMessage.isFlagSet(QueryMessage.Flag.PARTIAL))
-                .setSlaveOk(queryMessage.isFlagSet(QueryMessage.Flag.SLAVE_OK))
-                .setTailable(queryMessage.isFlagSet(QueryMessage.Flag.TAILABLE_CURSOR));
+                .setAwaitData(queryOptions.isAwaitData())
+                .setExhaust(queryOptions.isExhaust())
+                .setNoCursorTimeout(queryOptions.isNoCursorTimeout())
+                .setOplogReplay(queryOptions.isOplogReplay())
+                .setPartial(queryOptions.isPartial())
+                .setSlaveOk(queryOptions.isSlaveOk())
+                .setTailable(queryOptions.isTailable());
         
         if (requestBuilder.getLimit() < 0) {
             requestBuilder.setAutoclose(true);

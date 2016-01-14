@@ -19,7 +19,7 @@
  */
 
 
-package com.eightkdata.mongowp.messages.util;
+package com.eightkdata.mongowp.mongoserver.util;
 
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
@@ -31,6 +31,11 @@ import javax.annotation.Nullable;
  *
  */
 public class EnumInt32FlagsUtil {
+
+    public static boolean isActive(EnumBitFlags flag, int flags) {
+        return (flags & 1 << flag.getFlagBitPosition()) != 0;
+    }
+
     private static <T extends Enum<T> & EnumBitFlags> int getInt32FlagsArray(@Nullable Collection<T> flags) {
         if(null == flags || flags.isEmpty()) {
             return 0;

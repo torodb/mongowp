@@ -19,8 +19,9 @@
  */
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 
 /**
  *
@@ -29,11 +30,11 @@ public class UnknownErrorException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     public UnknownErrorException(String customMessage) {
-        super(customMessage, MongoWP.ErrorCode.UNKNOWN_ERROR);
+        super(customMessage, ErrorCode.UNKNOWN_ERROR);
     }
 
     public UnknownErrorException() {
-        super(MongoWP.ErrorCode.UNKNOWN_ERROR);
+        super(ErrorCode.UNKNOWN_ERROR);
     }
 
     public UnknownErrorException(Throwable cause) {

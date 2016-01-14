@@ -10,9 +10,14 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConce
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mongodb.WriteConcern;
@@ -80,7 +85,7 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
         private static final BsonField<BsonDocument> METADATA_FIELD = BsonField.create("metadata");
 
         private final @Nonnull String collection;
-        private final @Nonnull Iterable<BsonDocument> documents;
+        private final @Nonnull FluentIterable<BsonDocument> documents;
         private final WriteConcern writeConcern;
         private final boolean ordered;
         private final @Nullable BsonDocument metadata; //TODO: parse metadata
@@ -92,7 +97,7 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
                 boolean ordered,
                 @Nullable BsonDocument metadata) {
             this.collection = collection;
-            this.documents = documents;
+            this.documents = FluentIterable.from(documents);
             this.writeConcern = writeConcern;
             this.ordered = ordered;
             this.metadata = metadata;
@@ -104,7 +109,7 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
         }
 
         @Nonnull
-        public Iterable<BsonDocument> getDocuments() {
+        public FluentIterable<BsonDocument> getDocuments() {
             return documents;
         }
 
@@ -228,7 +233,7 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
         }
 
         public InsertResult(
-                MongoWP.ErrorCode errorCode,
+                ErrorCode errorCode,
                 String errorMessage,
                 int n,
                 ImmutableList<WriteError> writeErrors,

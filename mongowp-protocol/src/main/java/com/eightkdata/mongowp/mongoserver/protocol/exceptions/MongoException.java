@@ -19,8 +19,9 @@
  */
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import java.text.MessageFormat;
 import javax.annotation.Nonnull;
 
@@ -30,7 +31,7 @@ import javax.annotation.Nonnull;
 public class MongoException extends Exception {
     private static final long serialVersionUID = 1L;
 
-    private final MongoWP.ErrorCode errorCode;
+    private final ErrorCode errorCode;
 
     public MongoException(ErrorCode errorCode) {
         super(errorCode.getErrorMessage());
@@ -39,7 +40,7 @@ public class MongoException extends Exception {
 
     public MongoException(
             @Nonnull String customMessage, 
-            @Nonnull MongoWP.ErrorCode errorCode) {
+            @Nonnull ErrorCode errorCode) {
         super(customMessage);
         this.errorCode = errorCode;
     }
@@ -47,13 +48,13 @@ public class MongoException extends Exception {
     public MongoException(
             @Nonnull String customMessage, 
             @Nonnull Throwable cause, 
-            @Nonnull MongoWP.ErrorCode errorCode) {
+            @Nonnull ErrorCode errorCode) {
         super(customMessage, cause);
         this.errorCode = errorCode;
     }
     
     public MongoException(
-            @Nonnull MongoWP.ErrorCode errorCode, 
+            @Nonnull ErrorCode errorCode, 
             @Nonnull Object... args) {
         super(calculateMessage(errorCode, args));
         this.errorCode = errorCode;
@@ -61,13 +62,13 @@ public class MongoException extends Exception {
 
     public MongoException(
             @Nonnull Throwable cause, 
-            @Nonnull MongoWP.ErrorCode errorCode, 
+            @Nonnull ErrorCode errorCode, 
             @Nonnull Object... args) {
         super(calculateMessage(errorCode, args), cause);
         this.errorCode = errorCode;
     }
 
-    public MongoWP.ErrorCode getErrorCode() {
+    public ErrorCode getErrorCode() {
         return errorCode;
     }
 

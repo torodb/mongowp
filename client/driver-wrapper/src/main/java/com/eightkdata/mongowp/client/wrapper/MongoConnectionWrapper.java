@@ -3,9 +3,7 @@ package com.eightkdata.mongowp.client.wrapper;
 
 import com.eightkdata.mongowp.client.core.MongoClient;
 import com.eightkdata.mongowp.client.core.MongoConnection;
-import com.eightkdata.mongowp.messages.request.DeleteMessage;
-import com.eightkdata.mongowp.messages.request.QueryMessage;
-import com.eightkdata.mongowp.messages.request.UpdateMessage;
+import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.mongoserver.api.safe.Command;
 import com.eightkdata.mongowp.mongoserver.api.safe.MarshalException;
 import com.eightkdata.mongowp.mongoserver.api.safe.pojos.MongoCursor;
@@ -20,7 +18,6 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.model.UpdateOptions;
-import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import org.bson.BsonDocument;
@@ -58,10 +55,10 @@ public class MongoConnectionWrapper implements MongoConnection {
     public MongoCursor<BsonDocument> query(
             String database,
             String collection,
-            EnumSet<QueryMessage.Flag> flags,
             BsonDocument query,
             int numberToSkip,
             int numberToReturn,
+            QueryOptions queryOptions,
             BsonDocument projection) throws MongoException {
 
         if (query == null) {
@@ -77,23 +74,23 @@ public class MongoConnectionWrapper implements MongoConnection {
                 .skip(numberToSkip)
                 .limit(numberToReturn)
                 .projection(projection)
-                .cursorType(toCursorType(flags))
-                .noCursorTimeout(flags.contains(QueryMessage.Flag.NO_CURSOR_TIMEOUT))
-                .oplogReplay(flags.contains(QueryMessage.Flag.OPLOG_REPLAY));
+                .cursorType(toCursorType(queryOptions))
+                .noCursorTimeout(queryOptions.isNoCursorTimeout())
+                .oplogReplay(queryOptions.isOplogReplay());
         return new MyMongoCursor(
                 database,
                 collection,
                 DEFAULT_MAX_BATCH_SIZE,
-                flags.contains(QueryMessage.Flag.TAILABLE_CURSOR),
+                queryOptions.isTailable(),
                 findIterable.iterator()
         );
     }
 
-    private CursorType toCursorType(EnumSet<QueryMessage.Flag> flags) {
-        if (!flags.contains(QueryMessage.Flag.TAILABLE_CURSOR)) {
+    private CursorType toCursorType(QueryOptions queryOptions) {
+        if (!queryOptions.isTailable()) {
             return CursorType.NonTailable;
         }
-        if (flags.contains(QueryMessage.Flag.AWAIT_DATA)) {
+        if (queryOptions.isAwaitData()) {
             return CursorType.TailableAwait;
         }
         return CursorType.Tailable;
@@ -124,27 +121,39 @@ public class MongoConnectionWrapper implements MongoConnection {
     }
 
     @Override
-    public void asyncUpdate(String database, String collection, EnumSet<UpdateMessage.Flag> flags, BsonDocument selector, BsonDocument update)
-            throws MongoException {
-        owner.getDriverClient()
+    public void asyncUpdate(
+            String database,
+            String collection,
+            BsonDocument selector,
+            BsonDocument update,
+            boolean upsert,
+            boolean multiUpdate) throws MongoException {
+
+        UpdateOptions updateOptions = new UpdateOptions().upsert(
+                upsert
+        );
+
+        MongoCollection<BsonDocument> mongoCollection = owner.getDriverClient()
                 .getDatabase(database)
-                .getCollection(collection, BsonDocument.class)
-                .updateMany(
-                        selector,
-                        update,
-                        new UpdateOptions().upsert(
-                                flags.contains(UpdateMessage.Flag.UPSERT)
-                        )
-                );
+                .getCollection(collection, BsonDocument.class);
+        if (multiUpdate) {
+            mongoCollection.updateMany(update, update, updateOptions);
+        }
+        else {
+            mongoCollection.updateOne(update, update, updateOptions);
+        }
     }
 
     @Override
-    public void asyncDelete(String database, String collection, EnumSet<DeleteMessage.Flag> flags, BsonDocument selector)
-            throws MongoException {
+    public void asyncDelete(
+            String database,
+            String collection,
+            boolean singleRemove,
+            BsonDocument selector) throws MongoException {
         MongoCollection<BsonDocument> collectionObject = owner.getDriverClient()
                 .getDatabase(database)
                 .getCollection(collection, BsonDocument.class);
-        if (flags.contains(DeleteMessage.Flag.SINGLE_REMOVE)) {
+        if (singleRemove) {
             collectionObject.deleteOne(selector);
         }
         else {

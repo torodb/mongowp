@@ -21,14 +21,12 @@
 
 package com.eightkdata.mongowp.mongoserver.decoder;
 
-import io.netty.buffer.ByteBuf;
-
-import javax.annotation.Nonnegative;
-import javax.inject.Singleton;
-
 import com.eightkdata.mongowp.messages.request.KillCursorsMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
-import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
+import com.eightkdata.mongowp.mongoserver.protocol.exceptions.InvalidNamespaceException;
+import io.netty.buffer.ByteBuf;
+import javax.annotation.Nonnegative;
+import javax.inject.Singleton;
 
 /**
  *
@@ -37,7 +35,7 @@ import com.eightkdata.mongowp.mongoserver.exception.InvalidMessageException;
 public class KillCursorsMessageDecoder implements MessageDecoder<KillCursorsMessage> {
     @Override
     public @Nonnegative
-    KillCursorsMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidMessageException {
+    KillCursorsMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidNamespaceException {
     	buffer.skipBytes(4);
         int numberOfCursors = buffer.readInt();
         long[] cursorIds = new long[numberOfCursors];

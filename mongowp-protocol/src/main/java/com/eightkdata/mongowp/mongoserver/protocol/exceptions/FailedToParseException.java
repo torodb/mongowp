@@ -19,6 +19,7 @@
  */
 package com.eightkdata.mongowp.mongoserver.protocol.exceptions;
 
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 
 /**
@@ -28,11 +29,11 @@ public class FailedToParseException extends MongoException {
     private static final long serialVersionUID = 1L;
 
     public FailedToParseException() {
-        super(MongoWP.ErrorCode.FAILED_TO_PARSE);
+        super(ErrorCode.FAILED_TO_PARSE);
     }
 
     public FailedToParseException(String customMessage) {
-        super(customMessage, MongoWP.ErrorCode.FAILED_TO_PARSE);
+        super(customMessage, ErrorCode.FAILED_TO_PARSE);
     }
     
 }

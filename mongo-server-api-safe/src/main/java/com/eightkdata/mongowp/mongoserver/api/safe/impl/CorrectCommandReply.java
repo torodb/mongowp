@@ -8,7 +8,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.MarshalException;
 import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
 import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
 import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP.ErrorCode;
+import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.FailedToParseException;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
 import com.google.common.base.Preconditions;

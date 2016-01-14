@@ -2,8 +2,8 @@
 package com.eightkdata.mongowp.mongoserver.api.commands;
 
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
+import com.eightkdata.mongowp.messages.utils.SimpleIterableDocumentsProvider;
 import com.eightkdata.mongowp.mongoserver.callback.MessageReplier;
-import java.util.EnumSet;
 import javax.annotation.Nonnull;
 import org.bson.BsonDocument;
 
@@ -15,17 +15,26 @@ public class QueryReply implements Reply {
     private final long cursorId;
     private final int startingFrom;
     private final @Nonnull Iterable<BsonDocument> documents;
-    private final @Nonnull EnumSet<ReplyMessage.Flag> flags;
+    private final boolean cursorNotFound;
+    private final boolean queryFailure;
+    private final boolean shardConfigStale;
+    private final boolean awaitCapable;
 
-    private QueryReply(
-            long cursorId, 
-            int startingFrom, 
+    public QueryReply(
+            long cursorId,
+            int startingFrom,
             Iterable<BsonDocument> documents,
-            EnumSet<ReplyMessage.Flag> flags) {
+            boolean cursorNotFound,
+            boolean queryFailure,
+            boolean shardConfigStale,
+            boolean awaitCapable) {
         this.cursorId = cursorId;
         this.startingFrom = startingFrom;
         this.documents = documents;
-        this.flags = flags;
+        this.cursorNotFound = cursorNotFound;
+        this.queryFailure = queryFailure;
+        this.shardConfigStale = shardConfigStale;
+        this.awaitCapable = awaitCapable;
     }
 
     public long getCursorId() {
@@ -40,16 +49,35 @@ public class QueryReply implements Reply {
         return documents;
     }
 
-    public EnumSet<ReplyMessage.Flag> getFlags() {
-        return flags;
+    public boolean isCursorNotFound() {
+        return cursorNotFound;
     }
-    
+
+    public boolean isQueryFailure() {
+        return queryFailure;
+    }
+
+    public boolean isShardConfigStale() {
+        return shardConfigStale;
+    }
+
+    public boolean isAwaitCapable() {
+        return awaitCapable;
+    }
+
     @Override
     public void reply(MessageReplier replier) {
-        replier.replyMessageMultipleDocuments(
-                getCursorId(), 
-                getStartingFrom(), 
-                getDocuments()
+        replier.replyMessage(
+                new ReplyMessage(
+                        startingFrom,
+                        cursorNotFound,
+                        queryFailure,
+                        shardConfigStale,
+                        awaitCapable,
+                        cursorId,
+                        startingFrom,
+                        new SimpleIterableDocumentsProvider<>(documents)
+                )
         );
     }
     
@@ -90,7 +118,10 @@ public class QueryReply implements Reply {
                     cursorId, 
                     startingFrom, 
                     documents, 
-                    EnumSet.noneOf(ReplyMessage.Flag.class)
+                    false,
+                    false,
+                    false,
+                    false
             );
         }
     }
