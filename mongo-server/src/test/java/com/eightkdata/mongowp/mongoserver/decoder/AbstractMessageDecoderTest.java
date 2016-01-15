@@ -36,16 +36,22 @@ public class AbstractMessageDecoderTest {
     }
 
     @Test
+    public void testGetDatabase_severalDot() throws Exception {
+        String recived = decoder.testGetDatabase("database.collection.afterdot");
+        assert recived.equals("database") :
+                "Expected 'database' but recived'" + recived + "'";
+    }
+
+    @Test
     public void testGetCollection_standard() throws Exception {
         String recived = decoder.testGetCollection("database.collection");
         assert recived.equals("collection") : "Expected 'collection', recived '"
                 + recived + "'";
     }
 
-    @Test
+    @Test(expected = InvalidNamespaceException.class)
     public void testGetCollection_noDot() throws Exception {
-        String recived = decoder.testGetCollection("database");
-        assert recived == null : "Expected null, recived " + recived;
+        decoder.testGetCollection("database");
     }
 
     @Test(expected = InvalidNamespaceException.class)
@@ -58,6 +64,12 @@ public class AbstractMessageDecoderTest {
         decoder.testGetCollection("database.");
     }
 
+    @Test
+    public void testGetCollection_severalDot() throws Exception {
+        String recived = decoder.testGetCollection("database.collection.afterdot");
+        assert recived.equals("collection.afterdot") :
+                "Expected 'collection.afterdot' but recived'" + recived + "'";
+    }
     public static class MockedMessageDecoder extends AbstractMessageDecoder {
 
         @Override
