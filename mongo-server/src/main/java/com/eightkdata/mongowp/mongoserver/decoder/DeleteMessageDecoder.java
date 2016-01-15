@@ -46,7 +46,7 @@ public class DeleteMessageDecoder extends AbstractMessageDecoder<DeleteMessage> 
         BsonDocument document = ByteBufUtil.readBsonDocument(buffer);
 
         String database = getDatabase(fullCollectionName);
-        String collection = getCollection(database);
+        String collection = getCollection(fullCollectionName);
 
         return new DeleteMessage(
                 requestBaseMessage,
