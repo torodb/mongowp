@@ -3,12 +3,14 @@ package com.eightkdata.mongowp.mongoserver.decoder;
 
 import com.eightkdata.mongowp.messages.request.RequestMessage;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.InvalidNamespaceException;
+import javax.annotation.Nonnull;
 
 /**
  *
  */
 public abstract class AbstractMessageDecoder<T extends RequestMessage> implements MessageDecoder<T>{
 
+    @Nonnull
     protected String getDatabase(String namespace) throws InvalidNamespaceException {
         int firstDotIndex = getAndCheckFirstDot(namespace);
         if (firstDotIndex == namespace.length()) { //if there is no dot
@@ -17,10 +19,14 @@ public abstract class AbstractMessageDecoder<T extends RequestMessage> implement
         return namespace.substring(0, getAndCheckFirstDot(namespace));
     }
 
+    @Nonnull
     protected String getCollection(String namespace) throws InvalidNamespaceException {
         int firstDotIndex = getAndCheckFirstDot(namespace);
         if (firstDotIndex == namespace.length()) { //if there is no dot
-            return null; //then there is no collection
+            throw new InvalidNamespaceException( //then there throw InvalidNamespaceException
+                    namespace,
+                    "Does not have collection part"
+            );
         }
         return namespace.substring(firstDotIndex + 1);
     }

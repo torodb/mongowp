@@ -23,10 +23,10 @@ package com.eightkdata.mongowp.mongoserver.decoder;
 
 import com.eightkdata.mongowp.messages.request.DeleteMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
-import com.eightkdata.mongowp.mongoserver.util.EnumBitFlags;
-import com.eightkdata.mongowp.mongoserver.util.EnumInt32FlagsUtil;
 import com.eightkdata.mongowp.mongoserver.protocol.exceptions.InvalidNamespaceException;
 import com.eightkdata.mongowp.mongoserver.util.ByteBufUtil;
+import com.eightkdata.mongowp.mongoserver.util.EnumBitFlags;
+import com.eightkdata.mongowp.mongoserver.util.EnumInt32FlagsUtil;
 import io.netty.buffer.ByteBuf;
 import javax.annotation.Nonnegative;
 import javax.inject.Singleton;
@@ -46,7 +46,7 @@ public class DeleteMessageDecoder extends AbstractMessageDecoder<DeleteMessage> 
         BsonDocument document = ByteBufUtil.readBsonDocument(buffer);
 
         String database = getDatabase(fullCollectionName);
-        String collection = getCollection(database);
+        String collection = getCollection(fullCollectionName);
 
         return new DeleteMessage(
                 requestBaseMessage,
