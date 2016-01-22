@@ -1,6 +1,10 @@
 
 package com.eightkdata.mongowp.mongoserver.util;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.Weigher;
 import org.bson.io.BsonInput;
 import org.bson.types.ObjectId;
 
@@ -10,6 +14,22 @@ import org.bson.types.ObjectId;
  */
 public class InternBsonInputDelegator implements BsonInput {
 
+//    private static final LoadingCache<String, String> cache = CacheBuilder.newBuilder()
+//            .initialCapacity(100_000)
+//            .maximumWeight(100_000 * 80)
+//            .weigher(new Weigher<String, String>() {
+//                @Override
+//                public int weigh(String key, String value) {
+//                    return key.length();
+//                }
+//            })
+//            .build(new CacheLoader<String, String>() {
+//                @Override
+//                public String load(String key) {
+//                    return key;
+//                }
+//            }
+//            );
     private final BsonInput delegate;
 
     public InternBsonInputDelegator(BsonInput delegate) {
@@ -24,14 +44,17 @@ public class InternBsonInputDelegator implements BsonInput {
      * tend to be repeated. But some string values are used as enum literals,
      * so they are usually repeated.
      *
-     * The chosen heuristic is that all not too long strings are interned. It
-     * is fast to evaluate, easy to implement and it should return true for both
-     * key fields and enum values.
+     * The chosen heuristic is that all not too long keys are interned.
      * @param str
      * @return
      */
-    private boolean isInternable(String str) {
-        return str.length() < 80;
+    private boolean isInternable(String str, boolean isKey) {
+        if (isKey) {
+            return str.length() < 80;
+        }
+        else {
+            return false;
+        }
     }
 
     @Override
@@ -73,7 +96,8 @@ public class InternBsonInputDelegator implements BsonInput {
     public String readString() {
         String originalString = delegate.readString();
         String result;
-        if (isInternable(originalString)) {
+        if (isInternable(originalString, false)) {
+//            result = cache.getUnchecked(originalString);
             result = originalString.intern();
         }
         else {
@@ -91,7 +115,8 @@ public class InternBsonInputDelegator implements BsonInput {
     public String readCString() {
         String originalString = delegate.readCString();
         String result;
-        if (isInternable(originalString)) {
+        if (isInternable(originalString, true)) {
+//            result = cache.getUnchecked(originalString);
             result = originalString.intern();
         }
         else {
