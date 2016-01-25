@@ -53,7 +53,7 @@ public class InternBsonInputDelegator implements BsonInput {
             return str.length() < 80;
         }
         else {
-            return false;
+            return str.length() < 5;
         }
     }
 
