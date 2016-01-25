@@ -1,19 +1,21 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConcernMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
 import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
-import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.mongoserver.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonDocumentBuilder;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonField;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
 import com.mongodb.WriteConcern;
@@ -261,7 +263,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
             }
 
             boolean ok = thisError.equals(ErrorCode.OK);
-            builder.append(OK_FIELD, ok ? MongoWP.OK : MongoWP.KO);
+            builder.append(OK_FIELD, ok ? MongoConstants.OK : MongoConstants.KO);
 
             return builder.build();
         }

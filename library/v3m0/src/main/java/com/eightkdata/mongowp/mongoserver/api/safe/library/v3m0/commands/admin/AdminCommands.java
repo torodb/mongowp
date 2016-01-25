@@ -1,16 +1,16 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
-import com.eightkdata.mongowp.mongoserver.api.safe.CommandImplementation;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.CollectionCommandArgument;
+import com.eightkdata.mongowp.mongoserver.api.Command;
+import com.eightkdata.mongowp.mongoserver.api.CommandImplementation;
+import com.eightkdata.mongowp.mongoserver.api.impl.CollectionCommandArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateCollectionCommand.CreateCollectionArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListCollectionsCommand.ListCollectionsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListCollectionsCommand.ListCollectionsResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListIndexesCommand.ListIndexesArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListIndexesCommand.ListIndexesResult;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
+import com.eightkdata.mongowp.mongoserver.api.tools.Empty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;

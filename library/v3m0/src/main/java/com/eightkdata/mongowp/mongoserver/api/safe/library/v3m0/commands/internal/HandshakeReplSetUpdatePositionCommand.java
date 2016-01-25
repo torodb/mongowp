@@ -1,9 +1,9 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import org.bson.BsonDocument;
 
 /**

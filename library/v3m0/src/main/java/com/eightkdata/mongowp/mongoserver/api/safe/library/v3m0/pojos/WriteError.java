@@ -1,11 +1,11 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonDocumentBuilder;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonField;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonReaderTool;
 import javax.annotation.concurrent.Immutable;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;

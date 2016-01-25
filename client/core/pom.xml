@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.8kdata.mongowp.client</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>0.41-SNAPSHOT</version>
+        <version>0.42-alpha1-SNAPSHOT</version>
     </parent>
 
     <artifactId>core</artifactId>
@@ -23,11 +23,11 @@
     
     <dependencies>
         <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongo-server-api-safe</artifactId>
+            <groupId>com.8kdata.mongowp.server</groupId>
+            <artifactId>mongo-server-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+        
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>

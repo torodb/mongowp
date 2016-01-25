@@ -1,16 +1,17 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.MongoCursor;
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.MongoCursor.Batch;
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.SimpleBatch;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.mongoserver.api.pojos.MongoCursor;
+import com.eightkdata.mongowp.mongoserver.api.pojos.MongoCursor.Batch;
+import com.eightkdata.mongowp.mongoserver.api.pojos.MongoCursor.DeadCursorException;
+import com.eightkdata.mongowp.mongoserver.api.pojos.SimpleBatch;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonDocumentBuilder;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonField;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonReaderTool;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import java.util.Iterator;

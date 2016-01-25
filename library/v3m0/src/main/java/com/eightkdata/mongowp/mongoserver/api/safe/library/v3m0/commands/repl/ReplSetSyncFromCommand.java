@@ -1,9 +1,9 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.mongoserver.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetSyncFromCommand.ReplSetSyncFromReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonReaderTool;
 import com.google.common.net.HostAndPort;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

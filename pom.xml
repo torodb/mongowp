@@ -8,18 +8,14 @@
 
     <groupId>com.8kdata.mongowp</groupId>
     <artifactId>mongowp-parent</artifactId>
-    <version>0.41-SNAPSHOT</version>
+    <version>0.42-alpha1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>mongo-server</module>
-        <module>mongowp-messages</module>
-        <module>mongo-server-api</module>
-        <module>mongowp-protocol</module>
-        <module>mongo-server-api-safe</module>
+        <module>server</module>
         <module>library</module>
         <module>client</module>
-        <module>netty-bson</module>
+        <module>mongowp-core</module>
     </modules>
     
     <name>MongoWP Parent</name>

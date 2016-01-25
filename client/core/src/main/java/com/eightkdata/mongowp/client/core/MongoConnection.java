@@ -1,11 +1,11 @@
 
 package com.eightkdata.mongowp.client.core;
 
+import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
-import com.eightkdata.mongowp.mongoserver.api.safe.CommandReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.MongoCursor;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
+import com.eightkdata.mongowp.mongoserver.api.Command;
+import com.eightkdata.mongowp.mongoserver.api.CommandReply;
+import com.eightkdata.mongowp.mongoserver.api.pojos.MongoCursor;
 import com.mongodb.annotations.NotThreadSafe;
 import java.io.Closeable;
 import java.util.List;

@@ -1,9 +1,9 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonReaderTool;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import java.util.Map.Entry;

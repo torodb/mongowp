@@ -1,18 +1,18 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.MarshalException;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.exceptions.*;
+import com.eightkdata.mongowp.mongoserver.api.MarshalException;
+import com.eightkdata.mongowp.mongoserver.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.UpdateCommand.UpdateArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.UpdateCommand.UpdateResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteConcernError;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteError;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConcernMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonDocumentBuilder;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonField;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
 import com.mongodb.WriteConcern;
 import javax.annotation.Nullable;
@@ -329,7 +329,7 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
 
         private BsonDocument marshall() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder()
-                    .append(OK_FIELD, isOk() ? MongoWP.OK : MongoWP.KO)
+                    .append(OK_FIELD, isOk() ? MongoConstants.OK : MongoConstants.KO)
                     .appendNumber(MODIFIED_COUNTER_FIELD, modifiedCounter)
                     .appendNumber(CANDIDATE_COUNTER_FIELD, candidateCounter);
 

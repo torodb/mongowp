@@ -1,25 +1,24 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.MarshalException;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.exceptions.*;
+import com.eightkdata.mongowp.mongoserver.api.MarshalException;
+import com.eightkdata.mongowp.mongoserver.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.DeleteCommand.DeleteArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConcernMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonDocumentBuilder;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonField;
+import com.eightkdata.mongowp.mongoserver.api.tools.bson.BsonReaderTool;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mongodb.WriteConcern;
+import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.bson.BsonArray;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  *

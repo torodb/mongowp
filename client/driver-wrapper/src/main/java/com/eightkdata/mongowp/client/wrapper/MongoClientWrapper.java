@@ -1,11 +1,11 @@
 
 package com.eightkdata.mongowp.client.wrapper;
 
+import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.MongoVersion;
 import com.eightkdata.mongowp.client.core.MongoClient;
 import com.eightkdata.mongowp.client.core.MongoConnection;
 import com.eightkdata.mongowp.client.core.UnreachableMongoServerException;
-import com.eightkdata.mongowp.mongoserver.MongoVersion;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
 import java.io.IOException;
@@ -65,7 +65,7 @@ public class MongoClientWrapper implements MongoClient {
     private MongoVersion calculateVersion() {
         Document buildInfo = driverClient
                 .getDatabase("admin")
-                .runCommand(new BsonDocument("buildInfo", MongoWP.BSON_OK));
+                .runCommand(new BsonDocument("buildInfo", MongoConstants.BSON_OK));
 
         String versionString = buildInfo.getString("version");
 

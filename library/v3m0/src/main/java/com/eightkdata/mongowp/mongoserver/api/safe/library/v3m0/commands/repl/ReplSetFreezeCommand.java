@@ -1,11 +1,12 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.mongoserver.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetFreezeCommand.ReplSetFreezeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetFreezeCommand.ReplSetFreezeReply;
 import javax.annotation.Nullable;
-import org.bson.*;
+import org.bson.BsonDocument;
+import org.bson.BsonString;
 
 /**
  * <em>Freeze</em> or <em>unfreeze</em> this node.

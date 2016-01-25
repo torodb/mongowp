@@ -1,11 +1,11 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.MarshalException;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.exceptions.*;
+import com.eightkdata.mongowp.mongoserver.api.MarshalException;
+import com.eightkdata.mongowp.mongoserver.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.mongoserver.api.tools.Empty;
 import org.bson.BsonDocument;
 
 /**
