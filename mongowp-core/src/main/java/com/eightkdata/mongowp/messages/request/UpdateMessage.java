@@ -21,34 +21,38 @@
 
 package com.eightkdata.mongowp.messages.request;
 
+import com.eightkdata.mongowp.annotations.Ethereal;
+import com.eightkdata.mongowp.bson.BsonDocument;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-import org.bson.BsonDocument;
 
 /**
  *
  */
 @Immutable
-public class UpdateMessage extends AbstractRequestMessage implements RequestMessage {
+public class UpdateMessage extends AbstractRequestMessage {
 
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_UPDATE;
 
     @Nonnull private final String database;
     @Nonnull private final String collection;
+    @Ethereal("getDataContext")
     @Nonnull private final BsonDocument selector;
+    @Ethereal("getDataContext")
     @Nonnull private final BsonDocument update;
     private final boolean upsert;
     private final boolean multiUpdate;
 
     public UpdateMessage(
             @Nonnull RequestBaseMessage requestBaseMessage,
+            @Nonnull BsonContext dataContext,
             @Nonnull String database,
             @Nonnull String collection,
-            @Nonnull BsonDocument selector,
-            @Nonnull BsonDocument update,
+            @Nonnull @Ethereal("dataContext") BsonDocument selector,
+            @Nonnull @Ethereal("dataContext") BsonDocument update,
             boolean upsert,
             boolean multiUpdate) {
-        super(requestBaseMessage);
+        super(requestBaseMessage, dataContext);
         this.database = database;
         this.collection = collection;
         this.selector = selector;
@@ -73,11 +77,13 @@ public class UpdateMessage extends AbstractRequestMessage implements RequestMess
     }
 
     @Nonnull
+    @Ethereal("this")
     public BsonDocument getSelector() {
         return selector;
     }
 
     @Nonnull
+    @Ethereal("this") 
     public BsonDocument getUpdate() {
         return update;
     }
@@ -96,11 +102,12 @@ public class UpdateMessage extends AbstractRequestMessage implements RequestMess
 
     @Override
     public String toString() {
+        //TODO: This must be changed to preserve privacy on logs
         return "UpdateMessage{" + super.toString() +
                 ", database='" + database + '\'' +
                 ", collection='" + collection + '\'' +
-                ", selector=" + selector +
-                ", update=" + update +
+                ", selector=" + (getDataContext().isValid() ? selector : "<not available>") +
+                ", update=" + (getDataContext().isValid() ? update : "<not avaiable>") +
                 '}';
     }
 }

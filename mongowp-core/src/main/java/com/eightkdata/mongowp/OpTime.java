@@ -1,10 +1,11 @@
 
 package com.eightkdata.mongowp;
 
+import com.eightkdata.mongowp.bson.BsonTimestamp;
+import com.eightkdata.mongowp.bson.impl.DefaultBsonTimestamp;
 import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedInts;
 import java.io.Serializable;
-import org.bson.BsonTimestamp;
 import org.threeten.bp.Instant;
 
 /**
@@ -54,7 +55,7 @@ public class OpTime implements Comparable<OpTime>, Serializable {
     }
 
     public BsonTimestamp asBsonTimestamp() {
-        return new BsonTimestamp(secs, term);
+        return new DefaultBsonTimestamp(secs, term);
     }
 
     public long toEpochMilli() {

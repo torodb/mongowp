@@ -1,13 +1,13 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin;
 
+import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.mongoserver.api.impl.AbstractCommand;
-import com.eightkdata.mongowp.mongoserver.api.impl.CollectionCommandArgument;
-import com.eightkdata.mongowp.mongoserver.api.tools.Empty;
-import org.bson.BsonDocument;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.CollectionCommandArgument;
+import com.eightkdata.mongowp.server.api.tools.Empty;
 
 /**
  *

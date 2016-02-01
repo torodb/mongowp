@@ -21,34 +21,35 @@
 
 package com.eightkdata.mongowp.messages.request;
 
+import com.eightkdata.mongowp.annotations.Ethereal;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.utils.BsonDocumentReader.AllocationType;
 import com.eightkdata.mongowp.messages.utils.IterableDocumentProvider;
-import com.eightkdata.mongowp.messages.utils.SimpleIterableDocumentsProvider;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-import org.bson.BsonDocument;
 
 /**
  *
  */
 @Immutable
-public class InsertMessage extends AbstractRequestMessage implements RequestMessage {
+public class InsertMessage extends AbstractRequestMessage {
     
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_INSERT;
 
     @Nonnull private final String database;
     @Nonnull private final String collection;
-    @Nonnull private final IterableDocumentProvider<?> documents;
+    @Nonnull @Ethereal("this") private final IterableDocumentProvider<?> documents;
 
     public InsertMessage(
             @Nonnull RequestBaseMessage requestBaseMessage,
+            @Nonnull BsonContext dataContext,
             @Nonnull String database,
             @Nonnull String collection,
             boolean continueOnError,
-            @Nonnull IterableDocumentProvider<?> documents
+            @Nonnull @Ethereal("dataContext") IterableDocumentProvider<?> documents
     ) {
-        super(requestBaseMessage);
+        super(requestBaseMessage, dataContext);
         this.database = database;
         this.collection = collection;
         this.documents = documents;
@@ -56,12 +57,13 @@ public class InsertMessage extends AbstractRequestMessage implements RequestMess
 
     public InsertMessage(
             @Nonnull RequestBaseMessage requestBaseMessage,
+            @Nonnull BsonContext context,
             @Nonnull String database,
             @Nonnull String collection,
             boolean continueOnError,
             @Nonnull Iterable<? extends BsonDocument> documents
     ) {
-        this(requestBaseMessage, database, collection, continueOnError, new SimpleIterableDocumentsProvider<>(documents));
+        this(requestBaseMessage, context, database, collection, continueOnError, IterableDocumentProvider.of(documents));
     }
 
     @Override
@@ -79,24 +81,36 @@ public class InsertMessage extends AbstractRequestMessage implements RequestMess
         return collection;
     }
 
-    @Nonnull
-    public FluentIterable<? extends BsonDocument> getDocuments() {
+    public IterableDocumentProvider<?> getDocuments() {
         return documents;
     }
 
     @Override
-    public void close() throws Exception {
-        documents.close();
-    }
-
-    @Override
     public String toString() {
-        int docsLimit = 10;
-        return "InsertMessage{" + super.toString() +
-                ", database='" + database + '\'' +
-                ", collection='" + collection + '\'' +
-                ", documents (limited to " + docsLimit + ")="
-                + Iterables.toString(documents.limit(docsLimit)) +
-                '}';
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("InsertMessage{")
+                .append(super.toString())
+                .append(", database='")
+                .append(database)
+                .append("' , collection='")
+                .append(collection)
+                .append('\'');
+
+
+        if (getDataContext().isValid()) {
+            //TODO: This must be changed to preserve privacy on logs
+            int docsLimit = 10;
+            sb.append(", documents (limited to ").append(docsLimit).append(")=")
+                    .append(
+                            Iterables.toString(
+                                    documents.getIterable(AllocationType.HEAP).limit(docsLimit)
+                            )
+                    );
+        }
+        else {
+            sb.append(", documents=<not available>");
+        }
+        return sb.append('}').toString();
     }
 }

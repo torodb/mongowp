@@ -24,6 +24,7 @@
     <modules>
         <module>server-core</module>
         <module>mongo-server-api</module>
+        <module>wp-layer</module>
     </modules>
 
 </project>

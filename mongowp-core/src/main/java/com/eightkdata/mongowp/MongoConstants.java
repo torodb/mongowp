@@ -21,8 +21,9 @@
 
 package com.eightkdata.mongowp;
 
+import com.eightkdata.mongowp.bson.BsonDouble;
+import com.eightkdata.mongowp.bson.impl.PrimitiveBsonDouble;
 import com.google.common.primitives.Ints;
-import org.bson.BsonDouble;
 
 /**
  *
@@ -38,7 +39,10 @@ public class MongoConstants {
 	public static final Double KO = (double) 0;
 	public static final Double OK = (double) 1;
 
-    public static final BsonDouble BSON_KO = new BsonDouble(0);
-	public static final BsonDouble BSON_OK = new BsonDouble(1);
+    public static final BsonDouble BSON_KO = PrimitiveBsonDouble.newInstance(0);
+	public static final BsonDouble BSON_OK = PrimitiveBsonDouble.newInstance(1);
+
+    private MongoConstants() {
+    }
 
 }
