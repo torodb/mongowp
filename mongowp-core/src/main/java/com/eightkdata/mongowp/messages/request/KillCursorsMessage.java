@@ -28,7 +28,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
-public class KillCursorsMessage extends AbstractRequestMessage implements RequestMessage {
+public class KillCursorsMessage extends AbstractRequestMessage {
 
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_KILL_CURSORS;
 
@@ -44,7 +44,7 @@ public class KillCursorsMessage extends AbstractRequestMessage implements Reques
             @Nonnull RequestBaseMessage requestBaseMessage, 
             int numberOfCursors, @Nonnull long[] cursorIds
     ) {
-    	super(requestBaseMessage);
+    	super(requestBaseMessage, EmptyBsonContext.getInstance());
         this.numberOfCursors = numberOfCursors;
         this.cursorIds = Arrays.copyOf(cursorIds, cursorIds.length);
     }
@@ -56,10 +56,6 @@ public class KillCursorsMessage extends AbstractRequestMessage implements Reques
     @Nonnull
     public long[] getCursorIds() {
         return Arrays.copyOf(cursorIds, cursorIds.length);
-    }
-
-    @Override
-    public void close() {
     }
 
     @Override

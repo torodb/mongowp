@@ -28,11 +28,15 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public abstract class AbstractRequestMessage {
+public abstract class AbstractRequestMessage implements RequestMessage {
     @Nonnull private final RequestBaseMessage requestBaseMessage;
+    @Nonnull private final BsonContext dataContext;
 
-    protected AbstractRequestMessage(@Nonnull RequestBaseMessage requestBaseMessage) {
+    protected AbstractRequestMessage(
+            @Nonnull RequestBaseMessage requestBaseMessage,
+            @Nonnull BsonContext dataContext) {
         this.requestBaseMessage = requestBaseMessage;
+        this.dataContext = dataContext;
     }
 
     @Nonnull
@@ -56,6 +60,15 @@ public abstract class AbstractRequestMessage {
 
     public int getRequestId() {
         return requestBaseMessage.getRequestId();
+    }
+
+    BsonContext getDataContext() {
+        return dataContext;
+    }
+
+    @Override
+    public void close() throws Exception {
+        dataContext.close();
     }
 
     @Override

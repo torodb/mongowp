@@ -27,7 +27,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
-public class GetMoreMessage extends AbstractRequestMessage implements RequestMessage {
+public class GetMoreMessage extends AbstractRequestMessage {
 
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_GET_MORE;
 
@@ -37,13 +37,13 @@ public class GetMoreMessage extends AbstractRequestMessage implements RequestMes
     @Nonnegative private final long cursorId;
 
     public GetMoreMessage(
-            @Nonnull RequestBaseMessage requestBaseMessage, 
+            @Nonnull RequestBaseMessage requestBaseMessage,
             @Nonnull String database,
             @Nonnull String collection,
             int numberToReturn,
             long cursorId
     ) {
-    	super(requestBaseMessage);
+    	super(requestBaseMessage, EmptyBsonContext.getInstance());
         this.database = database;
         this.collection = collection;
         this.numberToReturn = numberToReturn;

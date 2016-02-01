@@ -1,0 +1,34 @@
+{
+    "emptyDoc": {},
+    "simpleInt": {
+        "aInt": 1
+    },
+    "simpleDouble": {
+        "aDouble": 1.0
+    },
+    "simpleLong": {
+        "aLong": 12147483647
+    },
+    "simpleString": {
+        "aString": "test string"
+    },
+    "emptyString": {
+        "a-empty-string": ""
+    },
+    "innerDocument": {
+        "aDocument": {
+            "inner": 1
+        }
+    },
+    "innerArray": {
+        "anArray": [
+            1,2,3
+        ]
+    },
+    "binary": {
+        "aBinary": {
+            "$binary": "+QWU+Pwf1u03", 
+            "$type": "0"
+        }
+    }
+}

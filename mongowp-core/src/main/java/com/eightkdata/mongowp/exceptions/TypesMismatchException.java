@@ -20,8 +20,8 @@
 package com.eightkdata.mongowp.exceptions;
 
 import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.bson.BsonType;
 import java.util.Locale;
-import org.bson.BsonType;
 
 /**
  *

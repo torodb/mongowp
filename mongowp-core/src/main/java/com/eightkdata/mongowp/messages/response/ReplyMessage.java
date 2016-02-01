@@ -21,13 +21,14 @@
 
 package com.eightkdata.mongowp.messages.response;
 
+import com.eightkdata.mongowp.annotations.Ethereal;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.utils.BsonDocumentReader.AllocationType;
+import com.eightkdata.mongowp.messages.request.BsonContext;
 import com.eightkdata.mongowp.messages.utils.IterableDocumentProvider;
-import com.eightkdata.mongowp.messages.utils.SimpleIterableDocumentsProvider;
-import com.google.common.collect.FluentIterable;
-import java.util.Collections;
+import com.google.common.collect.Iterables;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
-import org.bson.BsonDocument;
 
 /**
  *
@@ -41,10 +42,13 @@ public class ReplyMessage implements AutoCloseable {
     private final boolean awaitCapable;
     private final long cursorId;
     private final int startingFrom;
-    @Nonnull final private IterableDocumentProvider<? extends BsonDocument> documents;
-    private boolean close;
+    @Nonnull 
+    @Ethereal("dataContext")
+    final private IterableDocumentProvider<? extends BsonDocument> documents;
+    @Nonnull private final BsonContext dataContext;
 
     public ReplyMessage(
+            BsonContext dataContext,
             int responseTo,
             boolean cursorNotFound,
             boolean queryFailure,
@@ -52,7 +56,8 @@ public class ReplyMessage implements AutoCloseable {
             boolean awaitCapable,
             long cursorId,
             int startingFrom,
-            IterableDocumentProvider<? extends BsonDocument> documents) {
+            @Ethereal("dataContext") IterableDocumentProvider<? extends BsonDocument> documents) {
+        this.dataContext = dataContext;
         this.responseTo = responseTo;
         this.cursorNotFound = cursorNotFound;
         this.queryFailure = queryFailure;
@@ -91,34 +96,53 @@ public class ReplyMessage implements AutoCloseable {
         return responseTo;
     }
 
-    @Nonnull
-    public FluentIterable<? extends BsonDocument> getDocuments() {
+    @Ethereal("this")
+    public IterableDocumentProvider<? extends BsonDocument> getDocuments() {
         return documents;
     }
 
     @Override
     public void close() throws Exception {
-        if (!close) {
-            close = true;
-            documents.close();
-        }
+        dataContext.close();
     }
 
     @Override
     public String toString() {
-        return "ReplyMessage{" + "responseTo=" + responseTo + ", cursorNotFound=" +
-                cursorNotFound + ", queryFailure=" + queryFailure +
-                ", shardConfigStale=" + shardConfigStale + ", awaitCapable=" +
-                awaitCapable + ", cursorId=" + cursorId + ", startingFrom=" +
-                startingFrom + ", documents=" + documents + '}';
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("ReplyMessage{responseTo=").append(responseTo)
+                .append(", cursorNotFound=").append(cursorNotFound)
+                .append(", queryFailure=").append(queryFailure)
+                .append(", shardConfigStale=").append(shardConfigStale)
+                .append(", awaitCapable=").append(awaitCapable)
+                .append(", cursorId=").append(cursorId)
+                .append(", startingFrom=").append(startingFrom);
+
+
+        if (dataContext.isValid()) {
+            //TODO: This must be changed to preserve privacy on logs
+            int docsLimit = 10;
+            sb.append(", documents (limited to ").append(docsLimit).append(")=")
+                    .append(
+                            Iterables.toString(
+                                    documents.getIterable(AllocationType.HEAP).limit(docsLimit)
+                            )
+                    );
+        }
+        else {
+            sb.append(", documents=<not available>");
+        }
+        return sb.append('}').toString();
     }
 
     @NotThreadSafe
     public static class Builder {
+        @Nonnull
+        private final BsonContext dataContext;
         private final int requestId;
         private final long cursorId;
         private final int startingFrom;
-        @Nonnull final private IterableDocumentProvider documents;
+        @Nonnull final private IterableDocumentProvider<? extends BsonDocument> documents;
         
         private boolean cursorNotFound;
         private boolean queryFailure;
@@ -126,10 +150,12 @@ public class ReplyMessage implements AutoCloseable {
         private boolean awaitCapable;
 
         public Builder(
+                @Nonnull BsonContext dataContext,
                 int requestId,
                 long cursorId,
                 int startingFrom,
-                IterableDocumentProvider<? extends BsonDocument> documents) {
+                @Ethereal("dataContext") IterableDocumentProvider<? extends BsonDocument> documents) {
+            this.dataContext = dataContext;
             this.requestId = requestId;
             this.cursorId = cursorId;
             this.startingFrom = startingFrom;
@@ -137,19 +163,21 @@ public class ReplyMessage implements AutoCloseable {
         }
 
         public Builder(
+                @Nonnull BsonContext dataContext,
                 int requestId,
                 long cursorId,
                 int startingFrom,
-                Iterable<? extends BsonDocument> documents) {
-            this(requestId, cursorId, startingFrom, new SimpleIterableDocumentsProvider<>(documents));
+                @Ethereal("dataContext") Iterable<? extends BsonDocument> documents) {
+            this(dataContext, requestId, cursorId, startingFrom, IterableDocumentProvider.of(documents));
         }
 
         public Builder(
+                @Nonnull BsonContext dataContext,
                 int requestId,
                 long cursorId,
                 int startingFrom,
-                BsonDocument document) {
-            this(requestId, cursorId, startingFrom, new SimpleIterableDocumentsProvider<>(Collections.singleton(document)));
+                @Ethereal("dataContext") BsonDocument document) {
+            this(dataContext, requestId, cursorId, startingFrom, IterableDocumentProvider.of(document));
         }
 
         public Builder setCursorNotFound(boolean cursorNotFound) {
@@ -174,6 +202,7 @@ public class ReplyMessage implements AutoCloseable {
 
         public ReplyMessage build() {
             return new ReplyMessage(
+                    dataContext,
                     requestId,
                     cursorNotFound,
                     queryFailure,

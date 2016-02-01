@@ -31,6 +31,11 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.8kdata.mongowp.bson</groupId>
+            <artifactId>org-bson-utils</artifactId>
+            <version>0.42-alpha1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

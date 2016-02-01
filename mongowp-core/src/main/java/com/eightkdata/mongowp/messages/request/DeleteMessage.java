@@ -21,13 +21,14 @@
 
 package com.eightkdata.mongowp.messages.request;
 
+import com.eightkdata.mongowp.annotations.Ethereal;
+import com.eightkdata.mongowp.bson.BsonDocument;
 import javax.annotation.Nonnull;
-import org.bson.BsonDocument;
 
 /**
  *
  */
-public class DeleteMessage extends AbstractRequestMessage implements RequestMessage {
+public class DeleteMessage extends AbstractRequestMessage {
     public static final RequestOpCode REQUEST_OP_CODE = RequestOpCode.OP_DELETE;
 
     @Nonnull private final String database;
@@ -37,11 +38,12 @@ public class DeleteMessage extends AbstractRequestMessage implements RequestMess
 
     public DeleteMessage(
             @Nonnull RequestBaseMessage requestBaseMessage,
+            @Nonnull BsonContext dataContext,
             @Nonnull String database,
             @Nonnull String collection,
-            @Nonnull BsonDocument document,
+            @Nonnull @Ethereal("dataContext") BsonDocument document,
             boolean singleRemove) {
-        super(requestBaseMessage);
+        super(requestBaseMessage, dataContext);
         this.database = database;
         this.collection = collection;
         this.document = document;
@@ -64,6 +66,7 @@ public class DeleteMessage extends AbstractRequestMessage implements RequestMess
     }
 
     @Nonnull
+    @Ethereal("this")
     public BsonDocument getDocument() {
         return document;
     }
@@ -73,15 +76,12 @@ public class DeleteMessage extends AbstractRequestMessage implements RequestMess
     }
 
     @Override
-    public void close() {
-    }
-
-    @Override
     public String toString() {
+        //TODO: This must be changed to preserve privacy on logs
         return "DeleteMessage{" + super.toString() +
                 ", database='" + database + '\'' +
                 ", collection='" + collection + '\'' +
-                ", document=" + document +
+                ", document=" + (getDataContext().isValid() ? document : "<not available>") +
                 '}';
     }
 }
