@@ -1,19 +1,23 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic;
 
-import com.eightkdata.mongowp.mongoserver.MongoVersion;
-import com.eightkdata.mongowp.mongoserver.api.safe.MarshalException;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.MongoVersion;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.*;
+import com.eightkdata.mongowp.fields.ArrayField;
+import com.eightkdata.mongowp.fields.BooleanField;
+import com.eightkdata.mongowp.fields.NumberField;
+import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.server.api.MarshalException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.BuildInfoCommand.BuildInfoResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonInt32;
+import com.eightkdata.mongowp.server.api.tools.Empty;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 
 /**
  *
@@ -63,17 +67,17 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
 
     public static class BuildInfoResult {
 
-        private static final BsonField<String> VERSION_FIELD = BsonField.create("version");
-        private static final BsonField<String> GIT_VERSION_FIELD = BsonField.create("gitVersion");
-        private static final BsonField<String> SYS_INFO_FIELD = BsonField.create("sysInfo");
-        private static final BsonField<String> LOADER_FLAGS_FIELD = BsonField.create("loaderFlags");
-        private static final BsonField<String> COMPILER_FLAGS_FIELD = BsonField.create("compilerFlags");
-        private static final BsonField<String> ALLOCATOR_FIELD = BsonField.create("allocator");
-        private static final BsonField<String> JAVASCRIPT_ENGINE_FIELD = BsonField.create("javascriptEngine");
-        private static final BsonField<BsonArray> VERSION_ARRAY_FIELD = BsonField.create("versionArrayField");
-        private static final BsonField<Number> BITS_FIELD = BsonField.create("bits");
-        private static final BsonField<Boolean> DEBUG_FIELD = BsonField.create("debug");
-        private static final BsonField<Number> MAX_OBJECT_SIZE_FIELD = BsonField.create("maxObjectSize");
+        private static final StringField VERSION_FIELD = new StringField("version");
+        private static final StringField GIT_VERSION_FIELD = new StringField("gitVersion");
+        private static final StringField SYS_INFO_FIELD = new StringField("sysInfo");
+        private static final StringField LOADER_FLAGS_FIELD = new StringField("loaderFlags");
+        private static final StringField COMPILER_FLAGS_FIELD = new StringField("compilerFlags");
+        private static final StringField ALLOCATOR_FIELD = new StringField("allocator");
+        private static final StringField JAVASCRIPT_ENGINE_FIELD = new StringField("javascriptEngine");
+        private static final ArrayField VERSION_ARRAY_FIELD = new ArrayField("versionArrayField");
+        private static final NumberField<?> BITS_FIELD = new NumberField<>("bits");
+        private static final BooleanField DEBUG_FIELD = new BooleanField("debug");
+        private static final NumberField<?> MAX_OBJECT_SIZE_FIELD = new NumberField<>("maxObjectSize");
 
         private final MongoVersion version;
         private final int patchVersion;
@@ -150,13 +154,15 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
         }
 
         private BsonDocument marshall() {
-            BsonArray versionArray = null;
+            BsonArray versionArray = DefaultBsonValues.EMPTY_ARRAY;
             String versionString = null;
             if (version != null) {
-                versionArray = new BsonArray();
-                versionArray.add(new BsonInt32(version.getMajor()));
-                versionArray.add(new BsonInt32(version.getMinor()));
-                versionArray.add(new BsonInt32(patchVersion));
+                BsonArrayBuilder arrBuilder = new BsonArrayBuilder(3);
+                arrBuilder.add(version.getMajor());
+                arrBuilder.add(version.getMinor());
+                arrBuilder.add(patchVersion);
+
+                versionArray = arrBuilder.build();
 
                 versionString = version.toString();
             }

@@ -1,43 +1,52 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConcernMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.FailedToParseException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.WriteConcern;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonDocument.Entry;
+import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.*;
-import com.mongodb.WriteConcern;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.Nonnull;
-import org.bson.*;
 
 /**
  *
  */
 public class ReplicaSetConfig {
 
-    private static final String VERSION_FIELD_NAME = "version";
-    private static final String ID_FIELD_NAME = "_id";
-    private static final String MEMBERS_FIELD_NAME = "members";
-    private static final String SETTINGS_FIELD_NAME = "settings";
+    private static final IntField VERSION_FIELD = new IntField("version");
+    private static final StringField ID_FIELD = new StringField("_id");
+    private static final ArrayField MEMBERS_FIELD = new ArrayField("members");
+    private static final DocField SETTINGS_FIELD = new DocField("settings");
     private static final String STEP_DOWN_CHECK_WRITE_CONCERN_MODE_FIELD_NAME = "$stepDownCheck";
-    private static final String PROTOCOL_VERSION_FIELD_NAME = "protocolVersion";
+    private static final LongField PROTOCOL_VERSION_FIELD = new LongField("protocolVersion");
     
-    private static final String HEARTHBEAT_TIMEOUT_FIELD_NAME = "heartbeatTimeoutSecs";
-    private static final String CHAINING_ALLOWED_FIELD_NAME = "chainingAllowed";
-    private static final String GET_LAST_ERROR_DEFAULTS_FIELD_NAME = "getLastErrorDefaults";
-    private static final String GET_LAST_ERROR_MODES_FIELD_NAME = "getLastErrorModes";
+    private static final IntField HEARTHBEAT_TIMEOUT_FIELD = new IntField("heartbeatTimeoutSecs");
+    private static final BooleanField CHAINING_ALLOWED_FIELD = new BooleanField("chainingAllowed");
+    private static final DocField GET_LAST_ERROR_DEFAULTS_FIELD = new DocField("getLastErrorDefaults");
+    private static final DocField GET_LAST_ERROR_MODES_FIELD = new DocField("getLastErrorModes");
     
-    private static final BsonInt32 DEFAULT_HEARTBEAT_TIMEOUT = new BsonInt32(10);
-    private static final BsonBoolean DEFAULT_CHAINING_ALLOWED = BsonBoolean.TRUE;
+    private static final int DEFAULT_HEARTBEAT_TIMEOUT = 10;
+    private static final boolean DEFAULT_CHAINING_ALLOWED = true;
     
     private static final ImmutableSet<String> VALID_FIELD_NAMES = ImmutableSet.of(
-            VERSION_FIELD_NAME, ID_FIELD_NAME, MEMBERS_FIELD_NAME, SETTINGS_FIELD_NAME, STEP_DOWN_CHECK_WRITE_CONCERN_MODE_FIELD_NAME, PROTOCOL_VERSION_FIELD_NAME
+            VERSION_FIELD.getFieldName(), ID_FIELD.getFieldName(),
+            MEMBERS_FIELD.getFieldName(), SETTINGS_FIELD.getFieldName(),
+            STEP_DOWN_CHECK_WRITE_CONCERN_MODE_FIELD_NAME,
+            PROTOCOL_VERSION_FIELD.getFieldName()
     );
     
     private final String setName;
@@ -140,52 +149,53 @@ public class ReplicaSetConfig {
             throws BadValueException, TypesMismatchException, NoSuchKeyException, FailedToParseException {
         BsonReaderTool.checkOnlyHasFields("replica set configuration", bson, VALID_FIELD_NAMES);
 
-        String id = bson.getString(ID_FIELD_NAME).getValue();
+        String id = BsonReaderTool.getString(bson, ID_FIELD);
 
-        int version = bson.getInt32(VERSION_FIELD_NAME).getValue();
+        int version = BsonReaderTool.getInteger(bson, VERSION_FIELD);
 
-        BsonDocument uncastedMembers = bson.getDocument(MEMBERS_FIELD_NAME);
+        BsonArray uncastedMembers = BsonReaderTool.getArray(bson, MEMBERS_FIELD);
         ImmutableList.Builder<MemberConfig> membersBuilder = ImmutableList.builder();
-        for (String field : uncastedMembers.keySet()) {
-            BsonValue uncastedMember = uncastedMembers.get(field);
+        int i = 0;
+        for (BsonValue uncastedMember : uncastedMembers) {
             if (uncastedMember == null || !uncastedMember.isDocument()) {
                     throw new TypesMismatchException(
-                            field, 
+                            Integer.toString(i),
                             "object", 
-                            uncastedMember == null ? null : uncastedMember.getBsonType()
+                            uncastedMember == null ? null : uncastedMember.getType()
                     );
             }
             membersBuilder.add(MemberConfig.fromDocument(uncastedMember.asDocument()));
+            i++;
         }
         
         BsonDocument settings;
         try {
-            settings = BsonReaderTool.getDocument(bson, SETTINGS_FIELD_NAME);
+            settings = BsonReaderTool.getDocument(bson, SETTINGS_FIELD);
         } catch (NoSuchKeyException ex) {
-            settings = new BsonDocument();
+            settings = DefaultBsonValues.EMPTY_DOC;
         }
-        int hbTimeout = settings.getInt32(HEARTHBEAT_TIMEOUT_FIELD_NAME, DEFAULT_HEARTBEAT_TIMEOUT).intValue();
+        int hbTimeout = BsonReaderTool.getInteger(settings, HEARTHBEAT_TIMEOUT_FIELD, DEFAULT_HEARTBEAT_TIMEOUT);
         
-        boolean chainingAllowed = settings.getBoolean(CHAINING_ALLOWED_FIELD_NAME, DEFAULT_CHAINING_ALLOWED).getValue();
+        boolean chainingAllowed = BsonReaderTool.getBoolean(settings, CHAINING_ALLOWED_FIELD, DEFAULT_CHAINING_ALLOWED);
 
 
         BsonDocument uncastedGetLastErrorDefaults = BsonReaderTool.getDocument(
                 settings,
-                GET_LAST_ERROR_DEFAULTS_FIELD_NAME
+                GET_LAST_ERROR_DEFAULTS_FIELD
         );
 
-        WriteConcern wc = WriteConcernMarshaller.unmarshall(uncastedGetLastErrorDefaults);
+        WriteConcern wc = WriteConcern.fromDocument(uncastedGetLastErrorDefaults);
         
         BsonDocument uncastedCustomWriteConcerns;
         try {
-            uncastedCustomWriteConcerns = BsonReaderTool.getDocument(settings, GET_LAST_ERROR_MODES_FIELD_NAME);
+            uncastedCustomWriteConcerns = BsonReaderTool.getDocument(settings, GET_LAST_ERROR_MODES_FIELD);
         } catch (NoSuchKeyException ex) {
-            uncastedCustomWriteConcerns = new BsonDocument();
+            uncastedCustomWriteConcerns = DefaultBsonValues.EMPTY_DOC;
         }
         ImmutableTable<String, String, Integer> customWriteConcernsBuilder 
                 = parseCustomWriteConcerns(uncastedCustomWriteConcerns);
         
-        long protocolVersion = settings.getInt64(PROTOCOL_VERSION_FIELD_NAME).getValue();
+        long protocolVersion = BsonReaderTool.getLong(settings, PROTOCOL_VERSION_FIELD);
         
         return new ReplicaSetConfig(
                 id, 
@@ -202,24 +212,24 @@ public class ReplicaSetConfig {
     private static ImmutableTable<String, String, Integer> parseCustomWriteConcerns(BsonDocument bson)
             throws TypesMismatchException, NoSuchKeyException, BadValueException {
         ImmutableTable.Builder<String, String, Integer> builder = ImmutableTable.builder();
-        for (String customWriteName : bson.keySet()) {
-            BsonDocument constraintDoc = BsonReaderTool.getDocument(bson, customWriteName);
-            for (String tag : constraintDoc.keySet()) {
+        for (Entry<?> customWriteNameEntry : bson) {
+            BsonDocument constraintDoc = BsonReaderTool.getDocument(bson, customWriteNameEntry.getKey());
+            for (Entry<?> tagEntry : constraintDoc) {
                 int intValue;
                 try {
-                    intValue = constraintDoc.getNumber(tag).intValue();
-                } catch (BsonInvalidOperationException ex) {
+                    intValue = tagEntry.getValue().asNumber().intValue();
+                } catch (UnsupportedOperationException ex) {
                     String fieldName = 
-                            SETTINGS_FIELD_NAME 
-                            + '.' + GET_LAST_ERROR_MODES_FIELD_NAME 
-                            + '.' + customWriteName
+                            SETTINGS_FIELD.getFieldName()
+                            + '.' + GET_LAST_ERROR_MODES_FIELD.getFieldName()
+                            + '.' + customWriteNameEntry
                             + '.' + constraintDoc;
-                    BsonValue tagValue = constraintDoc.get(tag);
+                    BsonValue tagValue = tagEntry.getValue();
                     BsonType tagType;
                     if (tagValue == null) {
                         tagType = BsonType.NULL;
                     } else {
-                        tagType = tagValue.getBsonType();
+                        tagType = tagValue.getType();
                     }
                     throw new TypesMismatchException(
                             fieldName, 
@@ -230,78 +240,55 @@ public class ReplicaSetConfig {
                 }
                 if (intValue <= 0) {
                     String fieldName = 
-                            SETTINGS_FIELD_NAME 
-                            + '.' + GET_LAST_ERROR_MODES_FIELD_NAME 
-                            + '.' + customWriteName
+                            SETTINGS_FIELD.getFieldName()
+                            + '.' + GET_LAST_ERROR_MODES_FIELD.getFieldName()
+                            + '.' + customWriteNameEntry
                             + '.' + constraintDoc;
                     throw new BadValueException("Value of " + fieldName + " must be positive, but found " + intValue);
                 }
-                builder.put(customWriteName, tag, intValue);
+                builder.put(customWriteNameEntry.getKey(), tagEntry.getKey(), intValue);
             }
         }
         return builder.build();
     }
     
     public BsonDocument toBSON() {
-        BsonDocument result = new BsonDocument();
-        result.put(ID_FIELD_NAME, new BsonString(setName));
-        result.put(VERSION_FIELD_NAME, new BsonInt32(version));
+        BsonDocumentBuilder result = new BsonDocumentBuilder();
+        result.append(ID_FIELD, setName);
+        result.append(VERSION_FIELD, version);
         
-        BsonArray membersList = new BsonArray();
+        BsonArrayBuilder membersList = new BsonArrayBuilder();
         for (MemberConfig member : members.values()) {
             membersList.add(member.toBSON());
         }
-        result.put(MEMBERS_FIELD_NAME, membersList);
+        result.append(MEMBERS_FIELD, membersList.build());
         
-        BsonDocument settingsBuilder = new BsonDocument();
-        settingsBuilder.put(CHAINING_ALLOWED_FIELD_NAME, BsonBoolean.valueOf(chainingAllowed));
-        settingsBuilder.put(HEARTHBEAT_TIMEOUT_FIELD_NAME, new BsonInt32(heartbeatTimeoutPeriod));
+        BsonDocumentBuilder settingsBuilder = new BsonDocumentBuilder();
+        settingsBuilder.append(CHAINING_ALLOWED_FIELD, chainingAllowed);
+        settingsBuilder.append(HEARTHBEAT_TIMEOUT_FIELD, heartbeatTimeoutPeriod);
         
-        BsonDocument customWrites = new BsonDocument();
+        BsonDocumentBuilder customWrites = new BsonDocumentBuilder();
         for (String customWriteName : customWriteConcern.rowKeySet()) {
             if (customWriteName.startsWith("$")) { //MongoDB uses $ as an internal mode
                 continue; 
             }
             BsonDocument tagMap = toBson(customWriteConcern.row(customWriteName));
-            customWrites.put(customWriteName, tagMap);
+            customWrites.appendUnsafe(customWriteName, tagMap);
         }
-        settingsBuilder.put(GET_LAST_ERROR_MODES_FIELD_NAME, customWrites);
-        settingsBuilder.put(GET_LAST_ERROR_DEFAULTS_FIELD_NAME, toBson(defaultWriteConcern));
-        settingsBuilder.put(PROTOCOL_VERSION_FIELD_NAME, new BsonInt64(protocolVersion));
+        settingsBuilder.append(GET_LAST_ERROR_MODES_FIELD, customWrites);
+        settingsBuilder.append(GET_LAST_ERROR_DEFAULTS_FIELD, defaultWriteConcern.toDocument());
+        settingsBuilder.append(PROTOCOL_VERSION_FIELD, protocolVersion);
      
-        result.put(SETTINGS_FIELD_NAME, settingsBuilder);
-        return result;
+        result.append(SETTINGS_FIELD, settingsBuilder);
+        return result.build();
     }
 
     private BsonDocument toBson(ImmutableMap<String, Integer> map) {
-        BsonDocument result = new BsonDocument();
-        for (Entry<String, Integer> entry : map.entrySet()) {
-            result.put(entry.getKey(), new BsonInt32(entry.getValue()));
+        BsonDocumentBuilder result = new BsonDocumentBuilder();
+        for (java.util.Map.Entry<String, Integer> entry : map.entrySet()) {
+            result.appendUnsafe(entry.getKey(), DefaultBsonValues.newInt(entry.getValue()));
         }
-        return result;
+        return result.build();
     }
-    
-    private BsonDocument toBson(WriteConcern wc) {
-        BsonDocument object = new BsonDocument();
-
-        Object wObject = wc.getWObject();
-        if (wObject instanceof String) {
-            object.put("w", new BsonString((String) wObject));
-        }
-        else {
-            assert wObject instanceof Integer;
-            object.put("w", new BsonInt32((Integer) wObject));
-        }
-        if (wc.getFsync()) {
-            object.put("fsync", BsonBoolean.TRUE);
-        }
-        if (wc.getJ()) {
-            object.put("j", BsonBoolean.TRUE);
-        }
-        object.put("wtimeout", new BsonInt32(wc.getWtimeout()));
-        
-        return object;
-    }
-
     
 }

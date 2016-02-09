@@ -1,14 +1,17 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetReconfigCommand.ReplSetReconfigArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.server.api.tools.Empty;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.concurrent.Immutable;
-import org.bson.BsonDocument;
-import org.bson.BsonType;
 
 /**
  *
@@ -34,10 +37,12 @@ public class ReplSetReconfigCommand extends AbstractCommand<ReplSetReconfigArgum
     @Override
     public ReplSetReconfigArgument unmarshallArg(BsonDocument requestDoc)
             throws BadValueException, TypesMismatchException, NoSuchKeyException, FailedToParseException {
-        if (requestDoc.get(getCommandName()).getBsonType().equals(BsonType.DOCUMENT)) {
+        if (requestDoc.get(getCommandName()).getType().equals(BsonType.DOCUMENT)) {
             throw new BadValueException("no configuration specified");
         }
-        ReplicaSetConfig config = ReplicaSetConfig.fromDocument(requestDoc.getDocument(getCommandName()));
+        ReplicaSetConfig config = ReplicaSetConfig.fromDocument(
+                BsonReaderTool.getDocument(requestDoc, getCommandName())
+        );
         boolean force = BsonReaderTool.getBoolean(requestDoc, "force", false);
 
         return new ReplSetReconfigArgument(config, force);

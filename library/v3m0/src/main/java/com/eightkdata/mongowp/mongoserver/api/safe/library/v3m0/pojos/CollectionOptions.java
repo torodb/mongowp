@@ -1,34 +1,40 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonDocument.Entry;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Set;
 import javax.annotation.Nonnull;
-import org.bson.*;
 
 /**
  *
  */
 public abstract class CollectionOptions {
 
-    private static final BsonField<Boolean> CAPPED_FIELD = BsonField.create("capped");
-    private static final BsonField<Long> CAPPED_SIZE_FIELD = BsonField.create("size");
-    private static final BsonField<Long> CAPPED_MAX_DOCS_FIELD = BsonField.create("max");
-    private static final BsonField<BsonArray> INITIAL_EXTENT_SIZES_FIELD = BsonField.create("$nExtents");
-    private static final BsonField<Long> INITIAL_NUM_EXTENDS_FIELD = BsonField.create("$nExtents");
-    private static final BsonField<Boolean> AUTO_INDEX_MODE_FIELD = BsonField.create("autoIndexId");
-    private static final BsonField<Integer> FLAGS_FIELD = BsonField.create("flags");
-    private static final BsonField<BsonDocument> STORAGE_ENGINE_FIELD = BsonField.create("storageEngine");
-    private static final BsonField<Boolean> TEMP_FIELD = BsonField.create("temp");
+    private static final BooleanField CAPPED_FIELD = new BooleanField("capped");
+    private static final LongField CAPPED_SIZE_FIELD = new LongField("size");
+    private static final LongField CAPPED_MAX_DOCS_FIELD = new LongField("max");
+    private static final ArrayField INITIAL_EXTENT_SIZES_FIELD = new ArrayField("$nExtents");
+    private static final LongField INITIAL_NUM_EXTENDS_FIELD = new LongField("$nExtents");
+    private static final BooleanField AUTO_INDEX_MODE_FIELD = new BooleanField("autoIndexId");
+    private static final IntField FLAGS_FIELD = new IntField("flags");
+    private static final DocField STORAGE_ENGINE_FIELD = new DocField("storageEngine");
+    private static final BooleanField TEMP_FIELD = new BooleanField("temp");
 
     public abstract boolean isCapped();
 
@@ -42,7 +48,7 @@ public abstract class CollectionOptions {
 
     public abstract AutoIndexMode getAutoIndexMode();
 
-    public abstract EnumSet<Flag> getFlags();
+    public abstract Set<Flag> getFlags();
 
     public abstract BsonDocument getStorageEngine();
 
@@ -73,11 +79,11 @@ public abstract class CollectionOptions {
         }
         List<Long> initialExtentSizes = getInitialExtentSizes();
         if (initialExtentSizes != null && !initialExtentSizes.isEmpty()) {
-            BsonArray array = new BsonArray();
+            BsonArrayBuilder arrBuilder = new BsonArrayBuilder(initialExtentSizes.size());
             for (Long initialExtentSize : initialExtentSizes) {
-                array.add(new BsonInt64(initialExtentSize));
+                arrBuilder.add(initialExtentSize);
             }
-            builder.append(INITIAL_EXTENT_SIZES_FIELD, array);
+            builder.append(INITIAL_EXTENT_SIZES_FIELD, arrBuilder.build());
         }
 
         AutoIndexMode autoIndexMode = getAutoIndexMode();
@@ -86,7 +92,7 @@ public abstract class CollectionOptions {
             builder.append(AUTO_INDEX_MODE_FIELD, value);
         }
 
-        EnumSet<Flag> flags = getFlags();
+        Set<Flag> flags = getFlags();
         if (!flags.isEmpty()) {
             int value = 0;
             for (Flag flag : flags) {
@@ -158,9 +164,7 @@ public abstract class CollectionOptions {
         } catch (TypesMismatchException ex) {
             try {
                 initialNumExtends = BsonReaderTool.getLong(doc, INITIAL_NUM_EXTENDS_FIELD);
-            } catch (NoSuchKeyException ex1) {
-                initialNumExtends = null;
-            } catch (TypesMismatchException ex1) {
+            } catch (NoSuchKeyException | TypesMismatchException ex1) {
                 initialNumExtends = null;
             }
         }
@@ -173,9 +177,7 @@ public abstract class CollectionOptions {
             else {
                 autoIndexMode = AutoIndexMode.NO;
             }
-        } catch (NoSuchKeyException ex) {
-            autoIndexMode = AutoIndexMode.DEFAULT;
-        } catch (TypesMismatchException ex) {
+        } catch (NoSuchKeyException | TypesMismatchException ex) {
             autoIndexMode = AutoIndexMode.DEFAULT;
         }
 
@@ -203,7 +205,7 @@ public abstract class CollectionOptions {
                         "Empty 'storageEngine' options are invalid. "
                         + "Please remove, or include valid options");
             }
-            for (Entry<String, BsonValue> entry : storageEngine.entrySet()) {
+            for (Entry<?> entry : storageEngine) {
                 if (!entry.getValue().isDocument()) {
                     throw new BadValueException("'storageEngie'.'"
                             + entry.getKey() + "' has to be an embedded document");
@@ -334,7 +336,7 @@ public abstract class CollectionOptions {
                     initialNumExtents,
                     ImmutableList.copyOf(initialExtentSizes),
                     autoIndexMode,
-                    flags,
+                    Sets.immutableEnumSet(flags),
                     storageEngine,
                     temp
             );
@@ -350,7 +352,7 @@ public abstract class CollectionOptions {
         private final Long initialNumExtents;
         private final ImmutableList<Long> initialExtentSizes;
         private final AutoIndexMode autoIndexMode;
-        private final EnumSet<Flag> flags;
+        private final ImmutableSet<Flag> flags;
         private final BsonDocument storageEngine;
         private final boolean temp;
 
@@ -359,9 +361,9 @@ public abstract class CollectionOptions {
                 long cappedSize,
                 long cappedMaxDocs,
                 Long initialNumExtents,
-                ImmutableList<Long> initialExtentSizes,
+                List<Long> initialExtentSizes,
                 AutoIndexMode autoIndexMode,
-                EnumSet<Flag> flags,
+                Set<Flag> flags,
                 BsonDocument storageEngine,
                 boolean temp) {
             assert capped || cappedSize == 0 && cappedMaxDocs == 0;
@@ -371,9 +373,9 @@ public abstract class CollectionOptions {
             this.cappedSize = cappedSize;
             this.cappedMaxDocs = cappedMaxDocs;
             this.initialNumExtents = initialNumExtents;
-            this.initialExtentSizes = initialExtentSizes;
+            this.initialExtentSizes = initialExtentSizes != null ? ImmutableList.copyOf(initialExtentSizes) : null;
             this.autoIndexMode = autoIndexMode;
-            this.flags = flags;
+            this.flags = ImmutableSet.copyOf(flags);
             this.storageEngine = storageEngine;
             this.temp = temp;
         }
@@ -409,7 +411,7 @@ public abstract class CollectionOptions {
         }
 
         @Override
-        public EnumSet<Flag> getFlags() {
+        public Set<Flag> getFlags() {
             return flags;
         }
 

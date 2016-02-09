@@ -1,27 +1,31 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.DocField;
+import com.eightkdata.mongowp.fields.LongField;
+import com.eightkdata.mongowp.fields.NumberField;
+import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation.CountCommand.CountArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.bson.BsonDocument;
-import org.bson.BsonType;
-import org.bson.BsonValue;
 
 /**
  *
  */
 public class CountCommand extends AbstractCommand<CountArgument, Long>{
 
-    private static final BsonField<Number> N_FIELD = BsonField.create("n");
+    private static final NumberField N_FIELD = new NumberField("n");
 
     public static final CountCommand INSTANCE = new CountCommand();
 
@@ -117,10 +121,10 @@ public class CountCommand extends AbstractCommand<CountArgument, Long>{
             return collection;
         }
 
-        private static final BsonField<String> COUNT_FIELD = BsonField.create("count");
-        private static final BsonField<Long> SKIP_FIELD = BsonField.create("skip");
-        private static final BsonField<Long> LIMIT_FIELD = BsonField.create("limit");
-        private static final BsonField<BsonDocument> QUERY_FIELD = BsonField.create("query");
+        private static final StringField COUNT_FIELD = new StringField("count");
+        private static final LongField SKIP_FIELD = new LongField("skip");
+        private static final LongField LIMIT_FIELD = new LongField("limit");
+        private static final DocField QUERY_FIELD = new DocField("query");
         private static final String HINT_FIELD_NAME = "hint";
 
         public static CountArgument unmarshall(BsonDocument doc) throws TypesMismatchException, BadValueException, NoSuchKeyException {
@@ -140,24 +144,24 @@ public class CountCommand extends AbstractCommand<CountArgument, Long>{
                 query = BsonReaderTool.getDocument(doc, QUERY_FIELD);
             }
             catch (NoSuchKeyException ex) {
-                query = new BsonDocument();
+                query = DefaultBsonValues.EMPTY_DOC;
             }
             catch (TypesMismatchException ex) {
                 //Some drivers send non object values on query field when no query is specified
                 //see mongo SERVER-15456
-                query = new BsonDocument();
+                query = DefaultBsonValues.EMPTY_DOC;
             }
 
             String hint = null;
             if (doc.containsKey(HINT_FIELD_NAME)) {
                 BsonValue uncastedHint = doc.get(HINT_FIELD_NAME);
-                if (uncastedHint.getBsonType().equals(BsonType.STRING)) {
+                if (uncastedHint.getType().equals(BsonType.STRING)) {
                     hint = uncastedHint.asString().getValue();
                 }
-                else if (uncastedHint.getBsonType().equals(BsonType.DOCUMENT)) {
+                else if (uncastedHint.getType().equals(BsonType.DOCUMENT)) {
                     BsonDocument docHint = uncastedHint.asDocument();
                     if (!docHint.isEmpty()) {
-                        hint = docHint.entrySet().iterator().next().getKey();
+                        hint = docHint.getFirstEntry().getKey();
                     }
                 }
             }

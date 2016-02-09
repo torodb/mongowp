@@ -1,24 +1,26 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonDocument.Entry;
+import com.eightkdata.mongowp.bson.BsonInt32;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.bson.BsonDocument;
-import org.bson.BsonInt32;
-import org.bson.BsonValue;
 
 /**
  *
@@ -88,7 +90,7 @@ public class IndexOptions {
      * @return
      */
     public Map<List<String>, Boolean> getKeys() {
-        return keys;
+        return Collections.unmodifiableMap(keys);
     }
 
     public boolean isBackground() {
@@ -111,25 +113,25 @@ public class IndexOptions {
         return storageEngine;
     }
 
-    private static final BsonField<Integer> VERSION_FIELD = BsonField.create("v");
-    private static final BsonField<String> NAME_FIELD = BsonField.create("name");
-    private static final BsonField<String> NAMESPACE_FIELD = BsonField.create("ns");
-    private static final BsonField<Boolean> BACKGROUND_FIELD = BsonField.create("blackground");
-    private static final BsonField<Boolean> UNIQUE_FIELD = BsonField.create("unique");
-    private static final BsonField<Boolean> SPARSE_FIELD = BsonField.create("sparse");
-    private static final BsonField<Integer> EXPIRE_AFTER_SECONDS_FIELD = BsonField.create("expireAfterSeconds");
-    private static final BsonField<BsonDocument> KEYS_FIELD = BsonField.create("key");
-    private static final BsonField<BsonDocument> STORAGE_ENGINE_FIELD = BsonField.create("storageEngine");
+    private static final IntField VERSION_FIELD = new IntField("v");
+    private static final StringField NAME_FIELD = new StringField("name");
+    private static final StringField NAMESPACE_FIELD = new StringField("ns");
+    private static final BooleanField BACKGROUND_FIELD = new BooleanField("blackground");
+    private static final BooleanField UNIQUE_FIELD = new BooleanField("unique");
+    private static final BooleanField SPARSE_FIELD = new BooleanField("sparse");
+    private static final IntField EXPIRE_AFTER_SECONDS_FIELD = new IntField("expireAfterSeconds");
+    private static final DocField KEYS_FIELD = new DocField("key");
+    private static final DocField STORAGE_ENGINE_FIELD = new DocField("storageEngine");
     private static final Joiner PATH_JOINER = Joiner.on('.');
     private static final Splitter PATH_SPLITER = Splitter.on('.');
 
     public BsonDocument marshall() {
 
-        BsonDocument keysDoc = new BsonDocument();
-        for (Entry<List<String>, Boolean> entry : keys.entrySet()) {
+        BsonDocumentBuilder keysDoc = new BsonDocumentBuilder();
+        for (java.util.Map.Entry<List<String>, Boolean> entry : keys.entrySet()) {
             String path = PATH_JOINER.join(entry.getKey());
-            BsonInt32 value = new BsonInt32(entry.getValue() ? 1 : -1);
-            keysDoc.append(path, value);
+            BsonInt32 value = DefaultBsonValues.newInt(entry.getValue() ? 1 : -1);
+            keysDoc.appendUnsafe(path, value);
         }
 
         BsonDocumentBuilder builder = new BsonDocumentBuilder()
@@ -167,7 +169,7 @@ public class IndexOptions {
 
             BsonDocument keyDoc = BsonReaderTool.getDocument(requestDoc, KEYS_FIELD);
             Map<List<String>, Boolean> keys = Maps.newHashMapWithExpectedSize(keyDoc.size());
-            for (Entry<String, BsonValue> entry : keyDoc.entrySet()) {
+            for (Entry<?> entry : keyDoc) {
                 List<String> key = PATH_SPLITER.splitToList(entry.getKey());
                 BsonValue keyValue = entry.getValue();
                 if (!keyValue.isInt32()) {
@@ -239,7 +241,7 @@ public class IndexOptions {
             try {
                 if (!input.isDocument()) {
                     throw new IllegalArgumentException("Expected a document, "
-                            + "but a " + input.getBsonType() + " was found");
+                            + "but a " + input.getType() + " was found");
                 }
                 return IndexOptions.unmarshall(input.asDocument());
             } catch (BadValueException ex) {

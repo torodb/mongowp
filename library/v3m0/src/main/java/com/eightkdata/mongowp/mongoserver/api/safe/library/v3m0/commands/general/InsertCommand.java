@@ -1,33 +1,33 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.WriteConcern;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteConcernError;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteError;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConcernMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.FailedToParseException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mongodb.WriteConcern;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
 
 /**
  *
@@ -78,11 +78,11 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
     }
 
     public static class InsertArgument {
-        private static final BsonField<String> COLL_NAME_FIELD = BsonField.create("insert");
-        private static final BsonField<BsonArray> DOCUMENTS_FIELD = BsonField.create("documents");
-        private static final BsonField<BsonDocument> WRITE_CONCERN_FIELD = BsonField.create("writeConcern");
-        private static final BsonField<Boolean> ORDERED_FIELD = BsonField.create("ordered");
-        private static final BsonField<BsonDocument> METADATA_FIELD = BsonField.create("metadata");
+        private static final StringField COLL_NAME_FIELD = new StringField("insert");
+        private static final ArrayField DOCUMENTS_FIELD = new ArrayField("documents");
+        private static final DocField WRITE_CONCERN_FIELD = new DocField("writeConcern");
+        private static final BooleanField ORDERED_FIELD = new BooleanField("ordered");
+        private static final DocField METADATA_FIELD = new DocField("metadata");
 
         private final @Nonnull String collection;
         private final @Nonnull FluentIterable<BsonDocument> documents;
@@ -137,20 +137,16 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
                 if (!docToInsert.isDocument()) {
                     throw new FailedToParseException("An element of the array "
                             + "of documents to insert is not a document but a "
-                            + docToInsert.getBsonType()
+                            + docToInsert.getType()
                     );
                 }
                 documentsBuilder.add(docToInsert.asDocument());
             }
             ImmutableList<BsonDocument> documents = documentsBuilder.build();
 
-            WriteConcern writeConcern = WriteConcernMarshaller.unmarshall(
-                    BsonReaderTool.getDocument(
-                            doc,
-                            WRITE_CONCERN_FIELD,
-                            null
-                    ),
-                    WriteConcern.ACKNOWLEDGED
+            WriteConcern writeConcern = WriteConcern.fromDocument(
+                    BsonReaderTool.getDocument(doc, WRITE_CONCERN_FIELD, null),
+                    WriteConcern.acknowledged()
             );
 
             boolean orderend = BsonReaderTool.getBoolean(doc, ORDERED_FIELD);
@@ -169,7 +165,7 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
 
             public Builder(@Nonnull String collection) {
                 this.collection = collection;
-                writeConcern = WriteConcern.FSYNCED;
+                writeConcern = WriteConcern.fsync();
             }
 
             public Builder addDocument(BsonDocument document) {
@@ -214,11 +210,11 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
     @Immutable
     public static class InsertResult {
 
-        private static final BsonField<Integer> N_FIELD = BsonField.create("n");
-        private static final BsonField<BsonArray> WRITE_ERRORS_FIELD = BsonField.create("writeErrors");
-        private static final BsonField<BsonArray> WRITE_CONCERN_ERRORS_FIELD = BsonField.create("writeConcernError");
-        private static final BsonField<String> ERR_MSG_FIELD = BsonField.create("errmsg");
-        private static final BsonField<Double> OK_FIELD = BsonField.create("ok");
+        private static final IntField N_FIELD = new IntField("n");
+        private static final ArrayField WRITE_ERRORS_FIELD = new ArrayField("writeErrors");
+        private static final ArrayField WRITE_CONCERN_ERRORS_FIELD = new ArrayField("writeConcernError");
+        private static final StringField ERR_MSG_FIELD = new StringField("errmsg");
+        private static final DoubleField OK_FIELD = new DoubleField("ok");
 
         private final int n;
         private final @Nullable String errorMessage;
@@ -267,28 +263,28 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
             String finalErrorMessage = errorMessage;
             if (finalErrorMessage != null) {
                 builder.append(ERR_MSG_FIELD, finalErrorMessage);
-                builder.append(OK_FIELD, MongoWP.KO);
+                builder.append(OK_FIELD, MongoConstants.KO);
             }
             else {
-                builder.append(OK_FIELD, MongoWP.OK);
+                builder.append(OK_FIELD, MongoConstants.OK);
             }
 
             builder.append(N_FIELD, getN());
 
             if (!getWriteErrors().isEmpty()) {
-                BsonArray bsonWriteErrors = new BsonArray();
+                BsonArrayBuilder bsonWriteErrors = new BsonArrayBuilder();
                 for (WriteError writeError : getWriteErrors()) {
                     bsonWriteErrors.add(writeError.marshall());
                 }
-                builder.append(WRITE_ERRORS_FIELD, bsonWriteErrors);
+                builder.append(WRITE_ERRORS_FIELD, bsonWriteErrors.build());
             }
 
             if (!getWriteConcernErrors().isEmpty()) {
-                BsonArray bsonWriteConcernErrors = new BsonArray();
+                BsonArrayBuilder bsonWriteConcernErrors = new BsonArrayBuilder();
                 for (WriteConcernError writeConcernError : getWriteConcernErrors()) {
                     bsonWriteConcernErrors.add(writeConcernError.marshall());
                 }
-                builder.append(WRITE_CONCERN_ERRORS_FIELD, bsonWriteConcernErrors);
+                builder.append(WRITE_CONCERN_ERRORS_FIELD, bsonWriteConcernErrors.build());
             }
 
             return builder.build();

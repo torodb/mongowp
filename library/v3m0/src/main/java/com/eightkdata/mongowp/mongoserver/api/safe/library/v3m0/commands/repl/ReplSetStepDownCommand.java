@@ -1,20 +1,21 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonInt32;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetStepDownCommand.ReplSetStepDownArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.tools.Empty;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.concurrent.Immutable;
-import org.bson.BsonDocument;
-import org.bson.BsonInt32;
 
 /**
  *
  */
 public class ReplSetStepDownCommand extends AbstractCommand<ReplSetStepDownArgument, Empty> {
 
-    private static final BsonInt32 DEFAULT_STEP_DOWN_SECS = new BsonInt32(60);
+    private static final BsonInt32 DEFAULT_STEP_DOWN_SECS = DefaultBsonValues.newInt(60);
     public static final ReplSetStepDownCommand INSTANCE = new ReplSetStepDownCommand();
 
     private ReplSetStepDownCommand() {

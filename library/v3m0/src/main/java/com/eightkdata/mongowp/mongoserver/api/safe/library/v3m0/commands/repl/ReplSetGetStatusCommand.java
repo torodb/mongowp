@@ -1,31 +1,31 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.OpTime;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetGetStatusCommand.ReplSetGetStatusReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberHeartbeatData;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.BsonValueComparator;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
+import com.eightkdata.mongowp.server.api.tools.Empty;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.google.common.primitives.UnsignedInteger;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.bson.*;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
@@ -98,13 +98,13 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             this.heartbeatMessage = heartbeatMessage;
         }
 
-        private static final BsonField<Integer> STATE_FIELD = BsonField.create("state");
-        private static final BsonField<String> STATE_STR_FIELD = BsonField.create("stateStr");
-        private static final BsonField<Integer> UPTIME_FIELD = BsonField.create("uptime");
-        private static final BsonField<OpTime> OPTIME_FIELD = BsonField.create("optime");
-        private static final BsonField<Instant> OPTIME_DATE_FIELD = BsonField.create("optimeDate");
-        private static final BsonField<Integer> MAINTENANCE_MODE_FIELD = BsonField.create("maintenanceMode");
-        private static final BsonField<String> INFO_MESSAGE_FIELD = BsonField.create("infoMessage");
+        private static final IntField STATE_FIELD = new IntField("state");
+        private static final StringField STATE_STR_FIELD = new StringField("stateStr");
+        private static final IntField UPTIME_FIELD = new IntField("uptime");
+        private static final TimestampField OPTIME_FIELD = new TimestampField("optime");
+        private static final DateTimeField OPTIME_DATE_FIELD = new DateTimeField("optimeDate");
+        private static final IntField MAINTENANCE_MODE_FIELD = new IntField("maintenanceMode");
+        private static final StringField INFO_MESSAGE_FIELD = new StringField("infoMessage");
 
         @Override
         protected BsonDocument marshall() {
@@ -127,32 +127,32 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
 
     @Immutable
     public static class CorrectReplSetGetStatusReply extends ReplSetGetStatusReply {
-        private static final BsonField<String> SET_NAME_FIELD = BsonField.create("set");
-        private static final BsonField<Instant> DATE_FIELD = BsonField.create("date");
-        private static final BsonField<Integer> MY_STATE_FIELD = BsonField.create("myState");
-        private static final BsonField<HostAndPort> SYNCING_TO_FIELD = BsonField.create("syncingTo");
-        private static final BsonField<BsonArray> MEMBERS_FIELD = BsonField.create("members");
+        private static final StringField SET_NAME_FIELD = new StringField("set");
+        private static final DateTimeField DATE_FIELD = new DateTimeField("date");
+        private static final IntField MY_STATE_FIELD = new IntField("myState");
+        private static final HostAndPortField SYNCING_TO_FIELD = new HostAndPortField("syncingTo");
+        private static final ArrayField MEMBERS_FIELD = new ArrayField("members");
 
-        private static final BsonField<Integer> MEMBER_ID_FIELD = BsonField.create("id");
-        private static final BsonField<HostAndPort> MEMBER_NAME_FIELD = BsonField.create("name");
-        private static final BsonField<Double> MEMBER_HEALTH_FIELD = BsonField.create("health");
-        private static final BsonField<Integer> MEMBER_STATE_FIELD = BsonField.create("state");
-        private static final BsonField<String> MEMBER_STATE_STR_FIELD = BsonField.create("stateStr");
-        private static final BsonField<Integer> MEMBER_UPTIME_FIELD = BsonField.create("uptime");
-        private static final BsonField<OpTime> MEMBER_OPTIME_FIELD = BsonField.create("optime");
-        private static final BsonField<Instant> MEMBER_OPTIME_DATE_FIELD = BsonField.create("optimeDate");
-        private static final BsonField<HostAndPort> MEMBER_SYNCING_TO_FIELD = BsonField.create("syncingTo");
-        private static final BsonField<Integer> MEMBER_MAINTENANCE_MODE_FIELD = BsonField.create("maintenanceMode");
-        private static final BsonField<String> MEMBER_INFO_MESSAGE_FIELD = BsonField.create("infoMessage");
-        private static final BsonField<OpTime> MEMBER_ELECTION_TIME_FIELD = BsonField.create("electionTime");
-        private static final BsonField<Instant> MEMBER_ELECTION_DATE_FIELD = BsonField.create("electionDate");
-        private static final BsonField<Number> MEMBER_CONFIG_VERSION_FIELD = BsonField.create("configVersion");
-        private static final BsonField<Boolean> MEMBER_SELF_FIELD = BsonField.create("self");
-        private static final BsonField<Instant> MEMBER_LAST_HEARTBEAT = BsonField.create("lastHeartbeat");
-        private static final BsonField<Instant> MEMBER_LAST_HEARTBEAT_RECIVED = BsonField.create("lastHeartbeatRecv");
-        private static final BsonField<Integer> MEMBER_PING_MS = BsonField.create("pingMs");
-        private static final BsonField<String> MEMBER_LAST_HEARTBEAT_MESSAGE = BsonField.create("lastHeartbeatMessage");
-        private static final BsonField<Boolean> MEMBER_AUTHENTICATED = BsonField.create("authenticated");
+        private static final IntField MEMBER_ID_FIELD = new IntField("id");
+        private static final HostAndPortField MEMBER_NAME_FIELD = new HostAndPortField("name");
+        private static final DoubleField MEMBER_HEALTH_FIELD = new DoubleField("health");
+        private static final IntField MEMBER_STATE_FIELD = new IntField("state");
+        private static final StringField MEMBER_STATE_STR_FIELD = new StringField("stateStr");
+        private static final IntField MEMBER_UPTIME_FIELD = new IntField("uptime");
+        private static final TimestampField MEMBER_OPTIME_FIELD = new TimestampField("optime");
+        private static final DateTimeField MEMBER_OPTIME_DATE_FIELD = new DateTimeField("optimeDate");
+        private static final HostAndPortField MEMBER_SYNCING_TO_FIELD = new HostAndPortField("syncingTo");
+        private static final IntField MEMBER_MAINTENANCE_MODE_FIELD = new IntField("maintenanceMode");
+        private static final StringField MEMBER_INFO_MESSAGE_FIELD = new StringField("infoMessage");
+        private static final TimestampField MEMBER_ELECTION_TIME_FIELD = new TimestampField("electionTime");
+        private static final DateTimeField MEMBER_ELECTION_DATE_FIELD = new DateTimeField("electionDate");
+        private static final NumberField MEMBER_CONFIG_VERSION_FIELD = new DoubleField("configVersion");
+        private static final BooleanField MEMBER_SELF_FIELD = new BooleanField("self");
+        private static final DateTimeField MEMBER_LAST_HEARTBEAT = new DateTimeField("lastHeartbeat");
+        private static final DateTimeField MEMBER_LAST_HEARTBEAT_RECIVED = new DateTimeField("lastHeartbeatRecv");
+        private static final IntField MEMBER_PING_MS = new IntField("pingMs");
+        private static final StringField MEMBER_LAST_HEARTBEAT_MESSAGE = new StringField("lastHeartbeatMessage");
+        private static final BooleanField MEMBER_AUTHENTICATED = new BooleanField("authenticated");
 
         private final SelfData selfData;
         private final String setName;
@@ -195,7 +195,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                 builder.append(SYNCING_TO_FIELD, syncTo);
             }
 
-            List<BsonDocument> membersList = Lists.newArrayListWithCapacity(membersInfo.size());
+            List<BsonValue<?>> membersList = Lists.newArrayListWithCapacity(membersInfo.size());
             for (Entry<MemberConfig, MemberHeartbeatData> entrySet : membersInfo.entrySet()) {
                 MemberConfig memberConfig = entrySet.getKey();
                 MemberHeartbeatData memberData = entrySet.getValue();
@@ -206,9 +206,10 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                     membersList.add(marshallOtherMember(memberConfig, memberData));
                 }
             }
-            Collections.sort(membersList, new BsonValueComparator(true));
+            //TODO: Older versions of this command sorted the members list. Check if that is necessary
+//            Collections.sort(membersList, new BsonValueComparator(true));
 
-            builder.append(MEMBERS_FIELD, new BsonArray(membersList));
+            builder.append(MEMBERS_FIELD, DefaultBsonValues.newArray(membersList));
 
             return builder.build();
         }

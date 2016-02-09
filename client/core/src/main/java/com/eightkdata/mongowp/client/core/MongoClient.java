@@ -1,7 +1,7 @@
 
 package com.eightkdata.mongowp.client.core;
 
-import com.eightkdata.mongowp.mongoserver.MongoVersion;
+import com.eightkdata.mongowp.MongoVersion;
 import com.google.common.net.HostAndPort;
 import java.io.Closeable;
 import javax.annotation.Nullable;

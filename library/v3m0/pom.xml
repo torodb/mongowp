@@ -9,31 +9,21 @@
     <parent>
         <groupId>com.8kdata.mongowp.api.safe.library</groupId>
         <artifactId>library</artifactId>
-        <version>0.41-SNAPSHOT</version>
+        <version>0.42-alpha1-SNAPSHOT</version>
     </parent>
 
     <artifactId>v3m0</artifactId>
     <packaging>jar</packaging>
     
-    <name>Mongo Server: Command Library 3.0</name>
+    <name>MongoWP: v3.0 Library</name>
     <description>
         Mongo library that emulates MongoDB 3.0 commands
     </description>
     
     <dependencies>
         <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongo-server-api-safe</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongowp-protocol</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.8kdata.mongowp</groupId>
-            <artifactId>mongo-server</artifactId>
+            <groupId>com.8kdata.mongowp.server</groupId>
+            <artifactId>mongo-server-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -52,14 +42,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>bson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-core</artifactId>
         </dependency>
     </dependencies>
 

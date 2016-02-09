@@ -1,32 +1,32 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.OpTime;
+import com.eightkdata.mongowp.WriteConcern;
+import com.eightkdata.mongowp.WriteConcern.SyncMode;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonDocument.Entry;
+import com.eightkdata.mongowp.bson.BsonObjectId;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConcernMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.callback.WriteOpResult;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
-import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.server.callback.WriteOpResult;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
-import com.mongodb.WriteConcern;
-import java.util.Map.Entry;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
-import org.bson.BsonValue;
-import org.bson.types.ObjectId;
 
 /**
  *
@@ -77,13 +77,13 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
 
     public static class GetLastErrorArgument {
 
-        private static final BsonField<OpTime> W_OP_TIME_FIELD = BsonField.create("wOpTime");
-        private static final BsonField<ObjectId> W_ELECTION_ID_FIELD = BsonField.create("wElectionId");
+        private static final TimestampField W_OP_TIME_FIELD = new TimestampField("wOpTime");
+        private static final ObjectIdField W_ELECTION_ID_FIELD = new ObjectIdField("wElectionId");
 
         private final @Nullable WriteConcern writeConcern;
         private final @Nullable BsonDocument badGLE;
         private final @Nullable OpTime wOpTime;
-        private final @Nullable ObjectId wElectionId;
+        private final @Nullable BsonObjectId wElectionId;
         private final @Nullable String badGLEMessage;
         private final ErrorCode badGLEErrorCode;
 
@@ -93,7 +93,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
                 String badGLEMessage,
                 @Nonnull ErrorCode badGLEErrorCode,
                 OpTime wOpTime,
-                ObjectId wElectionId) {
+                BsonObjectId wElectionId) {
             this.writeConcern = writeConcern;
             this.badGLE = badGLE;
             this.badGLEMessage = badGLEMessage;
@@ -131,7 +131,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
         }
 
         @Nullable
-        public ObjectId getWElectionId() {
+        public BsonObjectId getWElectionId() {
             return wElectionId;
         }
 
@@ -150,7 +150,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
                         null
                 );
             }
-            ObjectId electionId;
+            BsonObjectId electionId;
             try {
                 electionId = BsonReaderTool.getObjectId(requestDoc, W_ELECTION_ID_FIELD, null);
             } catch (TypesMismatchException ex) {
@@ -165,17 +165,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
             }
             WriteConcern wc;
             try {
-                wc = WriteConcernMarshaller.unmarshall(requestDoc);
-            }
-            catch (TypesMismatchException ex) {
-                return new GetLastErrorArgument(
-                        null,
-                        requestDoc,
-                        ex.getLocalizedMessage(),
-                        ex.getErrorCode(),
-                        opTime,
-                        electionId
-                );
+                wc = WriteConcern.fromDocument(requestDoc);
             }
             catch (FailedToParseException ex) {
                 return new GetLastErrorArgument(
@@ -200,12 +190,12 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
     }
 
     public static class GetLastErrorReply {
-        private static final BsonField<Double> OK_FIELD = BsonField.create("ok");
-        private static final BsonField<Double> CONNECTION_ID_FIELD = BsonField.create("connectionId");
-        private static final BsonField<BsonDocument> BAD_GLE_FIELD = BsonField.create("badGLE");
-        private static final BsonField<String> ERR_MSG_FIELD = BsonField.create("errmsg");
-        private static final BsonField<String> ERR_FIELD = BsonField.create("err");
-        private static final BsonField<Integer> CODE_FIELD = BsonField.create("code");
+        private static final DoubleField OK_FIELD = new DoubleField("ok");
+        private static final DoubleField CONNECTION_ID_FIELD = new DoubleField("connectionId");
+        private static final DocField BAD_GLE_FIELD = new DocField("badGLE");
+        private static final StringField ERR_MSG_FIELD = new StringField("errmsg");
+        private static final StringField ERR_FIELD = new StringField("err");
+        private static final IntField CODE_FIELD = new IntField("code");
 
         private final @Nonnull ErrorCode thisError;
         private final @Nullable String thisErrorMessage;
@@ -240,7 +230,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
             }
 
             if (writeOpResult != null) {
-                for (Entry<String, BsonValue> entry : writeOpResult.marshall().entrySet()) {
+                for (Entry<?> entry : writeOpResult.marshall()) {
                     builder.appendUnsafe(entry.getKey(), entry.getValue());
                 }
 
@@ -261,7 +251,7 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
             }
 
             boolean ok = thisError.equals(ErrorCode.OK);
-            builder.append(OK_FIELD, ok ? MongoWP.OK : MongoWP.KO);
+            builder.append(OK_FIELD, ok ? MongoConstants.OK : MongoConstants.KO);
 
             return builder.build();
         }
@@ -269,13 +259,13 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
 
     @Immutable
     public static class WriteConcernEnforcementResult {
-        private static final BsonField<Integer> SYNC_MILLIS_FIELD = BsonField.create("syncMillis");
-        private static final BsonField<Integer> FSYNC_FILES_FIELD = BsonField.create("fsyncFiles");
-        private static final BsonField<String> ERR_FIELD = BsonField.create("err");
-        private static final BsonField<Integer> W_TIMED_FIELD = BsonField.create("wtimeout");
-        private static final BsonField<Integer> WAITED_FIELD = BsonField.create("waited");
-        private static final BsonField<Boolean> W_TIMEDOUT_FIELD = BsonField.create("wtimeout");
-        private static final BsonField<BsonArray> WRITTEN_TO_FIELD = BsonField.create("writtenTo");
+        private static final IntField SYNC_MILLIS_FIELD = new IntField("syncMillis");
+        private static final IntField FSYNC_FILES_FIELD = new IntField("fsyncFiles");
+        private static final StringField ERR_FIELD = new StringField("err");
+        private static final IntField W_TIMED_FIELD = new IntField("wtimeout");
+        private static final IntField WAITED_FIELD = new IntField("waited");
+        private static final BooleanField W_TIMEDOUT_FIELD = new BooleanField("wtimeout");
+        private static final ArrayField WRITTEN_TO_FIELD = new ArrayField("writtenTo");
 
         private final @Nonnull WriteConcern writeConcern;
         private final @Nullable String err;
@@ -322,7 +312,9 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
             // 2.4 expects either fsync'd files, or a "waited" field exist after running an fsync : true
             // GLE, but with journaling we don't actually need to run the fsync (fsync command is
             // preferred in 2.6).  So we add a "waited" field if one doesn't exist.
-            if (writeConcern.fsync() && !builder.containsField(WAITED_FIELD) && !builder.containsField(FSYNC_FILES_FIELD)) {
+            if (writeConcern.getSyncMode() == SyncMode.FSYNC 
+                    && !builder.containsField(WAITED_FIELD)
+                    && !builder.containsField(FSYNC_FILES_FIELD)) {
                 if (wTime != null) {
                     builder.append(WAITED_FIELD, wTime);
                 }
@@ -337,11 +329,11 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
             }
 
             if (writtenTo != null && !writtenTo.isEmpty()) {
-                BsonArray array = new BsonArray();
+                BsonArrayBuilder array = new BsonArrayBuilder();
                 for (HostAndPort w : writtenTo) {
-                    array.add(new BsonString(w.toString()));
+                    array.add(w.toString());
                 }
-                builder.append(WRITTEN_TO_FIELD, array);
+                builder.append(WRITTEN_TO_FIELD, array.build());
             }
             else {
                 builder.appendNull(WRITTEN_TO_FIELD);

@@ -1,16 +1,20 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.BooleanField;
+import com.eightkdata.mongowp.fields.DateTimeField;
+import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetFreshCommand.ReplSetFreshArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetFreshCommand.ReplSetFreshReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.net.HostAndPort;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.bson.*;
 import org.threeten.bp.Instant;
 
 /**
@@ -45,19 +49,25 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
         return ReplSetFreshReply.class;
     }
 
+    private static final BooleanField FRESHER_FIELD = new BooleanField("fresher");
+    private static final StringField INFO_FIELD = new StringField("fresher");
+    //TODO: CHECK IF THIS FIELD SHOULD BE A TIMESTAMP
+    private static final DateTimeField OPTIME_FIELD = new DateTimeField("optime");
+    private static final BooleanField VETO_FIELD = new BooleanField("veto");
+
     @Override
     public BsonDocument marshallResult(ReplSetFreshReply reply) {
 
-        BsonDocument result = new BsonDocument();
+        BsonDocumentBuilder result = new BsonDocumentBuilder();
 
-        result.put("fresher", BsonBoolean.valueOf(reply.isWeAreFresher()));
+        result.append(FRESHER_FIELD, reply.isWeAreFresher());
         if (reply.getInfo() != null) {
-            result.put("info", new BsonString(reply.getInfo()));
+            result.append(INFO_FIELD, reply.getInfo());
         }
-        result.put("optime", new BsonDateTime(reply.getOpTime().toEpochMilli()));
-        result.put("veto", BsonBoolean.valueOf(reply.isDoVeto()));
+        result.append(OPTIME_FIELD, reply.getOpTime());
+        result.append(VETO_FIELD, reply.isDoVeto());
 
-        return result;
+        return result.build();
     }
 
     @Override

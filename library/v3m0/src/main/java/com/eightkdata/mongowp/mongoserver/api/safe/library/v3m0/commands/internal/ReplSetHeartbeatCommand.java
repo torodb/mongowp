@@ -1,25 +1,25 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.OpTime;
+import com.eightkdata.mongowp.bson.*;
+import com.eightkdata.mongowp.exceptions.*;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplSetProtocolVersion;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
-import com.eightkdata.mongowp.mongoserver.protocol.ErrorCode;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.Sets;
 import com.google.common.net.HostAndPort;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.bson.*;
 
 /**
  *
@@ -70,20 +70,20 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
 
     public static class ReplSetHeartbeatArgument {
 
-        private static final String CHECK_EMPTY_FIELD_NAME = "checkEmpty";
-        private static final String PROTOCOL_VERSION_FIELD_NAME = "pv";
-        private static final String CONFIG_VERSION_FIELD_NAME = "v";
-        private static final String SENDER_ID_FIELD_NAME = "fromId";
-        private static final String SET_NAME_FIELD_NAME = "replSetHeartbeat";
-        private static final String SENDER_HOST_FIELD_NAME = "from";
+        private static final BooleanField CHECK_EMPTY_FIELD_NAME = new BooleanField("checkEmpty");
+        private static final LongField PROTOCOL_VERSION_FIELD = new LongField("pv");
+        private static final LongField CONFIG_VERSION_FIELD = new LongField("v");
+        private static final LongField SENDER_ID_FIELD = new LongField("fromId");
+        private static final StringField SET_NAME_FIELD = new StringField("replSetHeartbeat");
+        private static final HostAndPortField SENDER_HOST_FIELD = new HostAndPortField("from");
 
         private static final Set<String> VALID_FIELD_NAMES = Sets.newHashSet(
-                CHECK_EMPTY_FIELD_NAME,
-                PROTOCOL_VERSION_FIELD_NAME,
-                CONFIG_VERSION_FIELD_NAME,
-                SENDER_ID_FIELD_NAME,
-                SET_NAME_FIELD_NAME,
-                SENDER_HOST_FIELD_NAME
+                CHECK_EMPTY_FIELD_NAME.getFieldName(),
+                PROTOCOL_VERSION_FIELD.getFieldName(),
+                CONFIG_VERSION_FIELD.getFieldName(),
+                SENDER_ID_FIELD.getFieldName(),
+                SET_NAME_FIELD.getFieldName(),
+                SENDER_HOST_FIELD.getFieldName()
         );
 
         private final @Nonnull ReplSetProtocolVersion protocolVersion;
@@ -151,20 +151,25 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
         }
 
         public BsonDocument toBSON() {
-            BsonDocument result = new BsonDocument();
+            BsonDocumentBuilder result = new BsonDocumentBuilder();
 
-            result.append(SET_NAME_FIELD_NAME, new BsonString(setName));
-            result.append(PROTOCOL_VERSION_FIELD_NAME, new BsonInt64(protocolVersion.getVersionId()));
-            result.append(CONFIG_VERSION_FIELD_NAME, new BsonInt64(configVersion));
-            result.append(SENDER_HOST_FIELD_NAME, new BsonString(senderHost != null ? senderHost.toString() : ""));
+            result.append(SET_NAME_FIELD, setName);
+            result.append(PROTOCOL_VERSION_FIELD, protocolVersion.getVersionId());
+            result.append(CONFIG_VERSION_FIELD, configVersion);
+            if (senderHost == null) {
+                result.append(SENDER_HOST_FIELD, "");
+            }
+            else {
+                result.append(SENDER_HOST_FIELD, senderHost);
+            }
 
             if (senderId != null) {
-                result.append(SENDER_ID_FIELD_NAME, new BsonInt64(senderId));
+                result.append(SENDER_ID_FIELD, senderId);
             }
             if (checkEmpty) {
-                result.append(CHECK_EMPTY_FIELD_NAME, BsonBoolean.TRUE);
+                result.append(CHECK_EMPTY_FIELD_NAME, true);
             }
-            return result;
+            return result.build();
         }
 
         /**
@@ -182,16 +187,16 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             boolean checkEmpty = BsonReaderTool.getBoolean(bson, CHECK_EMPTY_FIELD_NAME, false);
 
             ReplSetProtocolVersion protocolVersion = ReplSetProtocolVersion.fromVersionId(
-                    BsonReaderTool.getLong(bson, PROTOCOL_VERSION_FIELD_NAME)
+                    BsonReaderTool.getLong(bson, PROTOCOL_VERSION_FIELD)
             );
 
-            long configVersion = BsonReaderTool.getLong(bson, CONFIG_VERSION_FIELD_NAME);
+            long configVersion = BsonReaderTool.getLong(bson, CONFIG_VERSION_FIELD);
 
-            long senderId = BsonReaderTool.getLong(bson, SENDER_ID_FIELD_NAME, -1);
+            long senderId = BsonReaderTool.getLong(bson, SENDER_ID_FIELD, -1);
 
-            String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD_NAME);
+            String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD);
 
-            HostAndPort senderHost = BsonReaderTool.getHostAndPort(bson, SENDER_HOST_FIELD_NAME, null);
+            HostAndPort senderHost = BsonReaderTool.getHostAndPort(bson, SENDER_HOST_FIELD, null);
             
             return new ReplSetHeartbeatArgument(checkEmpty, protocolVersion, configVersion, senderId, setName, senderHost);
         }
@@ -199,23 +204,23 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
 
     public static class ReplSetHeartbeatReply {
 
-        private static final BsonField<BsonDocument> CONFIG_FIELD_NAME =  BsonField.create("config");
-        private static final BsonField<Long> CONFIG_VERSION_FIELD_NAME = BsonField.create("v");
-        private static final BsonField<OpTime> ELECTION_TIME_FIELD_NAME = BsonField.create("electionTime");
-        private static final BsonField<String> ERR_MSG_FIELD_NAME = BsonField.create("errmsg");
-        private static final BsonField<Integer> ERROR_CODE_FIELD_NAME = BsonField.create("code");
-        private static final BsonField<Boolean> HAS_DATA_FIELD_NAME = BsonField.create("hasData");
-        private static final BsonField<Boolean> HAS_STATE_DISAGREEMENT_FIELD_NAME = BsonField.create("stateDisagreement");
-        private static final BsonField<String> HB_MESSAGE_FIELD_NAME = BsonField.create("hbmsg");
-        private static final BsonField<Boolean> IS_ELECTABLE_FIELD_NAME = BsonField.create("e");
-        private static final BsonField<Boolean> IS_REPL_SET_FIELD_NAME = BsonField.create("rs");
-        private static final BsonField<Integer> MEMBER_STATE_FIELD_NAME = BsonField.create("state");
-        private static final BsonField<Boolean> MISMATCH_FIELD_NAME = BsonField.create("mismatch");
-        private static final BsonField<Double> OK_FIELD_NAME = BsonField.create("ok");
-        private static final BsonField<OpTime> OP_TIME_FIELD = BsonField.create("opTime");
-        private static final BsonField<String> REPL_SET_FIELD_NAME = BsonField.create("set");
-        private static final BsonField<HostAndPort> SYNC_SOURCE_FIELD_NAME = BsonField.create("syncingTo");
-        private static final BsonField<Long> TIME_FIELD_NAME = BsonField.create("time");
+        private static final DocField CONFIG_FIELD_NAME = new DocField("config");
+        private static final LongField CONFIG_VERSION_FIELD_NAME = new LongField("v");
+        private static final TimestampField ELECTION_TIME_FIELD_NAME = new TimestampField("electionTime");
+        private static final StringField ERR_MSG_FIELD_NAME = new StringField("errmsg");
+        private static final IntField ERROR_CODE_FIELD_NAME = new IntField("code");
+        private static final BooleanField HAS_DATA_FIELD_NAME = new BooleanField("hasData");
+        private static final BooleanField HAS_STATE_DISAGREEMENT_FIELD_NAME = new BooleanField("stateDisagreement");
+        private static final StringField HB_MESSAGE_FIELD_NAME = new StringField("hbmsg");
+        private static final BooleanField IS_ELECTABLE_FIELD_NAME = new BooleanField("e");
+        private static final BooleanField IS_REPL_SET_FIELD_NAME = new BooleanField("rs");
+        private static final IntField MEMBER_STATE_FIELD_NAME = new IntField("state");
+        private static final BooleanField MISMATCH_FIELD_NAME = new BooleanField("mismatch");
+        private static final DoubleField OK_FIELD_NAME = new DoubleField("ok");
+        private static final TimestampField OP_TIME_FIELD = new TimestampField("opTime");
+        private static final StringField REPL_SET_FIELD_NAME = new StringField("set");
+        private static final HostAndPortField SYNC_SOURCE_FIELD_NAME = new HostAndPortField("syncingTo");
+        private static final LongField TIME_FIELD_NAME = new LongField("time");
 
         private final @Nonnull OpTime electionTime;
         private final @Nullable Long time;
@@ -323,12 +328,12 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
         public BsonDocument toBSON() {
             BsonDocumentBuilder doc = new BsonDocumentBuilder();
             if (mismatch) {
-                doc.append(OK_FIELD_NAME, MongoWP.KO)
+                doc.append(OK_FIELD_NAME, MongoConstants.KO)
                         .append(MISMATCH_FIELD_NAME, true);
                 return doc.build();
             }
 
-            doc.append(OK_FIELD_NAME, MongoWP.OK);
+            doc.append(OK_FIELD_NAME, MongoConstants.OK);
 
             if (opTime != null) {
                 doc.append(OP_TIME_FIELD, opTime);
@@ -381,7 +386,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                 );
             }
 
-            boolean ok = MongoWP.OK.equals(BsonReaderTool.getDouble(bson, OK_FIELD_NAME)) || setName != null;
+            boolean ok = MongoConstants.OK.equals(BsonReaderTool.getDouble(bson, OK_FIELD_NAME)) || setName != null;
             if (!ok) {
                 String errMsg = BsonReaderTool.getString(bson, ERR_MSG_FIELD_NAME, "");
 

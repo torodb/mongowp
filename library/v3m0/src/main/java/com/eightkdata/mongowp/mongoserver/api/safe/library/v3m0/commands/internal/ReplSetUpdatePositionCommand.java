@@ -1,22 +1,22 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.OpTime;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonObjectId;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument.UpdateInfo;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.tools.Empty;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
-import org.bson.types.ObjectId;
 
 /**
  *
@@ -97,12 +97,12 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
             private static final String MEMBER_ID_FIELD_NAME = "memberId";
             private static final String CONFIG_VERSION_FIELD_NAME = "cfgver";
 
-            private final ObjectId rid;
+            private final BsonObjectId rid;
             private final OpTime ts;
             private final long cfgVer;
             private final long memberId;
 
-            public UpdateInfo(ObjectId rid, OpTime ts, long cfgVer, long memberId) {
+            public UpdateInfo(BsonObjectId rid, OpTime ts, long cfgVer, long memberId) {
                 this.rid = rid;
                 this.ts = ts;
                 this.cfgVer = cfgVer;
@@ -126,7 +126,7 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
                 memberId = BsonReaderTool.getLong(doc, MEMBER_ID_FIELD_NAME, -1);
             }
 
-            public ObjectId getRid() {
+            public BsonObjectId getRid() {
                 return rid;
             }
 

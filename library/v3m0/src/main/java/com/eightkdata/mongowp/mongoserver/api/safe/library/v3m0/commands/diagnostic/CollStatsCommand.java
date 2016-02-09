@@ -1,14 +1,16 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.CollStatsCommand.CollStatsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.CollStatsCommand.CollStatsReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
@@ -17,8 +19,6 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.bson.BsonDocument;
-import org.bson.BsonInt32;
 
 /**
  *
@@ -71,9 +71,9 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
     @Immutable
     public static class CollStatsArgument {
 
-        private static final BsonField<String> COLLECTION_FIELD = BsonField.create("collStats");
-        private static final BsonField<Number> SCALE_FIELD = BsonField.create("scale");
-        private static final BsonField<Boolean> VERBOSE_FIELD = BsonField.create("verbose");
+        private static final StringField COLLECTION_FIELD = new StringField("collStats");
+        private static final NumberField SCALE_FIELD = new NumberField("scale");
+        private static final BooleanField VERBOSE_FIELD = new BooleanField("verbose");
         private final String collection;
         private final int scale;
         private final boolean verbose;
@@ -99,7 +99,7 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
         protected static CollStatsArgument unmarshall(BsonDocument doc)
                 throws TypesMismatchException, BadValueException, NoSuchKeyException {
             String collection = BsonReaderTool.getString(doc, COLLECTION_FIELD);
-            int scale = BsonReaderTool.getNumeric(doc, SCALE_FIELD, new BsonInt32(1)).intValue();
+            int scale = BsonReaderTool.getNumeric(doc, SCALE_FIELD, DefaultBsonValues.INT32_ONE).intValue();
             if (scale <= 0) {
                 throw new BadValueException("Scale must be a value >= 1");
             }
@@ -117,17 +117,17 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
     //TODO(gortiz): This reply is not prepared to respond on error cases!
     public static class CollStatsReply {
 
-        private static final BsonField<String> NS_FIELD = BsonField.create("ns");
-        private static final BsonField<Number> COUNT_FIELD = BsonField.create("count");
-        private static final BsonField<Number> SIZE_FIELD = BsonField.create("size");
-        private static final BsonField<Number> AVG_OBJ_SIZE_FIELD = BsonField.create("avgObjSize");
-        private static final BsonField<Number> STORAGE_SIZE_FIELD = BsonField.create("storageSize");
-        private static final BsonField<Integer> N_INDEXES_FIELD = BsonField.create("nindexes");
-        private static final BsonField<BsonDocument> INDEX_DETAILS_FIELD = BsonField.create("indexDetails");
-        private static final BsonField<Number> TOTAL_INDEX_SIZE_FIELD = BsonField.create("totalIndexSize");
-        private static final BsonField<BsonDocument> INDEX_SIZES_FIELD = BsonField.create("indexSizes");
-        private static final BsonField<Boolean> CAPPED_FIELD = BsonField.create("capped");
-        private static final BsonField<Number> MAX_FIELD = BsonField.create("max");
+        private static final StringField NS_FIELD = new StringField("ns");
+        private static final NumberField<?> COUNT_FIELD = new NumberField<>("count");
+        private static final NumberField<?> SIZE_FIELD = new NumberField<>("size");
+        private static final NumberField<?> AVG_OBJ_SIZE_FIELD = new NumberField<>("avgObjSize");
+        private static final NumberField<?> STORAGE_SIZE_FIELD = new NumberField<>("storageSize");
+        private static final IntField N_INDEXES_FIELD = new IntField("nindexes");
+        private static final DocField INDEX_DETAILS_FIELD = new DocField("indexDetails");
+        private static final NumberField<?> TOTAL_INDEX_SIZE_FIELD = new NumberField<>("totalIndexSize");
+        private static final DocField INDEX_SIZES_FIELD = new DocField("indexSizes");
+        private static final BooleanField CAPPED_FIELD = new BooleanField("capped");
+        private static final NumberField<?> MAX_FIELD = new NumberField<>("max");
 
         private final int scale;
         private final @Nonnull String database;
@@ -199,7 +199,7 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
         private BsonDocument marshallSizeByIndex(ImmutableMap<String, ? extends Number> sizeByIndex) {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
             for (Entry<String, ? extends Number> entry : sizeByIndex.entrySet()) {
-                builder.appendNumber(new BsonField<Number>(entry.getKey()), entry.getValue());
+                builder.appendNumber(new NumberField(entry.getKey()), entry.getValue());
             }
             return builder.build();
         }

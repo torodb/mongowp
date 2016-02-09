@@ -1,24 +1,21 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
-import org.bson.types.ObjectId;
-import org.threeten.bp.Instant;
-
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonObjectId;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.ServerStatusCommand.ServerStatusArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.ServerStatusCommand.ServerStatusReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
+import javax.annotation.Nonnull;
+import javax.annotation.concurrent.Immutable;
+import org.threeten.bp.Instant;
 
 /**
  *
@@ -71,32 +68,32 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     @Immutable
     public static class ServerStatusArgument {
 
-        private static final BsonField<Boolean> HOST_FIELD = BsonField.create("host");
-        private static final BsonField<Boolean> VERSION_FIELD = BsonField.create("version");
-        private static final BsonField<Boolean> PROCESS_FIELD = BsonField.create("process");
-        private static final BsonField<Boolean> PID_FIELD = BsonField.create("pid");
-        private static final BsonField<Boolean> UPTIME_FIELD = BsonField.create("uptime");
-        private static final BsonField<Boolean> UPTIME_ESTIMATE_FIELD = BsonField.create("uptimeEstimate");
-        private static final BsonField<Boolean> LOCAL_TIME_FIELD = BsonField.create("localTime");
-        private static final BsonField<Boolean> LOCKS_FIELD = BsonField.create("locks");
-        private static final BsonField<Boolean> GLOBAL_LOCK_FIELD = BsonField.create("globalLock");
-        private static final BsonField<Boolean> MEM_FIELD = BsonField.create("mem");
-        private static final BsonField<Boolean> CONNECTIONS_FIELD = BsonField.create("connections");
-        private static final BsonField<Boolean> EXTRA_INFO_FIELD = BsonField.create("extra_info");
-        private static final BsonField<Boolean> BACKGROUND_FLUSHING_FIELD = BsonField.create("backgroundFlushing");
-        private static final BsonField<Boolean> CURSORS_FIELD = BsonField.create("cursors");
-        private static final BsonField<Boolean> NETWORK_FIELD = BsonField.create("network");
-        private static final BsonField<Boolean> REPL_FIELD = BsonField.create("repl");
-        private static final BsonField<Boolean> OPCOUNTERS_REPL_FIELD = BsonField.create("opcountersRepl");
-        private static final BsonField<Boolean> OPCOUNTERS_FIELD = BsonField.create("opcounters");
-        private static final BsonField<Boolean> RANGE_DELETER_FIELD = BsonField.create("rangeDeleter");
-        private static final BsonField<Boolean> SECURITY_FIELD = BsonField.create("security");
-        private static final BsonField<Boolean> STORAGE_ENGINE_FIELD = BsonField.create("storageEngine");
-        private static final BsonField<Boolean> ASSERTS_FIELD = BsonField.create("asserts");
-        private static final BsonField<Boolean> WRITE_BACKS_QUEUED_FIELD = BsonField.create("writeBacksQueued");
-        private static final BsonField<Boolean> DUR_FIELD = BsonField.create("dur");
-        private static final BsonField<Boolean> METRICS_FIELD = BsonField.create("metrics");
-        private static final BsonField<Boolean> WIRED_TIGER_FIELD = BsonField.create("wiredTiger");
+        private static final BooleanField HOST_FIELD = new BooleanField("host");
+        private static final BooleanField VERSION_FIELD = new BooleanField("version");
+        private static final BooleanField PROCESS_FIELD = new BooleanField("process");
+        private static final BooleanField PID_FIELD = new BooleanField("pid");
+        private static final BooleanField UPTIME_FIELD = new BooleanField("uptime");
+        private static final BooleanField UPTIME_ESTIMATE_FIELD = new BooleanField("uptimeEstimate");
+        private static final BooleanField LOCAL_TIME_FIELD = new BooleanField("localTime");
+        private static final BooleanField LOCKS_FIELD = new BooleanField("locks");
+        private static final BooleanField GLOBAL_LOCK_FIELD = new BooleanField("globalLock");
+        private static final BooleanField MEM_FIELD = new BooleanField("mem");
+        private static final BooleanField CONNECTIONS_FIELD = new BooleanField("connections");
+        private static final BooleanField EXTRA_INFO_FIELD = new BooleanField("extra_info");
+        private static final BooleanField BACKGROUND_FLUSHING_FIELD = new BooleanField("backgroundFlushing");
+        private static final BooleanField CURSORS_FIELD = new BooleanField("cursors");
+        private static final BooleanField NETWORK_FIELD = new BooleanField("network");
+        private static final BooleanField REPL_FIELD = new BooleanField("repl");
+        private static final BooleanField OPCOUNTERS_REPL_FIELD = new BooleanField("opcountersRepl");
+        private static final BooleanField OPCOUNTERS_FIELD = new BooleanField("opcounters");
+        private static final BooleanField RANGE_DELETER_FIELD = new BooleanField("rangeDeleter");
+        private static final BooleanField SECURITY_FIELD = new BooleanField("security");
+        private static final BooleanField STORAGE_ENGINE_FIELD = new BooleanField("storageEngine");
+        private static final BooleanField ASSERTS_FIELD = new BooleanField("asserts");
+        private static final BooleanField WRITE_BACKS_QUEUED_FIELD = new BooleanField("writeBacksQueued");
+        private static final BooleanField DUR_FIELD = new BooleanField("dur");
+        private static final BooleanField METRICS_FIELD = new BooleanField("metrics");
+        private static final BooleanField WIRED_TIGER_FIELD = new BooleanField("wiredTiger");
         
         private final boolean host;
         private final boolean version;
@@ -304,32 +301,32 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     //TODO(gortiz): This reply is not prepared to respond on error cases!
     public static class ServerStatusReply {
 
-        private static final BsonField<String> HOST_FIELD = BsonField.create("host");
-        private static final BsonField<String> VERSION_FIELD = BsonField.create("version");
-        private static final BsonField<String> PROCESS_FIELD = BsonField.create("process");
-        private static final BsonField<Integer> PID_FIELD = BsonField.create("pid");
-        private static final BsonField<Long> UPTIME_FIELD = BsonField.create("uptime");
-        private static final BsonField<Long> UPTIME_ESTIMATE_FIELD = BsonField.create("uptimeEstimate");
-        private static final BsonField<Instant> LOCAL_TIME_FIELD = BsonField.create("localTime");
-        private static final BsonField<BsonDocument> LOCKS_FIELD = BsonField.create("locks");
-        private static final BsonField<BsonDocument> GLOBAL_LOCK_FIELD = BsonField.create("globalLock");
-        private static final BsonField<BsonDocument> MEM_FIELD = BsonField.create("mem");
-        private static final BsonField<BsonDocument> CONNECTIONS_FIELD = BsonField.create("connections");
-        private static final BsonField<BsonDocument> EXTRA_INFO_FIELD = BsonField.create("extra_info");
-        private static final BsonField<BsonDocument> BACKGROUND_FLUSHING_FIELD = BsonField.create("backgroundFlushing");
-        private static final BsonField<BsonDocument> CURSORS_FIELD = BsonField.create("cursors");
-        private static final BsonField<BsonDocument> NETWORK_FIELD = BsonField.create("network");
-        private static final BsonField<BsonDocument> REPL_FIELD = BsonField.create("repl");
-        private static final BsonField<BsonDocument> OPCOUNTERS_REPL_FIELD = BsonField.create("opcountersRepl");
-        private static final BsonField<BsonDocument> OPCOUNTERS_FIELD = BsonField.create("opcounters");
-        private static final BsonField<BsonDocument> RANGE_DELETER_FIELD = BsonField.create("rangeDeleter");
-        private static final BsonField<BsonDocument> SECURITY_FIELD = BsonField.create("security");
-        private static final BsonField<BsonDocument> STORAGE_ENGINE_FIELD = BsonField.create("storageEngine");
-        private static final BsonField<BsonDocument> ASSERTS_FIELD = BsonField.create("asserts");
-        private static final BsonField<Integer> WRITE_BACKS_QUEUED_FIELD = BsonField.create("writeBacksQueued");
-        private static final BsonField<BsonDocument> DUR_FIELD = BsonField.create("dur");
-        private static final BsonField<BsonDocument> METRICS_FIELD = BsonField.create("metrics");
-        private static final BsonField<BsonDocument> WIRED_TIGER_FIELD = BsonField.create("wiredTiger");
+        private static final StringField HOST_FIELD = new StringField("host");
+        private static final StringField VERSION_FIELD = new StringField("version");
+        private static final StringField PROCESS_FIELD = new StringField("process");
+        private static final IntField PID_FIELD = new IntField("pid");
+        private static final LongField UPTIME_FIELD = new LongField("uptime");
+        private static final LongField UPTIME_ESTIMATE_FIELD = new LongField("uptimeEstimate");
+        private static final DateTimeField LOCAL_TIME_FIELD = new DateTimeField("localTime");
+        private static final DocField LOCKS_FIELD = new DocField("locks");
+        private static final DocField GLOBAL_LOCK_FIELD = new DocField("globalLock");
+        private static final DocField MEM_FIELD = new DocField("mem");
+        private static final DocField CONNECTIONS_FIELD = new DocField("connections");
+        private static final DocField EXTRA_INFO_FIELD = new DocField("extra_info");
+        private static final DocField BACKGROUND_FLUSHING_FIELD = new DocField("backgroundFlushing");
+        private static final DocField CURSORS_FIELD = new DocField("cursors");
+        private static final DocField NETWORK_FIELD = new DocField("network");
+        private static final DocField REPL_FIELD = new DocField("repl");
+        private static final DocField OPCOUNTERS_REPL_FIELD = new DocField("opcountersRepl");
+        private static final DocField OPCOUNTERS_FIELD = new DocField("opcounters");
+        private static final DocField RANGE_DELETER_FIELD = new DocField("rangeDeleter");
+        private static final DocField SECURITY_FIELD = new DocField("security");
+        private static final DocField STORAGE_ENGINE_FIELD = new DocField("storageEngine");
+        private static final DocField ASSERTS_FIELD = new DocField("asserts");
+        private static final IntField WRITE_BACKS_QUEUED_FIELD = new IntField("writeBacksQueued");
+        private static final DocField DUR_FIELD = new DocField("dur");
+        private static final DocField METRICS_FIELD = new DocField("metrics");
+        private static final DocField WIRED_TIGER_FIELD = new DocField("wiredTiger");
 
         private final String host;
         private final String version;
@@ -828,12 +825,12 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Locks {
-        private static final BsonField<BsonDocument> LOCKS_GLOBAL_FIELD = BsonField.create("Global");
-        private static final BsonField<BsonDocument> LOCKS_MMAPV1_JOURNAL_FIELD = BsonField.create("MMAPV1Journal");
-        private static final BsonField<BsonDocument> LOCKS_DATABASE_FIELD = BsonField.create("Database");
-        private static final BsonField<BsonDocument> LOCKS_COLLECTION_FIELD = BsonField.create("Collection");
-        private static final BsonField<BsonDocument> LOCKS_METADATA_FIELD = BsonField.create("Metadata");
-        private static final BsonField<BsonDocument> LOCKS_OPLOG_FIELD = BsonField.create("oplog");
+        private static final DocField LOCKS_GLOBAL_FIELD = new DocField("Global");
+        private static final DocField LOCKS_MMAPV1_JOURNAL_FIELD = new DocField("MMAPV1Journal");
+        private static final DocField LOCKS_DATABASE_FIELD = new DocField("Database");
+        private static final DocField LOCKS_COLLECTION_FIELD = new DocField("Collection");
+        private static final DocField LOCKS_METADATA_FIELD = new DocField("Metadata");
+        private static final DocField LOCKS_OPLOG_FIELD = new DocField("oplog");
 
         private final Lock global;
         private final Lock mmapv1Journal;
@@ -888,10 +885,10 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class Lock {
-            private static final BsonField<BsonDocument> LOCKS_LOCK_AQUIRE_COUNT_FIELD = BsonField.create("acquireCount");
-            private static final BsonField<BsonDocument> LOCKS_LOCK_AQUIRE_WAIT_COUNT_FIELD = BsonField.create("acquireWaitCount");
-            private static final BsonField<BsonDocument> LOCKS_LOCK_TIME_ACQUIRING_MICROS_COUNT_FIELD = BsonField.create("timeAcquiringMicros");
-            private static final BsonField<BsonDocument> LOCKS_LOCK_DEADLOCK_COUNT_FIELD = BsonField.create("deadlockCount");
+            private static final DocField LOCKS_LOCK_AQUIRE_COUNT_FIELD = new DocField("acquireCount");
+            private static final DocField LOCKS_LOCK_AQUIRE_WAIT_COUNT_FIELD = new DocField("acquireWaitCount");
+            private static final DocField LOCKS_LOCK_TIME_ACQUIRING_MICROS_COUNT_FIELD = new DocField("timeAcquiringMicros");
+            private static final DocField LOCKS_LOCK_DEADLOCK_COUNT_FIELD = new DocField("deadlockCount");
 
             private final Count acquireCount;
             private final Count acquireWaitCount;
@@ -933,10 +930,10 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class Count {
-            private static final BsonField<Integer> LOCKS_LOCK_R_LOWER_FIELD = BsonField.create("r");
-            private static final BsonField<Integer> LOCKS_LOCK_W_LOWER_FIELD = BsonField.create("w");
-            private static final BsonField<Integer> LOCKS_LOCK_R_UPPER_FIELD = BsonField.create("R");
-            private static final BsonField<Integer> LOCKS_LOCK_W_UPPER_FIELD = BsonField.create("W");
+            private static final IntField LOCKS_LOCK_R_LOWER_FIELD = new IntField("r");
+            private static final IntField LOCKS_LOCK_W_LOWER_FIELD = new IntField("w");
+            private static final IntField LOCKS_LOCK_R_UPPER_FIELD = new IntField("R");
+            private static final IntField LOCKS_LOCK_W_UPPER_FIELD = new IntField("W");
 
             private final int intentShared;
             private final int intentExclusive;
@@ -975,9 +972,9 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class GlobalLock {
-        private static final BsonField<Long> GLOBAL_LOCK_TOTAL_TIME_FIELD = BsonField.create("totalTime");
-        private static final BsonField<BsonDocument> GLOBAL_LOCK_CURRENT_QUEUE_FIELD = BsonField.create("currentQueue");
-        private static final BsonField<BsonDocument> GLOBAL_LOCK_ACTIVE_CLIENTS_FIELD = BsonField.create("activeClients");
+        private static final LongField GLOBAL_LOCK_TOTAL_TIME_FIELD = new LongField("totalTime");
+        private static final DocField GLOBAL_LOCK_CURRENT_QUEUE_FIELD = new DocField("currentQueue");
+        private static final DocField GLOBAL_LOCK_ACTIVE_CLIENTS_FIELD = new DocField("activeClients");
 
         private final long totalTime;
         private final GlobalLockStats currentQueue;
@@ -1011,9 +1008,9 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
 
         public static class GlobalLockStats {
-            private static final BsonField<Integer> GLOBAL_LOCK_TOTAL_FIELD = BsonField.create("total");
-            private static final BsonField<Integer> GLOBAL_LOCK_READERS_FIELD = BsonField.create("readers");
-            private static final BsonField<Integer> GLOBAL_LOCK_WRITERS_FIELD = BsonField.create("writers");
+            private static final IntField GLOBAL_LOCK_TOTAL_FIELD = new IntField("total");
+            private static final IntField GLOBAL_LOCK_READERS_FIELD = new IntField("readers");
+            private static final IntField GLOBAL_LOCK_WRITERS_FIELD = new IntField("writers");
 
             private final int total;
             private final int readers;
@@ -1049,13 +1046,13 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Mem {
-        private static final BsonField<Integer> MEM_BITS_FIELD = BsonField.create("bits");
-        private static final BsonField<Long> MEM_RESIDENT_FIELD = BsonField.create("resident");
-        private static final BsonField<Long> MEM_VIRTUAL_FIELD = BsonField.create("virtual");
-        private static final BsonField<Boolean> MEM_SUPPORTED_FIELD = BsonField.create("supported");
-        private static final BsonField<Long> MEM_MAPPED_FIELD = BsonField.create("mapped");
-        private static final BsonField<Long> MEM_MAPPED_WITH_JOURNAL_FIELD = BsonField.create("mappedWithJournal");
-        private static final BsonField<String> MEM_NOTE_FIELD = BsonField.create("note");
+        private static final IntField MEM_BITS_FIELD = new IntField("bits");
+        private static final LongField MEM_RESIDENT_FIELD = new LongField("resident");
+        private static final LongField MEM_VIRTUAL_FIELD = new LongField("virtual");
+        private static final BooleanField MEM_SUPPORTED_FIELD = new BooleanField("supported");
+        private static final LongField MEM_MAPPED_FIELD = new LongField("mapped");
+        private static final LongField MEM_MAPPED_WITH_JOURNAL_FIELD = new LongField("mappedWithJournal");
+        private static final StringField MEM_NOTE_FIELD = new StringField("note");
 
         private final int bits;
         private final long resident;
@@ -1119,9 +1116,9 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Connections {
-        private static final BsonField<Integer> CONNECTIONS_CURRENT_FIELD = BsonField.create("current");
-        private static final BsonField<Integer> CONNECTIONS_AVAILABLE_FIELD = BsonField.create("available");
-        private static final BsonField<Integer> CONNECTIONS_TOTAL_CREATED_FIELD = BsonField.create("totalCreated");
+        private static final IntField CONNECTIONS_CURRENT_FIELD = new IntField("current");
+        private static final IntField CONNECTIONS_AVAILABLE_FIELD = new IntField("available");
+        private static final IntField CONNECTIONS_TOTAL_CREATED_FIELD = new IntField("totalCreated");
 
         private final int current;
         private final int available;
@@ -1156,9 +1153,9 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class ExtraInfo {
-        private static final BsonField<String> EXTRA_INFO_NOTE_FIELD = BsonField.create("note");
-        private static final BsonField<Long> EXTRA_INFO_HEAP_USAGE_BYTES_FIELD = BsonField.create("heap_usage_bytes");
-        private static final BsonField<Integer> EXTRA_INFO_FAULTS_FIELD = BsonField.create("page_faults");
+        private static final StringField EXTRA_INFO_NOTE_FIELD = new StringField("note");
+        private static final LongField EXTRA_INFO_HEAP_USAGE_BYTES_FIELD = new LongField("heap_usage_bytes");
+        private static final IntField EXTRA_INFO_FAULTS_FIELD = new IntField("page_faults");
 
         private final String note;
         private final long heapUsageBytes;
@@ -1193,11 +1190,11 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
     
     public static class BackgroundFlushing {
-        private static final BsonField<Integer> BACKGROUND_FLUSHING_FLUSHES_FIELD = BsonField.create("flushes");
-        private static final BsonField<Long> BACKGROUND_FLUSHING_TOTAL_MS_FIELD = BsonField.create("total_ms");
-        private static final BsonField<Long> BACKGROUND_FLUSHING_AVERAGE_MS_FIELD = BsonField.create("average_ms");
-        private static final BsonField<Long> BACKGROUND_FLUSHING_LAST_MS_FIELD = BsonField.create("last_ms");
-        private static final BsonField<Instant> BACKGROUND_FLUSHING_LAST_FINISHED_FIELD = BsonField.create("last_finished");
+        private static final IntField BACKGROUND_FLUSHING_FLUSHES_FIELD = new IntField("flushes");
+        private static final LongField BACKGROUND_FLUSHING_TOTAL_MS_FIELD = new LongField("total_ms");
+        private static final LongField BACKGROUND_FLUSHING_AVERAGE_MS_FIELD = new LongField("average_ms");
+        private static final LongField BACKGROUND_FLUSHING_LAST_MS_FIELD = new LongField("last_ms");
+        private static final DateTimeField BACKGROUND_FLUSHING_LAST_FINISHED_FIELD = new DateTimeField("last_finished");
 
         private final int flushes;
         private final long totalMs;
@@ -1246,12 +1243,12 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Cursors {
-        private static final BsonField<String> CURSORS_NOTE_FIELD = BsonField.create("note");
-        private static final BsonField<Integer> CURSORS_TOTAL_OPEN_FIELD = BsonField.create("totalOpen");
-        private static final BsonField<Long> CURSORS_CLIENT_CUSRORS_SIZE_FIELD = BsonField.create("clientCursors_size");
-        private static final BsonField<Integer> CURSORS_TIMED_OUT_FIELD = BsonField.create("timedOut");
-        private static final BsonField<Integer> CURSORS_TOTAL_NO_TIMEOUT_FIELD = BsonField.create("totalNoTimeout");
-        private static final BsonField<Integer> CURSORS_PINNED_FIELD = BsonField.create("pinned");
+        private static final StringField CURSORS_NOTE_FIELD = new StringField("note");
+        private static final IntField CURSORS_TOTAL_OPEN_FIELD = new IntField("totalOpen");
+        private static final LongField CURSORS_CLIENT_CUSRORS_SIZE_FIELD = new LongField("clientCursors_size");
+        private static final IntField CURSORS_TIMED_OUT_FIELD = new IntField("timedOut");
+        private static final IntField CURSORS_TOTAL_NO_TIMEOUT_FIELD = new IntField("totalNoTimeout");
+        private static final IntField CURSORS_PINNED_FIELD = new IntField("pinned");
 
         private final String note;
         private final int totalOpen;
@@ -1304,9 +1301,9 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Network {
-        private static final BsonField<Long> NETWORK_BYTES_IN_FIELD = BsonField.create("bytesIn");
-        private static final BsonField<Long> NETWORK_BYTES_OUT_FIELD = BsonField.create("bytesOut");
-        private static final BsonField<Integer> NETWORK_NUM_REQUESTS_FIELD = BsonField.create("numRequests");
+        private static final LongField NETWORK_BYTES_IN_FIELD = new LongField("bytesIn");
+        private static final LongField NETWORK_BYTES_OUT_FIELD = new LongField("bytesOut");
+        private static final IntField NETWORK_NUM_REQUESTS_FIELD = new IntField("numRequests");
 
         private final long bytesIn;
         private final long bytesOut;
@@ -1341,15 +1338,15 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
     
     public static class Repl {
-        private static final BsonField<String> REPL_SET_NAME_FIELD = BsonField.create("setName");
-        private static final BsonField<Boolean> REPL_ISMASTER_FIELD = BsonField.create("ismaster");
-        private static final BsonField<Boolean> REPL_SECONDARY_FIELD = BsonField.create("secondary");
-        private static final BsonField<String> REPL_PRIMARY_FIELD = BsonField.create("primary");
-        private static final BsonField<BsonArray> REPL_HOSTS_FIELD = BsonField.create("hosts");
-        private static final BsonField<String> REPL_ME_FIELD = BsonField.create("me");
-        private static final BsonField<ObjectId> REPL_ELECTION_ID_FIELD = BsonField.create("electionId");
-        private static final BsonField<Long> REPL_RBID_FIELD = BsonField.create("rbid");
-        private static final BsonField<BsonArray> REPL_SLAVES_FIELD = BsonField.create("slaves");
+        private static final StringField REPL_SET_NAME_FIELD = new StringField("setName");
+        private static final BooleanField REPL_ISMASTER_FIELD = new BooleanField("ismaster");
+        private static final BooleanField REPL_SECONDARY_FIELD = new BooleanField("secondary");
+        private static final StringField REPL_PRIMARY_FIELD = new StringField("primary");
+        private static final ArrayField REPL_HOSTS_FIELD = new ArrayField("hosts");
+        private static final StringField REPL_ME_FIELD = new StringField("me");
+        private static final ObjectIdField REPL_ELECTION_ID_FIELD = new ObjectIdField("electionId");
+        private static final LongField REPL_RBID_FIELD = new LongField("rbid");
+        private static final ArrayField REPL_SLAVES_FIELD = new ArrayField("slaves");
         
         private final String setName;
         private final boolean ismaster;
@@ -1357,12 +1354,12 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         private final String primary;
         private final ImmutableList<String> hosts;
         private final String me;
-        private final ObjectId electionId;
+        private final BsonObjectId electionId;
         private final long rbid;
         private final ImmutableList<Slave> slaves;
         
         public Repl(String setName, boolean ismaster, boolean secondary, String primary, ImmutableList<String> hosts,
-                String me, ObjectId electionId, long rbid, ImmutableList<Slave> slaves) {
+                String me, BsonObjectId electionId, long rbid, ImmutableList<Slave> slaves) {
             super();
             this.setName = setName;
             this.ismaster = ismaster;
@@ -1376,12 +1373,12 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
 
         private BsonDocument marshall() {
-            BsonArray hostsArr = new BsonArray();
+            BsonArrayBuilder hostsArr = new BsonArrayBuilder();
             for (String host : hosts) {
-                hostsArr.add(new BsonString(host));
+                hostsArr.add(host);
             }
             
-            BsonArray slavesArr = new BsonArray();
+            BsonArrayBuilder slavesArr = new BsonArrayBuilder();
             for (Slave slave : slaves) {
                 slavesArr.add(slave.marshall());
             }
@@ -1391,11 +1388,11 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
                     .append(REPL_ISMASTER_FIELD, ismaster)
                     .append(REPL_SECONDARY_FIELD, secondary)
                     .append(REPL_PRIMARY_FIELD, primary)
-                    .append(REPL_HOSTS_FIELD, hostsArr)
+                    .append(REPL_HOSTS_FIELD, hostsArr.build())
                     .append(REPL_ME_FIELD, me)
                     .append(REPL_ELECTION_ID_FIELD, electionId)
                     .append(REPL_RBID_FIELD, rbid)
-                    .append(REPL_SLAVES_FIELD, slavesArr)
+                    .append(REPL_SLAVES_FIELD, slavesArr.build())
                     .build();
         }
         
@@ -1423,7 +1420,7 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
             return me;
         }
 
-        public ObjectId getElectionId() {
+        public BsonObjectId getElectionId() {
             return electionId;
         }
 
@@ -1436,10 +1433,10 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
 
         public static class Slave {
-            private static final BsonField<Long> REPL_SLAVES_RID_FIELD = BsonField.create("rid");
-            private static final BsonField<String> REPL_SLAVES_HOST_FIELD = BsonField.create("host");
-            private static final BsonField<Long> REPL_SLAVES_OPTIME_FIELD = BsonField.create("optime");
-            private static final BsonField<Long> REPL_SLAVES_MEMBER_ID_FIELD = BsonField.create("memberID");
+            private static final LongField REPL_SLAVES_RID_FIELD = new LongField("rid");
+            private static final StringField REPL_SLAVES_HOST_FIELD = new StringField("host");
+            private static final LongField REPL_SLAVES_OPTIME_FIELD = new LongField("optime");
+            private static final LongField REPL_SLAVES_MEMBER_ID_FIELD = new LongField("memberID");
     
             private final long rid;
             private final String host;
@@ -1482,12 +1479,12 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Opcounters {
-        private static final BsonField<Integer> OPCOUNTERS_INSERT_FIELD = BsonField.create("insert");
-        private static final BsonField<Integer> OPCOUNTERS_QUERY_FIELD = BsonField.create("query");
-        private static final BsonField<Integer> OPCOUNTERS_UPDATE_FIELD = BsonField.create("update");
-        private static final BsonField<Integer> OPCOUNTERS_DELETE_FIELD = BsonField.create("delete");
-        private static final BsonField<Integer> OPCOUNTERS_GETMORE_FIELD = BsonField.create("getmore");
-        private static final BsonField<Integer> OPCOUNTERS_COMMAND_FIELD = BsonField.create("command");
+        private static final IntField OPCOUNTERS_INSERT_FIELD = new IntField("insert");
+        private static final IntField OPCOUNTERS_QUERY_FIELD = new IntField("query");
+        private static final IntField OPCOUNTERS_UPDATE_FIELD = new IntField("update");
+        private static final IntField OPCOUNTERS_DELETE_FIELD = new IntField("delete");
+        private static final IntField OPCOUNTERS_GETMORE_FIELD = new IntField("getmore");
+        private static final IntField OPCOUNTERS_COMMAND_FIELD = new IntField("command");
         
         private final int insert;
         private final int query;
@@ -1544,7 +1541,7 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class RangeDeleter {
-        private static final BsonField<BsonArray> RANGE_DELETER_LAST_DELETE_STATS_FIELD = BsonField.create("lastDeleteStats");
+        private static final ArrayField RANGE_DELETER_LAST_DELETE_STATS_FIELD = new ArrayField("lastDeleteStats");
 
         private final ImmutableList<LastDeletedStat> lastDeleteStats;
 
@@ -1554,13 +1551,13 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
 
         private BsonDocument marshall() {
-            BsonArray lastDeleteStatsArr = new BsonArray();
+            BsonArrayBuilder lastDeleteStatsArr = new BsonArrayBuilder();
             for (LastDeletedStat lastDeletedStat : lastDeleteStats) {
                 lastDeleteStatsArr.add(lastDeletedStat.marshall());
             }
             
             return new BsonDocumentBuilder()
-                    .append(RANGE_DELETER_LAST_DELETE_STATS_FIELD, lastDeleteStatsArr)
+                    .append(RANGE_DELETER_LAST_DELETE_STATS_FIELD, lastDeleteStatsArr.build())
                     .build();
         }
 
@@ -1569,13 +1566,13 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
 
         public static class LastDeletedStat {
-            private static final BsonField<Integer> RANGE_DELETER_LAST_DELETE_STATS_DELETED_DOCS_FIELD = BsonField.create("deletedDocs");
-            private static final BsonField<Instant> RANGE_DELETER_LAST_DELETE_STATS_QUEUE_START_FIELD = BsonField.create("queueStart");
-            private static final BsonField<Instant> RANGE_DELETER_LAST_DELETE_STATS_QUEUE_END_FIELD = BsonField.create("queueEnd");
-            private static final BsonField<Instant> RANGE_DELETER_LAST_DELETE_STATS_DELETE_START_FIELD = BsonField.create("deleteStart");
-            private static final BsonField<Instant> RANGE_DELETER_LAST_DELETE_STATS_DELETE_END_FIELD = BsonField.create("deleteEnd");
-            private static final BsonField<Instant> RANGE_DELETER_LAST_DELETE_STATS_WAIT_FOR_START_FIELD = BsonField.create("waitForReplStart");
-            private static final BsonField<Instant> RANGE_DELETER_LAST_DELETE_STATS_WAIT_FOR_END_FIELD = BsonField.create("waitForReplEnd");
+            private static final IntField RANGE_DELETER_LAST_DELETE_STATS_DELETED_DOCS_FIELD = new IntField("deletedDocs");
+            private static final DateTimeField RANGE_DELETER_LAST_DELETE_STATS_QUEUE_START_FIELD = new DateTimeField("queueStart");
+            private static final DateTimeField RANGE_DELETER_LAST_DELETE_STATS_QUEUE_END_FIELD = new DateTimeField("queueEnd");
+            private static final DateTimeField RANGE_DELETER_LAST_DELETE_STATS_DELETE_START_FIELD = new DateTimeField("deleteStart");
+            private static final DateTimeField RANGE_DELETER_LAST_DELETE_STATS_DELETE_END_FIELD = new DateTimeField("deleteEnd");
+            private static final DateTimeField RANGE_DELETER_LAST_DELETE_STATS_WAIT_FOR_START_FIELD = new DateTimeField("waitForReplStart");
+            private static final DateTimeField RANGE_DELETER_LAST_DELETE_STATS_WAIT_FOR_END_FIELD = new DateTimeField("waitForReplEnd");
 
             private final int deletedDocs;
             private final Instant queueStart;
@@ -1640,9 +1637,9 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Security {
-        private static final BsonField<String> SECURITY_SSL_SERVER_SUBJECT_NAME_FIELD = BsonField.create("SSLServerSubjectName");
-        private static final BsonField<Boolean> SECURITY_SSL_SERVER_HAS_CERTIFICATE_AUTHORITY_FIELD = BsonField.create("SSLServerHasCertificateAuthority");
-        private static final BsonField<Instant> SECURITY_SSL_SERVER_CERTIFICATE_EXPIRATION_DATE_FIELD = BsonField.create("SSLServerCertificateExpirationDate");
+        private static final StringField SECURITY_SSL_SERVER_SUBJECT_NAME_FIELD = new StringField("SSLServerSubjectName");
+        private static final BooleanField SECURITY_SSL_SERVER_HAS_CERTIFICATE_AUTHORITY_FIELD = new BooleanField("SSLServerHasCertificateAuthority");
+        private static final DateTimeField SECURITY_SSL_SERVER_CERTIFICATE_EXPIRATION_DATE_FIELD = new DateTimeField("SSLServerCertificateExpirationDate");
 
         private final String sslServerSubjectName;
         private final boolean sslServerHasCertificateAuthority;
@@ -1678,7 +1675,7 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class StorageEngine {
-        private static final BsonField<String> STORAGE_ENGINE_NAME_FIELD = BsonField.create("name");
+        private static final StringField STORAGE_ENGINE_NAME_FIELD = new StringField("name");
 
         private final String name;
 
@@ -1699,11 +1696,11 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Asserts {
-        private static final BsonField<Integer> ASSERTS_REGULAR_FIELD = BsonField.create("regular");
-        private static final BsonField<Integer> ASSERTS_WARNING_FIELD = BsonField.create("warning");
-        private static final BsonField<Integer> ASSERTS_MSG_FIELD = BsonField.create("msg");
-        private static final BsonField<Integer> ASSERTS_USER_FIELD = BsonField.create("user");
-        private static final BsonField<Integer> ASSERTS_ROLLOVERS_FIELD = BsonField.create("rollovers");
+        private static final IntField ASSERTS_REGULAR_FIELD = new IntField("regular");
+        private static final IntField ASSERTS_WARNING_FIELD = new IntField("warning");
+        private static final IntField ASSERTS_MSG_FIELD = new IntField("msg");
+        private static final IntField ASSERTS_USER_FIELD = new IntField("user");
+        private static final IntField ASSERTS_ROLLOVERS_FIELD = new IntField("rollovers");
 
         private final Integer regular;
         private final Integer warning;
@@ -1752,13 +1749,13 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Dur {
-        private static final BsonField<Integer> DUR_COMMITS_FIELD = BsonField.create("commits");
-        private static final BsonField<Long> DUR_JOURNALED_MB_FIELD = BsonField.create("journaledMB");
-        private static final BsonField<Long> DUR_WRITE_TO_DATA_FILES_MB_FIELD = BsonField.create("writeToDataFilesMB");
-        private static final BsonField<Integer> DUR_COMPRESSION_FIELD = BsonField.create("compression");
-        private static final BsonField<Integer> DUR_COMMITS_IN_WRITE_LOCK_FIELD = BsonField.create("commitsInWriteLock");
-        private static final BsonField<Integer> DUR_EARLY_COMMITS_FIELD = BsonField.create("earlyCommits");
-        private static final BsonField<BsonDocument> DUR_TIME_MS_FIELD = BsonField.create("timeMS");
+        private static final IntField DUR_COMMITS_FIELD = new IntField("commits");
+        private static final LongField DUR_JOURNALED_MB_FIELD = new LongField("journaledMB");
+        private static final LongField DUR_WRITE_TO_DATA_FILES_MB_FIELD = new LongField("writeToDataFilesMB");
+        private static final IntField DUR_COMPRESSION_FIELD = new IntField("compression");
+        private static final IntField DUR_COMMITS_IN_WRITE_LOCK_FIELD = new IntField("commitsInWriteLock");
+        private static final IntField DUR_EARLY_COMMITS_FIELD = new IntField("earlyCommits");
+        private static final DocField DUR_TIME_MS_FIELD = new DocField("timeMS");
 
         private final int commits;
         private final long journaledMB;
@@ -1821,13 +1818,13 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
 
         public static class TimeMS {
-            private static final BsonField<Long> DUR_TIME_MS_DT_FIELD = BsonField.create("dt");
-            private static final BsonField<Long> DUR_TIME_MS_PREP_LOG_BUFFER_FIELD = BsonField.create("prepLogBuffer");
-            private static final BsonField<Long> DUR_TIME_MS_WRITE_TO_JOURNAL_FIELD = BsonField.create("writeToJournal");
-            private static final BsonField<Long> DUR_TIME_MS_WRITE_DATA_FILES_FIELD = BsonField.create("writeToDataFiles");
-            private static final BsonField<Long> DUR_TIME_MS_REMAP_PRIVATE_VIEW_FIELD = BsonField.create("remapPrivateView");
-            private static final BsonField<Integer> DUR_TIME_MS_COMMITS_FIELD = BsonField.create("commits");
-            private static final BsonField<Integer> DUR_TIME_MS_COMMITS_IN_WRITE_LOCK_FIELD = BsonField.create("commitsInWriteLock");
+            private static final LongField DUR_TIME_MS_DT_FIELD = new LongField("dt");
+            private static final LongField DUR_TIME_MS_PREP_LOG_BUFFER_FIELD = new LongField("prepLogBuffer");
+            private static final LongField DUR_TIME_MS_WRITE_TO_JOURNAL_FIELD = new LongField("writeToJournal");
+            private static final LongField DUR_TIME_MS_WRITE_DATA_FILES_FIELD = new LongField("writeToDataFiles");
+            private static final LongField DUR_TIME_MS_REMAP_PRIVATE_VIEW_FIELD = new LongField("remapPrivateView");
+            private static final IntField DUR_TIME_MS_COMMITS_FIELD = new IntField("commits");
+            private static final IntField DUR_TIME_MS_COMMITS_IN_WRITE_LOCK_FIELD = new IntField("commitsInWriteLock");
 
             private final long dt;
             private final long prepLogBuffer;
@@ -1892,15 +1889,15 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class Metrics {
-        private static final BsonField<BsonArray> METRICS_COMMANDS_FIELD = BsonField.create("commands");
-        private static final BsonField<BsonDocument> METRICS_DOCUMENT_FIELD = BsonField.create("document");
-        private static final BsonField<BsonDocument> METRICS_GET_LAST_ERROR_FIELD = BsonField.create("getLastError");
-        private static final BsonField<BsonDocument> METRICS_OPERATION_FIELD = BsonField.create("operation");
-        private static final BsonField<BsonDocument> METRICS_QUERY_EXECUTOR_FIELD = BsonField.create("queryExecutor");
-        private static final BsonField<BsonDocument> METRICS_RECORD_FIELD = BsonField.create("record");
-        private static final BsonField<BsonDocument> METRICS_REPL_FIELD = BsonField.create("repl");
-        private static final BsonField<BsonDocument> METRICS_STORAGE_FIELD = BsonField.create("storage");
-        private static final BsonField<BsonDocument> METRICS_TTL_FIELD = BsonField.create("ttl");
+        private static final ArrayField METRICS_COMMANDS_FIELD = new ArrayField("commands");
+        private static final DocField METRICS_DOCUMENT_FIELD = new DocField("document");
+        private static final DocField METRICS_GET_LAST_ERROR_FIELD = new DocField("getLastError");
+        private static final DocField METRICS_OPERATION_FIELD = new DocField("operation");
+        private static final DocField METRICS_QUERY_EXECUTOR_FIELD = new DocField("queryExecutor");
+        private static final DocField METRICS_RECORD_FIELD = new DocField("record");
+        private static final DocField METRICS_REPL_FIELD = new DocField("repl");
+        private static final DocField METRICS_STORAGE_FIELD = new DocField("storage");
+        private static final DocField METRICS_TTL_FIELD = new DocField("ttl");
 
         private final ImmutableList<Command> commands;
         private final Document document;
@@ -1927,13 +1924,13 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
 
         private BsonDocument marshall() {
-            BsonArray commandsArr = new BsonArray();
+            BsonArrayBuilder commandsArr = new BsonArrayBuilder();
             for (Command command : commands) {
                 commandsArr.add(command.marshall());
             }
             
             return new BsonDocumentBuilder()
-                    .append(METRICS_COMMANDS_FIELD, commandsArr)
+                    .append(METRICS_COMMANDS_FIELD, commandsArr.build())
                     .append(METRICS_DOCUMENT_FIELD, document.marshall())
                     .append(METRICS_GET_LAST_ERROR_FIELD, getLastError.marshall())
                     .append(METRICS_OPERATION_FIELD, operation.marshall())
@@ -1982,8 +1979,8 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
 
         public static class Command {
-            private static final BsonField<Integer> METRICS_COMMANDS_FAILED_FIELD = BsonField.create("failed");
-            private static final BsonField<Integer> METRICS_COMMANDS_TOTAL_FIELD = BsonField.create("total");
+            private static final IntField METRICS_COMMANDS_FAILED_FIELD = new IntField("failed");
+            private static final IntField METRICS_COMMANDS_TOTAL_FIELD = new IntField("total");
             
             private final String command;
             private final int failed;
@@ -2019,10 +2016,10 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class Document {
-            private static final BsonField<Integer> METRICS_DOCUMENT_DELETED_FIELD = BsonField.create("deleted");
-            private static final BsonField<Integer> METRICS_DOCUMENT_INSERTED_FIELD = BsonField.create("inserted");
-            private static final BsonField<Integer> METRICS_DOCUMENT_RETURNED_FIELD = BsonField.create("returned");
-            private static final BsonField<Integer> METRICS_DOCUMENT_UPDATED_FIELD = BsonField.create("updated");
+            private static final IntField METRICS_DOCUMENT_DELETED_FIELD = new IntField("deleted");
+            private static final IntField METRICS_DOCUMENT_INSERTED_FIELD = new IntField("inserted");
+            private static final IntField METRICS_DOCUMENT_RETURNED_FIELD = new IntField("returned");
+            private static final IntField METRICS_DOCUMENT_UPDATED_FIELD = new IntField("updated");
             
             private final int deleted;
             private final int inserted;
@@ -2067,8 +2064,8 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class GetLastError {
-            private static final BsonField<BsonDocument> METRICS_GET_LAST_ERROR_WTIME_FIELD = BsonField.create("wtime");
-            private static final BsonField<Integer> METRICS_GET_LAST_ERROR_WTIMEOUTS_FIELD = BsonField.create("wtimeouts");
+            private static final DocField METRICS_GET_LAST_ERROR_WTIME_FIELD = new DocField("wtime");
+            private static final IntField METRICS_GET_LAST_ERROR_WTIMEOUTS_FIELD = new IntField("wtimeouts");
             
             private final Stats wtime;
             private final int wtimeouts;
@@ -2096,9 +2093,9 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class Operation {
-            private static final BsonField<Integer> METRICS_OPERATION_FASTMOD_FIELD = BsonField.create("fastmod");
-            private static final BsonField<Integer> METRICS_OPERATION_IDHACK_FIELD = BsonField.create("idhack");
-            private static final BsonField<Integer> METRICS_OPERATION_SCAN_AND_ORDER_FIELD = BsonField.create("scanAndOrder");
+            private static final IntField METRICS_OPERATION_FASTMOD_FIELD = new IntField("fastmod");
+            private static final IntField METRICS_OPERATION_IDHACK_FIELD = new IntField("idhack");
+            private static final IntField METRICS_OPERATION_SCAN_AND_ORDER_FIELD = new IntField("scanAndOrder");
             
             private final int fastmod;
             private final int idhack;
@@ -2133,7 +2130,7 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class QueryExecutor {
-            private static final BsonField<Integer> METRICS_QUERY_EXECUTOR_SCANNED_FIELD = BsonField.create("scanned");
+            private static final IntField METRICS_QUERY_EXECUTOR_SCANNED_FIELD = new IntField("scanned");
             
             private final int scanned;
             
@@ -2154,7 +2151,7 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class Record {
-            private static final BsonField<Integer> METRICS_RECORD_MOVES_FIELD = BsonField.create("moves");
+            private static final IntField METRICS_RECORD_MOVES_FIELD = new IntField("moves");
             
             private final int moves;
             
@@ -2175,11 +2172,11 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class Repl {
-            private static final BsonField<BsonDocument> METRICS_REPL_APPLY_FIELD = BsonField.create("apply");
-            private static final BsonField<BsonDocument> METRICS_REPL_BUFFER_FIELD = BsonField.create("buffer");
-            private static final BsonField<BsonDocument> METRICS_REPL_NETWORK_FIELD = BsonField.create("network");
-            private static final BsonField<BsonDocument> METRICS_REPL_OPLOG_FIELD = BsonField.create("oplog");
-            private static final BsonField<BsonDocument> METRICS_REPL_PRELOAD_FIELD = BsonField.create("preload");
+            private static final DocField METRICS_REPL_APPLY_FIELD = new DocField("apply");
+            private static final DocField METRICS_REPL_BUFFER_FIELD = new DocField("buffer");
+            private static final DocField METRICS_REPL_NETWORK_FIELD = new DocField("network");
+            private static final DocField METRICS_REPL_OPLOG_FIELD = new DocField("oplog");
+            private static final DocField METRICS_REPL_PRELOAD_FIELD = new DocField("preload");
             
             private final Apply apply;
             private final Buffer buffer;
@@ -2227,8 +2224,8 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
             }
 
             public static class Apply {
-                private static final BsonField<BsonDocument> METRICS_REPL_APPLY_BATCHES_FIELD = BsonField.create("batches");
-                private static final BsonField<Integer> METRICS_REPL_APPLY_OPS_FIELD = BsonField.create("ops");
+                private static final DocField METRICS_REPL_APPLY_BATCHES_FIELD = new DocField("batches");
+                private static final IntField METRICS_REPL_APPLY_OPS_FIELD = new IntField("ops");
                 
                 private final Stats batches;
                 private final int ops;
@@ -2256,9 +2253,9 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
             }
             
             public static class Buffer {
-                private static final BsonField<Integer> METRICS_REPL_BUFFER_COUNT_FIELD = BsonField.create("count");
-                private static final BsonField<Long> METRICS_REPL_BUFFER_MAX_SIZE_BYTES_FIELD = BsonField.create("maxSizeBytes");
-                private static final BsonField<Long> METRICS_REPL_BUFFER_SIZE_BYTES_FIELD = BsonField.create("sizeBytes");
+                private static final IntField METRICS_REPL_BUFFER_COUNT_FIELD = new IntField("count");
+                private static final LongField METRICS_REPL_BUFFER_MAX_SIZE_BYTES_FIELD = new LongField("maxSizeBytes");
+                private static final LongField METRICS_REPL_BUFFER_SIZE_BYTES_FIELD = new LongField("sizeBytes");
                 
                 private final int count;
                 private final long maxSizeBytes;
@@ -2293,10 +2290,10 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
             }
             
             public static class Network {
-                private static final BsonField<Long> METRICS_REPL_NETWORK_BYTES_FIELD = BsonField.create("bytes");
-                private static final BsonField<BsonDocument> METRICS_REPL_NETWORK_GETMORES_FIELD = BsonField.create("getmores");
-                private static final BsonField<Integer> METRICS_REPL_NETWORK_OPS_FIELD = BsonField.create("ops");
-                private static final BsonField<Integer> METRICS_REPL_NETWORK_READERS_CREATED_FIELD = BsonField.create("readersCreated");
+                private static final LongField METRICS_REPL_NETWORK_BYTES_FIELD = new LongField("bytes");
+                private static final DocField METRICS_REPL_NETWORK_GETMORES_FIELD = new DocField("getmores");
+                private static final IntField METRICS_REPL_NETWORK_OPS_FIELD = new IntField("ops");
+                private static final IntField METRICS_REPL_NETWORK_READERS_CREATED_FIELD = new IntField("readersCreated");
                 
                 private final long bytes;
                 private final Stats getmores;
@@ -2338,8 +2335,8 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
             }
             
             public static class Oplog {
-                private static final BsonField<BsonDocument> METRICS_REPL_OPLOG_INSERT_FIELD = BsonField.create("insert");
-                private static final BsonField<Long> METRICS_REPL_OPLOG_INSERT_BYTES_FIELD = BsonField.create("insertBytes");
+                private static final DocField METRICS_REPL_OPLOG_INSERT_FIELD = new DocField("insert");
+                private static final LongField METRICS_REPL_OPLOG_INSERT_BYTES_FIELD = new LongField("insertBytes");
                 
                 private final Stats insert;
                 private final long insertBytes;
@@ -2367,8 +2364,8 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
             }
             
             public static class Preload {
-                private static final BsonField<BsonDocument> METRICS_REPL_PRELOAD_DOCS_FIELD = BsonField.create("docs");
-                private static final BsonField<BsonDocument> METRICS_REPL_PRELOAD_INDEXES_FIELD = BsonField.create("indexes");
+                private static final DocField METRICS_REPL_PRELOAD_DOCS_FIELD = new DocField("docs");
+                private static final DocField METRICS_REPL_PRELOAD_INDEXES_FIELD = new DocField("indexes");
                 
                 private final Stats docs;
                 private final Stats indexes;
@@ -2397,7 +2394,7 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class Storage {
-            private static final BsonField<BsonDocument> METRICS_STORAGE_FREELIST_FIELD = BsonField.create("freelist");
+            private static final DocField METRICS_STORAGE_FREELIST_FIELD = new DocField("freelist");
             
             private final Freelist freelist;
             
@@ -2417,7 +2414,7 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
             }
 
             public static class Freelist {
-                private static final BsonField<BsonDocument> METRICS_STORAGE_FREELIST_SEARCH_FIELD = BsonField.create("search");
+                private static final DocField METRICS_STORAGE_FREELIST_SEARCH_FIELD = new DocField("search");
                 
                 private final Search search;
                 
@@ -2437,9 +2434,9 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
                 }
 
                 public static class Search {
-                    private static final BsonField<Integer> METRICS_STORAGE_FREELIST_SEARCH_BUCKET_EXHAUSTED_FIELD = BsonField.create("bucketExhausted");
-                    private static final BsonField<Integer> METRICS_STORAGE_FREELIST_SEARCH_REQUESTS_FIELD = BsonField.create("requests");
-                    private static final BsonField<Integer> METRICS_STORAGE_FREELIST_SEARCH_SCANNED_FIELD = BsonField.create("scanned");
+                    private static final IntField METRICS_STORAGE_FREELIST_SEARCH_BUCKET_EXHAUSTED_FIELD = new IntField("bucketExhausted");
+                    private static final IntField METRICS_STORAGE_FREELIST_SEARCH_REQUESTS_FIELD = new IntField("requests");
+                    private static final IntField METRICS_STORAGE_FREELIST_SEARCH_SCANNED_FIELD = new IntField("scanned");
                     
                     private final int bucketExhausted;
                     private final int requests;
@@ -2476,8 +2473,8 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class Ttl {
-            private static final BsonField<Integer> METRICS_TTL_DELETED_DOCUMENTS_FIELD = BsonField.create("deletedDocuments");
-            private static final BsonField<Integer> METRICS_TTL_PASSES_FIELD = BsonField.create("passes");
+            private static final IntField METRICS_TTL_DELETED_DOCUMENTS_FIELD = new IntField("deletedDocuments");
+            private static final IntField METRICS_TTL_PASSES_FIELD = new IntField("passes");
             
             private final int deletedDocuments;
             private final int passes;
@@ -2505,8 +2502,8 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
         }
         
         public static class Stats {
-            private static final BsonField<Integer> METRICS_NUM_FIELD = BsonField.create("num");
-            private static final BsonField<Long> METRICS_TOTAL_MILLIS_FIELD = BsonField.create("totalMillis");
+            private static final IntField METRICS_NUM_FIELD = new IntField("num");
+            private static final LongField METRICS_TOTAL_MILLIS_FIELD = new LongField("totalMillis");
             
             private final int num;
             private final long totalMillis;
@@ -2535,20 +2532,20 @@ public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, S
     }
 
     public static class WiredTiger {
-        private static final BsonField<String> WIRED_TIGER_URI_FIELD = BsonField.create("uri");
-        private static final BsonField<BsonDocument> WIRED_TIGER_LSM_FIELD = BsonField.create("LSM");
-        private static final BsonField<BsonDocument> WIRED_TIGER_ASYNC_FIELD = BsonField.create("async");
-        private static final BsonField<BsonDocument> WIRED_TIGER_BLOCK_MANAGER_FIELD = BsonField.create("block-manager");
-        private static final BsonField<BsonDocument> WIRED_TIGER_CACHE_FIELD = BsonField.create("cache");
-        private static final BsonField<BsonDocument> WIRED_TIGER_CONNECTION_FIELD = BsonField.create("connection");
-        private static final BsonField<BsonDocument> WIRED_TIGER_CURSOR_FIELD = BsonField.create("cursor");
-        private static final BsonField<BsonDocument> WIRED_TIGER_DATA_HANDLE_FIELD = BsonField.create("data-handle");
-        private static final BsonField<BsonDocument> WIRED_TIGER_LOG_FIELD = BsonField.create("log");
-        private static final BsonField<BsonDocument> WIRED_TIGER_RECONCILIATION_FIELD = BsonField.create("reconciliation");
-        private static final BsonField<BsonDocument> WIRED_TIGER_SESSION_FIELD = BsonField.create("session");
-        private static final BsonField<BsonDocument> WIRED_TIGER_THREAD_YIELD_FIELD = BsonField.create("thread-yield");
-        private static final BsonField<BsonDocument> WIRED_TIGER_TRANSACTION_FIELD = BsonField.create("transaction");
-        private static final BsonField<BsonDocument> WIRED_TIGER_CONCURRENT_TRANSACTIONS_FIELD = BsonField.create("concurrentTransactions");
+        private static final StringField WIRED_TIGER_URI_FIELD = new StringField("uri");
+        private static final DocField WIRED_TIGER_LSM_FIELD = new DocField("LSM");
+        private static final DocField WIRED_TIGER_ASYNC_FIELD = new DocField("async");
+        private static final DocField WIRED_TIGER_BLOCK_MANAGER_FIELD = new DocField("block-manager");
+        private static final DocField WIRED_TIGER_CACHE_FIELD = new DocField("cache");
+        private static final DocField WIRED_TIGER_CONNECTION_FIELD = new DocField("connection");
+        private static final DocField WIRED_TIGER_CURSOR_FIELD = new DocField("cursor");
+        private static final DocField WIRED_TIGER_DATA_HANDLE_FIELD = new DocField("data-handle");
+        private static final DocField WIRED_TIGER_LOG_FIELD = new DocField("log");
+        private static final DocField WIRED_TIGER_RECONCILIATION_FIELD = new DocField("reconciliation");
+        private static final DocField WIRED_TIGER_SESSION_FIELD = new DocField("session");
+        private static final DocField WIRED_TIGER_THREAD_YIELD_FIELD = new DocField("thread-yield");
+        private static final DocField WIRED_TIGER_TRANSACTION_FIELD = new DocField("transaction");
+        private static final DocField WIRED_TIGER_CONCURRENT_TRANSACTIONS_FIELD = new DocField("concurrentTransactions");
 
         private final String uri;
         private final Lsm lsm;

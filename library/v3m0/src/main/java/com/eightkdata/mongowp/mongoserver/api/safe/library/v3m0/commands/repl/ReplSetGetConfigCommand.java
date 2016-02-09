@@ -1,12 +1,13 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
-import org.bson.BsonDocument;
+import com.eightkdata.mongowp.server.api.tools.Empty;
 
 /**
  * Returns the current replica set configuration.
@@ -47,7 +48,7 @@ public class ReplSetGetConfigCommand extends AbstractCommand<Empty, ReplicaSetCo
 
     @Override
     public BsonDocument marshallResult(ReplicaSetConfig reply) {
-        return new BsonDocument("config", reply.toBSON());
+        return DefaultBsonValues.newDocument("config", reply.toBSON());
     }
 
     @Override

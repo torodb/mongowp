@@ -1,21 +1,24 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.ArrayField;
+import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.IndexOptions;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.tools.Empty;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
 
 /**
  *
@@ -60,8 +63,8 @@ public class CreateIndexesCommand extends AbstractCommand<CreateIndexesArgument,
     }
 
     public static class CreateIndexesArgument {
-        private final static BsonField<String> COLLECTION_FIELD = BsonField.create(COMMAND_NAME);
-        private final static BsonField<BsonArray> INDEXES_FIELD = BsonField.create("indexes");
+        private final static StringField COLLECTION_FIELD = new StringField(COMMAND_NAME);
+        private final static ArrayField INDEXES_FIELD = new ArrayField("indexes");
 
         private final String collection;
         private final List<IndexOptions> indexesToCreate;
@@ -76,18 +79,18 @@ public class CreateIndexesCommand extends AbstractCommand<CreateIndexesArgument,
         }
 
         public List<IndexOptions> getIndexesToCreate() {
-            return indexesToCreate;
+            return Collections.unmodifiableList(indexesToCreate);
         }
 
         private BsonDocument marshall() {
-            BsonArray indexesArr = new BsonArray();
+            List<BsonValue<?>> list = new ArrayList<>(indexesToCreate.size());
             for (IndexOptions indexToCreate : indexesToCreate) {
-                indexesArr.add(indexToCreate.marshall());
+                list.add(indexToCreate.marshall());
             }
 
             return new BsonDocumentBuilder()
                     .append(COLLECTION_FIELD, collection)
-                    .append(INDEXES_FIELD, indexesArr)
+                    .append(INDEXES_FIELD, list)
                     .build();
         }
 
