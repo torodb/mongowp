@@ -27,16 +27,42 @@ import javax.annotation.Nullable;
  */
 public class IndexOptions {
 
+    private static final String VERSION_FIELD_NAME = "v";
+    private static final String NAME_FIELD_NAME = "name";
+    private static final String NAMESPACE_FIELD_NAME = "ns";
+    private static final String BACKGROUND_FIELD_NAME = "blackground";
+    private static final String UNIQUE_FIELD_NAME = "unique";
+    private static final String SPARSE_FIELD_NAME = "sparse";
+    private static final String EXPIRE_AFTER_SECONDS_FIELD_NAME = "expireAfterSeconds";
+    private static final String KEYS_FIELD_NAME = "key";
+    private static final String STORAGE_ENGINE_FIELD_NAME = "storageEngine";
+    private static final NumberField<?> VERSION_FIELD = new NumberField<>(VERSION_FIELD_NAME);
+    private static final StringField NAME_FIELD = new StringField(NAME_FIELD_NAME);
+    private static final StringField NAMESPACE_FIELD = new StringField(NAMESPACE_FIELD_NAME);
+    private static final BooleanField BACKGROUND_FIELD = new BooleanField(BACKGROUND_FIELD_NAME);
+    private static final BooleanField UNIQUE_FIELD = new BooleanField(UNIQUE_FIELD_NAME);
+    private static final BooleanField SPARSE_FIELD = new BooleanField(SPARSE_FIELD_NAME);
+    private static final IntField EXPIRE_AFTER_SECONDS_FIELD = new IntField(EXPIRE_AFTER_SECONDS_FIELD_NAME);
+    private static final DocField KEYS_FIELD = new DocField(KEYS_FIELD_NAME);
+    private static final DocField STORAGE_ENGINE_FIELD = new DocField(STORAGE_ENGINE_FIELD_NAME);
+    private static final Joiner PATH_JOINER = Joiner.on('.');
+    private static final Splitter PATH_SPLITER = Splitter.on('.');
+
     private final IndexVersion version;
     private final String name;
+    @Nullable
     private final String database;
+    @Nullable
     private final String collection;
     private final boolean background;
     private final boolean unique;
     private final boolean sparse;
     private final int expireAfterSeconds;
+    @Nonnull
+    private final BsonDocument otherProps;
 
     private final Map<List<String>, Boolean> keys;
+    @Nonnull
     private final BsonDocument storageEngine;
 
     public static final Function<IndexOptions, BsonValue> MARSHALLER_FUN = new MyMarshaller();
@@ -45,14 +71,15 @@ public class IndexOptions {
     public IndexOptions(
             IndexVersion version,
             String name,
-            String database,
-            String collection,
+            @Nullable String database,
+            @Nullable String collection,
             boolean background,
             boolean unique,
             boolean sparse,
             int expireAfterSeconds,
             @Nonnull Map<List<String>, Boolean> keys,
-            @Nullable BsonDocument storageEngine) {
+            @Nullable BsonDocument storageEngine,
+            @Nullable BsonDocument otherProps) {
         this.version = version;
         this.name = name;
         this.database = database;
@@ -62,7 +89,8 @@ public class IndexOptions {
         this.sparse = sparse;
         this.expireAfterSeconds = expireAfterSeconds;
         this.keys = keys;
-        this.storageEngine = storageEngine;
+        this.storageEngine = storageEngine != null ? storageEngine : DefaultBsonValues.EMPTY_DOC;
+        this.otherProps = otherProps != null ? otherProps : DefaultBsonValues.EMPTY_DOC;
     }
 
     public IndexVersion getVersion() {
@@ -73,10 +101,12 @@ public class IndexOptions {
         return name;
     }
 
+    @Nullable
     public String getDatabase() {
         return database;
     }
 
+    @Nullable 
     public String getCollection() {
         return collection;
     }
@@ -109,21 +139,15 @@ public class IndexOptions {
         return expireAfterSeconds;
     }
 
+    @Nonnull
     public BsonDocument getStorageEngine() {
         return storageEngine;
     }
 
-    private static final IntField VERSION_FIELD = new IntField("v");
-    private static final StringField NAME_FIELD = new StringField("name");
-    private static final StringField NAMESPACE_FIELD = new StringField("ns");
-    private static final BooleanField BACKGROUND_FIELD = new BooleanField("blackground");
-    private static final BooleanField UNIQUE_FIELD = new BooleanField("unique");
-    private static final BooleanField SPARSE_FIELD = new BooleanField("sparse");
-    private static final IntField EXPIRE_AFTER_SECONDS_FIELD = new IntField("expireAfterSeconds");
-    private static final DocField KEYS_FIELD = new DocField("key");
-    private static final DocField STORAGE_ENGINE_FIELD = new DocField("storageEngine");
-    private static final Joiner PATH_JOINER = Joiner.on('.');
-    private static final Splitter PATH_SPLITER = Splitter.on('.');
+    @Nonnull
+    public BsonDocument getOtherProps() {
+        return otherProps;
+    }
 
     public BsonDocument marshall() {
 
@@ -135,81 +159,141 @@ public class IndexOptions {
         }
 
         BsonDocumentBuilder builder = new BsonDocumentBuilder()
-                .append(VERSION_FIELD, version.toInt())
+                .appendNumber(VERSION_FIELD, version.toInt())
                 .append(NAME_FIELD, name)
-                .append(NAMESPACE_FIELD, database + '.' + collection)
                 .append(KEYS_FIELD, keysDoc)
                 .append(BACKGROUND_FIELD, background)
                 .append(UNIQUE_FIELD, unique)
                 .append(SPARSE_FIELD, sparse)
                 .append(EXPIRE_AFTER_SECONDS_FIELD, expireAfterSeconds);
-        if (storageEngine != null) {
+        if (!storageEngine.isEmpty()) {
             builder.append(STORAGE_ENGINE_FIELD, storageEngine);
+        }
+        if (database != null && collection != null) {
+            builder.append(NAMESPACE_FIELD, database + '.' + collection);
+        }
+        for (Entry<?> otherProp : otherProps) {
+            builder.appendUnsafe(otherProp.getKey(), otherProp.getValue());
         }
         return builder.build();
     }
 
     public static IndexOptions unmarshall(BsonDocument requestDoc)
             throws BadValueException, TypesMismatchException, NoSuchKeyException {
-        int vInt = BsonReaderTool.getInteger(requestDoc, VERSION_FIELD);
-        try {
-            IndexVersion version = IndexVersion.fromInt(vInt);
-            String name = BsonReaderTool.getString(requestDoc, NAMESPACE_FIELD);
-            String namespace = BsonReaderTool.getString(requestDoc, NAMESPACE_FIELD);
+        IndexVersion version = IndexVersion.V1;
+        String name = null;
+        String namespace = null;
+        boolean background = false;
+        boolean unique = false;
+        boolean sparse = false;
+        int expireAfterSeconds = 0;
+        BsonDocument keyDoc = null;
+        BsonDocument storageEngine = null;
+        BsonDocumentBuilder otherBuilder = new BsonDocumentBuilder();
+        for (Entry<?> entry : requestDoc) {
+            String key = entry.getKey();
+            switch (key) {
+                case VERSION_FIELD_NAME: {
+                    int vInt = BsonReaderTool.getNumeric(requestDoc, VERSION_FIELD).intValue();
+                    try {
+                        version = IndexVersion.fromInt(vInt);
+                    } catch (IndexOutOfBoundsException ex) {
+                        throw new BadValueException("Value " + vInt + " is not a valid version");
+                    }
+                    break;
+                }
+                case NAME_FIELD_NAME: {
+                    name = BsonReaderTool.getString(entry, NAME_FIELD);
+                    break;
+                }
+                case NAMESPACE_FIELD_NAME: {
+                    namespace = BsonReaderTool.getString(entry, NAMESPACE_FIELD);
+                    break;
+                }
+                case BACKGROUND_FIELD_NAME: {
+                    background = BsonReaderTool.getBoolean(entry, BACKGROUND_FIELD);
+                    break;
+                }
+                case UNIQUE_FIELD_NAME: {
+                    unique = BsonReaderTool.getBoolean(entry, UNIQUE_FIELD);
+                    break;
+                }
+                case SPARSE_FIELD_NAME: {
+                    sparse = BsonReaderTool.getBoolean(entry, SPARSE_FIELD);
+                    break;
+                }
+                case EXPIRE_AFTER_SECONDS_FIELD_NAME: {
+                    expireAfterSeconds = BsonReaderTool.getInteger(entry, EXPIRE_AFTER_SECONDS_FIELD);
+                    break;
+                }
+                case KEYS_FIELD_NAME: {
+                    keyDoc = BsonReaderTool.getDocument(entry, KEYS_FIELD);
+                    break;
+                }
+                case STORAGE_ENGINE_FIELD_NAME: {
+                    storageEngine = BsonReaderTool.getDocument(entry, STORAGE_ENGINE_FIELD);
+                    break;
+                }
+                default: {
+                    otherBuilder.appendUnsafe(key, entry.getValue());
+                    break;
+                }
+            }
+        }
+        String db = null;
+        String collection = null;
+
+        if (namespace != null) {
             int dotIndex = namespace.indexOf('.');
             if (dotIndex < 1 || dotIndex > namespace.length() - 2) {
                 throw new BadValueException("The not valid namespace " + namespace + " found");
             }
-            String db = namespace.substring(0, dotIndex);
-            String collection = namespace.substring(dotIndex + 1);
-            boolean background = BsonReaderTool.getBoolean(requestDoc, BACKGROUND_FIELD, false);
-            boolean unique = BsonReaderTool.getBoolean(requestDoc, UNIQUE_FIELD, false);
-            boolean sparse = BsonReaderTool.getBoolean(requestDoc, SPARSE_FIELD, false);
-            int expireAfterSeconds = BsonReaderTool.getInteger(requestDoc, EXPIRE_AFTER_SECONDS_FIELD, 0);
-
-            BsonDocument keyDoc = BsonReaderTool.getDocument(requestDoc, KEYS_FIELD);
-            Map<List<String>, Boolean> keys = Maps.newHashMapWithExpectedSize(keyDoc.size());
-            for (Entry<?> entry : keyDoc) {
-                List<String> key = PATH_SPLITER.splitToList(entry.getKey());
-                BsonValue keyValue = entry.getValue();
-                if (!keyValue.isInt32()) {
-                    throw new BadValueException("It was expected an integer "
-                            + "value on " + KEYS_FIELD.getFieldName() + '.'
-                            + entry.getKey() + " but " + keyValue + " was found");
-                }
-                int keyInt = keyValue.asInt32().intValue();
-                Boolean value;
-                switch (keyInt) {
-                    case 1:
-                        value = true;
-                        break;
-                    case -1:
-                        value = false;
-                        break;
-                    default:
-                        throw new BadValueException("It was expected 1 or -1 as "
-                            + "value of " + KEYS_FIELD.getFieldName() + '.'
-                            + entry.getKey() + " but "  + keyInt + " was found");
-                }
-                keys.put(key, value);
-            }
-
-            BsonDocument storageEngine = BsonReaderTool.getDocument(keyDoc, KEYS_FIELD, null);
-            return new IndexOptions(
-                    version,
-                    name,
-                    db,
-                    collection,
-                    background,
-                    unique,
-                    sparse,
-                    expireAfterSeconds,
-                    keys,
-                    storageEngine
-            );
-        } catch (IndexOutOfBoundsException ex) {
-            throw new BadValueException("Value " + vInt + " is not a valid version");
+            db = namespace.substring(0, dotIndex);
+            collection = namespace.substring(dotIndex + 1);
         }
+
+        if (name == null) {
+            throw new NoSuchKeyException(NAME_FIELD_NAME, "Indexes need names");
+        }
+        if (keyDoc == null) {
+            throw new NoSuchKeyException(KEYS_FIELD_NAME, "Indexes need at least one key to index");
+        }
+
+        Map<List<String>, Boolean> keys = Maps.newHashMapWithExpectedSize(keyDoc.size());
+        for (Entry<?> entry : keyDoc) {
+            List<String> key = PATH_SPLITER.splitToList(entry.getKey());
+            int keyInt = BsonReaderTool.getNumeric(entry, KEYS_FIELD.getFieldName() + '.' + entry.getKey())
+                    .asInt32().intValue();
+
+            Boolean value;
+            switch (keyInt) {
+                case 1:
+                    value = true;
+                    break;
+                case -1:
+                    value = false;
+                    break;
+                default:
+                    throw new BadValueException("It was expected 1 or -1 as "
+                            + "value of " + KEYS_FIELD.getFieldName() + '.'
+                            + entry.getKey() + " but " + keyInt + " was found");
+            }
+            keys.put(key, value);
+        }
+
+        return new IndexOptions(
+                version,
+                name,
+                db,
+                collection,
+                background,
+                unique,
+                sparse,
+                expireAfterSeconds,
+                keys,
+                storageEngine,
+                otherBuilder.build()
+        );
     }
 
     public static enum IndexVersion {

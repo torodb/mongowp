@@ -161,7 +161,7 @@ public abstract class AbstractRequestProcessor implements RequestProcessor {
             String key = entrySet.getKey();
             if ("query".equals(key) || "$query".equals(key)) {
     			BsonValue queryObject = entrySet.getValue();
-    			if (queryObject != null && queryObject.isDocument()) {
+    			if (queryObject.isDocument()) {
     				return query.asDocument();
     			}
     		}

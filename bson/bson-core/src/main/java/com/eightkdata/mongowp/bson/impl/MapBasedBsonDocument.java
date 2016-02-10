@@ -56,6 +56,15 @@ public class MapBasedBsonDocument extends AbstractBsonDocument {
     }
 
     @Override
+    public Entry<?> getEntry(String key) {
+        BsonValue<?> value = map.get(key);
+        if (value == null) {
+            return null;
+        }
+        return new SimpleEntry<>(key, value);
+    }
+
+    @Override
     public UnmodifiableIterator<Entry<?>> iterator() {
         return Iterators.unmodifiableIterator(
                 Iterators.transform(

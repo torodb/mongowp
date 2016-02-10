@@ -53,6 +53,11 @@ public final class EmptyBsonDocument extends AbstractBsonDocument {
     }
 
     @Override
+    public Entry<?> getEntry(String key) {
+        return null;
+    }
+
+    @Override
     public UnmodifiableIterator<Entry<?>> iterator() {
         return Iterators.unmodifiableIterator(Collections.<Entry<?>>emptyIterator());
     }
