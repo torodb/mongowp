@@ -83,6 +83,19 @@ public class BsonReaderTool {
         return getValue(doc, field.getFieldName());
     }
 
+    @Nonnull
+    public static Entry<?> getEntry(BsonDocument doc, String fieldId) throws NoSuchKeyException {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
+            throw new NoSuchKeyException(fieldId);
+        }
+        return entry;
+    }
+
+    @Nonnull
+    public static Entry<?> getEntry(BsonDocument doc, BsonField field) throws NoSuchKeyException {
+        return getEntry(doc, field.getFieldName());
+    }
 
     @Nonnull
     public static BsonDocument getDocument(BsonDocument doc, DocField field) throws TypesMismatchException, NoSuchKeyException {
@@ -96,23 +109,44 @@ public class BsonReaderTool {
 
     @Nonnull
     public static BsonDocument getDocument(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
+        return getDocument(getEntry(doc, fieldId), fieldId);
+    }
+
+    @Nonnull
+    public static BsonDocument getDocument(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue<?> object = entry.getValue();
         if (!object.isDocument()) {
             throw new TypesMismatchException(fieldId, BsonType.DOCUMENT, object.getType());
         }
         return object.asDocument();
     }
 
+    @Nonnull
+    public static BsonDocument getDocument(Entry<?> entry, DocField field) throws TypesMismatchException {
+        return getDocument(entry, field.getFieldName());
+    }
+
     @Nullable
     public static BsonDocument getDocument(BsonDocument doc, String fieldId, BsonDocument defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (!object.isDocument()) {
-            throw new TypesMismatchException(fieldId, BsonType.DOCUMENT, object.getType());
+        return getDocument(entry, fieldId);
+    }
+
+    @Nonnull
+    public static BsonArray getArray(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue<?> object = entry.getValue();
+        if (!object.isArray()) {
+            throw new TypesMismatchException(fieldId, BsonType.ARRAY, object.getType());
         }
-        return object.asDocument();
+        return object.asArray();
+    }
+
+    @Nonnull
+    public static BsonArray getArray(Entry<?> entry, ArrayField field) throws TypesMismatchException {
+        return getArray(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -127,23 +161,16 @@ public class BsonReaderTool {
 
     @Nonnull
     public static BsonArray getArray(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
-        if (!object.isArray()) {
-            throw new TypesMismatchException(fieldId, BsonType.ARRAY, object.getType());
-        }
-        return object.asArray();
+        return getArray(getEntry(doc, fieldId), fieldId);
     }
 
     @Nullable
     public static BsonArray getArray(BsonDocument doc, String fieldId, BsonArray defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (!object.isArray()) {
-            throw new TypesMismatchException(fieldId, BsonType.ARRAY, object.getType());
-        }
-        return object.asArray();
+        return getArray(entry, fieldId);
     }
 
     @Nonnull
@@ -155,10 +182,10 @@ public class BsonReaderTool {
     public static BsonNumber getNumeric(BsonDocument doc, NumberField<?> field, BsonNumber defaultValue) throws TypesMismatchException {
         return getNumeric(doc, field.getFieldName(), defaultValue);
     }
-    
+
     @Nonnull
-    public static BsonNumber getNumeric(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
+    public static BsonNumber<?> getNumeric(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue<?> object = entry.getValue();
         if (!object.isNumber()) {
             String foundType = object.getType().toString().toLowerCase(Locale.ROOT);
             throw new TypesMismatchException(
@@ -169,20 +196,35 @@ public class BsonReaderTool {
         return object.asNumber();
     }
 
+    @Nonnull
+    public static BsonNumber getNumeric(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
+        return getNumeric(getEntry(doc, fieldId), fieldId);
+    }
+
     @Nullable
     public static BsonNumber getNumeric(BsonDocument doc, String fieldId, BsonNumber defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (!object.isNumber()) {
-            String foundType = object.getType().toString().toLowerCase(Locale.ROOT);
+        return getNumeric(entry, fieldId);
+    }
+
+    @Nonnull
+    public static Instant getInstant(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue<?> value = entry.getValue();
+        if (!value.isDateTime()) {
             throw new TypesMismatchException(
-                    fieldId, "numeric", object.getType(),
-                    fieldId + " field has non-numeric type " + foundType
+                    fieldId, "date", value.getType(),
+                    "Expected date type for field " + fieldId + ". Found" + value
             );
         }
-        return object.asNumber();
+        return value.asDateTime().getValue();
+    }
+
+    @Nonnull
+    public static Instant getInstant(Entry<?> entry, DateTimeField field) throws TypesMismatchException {
+        return getInstant(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -197,14 +239,27 @@ public class BsonReaderTool {
     
     @Nonnull
     public static Instant getInstant(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
-        if (object.isDateTime()) {
-            return object.asDateTime().getValue();
+        return getInstant(getEntry(doc, fieldId), fieldId);
+    }
+
+    @Nullable
+    public static Instant getInstant(BsonDocument doc, String fieldId, Instant defaultValue) throws TypesMismatchException {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
+            return defaultValue;
         }
-//        TODO: Check if we to remove that is correct
-//        if (object.isTimestamp()) {
-//            return Instant.ofEpochSecond(object.asTimestamp().getSecondsSinceEpoch()); //TODO: Check this implementation
-//        }
+        return getInstant(entry, fieldId);
+    }
+
+    @Nonnull
+    public static OpTime getOpTime(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue object = entry.getValue();
+        if (object.isTimestamp()) {
+            BsonTimestamp asTimestamp = object.asTimestamp();
+            UnsignedInteger secs = UnsignedInteger.fromIntBits(asTimestamp.getSecondsSinceEpoch());
+            UnsignedInteger term = UnsignedInteger.fromIntBits(asTimestamp.getOrdinal());
+            return new OpTime(secs, term);
+        }
         String foundType = object.getType().toString().toLowerCase(Locale.ROOT);
         throw new TypesMismatchException(
                 fieldId, "date", object.getType(),
@@ -212,24 +267,9 @@ public class BsonReaderTool {
         );
     }
 
-    @Nullable
-    public static Instant getInstant(BsonDocument doc, String fieldId, Instant defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
-            return defaultValue;
-        }
-        if (object.isDateTime()) {
-            return object.asDateTime().getValue();
-        }
-//         TODO: Check if we to remove that is correct
-//        if (object.isTimestamp()) {
-//            return Instant.ofEpochSecond(object.asTimestamp().getSecondsSinceEpoch()); //TODO: Check this implementation
-//        }
-        String foundType = object.getType().toString().toLowerCase(Locale.ROOT);
-        throw new TypesMismatchException(
-                fieldId, "date", object.getType(),
-                "Expected date type for field " + fieldId + ". Found" + foundType
-        );
+    @Nonnull
+    public static OpTime getOpTime(Entry<?> entry, TimestampField field) throws TypesMismatchException {
+        return getOpTime(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -244,50 +284,32 @@ public class BsonReaderTool {
 
     @Nonnull
     public static OpTime getOpTime(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
-//        TODO: Check if to remove that is correct
-//        if (object.isDateTime()) {
-//            BsonDateTime asDateTime = object.asDateTime();
-//            UnsignedInteger secs = UnsignedInteger.valueOf(asDateTime.getMillisFromUnix() / 1000);
-//            UnsignedInteger term = UnsignedInteger.fromIntBits((int) (asDateTime.getMillisFromUnix() % 1000));
-//            return new OpTime(secs, term);
-//        }
-        if (object.isTimestamp()) {
-            BsonTimestamp asTimestamp = object.asTimestamp();
-            UnsignedInteger secs = UnsignedInteger.fromIntBits(asTimestamp.getSecondsSinceEpoch());
-            UnsignedInteger term = UnsignedInteger.fromIntBits(asTimestamp.getOrdinal());
-            return new OpTime(secs, term);
-        }
-        String foundType = object.getType().toString().toLowerCase(Locale.ROOT);
-        throw new TypesMismatchException(
-                fieldId, "date", object.getType(),
-                "Expected date type for field " + fieldId + ". Found" + foundType
-        );
+        return getOpTime(getEntry(doc, fieldId), fieldId);
     }
 
     @Nullable
     public static OpTime getOpTime(BsonDocument doc, String fieldId, OpTime defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (object.isDateTime()) {
-            BsonDateTime asDateTime = object.asDateTime();
-            UnsignedInteger secs = UnsignedInteger.valueOf(asDateTime.getMillisFromUnix() / 1000);
-            UnsignedInteger term = UnsignedInteger.fromIntBits((int) (asDateTime.getMillisFromUnix() % 1000));
-            return new OpTime(secs, term);
+        return getOpTime(entry, fieldId);
+    }
+
+    public static int getInteger(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue<?> object = entry.getValue();
+        if (!object.isInt32()) {
+            String foundType = toStringBsonType(object.getType());
+            throw new TypesMismatchException(
+                    fieldId, "integer", object.getType(),
+                    "Expected integer type for field " + fieldId + ". Found" + foundType
+            );
         }
-        if (object.isTimestamp()) {
-            BsonTimestamp asTimestamp = object.asTimestamp();
-            UnsignedInteger secs = UnsignedInteger.fromIntBits(asTimestamp.getSecondsSinceEpoch());
-            UnsignedInteger term = UnsignedInteger.fromIntBits(asTimestamp.getOrdinal());
-            return new OpTime(secs, term);
-        }
-        String foundType = object.getType().toString().toLowerCase(Locale.ROOT);
-        throw new TypesMismatchException(
-                fieldId, "date", object.getType(),
-                "Expected date type for field " + fieldId + ". Found" + foundType
-        );
+        return object.asInt32().intValue();
+    }
+
+    public static int getInteger(Entry<?> entry, IntField field) throws TypesMismatchException {
+        return getInteger(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -300,30 +322,31 @@ public class BsonReaderTool {
     }
 
     public static int getInteger(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
-        if (!object.isInt32()) {
-            String foundType = toStringBsonType(object.getType());
-            throw new TypesMismatchException(
-                    fieldId, "integer", object.getType(),
-                    "Expected integer type for field " + fieldId + ". Found" + foundType
-            );
-        }
-        return object.asInt32().intValue();
+        return getInteger(doc.getEntry(fieldId), fieldId);
     }
 
     public static int getInteger(BsonDocument doc, String fieldId, int defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (!object.isInt32()) {
+        return getInteger(entry, fieldId);
+    }
+
+    public static long getLong(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue object = entry.getValue();
+        if (!object.isNumber()) {
             String foundType = toStringBsonType(object.getType());
             throw new TypesMismatchException(
                     fieldId, "integer", object.getType(),
-                    "Expected integer type for field " + fieldId + ". Found" + foundType
+                    "Expected long type for field " + fieldId + ". Found" + foundType
             );
         }
-        return object.asInt32().intValue();
+        return object.asNumber().longValue();
+    }
+
+    public static long getLong(Entry<?> entry, LongField field) throws TypesMismatchException {
+        return getLong(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -336,30 +359,31 @@ public class BsonReaderTool {
     }
     
     public static long getLong(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
-        if (!object.isNumber()) {
-            String foundType = toStringBsonType(object.getType());
-            throw new TypesMismatchException(
-                    fieldId, "integer", object.getType(),
-                    "Expected long type for field " + fieldId + ". Found" + foundType
-            );
-        }
-        return object.asNumber().longValue();
+        return getLong(getEntry(doc, fieldId), fieldId);
     }
     
     public static long getLong(BsonDocument doc, String fieldId, long defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (!object.isNumber()) {
+        return getLong(entry, fieldId);
+    }
+
+    public static double getDouble(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue object = entry.getValue();
+        if (!object.isDouble()) {
             String foundType = toStringBsonType(object.getType());
             throw new TypesMismatchException(
                     fieldId, "integer", object.getType(),
-                    "Expected long type for field " + fieldId + ". Found" + foundType
+                    "Expected double type for field " + fieldId + ". Found" + foundType
             );
         }
-        return object.asNumber().longValue();
+        return object.asDouble().doubleValue();
+    }
+
+    public static double getDouble(Entry<?> entry, DoubleField field) throws TypesMismatchException {
+        return getDouble(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -372,49 +396,19 @@ public class BsonReaderTool {
     }
 
     public static double getDouble(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
-        if (!object.isDouble()) {
-            String foundType = toStringBsonType(object.getType());
-            throw new TypesMismatchException(
-                    fieldId, "integer", object.getType(),
-                    "Expected double type for field " + fieldId + ". Found" + foundType
-            );
-        }
-        return object.asDouble().doubleValue();
+        return getDouble(getEntry(doc, fieldId), fieldId);
     }
 
     public static double getDouble(BsonDocument doc, String fieldId, double defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (!object.isDouble()) {
-            String foundType = toStringBsonType(object.getType());
-            throw new TypesMismatchException(
-                    fieldId, "integer", object.getType(),
-                    "Expected double type for field " + fieldId + ". Found" + foundType
-            );
-        }
-        return object.asDouble().doubleValue();
+        return getDouble(entry, fieldId);
     }
 
-    @Nonnull
-    public static boolean getBoolean(BsonDocument doc, BooleanField field) throws TypesMismatchException, NoSuchKeyException {
-        return getBoolean(doc, field.getFieldName());
-    }
-
-    public static boolean getBoolean(BsonDocument doc, BooleanField field, boolean defaultValue) throws TypesMismatchException {
-        return getBoolean(doc, field.getFieldName(), defaultValue);
-    }
-
-    public static boolean getBooleanOrNumeric(
-            BsonDocument doc,
-            String fieldId,
-            boolean defaultValue) throws TypesMismatchException{
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
-            return defaultValue;
-        }
+    public static boolean getBooleanOrNumeric(Entry<?> entry, String fieldId) throws TypesMismatchException{
+        BsonValue object = entry.getValue();
         if (object.isNumber()) {
             return object.asNumber().intValue() != 0;
         }
@@ -427,18 +421,27 @@ public class BsonReaderTool {
                 + ". Found " + object.getType().toString().toLowerCase(Locale.ROOT)
         );
     }
+    
+    public static boolean getBooleanOrNumeric(Entry<?> entry, BooleanField field) throws TypesMismatchException {
+        return getBooleanOrNumeric(entry, field.getFieldName());
+    }
 
-    public static boolean getBooleanOrNumeric(
-            BsonDocument doc,
-            BooleanField field,
-            boolean defaultValue) throws TypesMismatchException{
+    public static boolean getBooleanOrNumeric(BsonDocument doc, String fieldId, boolean defaultValue)
+            throws TypesMismatchException{
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
+            return defaultValue;
+        }
+        return getBooleanOrNumeric(entry, fieldId);
+    }
+
+    public static boolean getBooleanOrNumeric(BsonDocument doc, BooleanField field, boolean defaultValue)
+            throws TypesMismatchException{
         return getBooleanOrNumeric(doc, field.getFieldName(), defaultValue);
     }
 
-    public static boolean getBoolean(
-            BsonDocument doc,
-            String fieldId) throws TypesMismatchException, NoSuchKeyException{
-        BsonValue object = getValue(doc, fieldId);
+    public static boolean getBoolean(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue object = entry.getValue();
         if (object.isBoolean()) {
             return object.asBoolean().getValue();
         }
@@ -448,23 +451,48 @@ public class BsonReaderTool {
                 "Expected boolean type for field " + fieldId + ". Found " + foundType
         );
     }
+
+    @Nonnull
+    public static boolean getBoolean(Entry<?> entry, BooleanField field) throws TypesMismatchException {
+        return getBoolean(entry, field.getFieldName());
+    }
+
+    public static boolean getBoolean(BsonDocument doc, BooleanField field, boolean defaultValue)
+            throws TypesMismatchException {
+        return getBoolean(doc, field.getFieldName(), defaultValue);
+    }
+
+    public static boolean getBoolean(BsonDocument doc, String fieldId)
+            throws TypesMismatchException, NoSuchKeyException{
+        return getBoolean(getEntry(doc, fieldId), fieldId);
+    }
+
+    public static boolean getBoolean(BsonDocument doc, BooleanField field)
+            throws TypesMismatchException, NoSuchKeyException{
+        return getBoolean(doc, field.getFieldName());
+    }
     
-    public static boolean getBoolean(
-            BsonDocument doc,
-            String fieldId,
-            boolean defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+    public static boolean getBoolean( BsonDocument doc, String fieldId, boolean defaultValue) 
+            throws TypesMismatchException {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (object.isBoolean()) {
-            return object.asBoolean().getValue();
+        return getBoolean(entry, fieldId);
+    }
+
+    @Nonnull
+    public static String getString(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue object = entry.getValue();
+        if (!object.isString()) {
+            throw new TypesMismatchException(fieldId, "string", object.getType());
         }
-        String foundType = toStringBsonType(object.getType());
-        throw new TypesMismatchException(
-                fieldId, "boolean", object.getType(),
-                "Expected boolean type for field " + fieldId + ". Found " + foundType
-        );
+        return object.asString().getValue();
+    }
+
+    @Nonnull
+    public static String getString(Entry<?> entry, StringField field) throws TypesMismatchException {
+        return getString(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -479,23 +507,27 @@ public class BsonReaderTool {
 
     @Nonnull
     public static String getString(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
-        if (!object.isString()) {
-            throw new TypesMismatchException(fieldId, "string", object.getType());
-        }
-        return object.asString().getValue();
+        return getString(getEntry(doc, fieldId), fieldId);
     }
 
     @Nullable
     public static String getString(BsonDocument doc, String fieldId, String defaultValue) throws TypesMismatchException{
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (!object.isString()) {
-            throw new TypesMismatchException(fieldId, "string", object.getType());
-        }
-        return object.asString().getValue();
+        return getString(entry, fieldId);
+    }
+
+    @Nonnull
+    public static HostAndPort getHostAndPort(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        String string = getString(entry, fieldId);
+        return HostAndPort.fromString(string);
+    }
+
+    @Nonnull
+    public static HostAndPort getHostAndPort(Entry<?> entry, HostAndPortField field) throws TypesMismatchException {
+        return getHostAndPort(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -510,24 +542,30 @@ public class BsonReaderTool {
     
     @Nonnull
     public static HostAndPort getHostAndPort(BsonDocument doc, String fieldName) throws TypesMismatchException, NoSuchKeyException {
-        String stringValue = BsonReaderTool.getString(doc, fieldName).trim();
-        return HostAndPort.fromString(stringValue);
+        return getHostAndPort(getEntry(doc, fieldName), fieldName);
     }
 
     @Nullable
     public static HostAndPort getHostAndPort(BsonDocument doc, String fieldId, HostAndPort defaultValue) throws TypesMismatchException {
-        Object object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        String stringValue;
-        try {
-            stringValue = BsonReaderTool.getString(doc, fieldId).trim();
+        return getHostAndPort(entry, fieldId);
+    }
+
+    @Nonnull
+    public static BsonObjectId getObjectId(Entry<?> entry, String fieldId) throws TypesMismatchException {
+        BsonValue<?> object = entry.getValue();
+        if (!object.isObjectId()) {
+            throw new TypesMismatchException(fieldId, "objectId", object.getType());
         }
-        catch (NoSuchKeyException ex) {
-            throw new AssertionError();
-        }
-        return HostAndPort.fromString(stringValue);
+        return object.asObjectId();
+    }
+
+    @Nonnull
+    public static BsonObjectId getObjectId(Entry<?> entry, ObjectIdField field) throws TypesMismatchException {
+        return getObjectId(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -542,22 +580,15 @@ public class BsonReaderTool {
     
     @Nonnull
     public static BsonObjectId getObjectId(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        BsonValue object = getValue(doc, fieldId);
-        if (!object.isObjectId()) {
-            throw new TypesMismatchException(fieldId, "objectId", object.getType());
-        }
-        return object.asObjectId().getValue();
+        return getObjectId(getEntry(doc, fieldId), fieldId);
     }
 
     @Nullable
     public static BsonObjectId getObjectId(BsonDocument doc, String fieldId, BsonObjectId defaultValue) throws TypesMismatchException {
-        BsonValue object = doc.get(fieldId);
-        if (object == null) {
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
             return defaultValue;
         }
-        if (!object.isObjectId()) {
-            throw new TypesMismatchException(fieldId, "objectId", object.getType());
-        }
-        return object.asObjectId().getValue();
+        return getObjectId(entry, fieldId);
     }
 }

@@ -32,22 +32,26 @@ public abstract class AbstractIterableBasedBsonDocument extends AbstractBsonDocu
 
     @Override
     public BsonValue<?> get(String key) {
-        for (Entry<?> entry : this) {
-            if (entry.getKey().equals(key)) {
-                return entry.getValue();
-            }
+        Entry<?> entry = getEntry(key);
+        if (entry == null) {
+            return null;
         }
-        return null;
+        return entry.getValue();
     }
 
     @Override
     public boolean containsKey(String key) {
+        return getEntry(key) != null;
+    }
+
+    @Override
+    public Entry<?> getEntry(String key) {
         for (Entry<?> entry : this) {
             if (entry.getKey().equals(key)) {
-                return true;
+                return entry;
             }
         }
-        return false;
+        return null;
     }
 
     @Override

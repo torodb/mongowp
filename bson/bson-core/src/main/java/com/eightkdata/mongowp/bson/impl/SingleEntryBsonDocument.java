@@ -52,6 +52,14 @@ public class SingleEntryBsonDocument extends AbstractBsonDocument {
     }
 
     @Override
+    public Entry<?> getEntry(String key) {
+        if (!key.equals(entry.getKey())) {
+            return null;
+        }
+        return entry;
+    }
+
+    @Override
     public int size() {
         return 1;
     }

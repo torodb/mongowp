@@ -25,6 +25,7 @@ import com.eightkdata.mongowp.bson.utils.IntBaseHasher;
 import com.google.common.collect.UnmodifiableIterator;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -45,7 +46,11 @@ public interface BsonDocument extends BsonValue<BsonDocument>, Iterable<Entry<?>
      * @return the first entry of this document
      * @throws NoSuchElementException if it is {@linkplain #isEmpty() empty}
      */
+    @Nonnull
     Entry<?> getFirstEntry() throws NoSuchElementException;
+
+    @Nullable
+    public Entry<?> getEntry(String key);
 
     @Override
     public UnmodifiableIterator<Entry<?>> iterator();
@@ -69,8 +74,10 @@ public interface BsonDocument extends BsonValue<BsonDocument>, Iterable<Entry<?>
 
     public static interface Entry<V> extends Serializable {
 
+        @Nonnull
         public String getKey();
 
+        @Nonnull
         public BsonValue<V> getValue();
 
         /**
