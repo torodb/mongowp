@@ -224,13 +224,7 @@ public class ReplicaSetConfig {
                             + '.' + GET_LAST_ERROR_MODES_FIELD.getFieldName()
                             + '.' + customWriteNameEntry
                             + '.' + constraintDoc;
-                    BsonValue tagValue = tagEntry.getValue();
-                    BsonType tagType;
-                    if (tagValue == null) {
-                        tagType = BsonType.NULL;
-                    } else {
-                        tagType = tagValue.getType();
-                    }
+                    BsonType tagType = tagEntry.getValue().getType();
                     throw new TypesMismatchException(
                             fieldName, 
                             "number", 

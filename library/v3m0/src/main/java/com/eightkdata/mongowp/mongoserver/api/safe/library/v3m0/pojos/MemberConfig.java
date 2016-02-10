@@ -1,8 +1,10 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
-import com.eightkdata.mongowp.bson.*;
+import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
+import com.eightkdata.mongowp.bson.BsonInt64;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
@@ -104,9 +106,8 @@ public class MemberConfig {
                 = ImmutableMap.builder();
         for (Entry entry : castedTags) {
             BsonValue value = entry.getValue();
-            if (value == null || value.isString()) {
-                throw new TypesMismatchException(entry.getKey(), "string", value == null
-                        ? null : value.getType());
+            if (value.isString()) {
+                throw new TypesMismatchException(entry.getKey(), "string", value.getType());
             }
             String castedValue = value.asString().getValue();
             tagsBuilder.put(entry.getKey(), castedValue);
