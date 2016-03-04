@@ -1,8 +1,8 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
-import com.eightkdata.mongowp.mongoserver.api.safe.CommandImplementation;
+import com.eightkdata.mongowp.server.api.Command;
+import com.eightkdata.mongowp.server.api.CommandImplementation;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.AdminCommands;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.AdminCommands.AdminCommandsImplementationsBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation.AggregationCommands;
@@ -47,7 +47,7 @@ public class MongoDb30Commands implements Iterable<Command> {
          return commands.iterator();
     }
 
-    public static class MongoDb30CommandsImplementationBuilder implements Iterable<Map.Entry<Command, CommandImplementation>> {
+    public static class MongoDb30CommandsImplementationBuilder implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
 
         private final AdminCommandsImplementationsBuilder adminCommandsImplementationsBuilder;
         private final AggregationCommandsImplementationsBuilder aggregationImplementationsBuilder;
@@ -78,7 +78,7 @@ public class MongoDb30Commands implements Iterable<Command> {
 
         @SuppressWarnings("unchecked")
         @Override
-        public Iterator<Map.Entry<Command, CommandImplementation>> iterator() {
+        public Iterator<Map.Entry<Command<?,?>, CommandImplementation>> iterator() {
             return Iterators.concat(
                     adminCommandsImplementationsBuilder.iterator(),
                     aggregationImplementationsBuilder.iterator(),

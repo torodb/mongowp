@@ -1,22 +1,25 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.oplog.OplogOperation;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.OplogOperationParser;
-import com.eightkdata.mongowp.mongoserver.api.safe.oplog.OplogOperation;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.bson.*;
 
 /**
  *
@@ -162,11 +165,11 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
 
     @Immutable
     public static class ApplyOpsReply {
-        private static final BsonField<BsonDocument> GOT_FIELD = BsonField.create("got");
-        private static final BsonField<BsonDocument> WHAT_FAILED_FIELD = BsonField.create("whatFailed");
-        private static final BsonField<String> ERRMSG_FIELD = BsonField.create("errmsg");
-        private static final BsonField<Integer> APPLIED_FIELD = BsonField.create("applied");
-        private static final BsonField<BsonArray> RESULT_FIELD = BsonField.create("result");
+        private static final DocField GOT_FIELD = new DocField("got");
+        private static final DocField WHAT_FAILED_FIELD = new DocField("whatFailed");
+        private static final StringField ERRMSG_FIELD = new StringField("errmsg");
+        private static final IntField APPLIED_FIELD = new IntField("applied");
+        private static final ArrayField RESULT_FIELD = new ArrayField("result");
 
         private final int num;
         private final ImmutableList<Boolean> results;
@@ -220,11 +223,11 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
             else {
                 builder.append(APPLIED_FIELD, getNum());
 
-                BsonArray bsonResult = new BsonArray();
+                BsonArrayBuilder bsonResult = new BsonArrayBuilder();
                 for (Boolean iestResult : results) {
-                    bsonResult.add(BsonBoolean.valueOf(iestResult));
+                    bsonResult.add(iestResult);
                 }
-                builder.append(RESULT_FIELD, bsonResult);
+                builder.append(RESULT_FIELD, bsonResult.build());
             }
             return builder.build();
         }

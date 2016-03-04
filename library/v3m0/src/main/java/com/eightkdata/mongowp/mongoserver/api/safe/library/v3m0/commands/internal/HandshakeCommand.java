@@ -1,17 +1,17 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonObjectId;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.HandshakeCommand.HandshakeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.tools.Empty;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.Nullable;
-import org.bson.BsonDocument;
-import org.bson.types.ObjectId;
 
 /**
  *
@@ -46,7 +46,7 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, Empty>{
                 MEMBER_ID_FIELD_NAME
         );
         
-        ObjectId rid = BsonReaderTool.getObjectId(requestDoc, RID_FIELD_NAME);
+        BsonObjectId rid = BsonReaderTool.getObjectId(requestDoc, RID_FIELD_NAME);
         Long memberId;
         if (!requestDoc.containsKey(MEMBER_ID_FIELD_NAME)) {
             memberId = null;
@@ -88,7 +88,7 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, Empty>{
     }
 
     public static class HandshakeArgument {
-        private final ObjectId rid;
+        private final BsonObjectId rid;
         private final Long memberId;
         /**
          * This is not used on MongoDB 3.0.0 and higher, but it is required in
@@ -97,15 +97,15 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, Empty>{
         private final @Nullable MemberConfig config;
 
         public HandshakeArgument(
-                ObjectId rid,
-                Long memberId,
+                BsonObjectId rid,
+                @Nullable Long memberId,
                 @Nullable MemberConfig config) {
             this.rid = rid;
             this.memberId = memberId;
             this.config = config;
         }
 
-        public ObjectId getRid() {
+        public BsonObjectId getRid() {
             return rid;
         }
 

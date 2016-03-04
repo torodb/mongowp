@@ -1,10 +1,11 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import org.bson.BsonDocument;
+import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.server.api.Command;
+import com.eightkdata.mongowp.server.api.tools.Empty;
 
 /**
  *
@@ -16,7 +17,7 @@ public class EmptyCommandArgumentMarshaller {
     }
 
     public static BsonDocument marshallEmptyArgument(Command<Empty, ?> command) {
-        return new BsonDocument(command.getCommandName(), MongoWP.BSON_OK);
+        return DefaultBsonValues.newDocument(command.getCommandName(), MongoConstants.BSON_OK);
     }
 
 }

@@ -1,11 +1,16 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetFreezeCommand.ReplSetFreezeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetFreezeCommand.ReplSetFreezeReply;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.Nullable;
-import org.bson.*;
 
 /**
  * <em>Freeze</em> or <em>unfreeze</em> this node.
@@ -15,6 +20,8 @@ import org.bson.*;
  */
 public class ReplSetFreezeCommand extends AbstractCommand<ReplSetFreezeArgument, ReplSetFreezeReply>{
 
+    private static final StringField INFO_FIELD = new StringField("info");
+    private static final StringField WARNING_FIELD = new StringField("warning");
     public static final ReplSetFreezeCommand INSTANCE = new ReplSetFreezeCommand();
 
     private ReplSetFreezeCommand() {
@@ -27,8 +34,8 @@ public class ReplSetFreezeCommand extends AbstractCommand<ReplSetFreezeArgument,
     }
 
     @Override
-    public ReplSetFreezeArgument unmarshallArg(BsonDocument requestDoc) {
-        int freezeSecs = requestDoc.getInt32("replSetFreeze").getValue();
+    public ReplSetFreezeArgument unmarshallArg(BsonDocument requestDoc) throws TypesMismatchException, NoSuchKeyException {
+        int freezeSecs = BsonReaderTool.getInteger(requestDoc, "replSetFreeze");
         
         return new ReplSetFreezeArgument(freezeSecs);
     }
@@ -45,18 +52,18 @@ public class ReplSetFreezeCommand extends AbstractCommand<ReplSetFreezeArgument,
 
     @Override
     public BsonDocument marshallResult(ReplSetFreezeReply reply) {
-        BsonDocument doc = new BsonDocument();
+        BsonDocumentBuilder doc = new BsonDocumentBuilder();
 
         String info = reply.getInfo();
         if (info != null) {
-            doc.append("info", new BsonString(info));
+            doc.append(INFO_FIELD, info);
         }
         String warning = reply.getWarning();
         if (warning != null) {
-            doc.append("warning", new BsonString(warning));
+            doc.append(WARNING_FIELD, warning);
         }
         
-        return doc;
+        return doc.build();
     }
 
     @Override

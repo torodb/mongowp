@@ -1,17 +1,27 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.oplog.*;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.oplog.DeleteOplogOperation;
+import com.eightkdata.mongowp.server.api.oplog.NoopOplogOperation;
+import com.eightkdata.mongowp.server.api.oplog.DbOplogOperation;
+import com.eightkdata.mongowp.server.api.oplog.OplogVersion;
+import com.eightkdata.mongowp.server.api.oplog.DbCmdOplogOperation;
+import com.eightkdata.mongowp.server.api.oplog.InsertOplogOperation;
+import com.eightkdata.mongowp.server.api.oplog.OplogOperationType;
+import com.eightkdata.mongowp.server.api.oplog.UpdateOplogOperation;
+import com.eightkdata.mongowp.server.api.oplog.OplogOperation;
+import com.eightkdata.mongowp.OpTime;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Function;
 import java.util.Locale;
 import javax.annotation.Nonnull;
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
+
+import static com.eightkdata.mongowp.server.api.oplog.OplogOperationType.*;
 
 /**
  *
@@ -29,7 +39,7 @@ public class OplogOperationParser {
             BadValueException, TypesMismatchException, NoSuchKeyException {
         if (!uncastedOp.isDocument()) {
             throw new BadValueException("found a "
-                    + uncastedOp.getBsonType().toString().toLowerCase(Locale.ROOT)
+                    + uncastedOp.getType().toString().toLowerCase(Locale.ROOT)
                     + " where a document that represents a oplog operation "
                     + "was expected");
         }

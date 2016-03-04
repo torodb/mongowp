@@ -1,26 +1,32 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonDocument.Entry;
+import com.eightkdata.mongowp.bson.BsonObjectId;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.IsMasterCommand.IsMasterReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.server.api.tools.Empty;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.bson.*;
-import org.bson.types.ObjectId;
 
 /**
  *
@@ -67,24 +73,24 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
     public static class IsMasterReply {
 
         private static final IsMasterReply NOT_CONFIGURED = new IsMasterReply();
-        private static final BsonField<Boolean> IS_MASTER_FIELD = BsonField.create("ismaster");
-        private static final BsonField<Boolean> SECONDARY_FIELD = BsonField.create("secondary");
-        private static final BsonField<String> SET_NAME_FIELD = BsonField.create("setName");
-        private static final BsonField<Integer> SET_VERSION_FIELD = BsonField.create("setVersion");
-        private static final BsonField<BsonArray> HOSTS_FIELD = BsonField.create("hosts");
-        private static final BsonField<BsonArray> PASSIVES_FIELD = BsonField.create("passives");
-        private static final BsonField<BsonArray> ARBITERS_FIELD = BsonField.create("arbiters");
-        private static final BsonField<HostAndPort> PRIMARY_FIELD = BsonField.create("primary");
-        private static final BsonField<Boolean> ARBITER_ONLY_FIELD = BsonField.create("arbiterOnly");
-        private static final BsonField<Boolean> PASSIVE_FIELD = BsonField.create("passive");
-        private static final BsonField<Boolean> HIDDEN_FIELD = BsonField.create("hidden");
-        private static final BsonField<Boolean> BUILD_INDEXES_FIELD = BsonField.create("buildIndexes");
-        private static final BsonField<Integer> SLAVE_DELAY_FIELD = BsonField.create("slaveDelay");
-        private static final BsonField<BsonDocument> TAGS_FIELD = BsonField.create("tags");
-        private static final BsonField<HostAndPort> ME_FIELD = BsonField.create("me");
-        private static final BsonField<ObjectId> ELECTION_ID_FIELD = BsonField.create("electionId");
-        private static final BsonField<String> INFO_FIELD = BsonField.create("info");
-        private static final BsonField<Boolean> IS_REPLICA_SET_FIELD = BsonField.create("isreplicaset");
+        private static final BooleanField IS_MASTER_FIELD = new BooleanField("ismaster");
+        private static final BooleanField SECONDARY_FIELD = new BooleanField("secondary");
+        private static final StringField SET_NAME_FIELD = new StringField("setName");
+        private static final IntField SET_VERSION_FIELD = new IntField("setVersion");
+        private static final ArrayField HOSTS_FIELD = new ArrayField("hosts");
+        private static final ArrayField PASSIVES_FIELD = new ArrayField("passives");
+        private static final ArrayField ARBITERS_FIELD = new ArrayField("arbiters");
+        private static final HostAndPortField PRIMARY_FIELD = new HostAndPortField("primary");
+        private static final BooleanField ARBITER_ONLY_FIELD = new BooleanField("arbiterOnly");
+        private static final BooleanField PASSIVE_FIELD = new BooleanField("passive");
+        private static final BooleanField HIDDEN_FIELD = new BooleanField("hidden");
+        private static final BooleanField BUILD_INDEXES_FIELD = new BooleanField("buildIndexes");
+        private static final IntField SLAVE_DELAY_FIELD = new IntField("slaveDelay");
+        private static final DocField TAGS_FIELD = new DocField("tags");
+        private static final HostAndPortField ME_FIELD = new HostAndPortField("me");
+        private static final ObjectIdField ELECTION_ID_FIELD = new ObjectIdField("electionId");
+        private static final StringField INFO_FIELD = new StringField("info");
+        private static final BooleanField IS_REPLICA_SET_FIELD = new BooleanField("isreplicaset");
 
         private final Boolean master;
         private final Boolean secondary;
@@ -101,7 +107,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
         private final Integer slaveDelay;
         private final ImmutableMap<String, String> tags;
         private final HostAndPort me;
-        private final ObjectId electionId;
+        private final BsonObjectId electionId;
         private final boolean configSet;
 
         public IsMasterReply(
@@ -119,7 +125,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
                 int slaveDelay,
                 @Nullable ImmutableMap<String, String> tags,
                 @Nonnull HostAndPort me,
-                @Nullable ObjectId electionId) {
+                @Nullable BsonObjectId electionId) {
             this.master = master;
             this.secondary = !master;
             this.setName = setName;
@@ -222,22 +228,22 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
         }
 
         private BsonArray toBsonArray(@Nonnull List<HostAndPort> hostsAndPortList) {
-            BsonArray bsonArray = new BsonArray();
+            BsonArrayBuilder bsonArray = new BsonArrayBuilder();
             for (HostAndPort hostAndPort : hostsAndPortList) {
-                bsonArray.add(new BsonString(hostAndPort.toString()));
+                bsonArray.add(hostAndPort.toString());
             }
-            return bsonArray;
+            return bsonArray.build();
         }
 
         private BsonDocument toBsonDocument(Map<String, String> map) {
-            BsonDocument doc = new BsonDocument();
-            for (Entry<String, String> entrySet : map.entrySet()) {
-                doc.append(entrySet.getKey(), new BsonString(entrySet.getValue()));
+            BsonDocumentBuilder doc = new BsonDocumentBuilder();
+            for (java.util.Map.Entry<String, String> entrySet : map.entrySet()) {
+                doc.appendUnsafe(entrySet.getKey(), DefaultBsonValues.newString(entrySet.getValue()));
             }
-            return doc;
+            return doc.build();
         }
 
-        private static ImmutableList<HostAndPort> fromBSONArray(BsonDocument bson, BsonField<BsonArray> field)
+        private static ImmutableList<HostAndPort> fromBSONArray(BsonDocument bson, ArrayField field)
                 throws TypesMismatchException, NoSuchKeyException {
             if (!bson.containsKey(field.getFieldName())) {
                 return ImmutableList.of();
@@ -251,10 +257,10 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
                         throw new TypesMismatchException(
                                 Integer.toString(i),
                                 "string",
-                                uncastedValue.getBsonType(),
+                                uncastedValue.getType(),
                                 "Elements in \"" + field + "\" array of isMaster "
                                         + "response must be of type string but "
-                                        + "found type " + uncastedValue.getBsonType()
+                                        + "found type " + uncastedValue.getType()
                         );
                     }
                     resultBuilder.add(HostAndPort.fromString(uncastedList.asString().getValue()));
@@ -296,7 +302,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             boolean passive = BsonReaderTool.getBoolean(bson, PASSIVE_FIELD, false);
             boolean hidden = BsonReaderTool.getBoolean(bson, HIDDEN_FIELD, false);
             boolean buildIndexes = BsonReaderTool.getBoolean(bson, BUILD_INDEXES_FIELD, false);
-            int slaveDelay = BsonReaderTool.getNumeric(bson, SLAVE_DELAY_FIELD, new BsonInt32(0)).intValue();
+            int slaveDelay = BsonReaderTool.getNumeric(bson, SLAVE_DELAY_FIELD, DefaultBsonValues.INT32_ZERO).intValue();
 
             final ImmutableMap<String, String> tags;
             if (!bson.containsKey(TAGS_FIELD.getFieldName())) {
@@ -306,15 +312,15 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
                 ImmutableMap.Builder<String, String> tagsBuilder = ImmutableMap.builder();
 
                 BsonDocument uncastedTags = BsonReaderTool.getDocument(bson, TAGS_FIELD);
-                for (Entry<String, BsonValue> entry : uncastedTags.entrySet()) {
+                for (Entry<?> entry : uncastedTags) {
                     if (!entry.getValue().isString()) {
                         throw new TypesMismatchException(
                                 entry.getKey(),
                                 "string",
-                                entry.getValue().getBsonType(),
+                                entry.getValue().getType(),
                                 "Elements in \"" + TAGS_FIELD + "\" obj of "
                                         + "isMaster response must be of type string "
-                                        + " but found type " + entry.getValue().getBsonType().toString().toLowerCase(Locale.ROOT)
+                                        + " but found type " + entry.getValue().getType().toString().toLowerCase(Locale.ROOT)
                         );
                     }
                     String tagValue = uncastedTags.get(entry.getKey()).asString().getValue();
@@ -324,7 +330,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
                 tags = tagsBuilder.build();
             }
 
-            ObjectId electionId = BsonReaderTool.getObjectId(bson, ELECTION_ID_FIELD, null);
+            BsonObjectId electionId = BsonReaderTool.getObjectId(bson, ELECTION_ID_FIELD, null);
             HostAndPort me = BsonReaderTool.getHostAndPort(bson, ME_FIELD, null);
 
             return new IsMasterReply(

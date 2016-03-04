@@ -1,23 +1,26 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.bson.annotations.NotMutable;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.ListDatabasesCommand.ListDatabasesReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.BadValueException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.tools.Empty;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonType;
-import org.bson.BsonValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,15 +75,15 @@ public class ListDatabasesCommand extends AbstractCommand<Empty, ListDatabasesRe
 
     public static class ListDatabasesReply {
 
-        private static final BsonField<BsonArray> DATABASES_FIELD = BsonField.create("databases");
-        private static final BsonField<Long> TOTAL_SIZE_FIELD = BsonField.create("totalSize");
-        private static final BsonField<Long> TOTAL_SIZE_MB_FIELD = BsonField.create("totalSizeMb");
+        private static final ArrayField DATABASES_FIELD = new ArrayField("databases");
+        private static final LongField TOTAL_SIZE_FIELD = new LongField("totalSize");
+        private static final LongField TOTAL_SIZE_MB_FIELD = new LongField("totalSizeMb");
 
         private final List<DatabaseEntry> databases;
         private final long totalSize;
 
-        public ListDatabasesReply(List<DatabaseEntry> databases, long sizeOnDisk) {
-            this.databases = databases;
+        public ListDatabasesReply(@NotMutable List<DatabaseEntry> databases, long sizeOnDisk) {
+            this.databases = Collections.unmodifiableList(databases);
             this.totalSize = sizeOnDisk;
 
             long temp = 0;
@@ -120,9 +123,9 @@ public class ListDatabasesCommand extends AbstractCommand<Empty, ListDatabasesRe
                     throw new TypesMismatchException(
                             field,
                             BsonType.DOCUMENT,
-                            element.getBsonType(),
+                            element.getType(),
                             "Element " + field + " is not a document as it was "
-                            + "expected but a " + element.getBsonType());
+                            + "expected but a " + element.getType());
                 }
                 databases.add(new DatabaseEntry(element.asDocument()));
                 i++;
@@ -133,22 +136,22 @@ public class ListDatabasesCommand extends AbstractCommand<Empty, ListDatabasesRe
         }
 
         private BsonDocument marshall() {
-            BsonArray arr = new BsonArray();
+            BsonArrayBuilder arr = new BsonArrayBuilder();
             for (DatabaseEntry database : databases) {
                 arr.add(database.marshall());
             }
 
             return new BsonDocumentBuilder()
-                    .append(DATABASES_FIELD, arr)
+                    .append(DATABASES_FIELD, arr.build())
                     .append(TOTAL_SIZE_FIELD, totalSize)
                     .append(TOTAL_SIZE_MB_FIELD, totalSize / (1000 * 1000))
                     .build();
         }
 
         public static class DatabaseEntry {
-            private static final BsonField<String> NAME_FIELD = BsonField.create("name");
-            private static final BsonField<Long> SIZE_ON_DISK_FIELD = BsonField.create("sizeOnDisk");
-            private static final BsonField<Boolean> EMPTY_FIELD = BsonField.create("empty");
+            private static final StringField NAME_FIELD = new StringField("name");
+            private static final LongField SIZE_ON_DISK_FIELD = new LongField("sizeOnDisk");
+            private static final BooleanField EMPTY_FIELD = new BooleanField("empty");
 
             private final String name;
             private final long sizeOnDisk;

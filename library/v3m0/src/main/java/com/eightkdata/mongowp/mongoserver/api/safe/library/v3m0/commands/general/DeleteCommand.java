@@ -1,25 +1,27 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.MarshalException;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.WriteConcern;
+import com.eightkdata.mongowp.WriteConcern.SyncMode;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.bson.annotations.NotMutable;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.*;
+import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.DeleteCommand.DeleteArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConcernMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.server.api.MarshalException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.mongodb.WriteConcern;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
-
+import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  *
@@ -27,7 +29,7 @@ import java.util.List;
 //TODO: Change the command to return writeErrors like InsertCommand
 public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
 
-    private static final BsonField<Number> N_FIELD = BsonField.create("n");
+    private static final NumberField<?> N_FIELD = new NumberField<>("n");
     private static final String COMMAND_NAME = "delete";
     public static final DeleteCommand INSTANCE = new DeleteCommand();
 
@@ -82,10 +84,10 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
 
 
     public static class DeleteArgument {
-        private static final BsonField<String> COLLECTION_FIELD = BsonField.create(COMMAND_NAME);
-        private static final BsonField<BsonArray> STATEMENTS_FIELD = BsonField.create("deletes");
-        private static final BsonField<Boolean> ORDERED_FIELD = BsonField.create("ordered");
-        private static final BsonField<BsonDocument> WRITE_CONCERN_FIELD = BsonField.create("writeConcern");
+        private static final StringField COLLECTION_FIELD = new StringField(COMMAND_NAME);
+        private static final ArrayField STATEMENTS_FIELD = new ArrayField("deletes");
+        private static final BooleanField ORDERED_FIELD = new BooleanField("ordered");
+        private static final DocField WRITE_CONCERN_FIELD = new DocField("writeConcern");
 
         private final String collection;
         private final Iterable<DeleteStatement> statements;
@@ -119,13 +121,9 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
             String collection = BsonReaderTool.getString(doc, COLLECTION_FIELD);
             boolean ordered = BsonReaderTool.getBoolean(doc, ORDERED_FIELD, true);
 
-            WriteConcern writeConcern = WriteConcernMarshaller.unmarshall(
-                    BsonReaderTool.getDocument(
-                            doc,
-                            WRITE_CONCERN_FIELD,
-                            null
-                    ),
-                    WriteConcern.ACKNOWLEDGED
+            WriteConcern writeConcern = WriteConcern.fromDocument(
+                    BsonReaderTool.getDocument(doc, WRITE_CONCERN_FIELD, null),
+                    WriteConcern.with(SyncMode.NONE)
             );
             ImmutableList.Builder<DeleteStatement> deletes = ImmutableList.builder();
             BsonArray array = BsonReaderTool.getArray(doc, STATEMENTS_FIELD);
@@ -141,16 +139,16 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
         }
 
         public BsonDocument marshall() {
-            BsonArray statementsBson = new BsonArray();
+            BsonArrayBuilder statementsBson = new BsonArrayBuilder();
             for (DeleteStatement statement : statements) {
                 statementsBson.add(statement.marshall());
             }
 
             return new BsonDocumentBuilder()
                     .append(COLLECTION_FIELD, collection)
-                    .append(STATEMENTS_FIELD, statementsBson)
+                    .append(STATEMENTS_FIELD, statementsBson.build())
                     .append(ORDERED_FIELD, ordered)
-                    .append(WRITE_CONCERN_FIELD, WriteConcernMarshaller.marshall(writeConcern))
+                    .append(WRITE_CONCERN_FIELD, writeConcern.toDocument())
                     .build();
         }
 
@@ -158,7 +156,7 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
             private final String collection;
             private final List<DeleteStatement> statements;
             private boolean ordered = true;
-            private WriteConcern writeConcern = WriteConcern.FSYNCED;
+            private WriteConcern writeConcern = WriteConcern.fsync();
 
             public Builder(@Nonnull String collection) {
                 this.collection = collection;
@@ -190,14 +188,14 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
 
     public static class DeleteStatement {
 
-        private static final BsonField<BsonDocument> QUERY_FIELD = BsonField.create("q");
-        private static final BsonField<Boolean> LIMIT_FIELD = BsonField.create("limit");
+        private static final DocField QUERY_FIELD = new DocField("q");
+        private static final BooleanField LIMIT_FIELD = new BooleanField("limit");
 
         private final BsonDocument query;
         private final boolean justOne;
 
-        public DeleteStatement(@Nullable BsonDocument query, boolean justOne) {
-            this.query = query == null ? new BsonDocument() : query;
+        public DeleteStatement(@NotMutable @Nullable BsonDocument query, boolean justOne) {
+            this.query = query == null ? DefaultBsonValues.EMPTY_DOC : query;
             this.justOne = justOne;
         }
 
@@ -219,7 +217,7 @@ public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
         private BsonDocument marshall() {
             return new BsonDocumentBuilder()
                     .append(QUERY_FIELD, query)
-                    .append(LIMIT_FIELD, justOne ? true : false)
+                    .append(LIMIT_FIELD, justOne)
                     .build();
         }
     }

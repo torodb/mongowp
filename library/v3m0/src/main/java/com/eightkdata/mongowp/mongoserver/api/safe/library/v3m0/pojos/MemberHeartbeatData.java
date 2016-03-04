@@ -2,8 +2,8 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
+import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
-import com.eightkdata.mongowp.mongoserver.pojos.OpTime;
 import com.google.common.net.HostAndPort;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

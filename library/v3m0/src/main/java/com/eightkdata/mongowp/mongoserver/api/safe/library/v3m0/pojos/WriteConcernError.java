@@ -1,22 +1,23 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.NoSuchKeyException;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.IntField;
+import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.concurrent.Immutable;
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
 
 /**
  *
  */
 @Immutable
 public class WriteConcernError {
-    private static final BsonField<Integer> CODE_FIELD = BsonField.create("code");
-    private static final BsonField<String> ERR_MSG_FIELD = BsonField.create("errmsg");
+    private static final IntField CODE_FIELD = new IntField("code");
+    private static final StringField ERR_MSG_FIELD = new StringField("errmsg");
 
     private final int code;
     private final String errmsg;
@@ -58,7 +59,7 @@ public class WriteConcernError {
                 : !this.errmsg.equals(other.errmsg));
     }
 
-    public BsonValue marshall() {
+    public BsonValue<?> marshall() {
         BsonDocumentBuilder bsonWriteConcernError = new BsonDocumentBuilder();
         bsonWriteConcernError.append(CODE_FIELD, code);
         bsonWriteConcernError.append(ERR_MSG_FIELD, errmsg);

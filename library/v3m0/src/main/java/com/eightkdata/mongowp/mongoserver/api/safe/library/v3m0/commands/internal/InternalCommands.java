@@ -1,8 +1,8 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.Command;
-import com.eightkdata.mongowp.mongoserver.api.safe.CommandImplementation;
+import com.eightkdata.mongowp.server.api.Command;
+import com.eightkdata.mongowp.server.api.CommandImplementation;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.HandshakeCommand.HandshakeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectReply;
@@ -12,7 +12,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.interna
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.Empty;
+import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
@@ -38,7 +38,7 @@ public class InternalCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class InternalCommandsImplementationsBuilder implements Iterable<Entry<Command, CommandImplementation>> {
+    public static abstract class InternalCommandsImplementationsBuilder implements Iterable<Entry<Command<?,?>, CommandImplementation>> {
 
         public abstract CommandImplementation<HandshakeArgument, Empty> getHandshakeImplementation();
 
@@ -52,8 +52,8 @@ public class InternalCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<ReplSetUpdatePositionArgument, Empty> getReplSetUpdateImplementation();
 
-        private Map<Command, CommandImplementation> createMap() {
-            return ImmutableMap.<Command, CommandImplementation>builder()
+        private Map<Command<?,?>, CommandImplementation> createMap() {
+            return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
                     .put(HandshakeCommand.INSTANCE, getHandshakeImplementation())
                     .put(ReplSetElectCommand.INSTANCE, getReplSetElectImplementation())
                     .put(ReplSetFreshCommand.INSTANCE, getReplSetFreshImplementation())
@@ -64,7 +64,7 @@ public class InternalCommands implements Iterable<Command> {
         }
 
         @Override
-        public Iterator<Entry<Command, CommandImplementation>> iterator() {
+        public Iterator<Entry<Command<?,?>, CommandImplementation>> iterator() {
             return createMap().entrySet().iterator();
         }
 

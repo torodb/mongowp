@@ -1,24 +1,23 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.MarshalException;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.WriteConcern;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.exceptions.*;
+import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.UpdateCommand.UpdateArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.UpdateCommand.UpdateResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteConcernError;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteError;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.WriteConcernMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.MongoWP;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.server.api.MarshalException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.utils.BsonArrayBuilder;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
-import com.mongodb.WriteConcern;
 import javax.annotation.Nullable;
-import org.bson.BsonArray;
-import org.bson.BsonDocument;
-import org.bson.BsonValue;
 
 /**
  *
@@ -75,10 +74,10 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
 
     public static class UpdateArgument {
 
-        private static final BsonField<String> COLLECTION_FIELD = BsonField.create(COMMAND_NAME);
-        private static final BsonField<BsonArray> UPDATES_FIELD = BsonField.create("updates");
-        private static final BsonField<Boolean> ORDERED_FIELD = BsonField.create("ordered");
-        private static final BsonField<BsonDocument> WRITE_CONCERN_FIELD = BsonField.create("writeConcern");
+        private static final StringField COLLECTION_FIELD = new StringField(COMMAND_NAME);
+        private static final ArrayField UPDATES_FIELD = new ArrayField("updates");
+        private static final BooleanField ORDERED_FIELD = new BooleanField("ordered");
+        private static final DocField WRITE_CONCERN_FIELD = new DocField("writeConcern");
 
         private final String collection;
         private final Iterable<UpdateStatement> statements;
@@ -93,16 +92,16 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
         }
 
         private BsonDocument marshall() {
-            BsonArray updatesArray = new BsonArray();
+            BsonArrayBuilder updatesArray = new BsonArrayBuilder();
             for (UpdateStatement update : statements) {
                 updatesArray.add(update.marshall());
             }
 
             return new BsonDocumentBuilder()
                     .append(COLLECTION_FIELD, collection)
-                    .append(UPDATES_FIELD, updatesArray)
+                    .append(UPDATES_FIELD, updatesArray.build())
                     .append(ORDERED_FIELD, ordered)
-                    .append(WRITE_CONCERN_FIELD, WriteConcernMarshaller.marshall(writeConcern))
+                    .append(WRITE_CONCERN_FIELD, writeConcern.toDocument())
                     .build();
         }
 
@@ -118,13 +117,13 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
                 updates.add(UpdateStatement.unmarshall(element.asDocument()));
             }
 
-            WriteConcern writeConcern = WriteConcernMarshaller.unmarshall(
+            WriteConcern writeConcern = WriteConcern.fromDocument(
                     BsonReaderTool.getDocument(
                             requestDoc,
                             WRITE_CONCERN_FIELD,
                             null
                     ),
-                    WriteConcern.ACKNOWLEDGED
+                    WriteConcern.acknowledged() //TODO: Check the default WC
             );
 
             return new UpdateArgument(
@@ -155,10 +154,10 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
 
     public static class UpdateStatement {
 
-        private static final BsonField<BsonDocument> QUERY_FIELD = BsonField.create("q");
-        private static final BsonField<BsonDocument> UPDATE_FIELD = BsonField.create("u");
-        private static final BsonField<Boolean> UPSERT_FIELD = BsonField.create("upsert");
-        private static final BsonField<Boolean> MULTI_FIELD = BsonField.create("multi");
+        private static final DocField QUERY_FIELD = new DocField("q");
+        private static final DocField UPDATE_FIELD = new DocField("u");
+        private static final BooleanField UPSERT_FIELD = new BooleanField("upsert");
+        private static final BooleanField MULTI_FIELD = new BooleanField("multi");
 
         private final BsonDocument query;
         private final BsonDocument update;
@@ -209,13 +208,13 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
 
     public static class UpdateResult {
 
-        private static final BsonField<Long> MODIFIED_COUNTER_FIELD = BsonField.create("nModified");
-        private static final BsonField<Long> CANDIDATE_COUNTER_FIELD = BsonField.create("n");
-        private static final BsonField<BsonArray> WRITE_ERRORS_FIELD = BsonField.create("writeErrors");
-        private static final BsonField<BsonArray> WRITE_CONCERN_ERRORS_FIELD = BsonField.create("writeConcernError");
-        private static final BsonField<BsonArray> UPSERTED_ARRAY = BsonField.create("upserted");
-        private static final BsonField<String> ERR_MSG_FIELD = BsonField.create("errmsg");
-        private static final BsonField<Double> OK_FIELD = BsonField.create("ok");
+        private static final LongField MODIFIED_COUNTER_FIELD = new LongField("nModified");
+        private static final LongField CANDIDATE_COUNTER_FIELD = new LongField("n");
+        private static final ArrayField WRITE_ERRORS_FIELD = new ArrayField("writeErrors");
+        private static final ArrayField WRITE_CONCERN_ERRORS_FIELD = new ArrayField("writeConcernError");
+        private static final ArrayField UPSERTED_ARRAY = new ArrayField("upserted");
+        private static final StringField ERR_MSG_FIELD = new StringField("errmsg");
+        private static final DoubleField OK_FIELD = new DoubleField("ok");
 
         private final long modifiedCounter;
         private final long candidateCounter;
@@ -329,31 +328,31 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
 
         private BsonDocument marshall() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder()
-                    .append(OK_FIELD, isOk() ? MongoWP.OK : MongoWP.KO)
+                    .append(OK_FIELD, isOk() ? MongoConstants.OK : MongoConstants.KO)
                     .appendNumber(MODIFIED_COUNTER_FIELD, modifiedCounter)
                     .appendNumber(CANDIDATE_COUNTER_FIELD, candidateCounter);
 
             if (!writeErrors.isEmpty()) {
-                BsonArray array = new BsonArray();
+                BsonArrayBuilder array = new BsonArrayBuilder();
                 for (WriteError writeError : writeErrors) {
                     array.add(writeError.marshall());
                 }
-                builder.append(WRITE_ERRORS_FIELD, array);
+                builder.append(WRITE_ERRORS_FIELD, array.build());
             }
 
             if (!writeConcernErrors.isEmpty()) {
-                BsonArray array = new BsonArray();
+                BsonArrayBuilder array = new BsonArrayBuilder();
                 for (WriteConcernError writeConcernError : writeConcernErrors) {
                     array.add(writeConcernError.marshall());
                 }
-                builder.append(WRITE_CONCERN_ERRORS_FIELD, array);
+                builder.append(WRITE_CONCERN_ERRORS_FIELD, array.build());
             }
             if (upserts.isEmpty()) {
-                BsonArray array = new BsonArray();
+                BsonArrayBuilder array = new BsonArrayBuilder();
                 for (UpsertResult upsert : upserts) {
                     array.add(upsert.marshall());
                 }
-                builder.append(UPSERTED_ARRAY, array);
+                builder.append(UPSERTED_ARRAY, array.build());
             }
             if (errorMessage != null) {
                 builder.append(ERR_MSG_FIELD, errorMessage);
@@ -391,13 +390,13 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
     }
 
     public static class UpsertResult {
-        private static final BsonField<Integer> INDEX_FIELD = BsonField.create("index");
-        private static final BsonField<BsonValue> ID_FIELD = BsonField.create("_id");
+        private static final IntField INDEX_FIELD = new IntField("index");
+        private static final String ID_FIELD_ID = "_id";
 
         private final int index;
-        private final BsonValue id;
+        private final BsonValue<?> id;
 
-        public UpsertResult(int index, BsonValue id) {
+        public UpsertResult(int index, BsonValue<?> id) {
             this.index = index;
             this.id = id;
         }
@@ -405,14 +404,14 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
         private static UpsertResult unmarshall(BsonDocument document) throws TypesMismatchException, NoSuchKeyException {
             return new UpsertResult(
                     BsonReaderTool.getInteger(document, INDEX_FIELD),
-                    BsonReaderTool.getValue(document, ID_FIELD)
+                    BsonReaderTool.getValue(document, ID_FIELD_ID)
             );
         }
 
         private BsonDocument marshall() {
             return new BsonDocumentBuilder()
                     .append(INDEX_FIELD, index)
-                    .append(ID_FIELD, id)
+                    .appendUnsafe(ID_FIELD_ID, id)
                     .build();
         }
 

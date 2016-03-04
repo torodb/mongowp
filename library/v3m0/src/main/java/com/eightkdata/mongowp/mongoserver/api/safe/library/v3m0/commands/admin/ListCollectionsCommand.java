@@ -1,22 +1,29 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.MarshalException;
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.BsonField;
+import com.eightkdata.mongowp.fields.DocField;
+import com.eightkdata.mongowp.fields.DoubleField;
+import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.server.api.MarshalException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListCollectionsCommand.ListCollectionsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListCollectionsCommand.ListCollectionsResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CollectionOptions;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.CursorMarshaller;
-import com.eightkdata.mongowp.mongoserver.api.safe.pojos.MongoCursor;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonDocumentBuilder;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonField;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.*;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.bson.*;
 
 /**
  *
@@ -75,8 +82,8 @@ public class ListCollectionsCommand extends AbstractCommand<ListCollectionsArgum
     @Immutable
     public static class ListCollectionsArgument {
 
-        private static final BsonField<Double> LIST_COLLECTIONS_FIELD = BsonField.create("listCollections");
-        private static final BsonField<BsonDocument> FILTER_FIELD = BsonField.create("filter");
+        private static final DoubleField LIST_COLLECTIONS_FIELD = new DoubleField("listCollections");
+        private static final DocField FILTER_FIELD = new DocField("filter");
 
         private final BsonDocument filter;
 
@@ -116,9 +123,9 @@ public class ListCollectionsCommand extends AbstractCommand<ListCollectionsArgum
     @Immutable
     public static class ListCollectionsResult {
 
-        private static final BsonField<BsonDocument> CURSOR_FIELD = BsonField.create("cursor");
-        private static final BsonField<String> NAME_FIELD = BsonField.create("name");
-        private static final BsonField<BsonDocument> OPTIONS_FIELD = BsonField.create("options");
+        private static final DocField CURSOR_FIELD = new DocField("cursor");
+        private static final StringField NAME_FIELD = new StringField("name");
+        private static final DocField OPTIONS_FIELD = new DocField("options");
 
         private final MongoCursor<Entry> cursor;
 
@@ -174,7 +181,7 @@ public class ListCollectionsCommand extends AbstractCommand<ListCollectionsArgum
             public Entry apply(@Nonnull BsonValue from) {
                 if (!from.isDocument()) {
                     throw new IllegalArgumentException("Expected a document, "
-                            + "but a " + from.getBsonType() + " was found");
+                            + "but a " + from.getType()+ " was found");
                 }
 
                 try {
@@ -185,11 +192,9 @@ public class ListCollectionsCommand extends AbstractCommand<ListCollectionsArgum
                                     BsonReaderTool.getDocument(doc, OPTIONS_FIELD)
                             )
                     );
-                } catch (TypesMismatchException ex) {
-                    throw new IllegalArgumentException(ex);
-                } catch (NoSuchKeyException ex) {
-                    throw new IllegalArgumentException(ex);
-                } catch (BadValueException ex) {
+                } catch (TypesMismatchException |
+                        NoSuchKeyException |
+                        BadValueException ex) {
                     throw new IllegalArgumentException(ex);
                 }
             }

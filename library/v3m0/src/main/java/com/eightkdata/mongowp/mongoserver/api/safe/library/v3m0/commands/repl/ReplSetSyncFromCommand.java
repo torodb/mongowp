@@ -1,15 +1,16 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.mongoserver.api.safe.impl.AbstractCommand;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetSyncFromCommand.ReplSetSyncFromReply;
-import com.eightkdata.mongowp.mongoserver.api.safe.tools.bson.BsonReaderTool;
-import com.eightkdata.mongowp.mongoserver.protocol.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.net.HostAndPort;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.bson.BsonDocument;
-import org.bson.BsonString;
 
 /**
  *
@@ -38,7 +39,7 @@ public class ReplSetSyncFromCommand extends AbstractCommand<HostAndPort, ReplSet
 
     @Override
     public BsonDocument marshallArg(HostAndPort request) {
-        return new BsonDocument(getCommandName(), new BsonString(request.toString()));
+        return DefaultBsonValues.newDocument(getCommandName(), DefaultBsonValues.newString(request.toString()));
     }
 
     @Override
@@ -48,16 +49,16 @@ public class ReplSetSyncFromCommand extends AbstractCommand<HostAndPort, ReplSet
 
     @Override
     public BsonDocument marshallResult(ReplSetSyncFromReply reply) {
-        BsonDocument result = new BsonDocument();
+        BsonDocumentBuilder result = new BsonDocumentBuilder();
         if (reply.getPrevSyncTarget() != null) {
-            result.append("prevSyncTarget", new BsonString(reply.getPrevSyncTarget().toString()));
+            result.appendUnsafe("prevSyncTarget", DefaultBsonValues.newString(reply.getPrevSyncTarget().toString()));
         }
 
         if (reply.getWarning() != null) {
-            result.append("warning", new BsonString(reply.getWarning()));
+            result.appendUnsafe("warning", DefaultBsonValues.newString(reply.getWarning()));
         }
 
-        return result;
+        return result.build();
     }
 
     @Override
