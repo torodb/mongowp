@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.8kdata.mongowp.client</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>0.42-alpha1-SNAPSHOT</version>
+        <version>0.40-alpha2</version>
     </parent>
 
     <artifactId>driver-wrapper</artifactId>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.8kdata.mongowp.bson</groupId>
             <artifactId>org-bson-utils</artifactId>
-            <version>0.42-alpha1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
