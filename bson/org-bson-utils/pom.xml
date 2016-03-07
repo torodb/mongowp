@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.8kdata.mongowp.bson</groupId>
         <artifactId>bson-pom</artifactId>
-        <version>0.40-alpha2</version>
+        <version>0.40-alpha3-SNAPSHOT</version>
     </parent>
     <artifactId>org-bson-utils</artifactId>
     <packaging>jar</packaging>
