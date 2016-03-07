@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.8kdata.mongowp.api.safe.library</groupId>
         <artifactId>library</artifactId>
-        <version>0.40-alpha2</version>
+        <version>0.40-alpha3-SNAPSHOT</version>
     </parent>
 
     <artifactId>v3m0</artifactId>

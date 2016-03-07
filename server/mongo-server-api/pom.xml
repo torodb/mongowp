@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.8kdata.mongowp.server</groupId>
         <artifactId>mongo-server-pom</artifactId>
-        <version>0.40-alpha2</version>
+        <version>0.40-alpha3-SNAPSHOT</version>
     </parent>
     <artifactId>mongo-server-api</artifactId>
     <packaging>jar</packaging>
