@@ -175,7 +175,7 @@ public abstract class MetaCommandProcessor {
         }
     }
 
-    public static enum META_COLLECTION {
+    public enum META_COLLECTION {
         NAMESPACES,
         INDEXES,
         PROFILE,

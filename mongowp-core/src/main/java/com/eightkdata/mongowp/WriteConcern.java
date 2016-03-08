@@ -268,11 +268,11 @@ public abstract class WriteConcern {
         }
     }
 
-    public static enum SyncMode {
+    public enum SyncMode {
         NONE, FSYNC, JOURNAL
     }
 
-    public static enum WType {
+    public enum WType {
         INT, TEXT;
     }
 }

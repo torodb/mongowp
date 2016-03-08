@@ -296,7 +296,7 @@ public class IndexOptions {
         );
     }
 
-    public static enum IndexVersion {
+    public enum IndexVersion {
         V1,
         V2;
 

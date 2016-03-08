@@ -296,7 +296,7 @@ public class QueryMessage extends AbstractRequestMessage {
 
     }
 
-    public static enum QueryOption {
+    public enum QueryOption {
         TAILABLE_CURSOR,
         SLAVE_OK,
         OPLOG_REPLAY,
@@ -306,14 +306,14 @@ public class QueryMessage extends AbstractRequestMessage {
         PARTIAL;
     }
 
-    public static enum ExplainOption {
+    public enum ExplainOption {
         NONE,
         QUERY_PLANNER,
         EXECUTION_STATS,
         ALL_PLANS_EXECUTION;
     }
 
-    public static enum NaturalOrder {
+    public enum NaturalOrder {
         NONE,
         DESC,
         ASC
