@@ -47,7 +47,7 @@ public enum RequestOpCode {
         return opCode;
     }
 
-    private static final Map<Integer,RequestOpCode> OP_CODES_MAP = new HashMap<Integer,RequestOpCode>(values().length);
+    private static final Map<Integer,RequestOpCode> OP_CODES_MAP = new HashMap<>(values().length);
     static {
         for(RequestOpCode o : values()) {
             OP_CODES_MAP.put(o.opCode, o);
