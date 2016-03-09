@@ -72,6 +72,7 @@ public class NettyBsonDocumentWriter {
                 writeCString(arg, Integer.toString(i));
 
                 child.accept(this, arg);
+                i++;
             }
 
             arg.writeByte(0x00);
