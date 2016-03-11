@@ -175,8 +175,8 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
             return new UpdateStatement(
                     BsonReaderTool.getDocument(element, QUERY_FIELD),
                     BsonReaderTool.getDocument(element, UPDATE_FIELD),
-                    BsonReaderTool.getBoolean(element, UPSERT_FIELD),
-                    BsonReaderTool.getBoolean(element, MULTI_FIELD)
+                    BsonReaderTool.getBoolean(element, UPSERT_FIELD, false),
+                    BsonReaderTool.getBoolean(element, MULTI_FIELD, false)
             );
         }
 
