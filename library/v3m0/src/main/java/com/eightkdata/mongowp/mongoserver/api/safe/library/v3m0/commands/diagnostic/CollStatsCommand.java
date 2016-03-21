@@ -13,6 +13,8 @@ import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
+
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnegative;
@@ -72,6 +74,7 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
     public static class CollStatsArgument {
 
         private static final StringField COLLECTION_FIELD = new StringField("collStats");
+        private static final StringField LOWERCASE_COLLECTION_FIELD = new StringField(COLLECTION_FIELD.getFieldName().toLowerCase(Locale.ENGLISH));
         private static final NumberField SCALE_FIELD = new NumberField("scale");
         private static final BooleanField VERBOSE_FIELD = new BooleanField("verbose");
         private final String collection;
@@ -98,7 +101,16 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
 
         protected static CollStatsArgument unmarshall(BsonDocument doc)
                 throws TypesMismatchException, BadValueException, NoSuchKeyException {
-            String collection = BsonReaderTool.getString(doc, COLLECTION_FIELD);
+            String collection = null;
+            try {
+                collection = BsonReaderTool.getString(doc, COLLECTION_FIELD);
+            } catch(NoSuchKeyException noSuchKeyException) {
+                try {
+                    collection = BsonReaderTool.getString(doc, LOWERCASE_COLLECTION_FIELD);
+                } catch(NoSuchKeyException noSuchLowercaseKeyException) {
+                    throw noSuchKeyException;
+                }
+            }
             int scale = BsonReaderTool.getNumeric(doc, SCALE_FIELD, DefaultBsonValues.INT32_ONE).intValue();
             if (scale <= 0) {
                 throw new BadValueException("Scale must be a value >= 1");
