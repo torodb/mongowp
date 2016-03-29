@@ -1,27 +1,31 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
-import com.eightkdata.mongowp.bson.BsonInt32;
 import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.fields.BooleanField;
+import com.eightkdata.mongowp.fields.DocField;
+import com.eightkdata.mongowp.fields.IntField;
+import com.eightkdata.mongowp.fields.NumberField;
+import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  *
@@ -266,7 +270,7 @@ public class IndexOptions {
             IndexType value = null;
             
             for (IndexType indexType : IndexType.values()) {
-                if (indexType.toBsonValue().equals(entry.getValue())) {
+                if (indexType.equalsToBsonValue(entry.getValue())) {
                     value = indexType;
                     break;
                 }
@@ -339,8 +343,18 @@ public class IndexOptions {
     }
 
     public enum IndexType {
-        asc(DefaultBsonValues.newInt(1)), 
-        desc(DefaultBsonValues.newInt(-1)),
+        asc(DefaultBsonValues.newInt(1)) {
+            @Override
+            public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
+                return sameNumber(bsonValue);
+            }
+        }, 
+        desc(DefaultBsonValues.newInt(-1)) {
+            @Override
+            public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
+                return sameNumber(bsonValue);
+            }
+        },
         text(DefaultBsonValues.newString("text")),
         geospatial(DefaultBsonValues.newString("geospatial")),
         hashed(DefaultBsonValues.newString("hashed")); 
@@ -353,6 +367,16 @@ public class IndexOptions {
         
         public BsonValue<?> toBsonValue() {
             return bsonValue;
+        }
+        
+        public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
+            return this.bsonValue.equals(bsonValue);
+        }
+        
+        protected boolean sameNumber(BsonValue<?> bsonValue) {
+            return bsonValue.isNumber() && 
+                    toBsonValue().asInt32()
+                        .equals(bsonValue.asInt32());
         }
     }
     
