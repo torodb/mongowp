@@ -27,7 +27,7 @@ import org.threeten.bp.Instant;
 /**
  *
  */
-public interface BsonObjectId extends BsonValue<BsonObjectId>, Comparable<BsonObjectId> {
+public interface BsonObjectId extends BsonValue<BsonObjectId> {
 
     byte[] toByteArray();
 

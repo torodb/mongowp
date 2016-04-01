@@ -68,13 +68,14 @@ public class MemberHeartbeatData {
         return lastResponse.getState();
     }
 
+    @Nullable
     public OpTime getOpTime() {
         return lastResponse.getOpTime();
     }
 
     @Nonnull
     public String getLastHeartbeatMessage() {
-        return lastResponse.getHbmsg();
+        return lastResponse.getHbMsg();
     }
 
     public HostAndPort getSyncSource() {
@@ -87,6 +88,21 @@ public class MemberHeartbeatData {
 
     public long getConfigVersion() {
         return lastResponse.getConfigVersion();
+    }
+
+    /**
+     * @return true iff the member is up or if no heartbeat has been received from him yet.
+     */
+    public boolean maybeUp() {
+        return health != Health.NOT_CHECKED;
+    }
+
+    public boolean isUp() {
+        return health == Health.UP;
+    }
+
+    public boolean isUnelectable() {
+        return lastResponse.isElectable();
     }
 
     public static enum Health {
@@ -121,6 +137,18 @@ public class MemberHeartbeatData {
         private Instant lastHeartbeatRecv;
         private boolean authIssue;
         private ReplSetHeartbeatReply lastResponse;
+
+        public Builder() {
+        }
+
+        public Builder(MemberHeartbeatData other) {
+            this.health = other.health;
+            this.upSince = other.upSince;
+            this.lastHeartbeat = other.lastHeartbeat;
+            this.lastHeartbeatRecv = other.lastHeartbeatRecv;
+            this.authIssue = other.authIssue;
+            this.lastResponse = other.lastResponse;
+        }
 
         public Health getHealth() {
             return health;
@@ -174,6 +202,11 @@ public class MemberHeartbeatData {
         public Builder setLastResponse(ReplSetHeartbeatReply lastResponse) {
             this.lastResponse = lastResponse;
             return this;
+        }
+
+        public MemberHeartbeatData build() {
+            return new MemberHeartbeatData(health, upSince, lastHeartbeat, lastHeartbeatRecv,
+                    authIssue, lastResponse);
         }
     }
 }

@@ -3,17 +3,19 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.intern
 import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.OpTime;
-import com.eightkdata.mongowp.bson.*;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonNumber;
 import com.eightkdata.mongowp.exceptions.*;
 import com.eightkdata.mongowp.fields.*;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplSetProtocolVersion;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.google.common.net.HostAndPort;
 import java.util.Locale;
@@ -88,7 +90,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
 
         private final @Nonnull ReplSetProtocolVersion protocolVersion;
         private final long configVersion;
-        private final Long senderId;
+        private final @Nullable Integer senderId;
         private final String setName;
         private final @Nullable HostAndPort senderHost;
         private final boolean checkEmpty;
@@ -97,7 +99,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                 boolean checkEmpty,
                 @Nonnull ReplSetProtocolVersion protocolVersion,
                 long configVersion,
-                long senderId,
+                @Nullable Integer senderId,
                 String setName,
                 @Nullable HostAndPort senderHost) {
             this.checkEmpty = checkEmpty;
@@ -129,7 +131,8 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
          *
          * @return the id of the sender on the replica set configuration
          */
-        public long getSenderId() {
+        @Nullable
+        public Integer getSenderId() {
             return senderId;
         }
 
@@ -164,7 +167,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             }
 
             if (senderId != null) {
-                result.append(SENDER_ID_FIELD, senderId);
+                result.append(SENDER_ID_FIELD, senderId.longValue());
             }
             if (checkEmpty) {
                 result.append(CHECK_EMPTY_FIELD_NAME, true);
@@ -192,14 +195,75 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
 
             long configVersion = BsonReaderTool.getLong(bson, CONFIG_VERSION_FIELD);
 
-            long senderId = BsonReaderTool.getLong(bson, SENDER_ID_FIELD, -1);
+            Integer senderId;
+            long senderIdLong = BsonReaderTool.getLong(bson, SENDER_ID_FIELD, -1);
+            assert senderIdLong < Integer.MAX_VALUE;
+            senderId = senderIdLong == -1 ? null : (int) senderIdLong;
 
             String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD);
 
             HostAndPort senderHost = BsonReaderTool.getHostAndPort(bson, SENDER_HOST_FIELD, null);
             
-            return new ReplSetHeartbeatArgument(checkEmpty, protocolVersion, configVersion, senderId, setName, senderHost);
+            return new ReplSetHeartbeatArgument(checkEmpty, protocolVersion, configVersion,
+                    senderId, setName, senderHost);
         }
+
+        public static class Builder {
+            private @Nonnull ReplSetProtocolVersion protocolVersion;
+            private long configVersion;
+            private @Nullable Integer senderId;
+            private String setName;
+            private @Nullable HostAndPort senderHost;
+            private boolean checkEmpty;
+            private boolean built = false;
+
+            public Builder(@Nonnull ReplSetProtocolVersion protocolVersion) {
+                this.protocolVersion = protocolVersion;
+            }
+
+            public Builder setProtocolVersion(@Nonnull ReplSetProtocolVersion protocolVersion) {
+                Preconditions.checkState(!built);
+                this.protocolVersion = protocolVersion;
+                return this;
+            }
+
+            public Builder setConfigVersion(long configVersion) {
+                Preconditions.checkState(!built);
+                this.configVersion = configVersion;
+                return this;
+            }
+
+            public Builder setSenderId(@Nullable Integer senderId) {
+                Preconditions.checkState(!built);
+                this.senderId = senderId;
+                return this;
+            }
+
+            public Builder setSetName(String setName) {
+                Preconditions.checkState(!built);
+                this.setName = setName;
+                return this;
+            }
+
+            public Builder setSenderHost(@Nullable HostAndPort senderHost) {
+                Preconditions.checkState(!built);
+                this.senderHost = senderHost;
+                return this;
+            }
+
+            public Builder setCheckEmpty(boolean checkEmpty) {
+                Preconditions.checkState(!built);
+                this.checkEmpty = checkEmpty;
+                return this;
+            }
+
+            public ReplSetHeartbeatArgument build() {
+                Preconditions.checkState(!built);
+                built = true;
+                return new ReplSetHeartbeatArgument(checkEmpty, protocolVersion, configVersion, senderId, setName, senderHost);
+            }
+        }
+
     }
 
     public static class ReplSetHeartbeatReply {
@@ -276,6 +340,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             return time;
         }
 
+        @Nullable
         public OpTime getOpTime() {
             return opTime;
         }
@@ -300,6 +365,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             return stateDisagreement;
         }
 
+        @Nullable
         public MemberState getState() {
             return state;
         }
@@ -308,19 +374,22 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             return configVersion;
         }
 
+        @Nonnull
         public String getSetName() {
             return setName;
         }
 
         @Nonnull
-        public String getHbmsg() {
+        public String getHbMsg() {
             return hbmsg;
         }
 
+        @Nullable
         public HostAndPort getSyncingTo() {
             return syncingTo;
         }
 
+        @Nullable
         public ReplicaSetConfig getConfig() {
             return config;
         }
@@ -534,6 +603,107 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                     syncincTo,
                     config
             );
+        }
+
+        public static class Builder {
+
+            private @Nonnull OpTime electionTime;
+            private @Nullable Long time;
+            private @Nullable OpTime opTime;
+            private boolean electable;
+            private @Nullable Boolean hasData;
+            private boolean mismatch;
+            private boolean isReplSet;
+            private boolean stateDisagreement;
+            private @Nullable MemberState state;
+            private long configVersion;
+            private @Nonnull String setName;
+            private @Nonnull String hbmsg;
+            private @Nullable HostAndPort syncingTo;
+            private @Nullable ReplicaSetConfig config;
+
+            public Builder(@Nonnull OpTime electionTime, @Nonnull String setName, @Nonnull String hbmsg) {
+                this.electionTime = electionTime;
+                this.setName = setName;
+                this.hbmsg = hbmsg;
+            }
+
+            public Builder setElectionTime(@Nonnull OpTime electionTime) {
+                this.electionTime = electionTime;
+                return this;
+            }
+
+            public Builder setTime(@Nullable Long time) {
+                this.time = time;
+                return this;
+            }
+
+            public Builder setOpTime(@Nullable OpTime opTime) {
+                this.opTime = opTime;
+                return this;
+            }
+
+            public Builder setElectable(boolean electable) {
+                this.electable = electable;
+                return this;
+            }
+
+            public Builder setHasData(@Nullable Boolean hasData) {
+                this.hasData = hasData;
+                return this;
+            }
+
+            public Builder setMismatch(boolean mismatch) {
+                this.mismatch = mismatch;
+                return this;
+            }
+
+            public Builder setIsReplSet(boolean isReplSet) {
+                this.isReplSet = isReplSet;
+                return this;
+            }
+
+            public Builder setStateDisagreement(boolean stateDisagreement) {
+                this.stateDisagreement = stateDisagreement;
+                return this;
+            }
+
+            public Builder setState(@Nullable MemberState state) {
+                this.state = state;
+                return this;
+            }
+
+            public Builder setConfigVersion(long configVersion) {
+                this.configVersion = configVersion;
+                return this;
+            }
+
+            public Builder setSetName(@Nonnull String setName) {
+                this.setName = setName;
+                return this;
+            }
+
+            public Builder setHbmsg(@Nonnull String hbmsg) {
+                this.hbmsg = hbmsg;
+                return this;
+            }
+
+            public Builder setSyncingTo(@Nullable HostAndPort syncingTo) {
+                this.syncingTo = syncingTo;
+                return this;
+            }
+
+            public Builder setConfig(@Nullable ReplicaSetConfig config) {
+                this.config = config;
+                return this;
+            }
+
+            public ReplSetHeartbeatReply build() {
+                return new ReplSetHeartbeatReply(electionTime, time, opTime, electable, hasData,
+                        mismatch, isReplSet, stateDisagreement, state, configVersion, setName,
+                        hbmsg, syncingTo, config);
+            }
+
         }
     }
 

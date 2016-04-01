@@ -1,5 +1,6 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
+import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
@@ -7,9 +8,9 @@ import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.BooleanField;
 import com.eightkdata.mongowp.fields.DateTimeField;
 import com.eightkdata.mongowp.fields.StringField;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetFreshCommand.ReplSetFreshArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetFreshCommand.ReplSetFreshReply;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.net.HostAndPort;
@@ -49,25 +50,9 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
         return ReplSetFreshReply.class;
     }
 
-    private static final BooleanField FRESHER_FIELD = new BooleanField("fresher");
-    private static final StringField INFO_FIELD = new StringField("fresher");
-    //TODO: CHECK IF THIS FIELD SHOULD BE A TIMESTAMP
-    private static final DateTimeField OPTIME_FIELD = new DateTimeField("optime");
-    private static final BooleanField VETO_FIELD = new BooleanField("veto");
-
     @Override
     public BsonDocument marshallResult(ReplSetFreshReply reply) {
-
-        BsonDocumentBuilder result = new BsonDocumentBuilder();
-
-        result.append(FRESHER_FIELD, reply.isWeAreFresher());
-        if (reply.getInfo() != null) {
-            result.append(INFO_FIELD, reply.getInfo());
-        }
-        result.append(OPTIME_FIELD, reply.getOpTime());
-        result.append(VETO_FIELD, reply.isDoVeto());
-
-        return result.build();
+        return reply.marshall();
     }
 
     @Override
@@ -87,14 +72,14 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
         private final HostAndPort who;
         private final int clientId;
         private final long cfgVersion;
-        private final Instant opTime;
+        private final OpTime opTime;
 
         public ReplSetFreshArgument(
                 String setName,
                 HostAndPort who,
                 int clientId,
                 long cfgVersion,
-                Instant opTime) {
+                OpTime opTime) {
             this.setName = setName;
             this.who = who;
             this.clientId = clientId;
@@ -138,7 +123,7 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
          *
          * @return last optime seen by the member who sent the request
          */
-        public Instant getOpTime() {
+        public OpTime getOpTime() {
             return opTime;
         }
 
@@ -148,29 +133,45 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
             String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD_NAME);
             HostAndPort who = BsonReaderTool.getHostAndPort(bson, WHO_FIELD_NAME);
             long cfgver = BsonReaderTool.getNumeric(bson, CFG_VER_FIELD_NAME).longValue();
-            Instant optime = BsonReaderTool.getInstant(bson, OPTIME_FIELD_NAME);
+            Instant optimeInstant = BsonReaderTool.getInstant(bson, OPTIME_FIELD_NAME);
 
-            return new ReplSetFreshArgument(setName, who, clientId, cfgver, optime);
+            return new ReplSetFreshArgument(setName, who, clientId, cfgver, new OpTime(optimeInstant));
         }
 
     }
 
     public static class ReplSetFreshReply {
 
+        private static final BooleanField FRESHER_FIELD = new BooleanField("fresher");
+        private static final StringField INFO_FIELD = new StringField("info");
+        private static final StringField ERRMSG_FIELD = new StringField("errmsg");
+        //Note: MongoDB usually stores and send optimes as datetimes
+        private static final DateTimeField OPTIME_FIELD = new DateTimeField("optime");
+        private static final BooleanField VETO_FIELD = new BooleanField("veto");
+
         private final String info;
-        private final Instant opTime;
+        private final String vetoMessage;
+        private final OpTime opTime;
         private final boolean weAreFresher;
         private final boolean doVeto;
 
+        /**
+         *
+         * @param info
+         * @param vetoMessage the reason why the votation is vetoed. If null, then this node is not vetoing.
+         * @param opTime
+         * @param weAreFresher
+         */
         public ReplSetFreshReply(
                 @Nullable String info,
-                @Nonnull Instant opTime,
-                boolean weAreFresher,
-                boolean doVeto) {
+                @Nullable String vetoMessage,
+                @Nonnull OpTime opTime,
+                boolean weAreFresher) {
             this.info = info;
+            this.vetoMessage = vetoMessage;
             this.opTime = opTime;
             this.weAreFresher = weAreFresher;
-            this.doVeto = doVeto;
+            this.doVeto = vetoMessage != null;
         }
 
         @Nullable
@@ -178,8 +179,13 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
             return info;
         }
 
+        @Nullable
+        public String getVetoMessage() {
+            return vetoMessage;
+        }
+
         @Nonnull
-        public Instant getOpTime() {
+        public OpTime getOpTime() {
             return opTime;
         }
 
@@ -191,6 +197,21 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
             return doVeto;
         }
 
+        private BsonDocument marshall() {
+            BsonDocumentBuilder result = new BsonDocumentBuilder();
+
+            result.append(FRESHER_FIELD, isWeAreFresher());
+            if (getInfo() != null) {
+                result.append(INFO_FIELD, getInfo());
+            }
+            if (getVetoMessage() != null) {
+                result.append(ERRMSG_FIELD, getVetoMessage());
+            }
+            result.appendInstant(OPTIME_FIELD, getOpTime().asLong());
+            result.append(VETO_FIELD, isDoVeto());
+
+            return result.build();
+        }
     }
 
 }

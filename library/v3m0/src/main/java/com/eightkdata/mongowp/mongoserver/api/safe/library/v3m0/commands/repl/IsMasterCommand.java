@@ -11,19 +11,20 @@ import com.eightkdata.mongowp.exceptions.FailedToParseException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.IsMasterCommand.IsMasterReply;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import com.google.common.primitives.UnsignedInteger;
+import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -72,7 +73,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
     @Immutable
     public static class IsMasterReply {
 
-        private static final IsMasterReply NOT_CONFIGURED = new IsMasterReply();
+        public static final IsMasterReply NOT_CONFIGURED = new IsMasterReply();
         private static final BooleanField IS_MASTER_FIELD = new BooleanField("ismaster");
         private static final BooleanField SECONDARY_FIELD = new BooleanField("secondary");
         private static final StringField SET_NAME_FIELD = new StringField("setName");
@@ -92,42 +93,68 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
         private static final StringField INFO_FIELD = new StringField("info");
         private static final BooleanField IS_REPLICA_SET_FIELD = new BooleanField("isreplicaset");
 
-        private final Boolean master;
-        private final Boolean secondary;
+        private final boolean master;
+        private final boolean secondary;
         private final String setName;
         private final Integer setVersion;
-        private final ImmutableList<HostAndPort> hosts;
-        private final ImmutableList<HostAndPort> passives;
-        private final ImmutableList<HostAndPort> arbiters;
+        private final List<HostAndPort> hosts;
+        private final List<HostAndPort> passives;
+        private final List<HostAndPort> arbiters;
         private final HostAndPort primary;
         private final Boolean arbiterOnly;
         private final Boolean passive;
         private final Boolean hidden;
         private final Boolean buildIndexes;
-        private final Integer slaveDelay;
-        private final ImmutableMap<String, String> tags;
+        private final UnsignedInteger slaveDelay;
+        private final Map<String, String> tags;
         private final HostAndPort me;
         private final BsonObjectId electionId;
         private final boolean configSet;
 
         public IsMasterReply(
-                boolean master,
+                MemberState myState,
                 @Nonnull String setName,
-                int setVersion,
+                Integer setVersion,
                 @Nullable ImmutableList<HostAndPort> hosts,
                 @Nullable ImmutableList<HostAndPort> passives,
                 @Nullable ImmutableList<HostAndPort> arbiters,
                 HostAndPort primary,
-                boolean arbiterOnly,
-                boolean passive,
-                boolean hidden,
-                boolean buildIndexes,
-                int slaveDelay,
+                Boolean arbiterOnly,
+                Boolean passive,
+                Boolean hidden,
+                Boolean buildIndexes,
+                UnsignedInteger slaveDelay,
                 @Nullable ImmutableMap<String, String> tags,
                 @Nonnull HostAndPort me,
                 @Nullable BsonObjectId electionId) {
+            this(myState == MemberState.RS_PRIMARY, myState == MemberState.RS_SECONDARY, setName,
+                    setVersion, (List<HostAndPort>) hosts, (List<HostAndPort>) passives,
+                    (List<HostAndPort>) arbiters, primary, arbiterOnly, passive, hidden,
+                    buildIndexes, slaveDelay, tags, me, electionId);
+        }
+
+        private IsMasterReply(
+                boolean master,
+                boolean secondary,
+                @Nonnull String setName,
+                Integer setVersion,
+                @Nullable List<HostAndPort> hosts,
+                @Nullable List<HostAndPort> passives,
+                @Nullable List<HostAndPort> arbiters,
+                HostAndPort primary,
+                Boolean arbiterOnly,
+                Boolean passive,
+                Boolean hidden,
+                Boolean buildIndexes,
+                UnsignedInteger slaveDelay,
+                @Nullable Map<String, String> tags,
+                @Nonnull HostAndPort me,
+                @Nullable BsonObjectId electionId) {
             this.master = master;
-            this.secondary = !master;
+            this.secondary = secondary;
+
+            assert !(master & secondary);
+            
             this.setName = setName;
             this.setVersion = setVersion;
             this.hosts = hosts;
@@ -149,8 +176,8 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
         private IsMasterReply() {
             this.configSet = false;
 
-            this.master = null;
-            this.secondary = null;
+            this.master = false;
+            this.secondary = false;
             this.setName = null;
             this.setVersion = null;
             this.hosts = null;
@@ -183,9 +210,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             builder.append(SET_NAME_FIELD, setName);
             assert setVersion != null;
             builder.append(SET_VERSION_FIELD, setVersion);
-            assert master != null;
             builder.append(IS_MASTER_FIELD, master);
-            assert secondary != null;
             builder.append(SECONDARY_FIELD, secondary);
 
             if (hosts != null) {
@@ -213,7 +238,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
                 builder.append(BUILD_INDEXES_FIELD, buildIndexes);
             }
             if (slaveDelay != null) {
-                builder.append(SLAVE_DELAY_FIELD, slaveDelay);
+                builder.append(SLAVE_DELAY_FIELD, slaveDelay.intValue());
             }
             if (tags != null) {
                 builder.append(TAGS_FIELD, toBsonDocument(tags));
@@ -302,7 +327,9 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             boolean passive = BsonReaderTool.getBoolean(bson, PASSIVE_FIELD, false);
             boolean hidden = BsonReaderTool.getBoolean(bson, HIDDEN_FIELD, false);
             boolean buildIndexes = BsonReaderTool.getBoolean(bson, BUILD_INDEXES_FIELD, false);
-            int slaveDelay = BsonReaderTool.getNumeric(bson, SLAVE_DELAY_FIELD, DefaultBsonValues.INT32_ZERO).intValue();
+            UnsignedInteger slaveDelay = UnsignedInteger.fromIntBits(
+                    BsonReaderTool.getNumeric(bson, SLAVE_DELAY_FIELD, DefaultBsonValues.INT32_ZERO).intValue()
+            );
 
             final ImmutableMap<String, String> tags;
             if (!bson.containsKey(TAGS_FIELD.getFieldName())) {
@@ -335,6 +362,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
 
             return new IsMasterReply(
                     master,
+                    secondary,
                     setName,
                     setVersion,
                     hosts,
@@ -350,6 +378,140 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
                     me,
                     electionId
             );
+        }
+
+        public static class Builder {
+            private MemberState myState;
+            private String setName;
+            private Integer setVersion;
+            private final List<HostAndPort> hosts = new ArrayList<>();
+            private final List<HostAndPort> passives = new ArrayList<>();
+            private final List<HostAndPort> arbiters = new ArrayList<>();
+            private HostAndPort primary;
+            private Boolean arbiterOnly;
+            private Boolean passive;
+            private Boolean hidden;
+            private Boolean buildIndexes;
+            private UnsignedInteger slaveDelay;
+            private final Map<String, String> tags = new HashMap<>();
+            private HostAndPort me;
+            private BsonObjectId electionId;
+            private boolean built = false;
+
+            public Builder setMyState(MemberState myState) {
+                Preconditions.checkState(!built);
+                this.myState = myState;
+                return this;
+            }
+
+            public Builder setReplSetName(String setName) {
+                Preconditions.checkState(!built);
+                this.setName = setName;
+                return this;
+            }
+
+            public Builder setReplSetVersion(Integer setVersion) {
+                Preconditions.checkState(!built);
+                this.setVersion = setVersion;
+                return this;
+            }
+
+            public Builder addHost(HostAndPort host) {
+                Preconditions.checkState(!built);
+                this.hosts.add(host);
+                return this;
+            }
+
+            public Builder addPassive(HostAndPort passive) {
+                Preconditions.checkState(!built);
+                this.passives.add(passive);
+                return this;
+            }
+
+            public Builder addArbiter(HostAndPort arbiter) {
+                Preconditions.checkState(!built);
+                this.arbiters.add(arbiter);
+                return this;
+            }
+
+            public Builder setPrimary(HostAndPort primary) {
+                Preconditions.checkState(!built);
+                this.primary = primary;
+                return this;
+            }
+
+            public Builder setArbiterOnly(Boolean arbiterOnly) {
+                Preconditions.checkState(!built);
+                this.arbiterOnly = arbiterOnly;
+                return this;
+            }
+
+            public Builder setPassive(Boolean passive) {
+                Preconditions.checkState(!built);
+                this.passive = passive;
+                return this;
+            }
+
+            public Builder setHidden(Boolean hidden) {
+                Preconditions.checkState(!built);
+                this.hidden = hidden;
+                return this;
+            }
+
+            public Builder setBuildIndexes(Boolean buildIndexes) {
+                Preconditions.checkState(!built);
+                this.buildIndexes = buildIndexes;
+                return this;
+            }
+
+            public Builder setSlaveDelay(UnsignedInteger slaveDelay) {
+                Preconditions.checkState(!built);
+                this.slaveDelay = slaveDelay;
+                return this;
+            }
+
+            public Builder addTag(String key, String tag) {
+                Preconditions.checkState(!built);
+                this.tags.put(key, tag);
+                return this;
+            }
+
+            public Builder setMe(HostAndPort me) {
+                Preconditions.checkState(!built);
+                this.me = me;
+                return this;
+            }
+
+            public Builder setElectionId(BsonObjectId electionId) {
+                Preconditions.checkState(!built);
+                this.electionId = electionId;
+                return this;
+            }
+
+            public IsMasterReply build() {
+                Preconditions.checkState(!built);
+                built = true;
+                return new IsMasterReply(
+                        myState == MemberState.RS_PRIMARY,
+                        myState == MemberState.RS_SECONDARY,
+                        setName,
+                        setVersion,
+                        hosts,
+                        passives,
+                        arbiters,
+                        primary,
+                        arbiterOnly,
+                        passive,
+                        hidden,
+                        buildIndexes,
+                        slaveDelay,
+                        tags,
+                        me,
+                        electionId
+                );
+            }
+
+
         }
     }
 

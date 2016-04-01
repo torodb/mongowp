@@ -1,6 +1,7 @@
 
 package com.eightkdata.mongowp.client.core;
 
+import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
@@ -73,7 +74,7 @@ public interface MongoConnection extends Closeable {
      * @throws MongoException
      */
     @Nonnull
-    public <Arg, Result> Result execute(
+    public <Arg, Result> RemoteCommandResponse<Result> execute(
             @Nonnull Command<? super Arg, Result> command,
             String database,
             boolean isSlaveOk,
@@ -91,4 +92,25 @@ public interface MongoConnection extends Closeable {
 
     @Override
     public void close();
+
+    public boolean isClosed();
+
+    public static interface RemoteCommandResponse<Result> {
+
+        Result getCommandReply();
+
+        long getElapsedMillis();
+
+        BsonDocument getBson();
+
+        public ErrorCode getErrorCode();
+
+        /**
+         * Returns true iff {@link #getErrorCode() } returns {@link ErrorCode#OK}.
+         * @return
+         */
+        public boolean isOK();
+
+        public String getErrorDesc();
+    }
 }

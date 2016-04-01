@@ -22,7 +22,9 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonDeprecated;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 
 /**
  *
@@ -51,6 +53,20 @@ public abstract class AbstractBsonDeprecated extends AbstractBsonValue<String> i
             return false;
         }
         return this.getValue().equals(((BsonDeprecated) obj).getValue());
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return 0;
+        }
+
+        assert o.isUndefined();
+        return 0;
     }
 
     @Override

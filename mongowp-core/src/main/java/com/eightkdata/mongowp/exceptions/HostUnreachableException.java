@@ -12,36 +12,29 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with bson. If not, see <http://www.gnu.org/licenses/>.
+ * along with mongowp-core. If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright (C) 2016 8Kdata.
  * 
  */
 
-package com.eightkdata.mongowp.bson;
+package com.eightkdata.mongowp.exceptions;
+
+import com.eightkdata.mongowp.ErrorCode;
 
 /**
  *
  */
-public interface BsonTimestamp extends BsonValue<BsonTimestamp> {
+public class HostUnreachableException extends MongoException {
 
-    int getSecondsSinceEpoch();
+    private static final long serialVersionUID = -564229086017329114L;
 
-    int getOrdinal();
+    public HostUnreachableException() {
+        super(ErrorCode.HOST_UNREACHABLE);
+    }
 
-    /**
-     * Two BsonTimestap are equal if their secondsSinceEpoch and ordinal
-     * properties are equal.
-     * @param obj
-     * @return
-     */
-    @Override
-    public boolean equals(Object obj);
+    public HostUnreachableException(String customMessage) {
+        super(customMessage, ErrorCode.HOST_UNREACHABLE);
+    }
 
-    /**
-     * The hashCode of a BsonTimestamp is <code>getSecondsSinceEpoch() &lt;&lt; 4 | (getOrdinal() &amp; 0xf)</code>.
-     * @return
-     */
-    @Override
-    public int hashCode();
 }

@@ -6,6 +6,7 @@ import com.eightkdata.mongowp.bson.impl.DefaultBsonTimestamp;
 import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedInts;
 import java.io.Serializable;
+import javax.annotation.Nonnull;
 import org.threeten.bp.Instant;
 
 /**
@@ -97,8 +98,38 @@ public class OpTime implements Comparable<OpTime>, Serializable {
         return UnsignedInts.compare(term, o.term);
     }
 
+    public final boolean isAfter(@Nonnull OpTime other) {
+        return compareTo(other) > 0;
+    }
+
+    public final boolean isEqualOrAfter(@Nonnull OpTime other) {
+        return compareTo(other) >= 0;
+    }
+
+    public final boolean isBefore(@Nonnull OpTime other) {
+        return compareTo(other) < 0;
+    }
+
+    public final boolean isEqualOrBefore(@Nonnull OpTime other) {
+        return compareTo(other) <= 0;
+    }
+
     @Override
     public String toString() {
         return "{t: " + UnsignedInteger.fromIntBits(secs) + ", i: "+ UnsignedInteger.fromIntBits(term) + "}";
+    }
+
+    /**
+     * Returns this optime as a long where the first 32 bits corresponds to {@link #getSecs() } and
+     * the last to {@link #getTerm()}.
+     *
+     * This might not be the safest or easier way to manipulate a optime, but it is the most compact
+     * way to store a optime.
+     *
+     * @return this optime as a long where the first 32 bits corresponds to {@link #getSecs() } and
+     *         the last to {@link #getTerm() }
+     */
+    public Long asLong() {
+
     }
 }

@@ -7,20 +7,21 @@ import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.fields.*;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetGetStatusCommand.ReplSetGetStatusReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberHeartbeatData;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.google.common.primitives.UnsignedInteger;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -111,7 +112,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
             builder.append(STATE_FIELD, state.getId())
                     .append(STATE_STR_FIELD, state.name())
-                    .append(UPTIME_FIELD, (int) uptime.getSeconds()) //TODO: Check if cast to int is correct
+                    .append(UPTIME_FIELD, UnsignedInteger.valueOf(uptime.getSeconds()).intValue()) //TODO: Check if cast to int is correct
                     .append(OPTIME_FIELD, optime)
                     .appendInstant(OPTIME_DATE_FIELD, optime.toEpochMilli());
             if (maintenanceModeCalls != 0) {
@@ -125,7 +126,6 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         }
     }
 
-    @Immutable
     public static class CorrectReplSetGetStatusReply extends ReplSetGetStatusReply {
         private static final StringField SET_NAME_FIELD = new StringField("set");
         private static final DateTimeField DATE_FIELD = new DateTimeField("date");
@@ -154,28 +154,25 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         private static final StringField MEMBER_LAST_HEARTBEAT_MESSAGE = new StringField("lastHeartbeatMessage");
         private static final BooleanField MEMBER_AUTHENTICATED = new BooleanField("authenticated");
 
-        private final SelfData selfData;
-        private final String setName;
-        private final Instant now;
-        private final MemberState state;
+        private final @Nonnull SelfData selfData;
+        private final @Nonnull String setName;
+        private final @Nonnull Instant now;
         private final @Nullable HostAndPort syncTo;
-        private final ImmutableMap<MemberConfig, MemberHeartbeatData> membersInfo;
-        private final ImmutableMap<MemberConfig, Integer> pings;
-        private final ReplicaSetConfig replConfig;
+        private final Map<MemberConfig, MemberHeartbeatData> membersInfo;
+        private final Map<MemberConfig, Integer> pings;
+        private final @Nonnull ReplicaSetConfig replConfig;
 
         public CorrectReplSetGetStatusReply(
-                SelfData selfData,
-                String setName,
-                Instant now,
-                MemberState state,
-                HostAndPort syncTo,
-                ImmutableMap<MemberConfig, MemberHeartbeatData> membersInfo,
-                ImmutableMap<MemberConfig, Integer> pings,
-                ReplicaSetConfig replConfig) {
+                @Nonnull SelfData selfData,
+                @Nonnull String setName,
+                @Nonnull Instant now,
+                @Nullable HostAndPort syncTo,
+                Map<MemberConfig, MemberHeartbeatData> membersInfo,
+                Map<MemberConfig, Integer> pings,
+                @Nonnull ReplicaSetConfig replConfig) {
             this.selfData = selfData;
             this.setName = setName;
             this.now = now;
-            this.state = state;
             this.syncTo = syncTo;
             this.membersInfo = membersInfo;
             this.pings = pings;
@@ -186,6 +183,8 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         @Override
         protected BsonDocument marshall() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
+
+            MemberState state = selfData.state;
 
             builder.append(SET_NAME_FIELD, setName)
                     .append(DATE_FIELD, now)
@@ -206,8 +205,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                     membersList.add(marshallOtherMember(memberConfig, memberData));
                 }
             }
-            //TODO: Older versions of this command sorted the members list. Check if that is necessary
-//            Collections.sort(membersList, new BsonValueComparator(true));
+            Collections.sort(membersList);
 
             builder.append(MEMBERS_FIELD, DefaultBsonValues.newArray(membersList));
 
@@ -222,7 +220,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                     .append(MEMBER_HEALTH_FIELD, 1.0)
                     .append(MEMBER_STATE_FIELD, selfData.getState().getId())
                     .append(MEMBER_STATE_STR_FIELD, selfData.getState().name())
-                    .append(MEMBER_UPTIME_FIELD, selfData.getUptime().intValue()); //TODO: Check if cast to int is correct
+                    .append(MEMBER_UPTIME_FIELD, UnsignedInteger.valueOf(selfData.getUptime().getSeconds()).intValue()); //TODO: Check if cast to int is correct
 
             if (selfData.getState().equals(MemberState.RS_ARBITER)) {
                     builder.append(MEMBER_OPTIME_FIELD, selfData.getOpTime())
@@ -241,7 +239,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                 builder.append(MEMBER_ELECTION_TIME_FIELD, selfData.getElectionTime());
                 builder.appendInstant(MEMBER_ELECTION_DATE_FIELD, selfData.getElectionTime().toEpochMilli());
             }
-            builder.appendNumber(MEMBER_CONFIG_VERSION_FIELD, replConfig.getVersion());
+            builder.appendNumber(MEMBER_CONFIG_VERSION_FIELD, replConfig.getConfigVersion());
             builder.append(MEMBER_SELF_FIELD, true);
 
             return builder.build();
@@ -251,7 +249,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
 
             builder.append(MEMBER_ID_FIELD, config.getId())
-                    .append(MEMBER_NAME_FIELD, config.getHost());
+                    .append(MEMBER_NAME_FIELD, config.getHostAndPort());
             MemberHeartbeatData.Health h = data.getHealth();
             builder.append(MEMBER_HEALTH_FIELD, h.getId())
                     .append(MEMBER_STATE_FIELD, data.getState().getId());
@@ -305,13 +303,13 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             private final int id;
             private final HostAndPort name;
             private final MemberState state;
-            private final @Nonnull UnsignedInteger uptime;
+            private final @Nonnull Duration uptime;
             private final @Nonnull OpTime opTime;
             private final int maintenanceModeCalls;
             private final @Nullable String heartbeatMessage;
             private final OpTime electionTime;
 
-            public SelfData(int id, HostAndPort name, MemberState state, UnsignedInteger uptime, OpTime opTime, int maintenanceModeCalls, String heartbeatMessage, OpTime electionTime) {
+            public SelfData(int id, HostAndPort name, MemberState state, Duration uptime, OpTime opTime, int maintenanceModeCalls, String heartbeatMessage, OpTime electionTime) {
                 this.id = id;
                 this.name = name;
                 this.state = state;
@@ -334,7 +332,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                 return state;
             }
 
-            public UnsignedInteger getUptime() {
+            public Duration getUptime() {
                 return uptime;
             }
 

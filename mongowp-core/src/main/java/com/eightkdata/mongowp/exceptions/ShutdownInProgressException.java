@@ -31,4 +31,8 @@ public class ShutdownInProgressException extends MongoException {
         super(ErrorCode.SHUTDOWN_IN_PROGRESS);
     }
 
+    public ShutdownInProgressException(String customMessage) {
+        super(customMessage, ErrorCode.SHUTDOWN_IN_PROGRESS);
+    }
+
 }

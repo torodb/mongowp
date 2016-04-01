@@ -22,7 +22,9 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonJavaScript;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 
 /**
  *
@@ -47,6 +49,24 @@ public abstract class AbstractBsonJavaScript extends AbstractBsonValue<String> i
     @Override
     public boolean isJavaScript() {
         return true;
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return 0;
+        }
+
+        //TODO: Check how MongoDB compares js!
+
+        assert o.isJavaScript();
+        BsonJavaScript other = o.asJavaScript();
+
+        return this.getValue().compareTo(other.getValue());
     }
 
     @Override

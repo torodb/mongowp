@@ -22,7 +22,9 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonJavaScriptWithScope;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 
 /**
  *
@@ -53,6 +55,28 @@ public abstract class AbstractBsonJavaScriptWithScope extends AbstractBsonValue<
     @Override
     public boolean isJavaScriptWithScope() {
         return true;
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return 0;
+        }
+
+        assert o.isJavaScriptWithScope();
+        BsonJavaScriptWithScope other = o.asJavaScriptWithScope();
+        //TODO: Check how MongoDB compares js with scope!
+
+        diff = this.getValue().compareTo(other.getValue());
+        if (diff != 0) {
+            return diff;
+        }
+
+        return this.getScope().compareTo(other.getScope());
     }
 
     @Override

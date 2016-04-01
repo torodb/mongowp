@@ -18,4 +18,9 @@ public class BsonField<JV, V extends BsonValue<JV>> {
     public final String getFieldName() {
         return fieldName;
     }
+
+    @Override
+    public String toString() {
+        return fieldName;
+    }
 }

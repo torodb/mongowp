@@ -22,8 +22,12 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonBinary;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 import com.eightkdata.mongowp.bson.utils.IntBaseHasher;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  *
@@ -53,6 +57,52 @@ public abstract class AbstractBsonBinary extends CachedHashAbstractBsonValue<Bso
     @Override
     public boolean isBinary() {
         return true;
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return 0;
+        }
+
+        assert o instanceof BsonBinary;
+        BsonBinary other = o.asBinary();
+        //This is compatible with https://docs.mongodb.org/manual/reference/bson-types/#comparison-sort-order
+
+        diff = this.size() - other.size();
+        if (diff != 0) {
+            return diff;
+        }
+
+        diff = this.getNumericSubType() - other.getNumericSubType();
+        if (diff != 0) {
+            return diff;
+        }
+
+        if (this.getByteSource().getDelegate() == other.getByteSource().getDelegate()) {
+            return 0;
+        }
+
+        try (InputStream myBis = this.getByteSource().openBufferedStream();
+                InputStream otherBis = other.getByteSource().openBufferedStream()) {
+            int myByte = myBis.read();
+            int otherByte = otherBis.read();
+
+            assert myByte != -1;
+            assert otherByte != -1;
+
+            diff = myByte - otherByte;
+            if (diff != 0) {
+                return diff;
+            }
+        } catch (IOException ex) {
+            assert false;
+        }
+        return 0;
     }
 
     @Override

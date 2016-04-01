@@ -27,7 +27,7 @@ import com.google.common.io.ByteSource;
 /**
  *
  */
-public interface BsonBinary extends BsonValue<BsonBinary>{
+public interface BsonBinary extends BsonValue<BsonBinary> {
 
     byte getNumericSubType();
 

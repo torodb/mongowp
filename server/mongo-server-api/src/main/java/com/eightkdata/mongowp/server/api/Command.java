@@ -72,7 +72,7 @@ public interface Command<Arg, Result> {
      * <em>errmsg</em> or whatever special field used by the protocol to specify
      * errors on the execution.
      *
-     * If true is returned, then a non null object is returned when
+     * If true is returned, then a non null object must be returned when
      * {@linkplain #marshallResult(java.lang.Object) } is called with the same
      * argument.
      * @param r

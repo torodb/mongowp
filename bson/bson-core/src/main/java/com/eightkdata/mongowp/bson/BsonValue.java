@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
  *
  * @param <V> the java class represented by this BsonValue
  */
-public interface BsonValue<V> extends Serializable {
+public interface BsonValue<V> extends Serializable, Comparable<BsonValue<?>> {
 
     @Nonnull
     BsonType getType();

@@ -22,9 +22,12 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonArray;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 import com.eightkdata.mongowp.bson.utils.IntBaseHasher;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.UnmodifiableIterator;
 
 /**
  *
@@ -61,6 +64,39 @@ public abstract class AbstractBsonArray extends CachedHashAbstractBsonValue<Bson
         return true;
     }
 
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return 0;
+        }
+
+        assert o instanceof BsonArray;
+        BsonArray other = o.asArray();
+
+        diff = this.size() - other.size();
+        if (diff != 0) {
+            return diff;
+        }
+
+        UnmodifiableIterator<BsonValue<?>> myIt = this.iterator();
+        UnmodifiableIterator<BsonValue<?>> otherIt = other.iterator();
+
+        while (myIt.hasNext() && otherIt.hasNext()) {
+            diff = myIt.next().compareTo(otherIt.next());
+            if (diff != 0) {
+                return diff;
+            }
+        }
+        assert !myIt.hasNext() : "the other array has more entries than ourself!";
+        assert !otherIt.hasNext() : "the other array has less entries than ourself!";
+
+        return 0;
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

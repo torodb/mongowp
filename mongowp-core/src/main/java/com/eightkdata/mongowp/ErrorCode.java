@@ -82,7 +82,7 @@ public enum ErrorCode {
     INVALID_NAMESPACE(73, "error.code.invalid.namespace"),
     NODE_NOT_FOUND(74, "error.code.node.not.found"),
     WRITE_CONCERN_LEGACY_OK(75, "error.code.write.concern.legacy.ok"),
-    NOT_REPLICATION_ENABLED(76, "error.code.not.replication.enabled"),
+    NO_REPLICATION_ENABLED(76, "error.code.not.replication.enabled"),
     OPERATION_INCOMPLETE(77, "error.code.operation.incomplete"),
     COMMAND_RESULT_SCHEMA_VIOLATION(78, "error.code.command.result.schema.violation"),
     UNKNOWN_REPL_WRITE_CONCERN(79, "error.code.unknown.repl.write.concern"),
@@ -179,6 +179,10 @@ public enum ErrorCode {
         }
         throw new IllegalArgumentException("There is no error with the error code '" +
                 id + "'");
+    }
+
+    public boolean isOk() {
+        return this == OK;
     }
 
     public String getErrorMessage() {

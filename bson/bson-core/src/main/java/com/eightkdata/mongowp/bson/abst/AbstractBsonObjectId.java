@@ -22,7 +22,9 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonObjectId;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 import org.threeten.bp.Instant;
 
 /**
@@ -113,17 +115,28 @@ public abstract class AbstractBsonObjectId extends AbstractBsonValue<BsonObjectI
     }
 
     @Override
-    public int compareTo(BsonObjectId o) {
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return 0;
+        }
+
+        assert o instanceof BsonObjectId;
+        BsonObjectId other = o.asObjectId();
+
         byte[] otherBytes;
         if (o instanceof AbstractBsonObjectId) {
             otherBytes = ((AbstractBsonObjectId) o).getBytesUnsafe();
         }
         else {
-            otherBytes = o.toByteArray();
+            otherBytes = other.toByteArray();
         }
         byte[] thisBytes = getBytesUnsafe();
         for (int i = 0; i < 12; i++) {
-            int diff = (thisBytes[i] & 0xFF) - (otherBytes[i] & 0xFF);
+            diff = (thisBytes[i] & 0xFF) - (otherBytes[i] & 0xFF);
 
             if (diff != 0) {
                 return diff;

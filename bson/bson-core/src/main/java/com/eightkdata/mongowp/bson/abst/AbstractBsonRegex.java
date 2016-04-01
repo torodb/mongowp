@@ -22,7 +22,9 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonRegex;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -75,6 +77,28 @@ public abstract class AbstractBsonRegex extends AbstractBsonValue<BsonRegex> imp
     @Override
     public boolean isRegex() {
         return true;
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return 0;
+        }
+
+        assert o.isRegex();
+        BsonRegex other = o.asRegex();
+
+        //TODO: Check how MongoDB compares documents!
+
+        diff = this.getPattern().compareTo(other.getPattern());
+        if (diff != 0) {
+            return diff;
+        }
+        return this.getOptionsAsText().compareTo(other.getOptionsAsText());
     }
 
     @Override

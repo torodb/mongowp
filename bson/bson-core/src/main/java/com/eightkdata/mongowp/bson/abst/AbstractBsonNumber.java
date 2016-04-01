@@ -20,13 +20,12 @@
 
 package com.eightkdata.mongowp.bson.abst;
 
-import com.eightkdata.mongowp.bson.BsonDouble;
-import com.eightkdata.mongowp.bson.BsonInt32;
-import com.eightkdata.mongowp.bson.BsonInt64;
-import com.eightkdata.mongowp.bson.BsonNumber;
+import com.eightkdata.mongowp.bson.*;
 import com.eightkdata.mongowp.bson.impl.PrimitiveBsonDouble;
 import com.eightkdata.mongowp.bson.impl.PrimitiveBsonInt32;
 import com.eightkdata.mongowp.bson.impl.PrimitiveBsonInt64;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
+import com.google.common.primitives.Doubles;
 
 /**
  *
@@ -46,6 +45,21 @@ public abstract class AbstractBsonNumber<V extends Number> extends AbstractBsonV
     @Override
     public BsonDouble asDouble() {
         return PrimitiveBsonDouble.newInstance(doubleValue());
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return 0;
+        }
+
+        assert o instanceof BsonNumber;
+        BsonNumber<?> other = o.asNumber();
+        return Doubles.compare(this.doubleValue(), other.doubleValue());
     }
 
     @Override

@@ -61,4 +61,8 @@ public enum MemberState {
         throw new IllegalArgumentException("There is no member state whose id is equal to '"
                 + id + "'");
     }
+
+    public boolean isReadable() {
+        return this == RS_PRIMARY || this == RS_SECONDARY;
+    }
 }

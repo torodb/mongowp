@@ -3,12 +3,11 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetSyncFromCommand.ReplSetSyncFromReply;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.net.HostAndPort;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
@@ -58,6 +57,10 @@ public class ReplSetSyncFromCommand extends AbstractCommand<HostAndPort, ReplSet
             result.appendUnsafe("warning", DefaultBsonValues.newString(reply.getWarning()));
         }
 
+        if (reply.getSyncFromRequested() != null) {
+            result.appendUnsafe("syncFromRequested", DefaultBsonValues.newString(reply.getSyncFromRequested().toString()));
+        }
+
         return result.build();
     }
 
@@ -72,21 +75,32 @@ public class ReplSetSyncFromCommand extends AbstractCommand<HostAndPort, ReplSet
         @Nullable
         private final HostAndPort prevSyncTarget;
         @Nullable
+        private final HostAndPort syncFromRequested;
+        @Nullable
         private final String warning;
 
         public ReplSetSyncFromReply(
-                @Nonnull HostAndPort prevSyncTarget,
+                @Nullable HostAndPort prevSyncTarget,
+                @Nullable HostAndPort syncFromRequested,
                 @Nullable String warning) {
             this.prevSyncTarget = prevSyncTarget;
+            this.syncFromRequested = syncFromRequested;
             this.warning = warning;
         }
 
+        @Nullable
         public HostAndPort getPrevSyncTarget() {
             return prevSyncTarget;
         }
 
+        @Nullable
         public String getWarning() {
             return warning;
+        }
+
+        @Nullable
+        public HostAndPort getSyncFromRequested() {
+            return syncFromRequested;
         }
     }
 

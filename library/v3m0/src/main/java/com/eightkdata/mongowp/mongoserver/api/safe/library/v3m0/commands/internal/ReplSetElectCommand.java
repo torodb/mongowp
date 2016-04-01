@@ -3,16 +3,14 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.intern
 
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonObjectId;
-import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.IntField;
 import com.eightkdata.mongowp.fields.ObjectIdField;
-import com.eightkdata.mongowp.fields.StringField;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectReply;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.Nonnull;
@@ -70,7 +68,7 @@ public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, R
         private static final String CFG_VER_FIELD_NAME = "cfgver";
         private static final String ROUND_FIELD_NAME = "round";
 
-        private final @Nonnull String setName;
+        private final @Nonnull String replSetName;
         private final int clientId;  
         private final int cfgVersion;
         private final @Nonnull BsonObjectId round;
@@ -80,7 +78,7 @@ public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, R
                 int clientId,
                 int cfgVersion,
                 @Nonnull BsonObjectId round) {
-            this.setName = setName;
+            this.replSetName = setName;
             this.clientId = clientId;
             this.cfgVersion = cfgVersion;
             this.round = round;
@@ -91,8 +89,8 @@ public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, R
          * @return 
          */
         @Nonnull
-        public String getSetName() {
-            return setName;
+        public String getReplSetName() {
+            return replSetName;
         }
 
         /**

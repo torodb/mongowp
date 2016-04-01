@@ -24,9 +24,11 @@ import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonType;
 import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 import com.eightkdata.mongowp.bson.utils.IntBaseHasher;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -70,6 +72,39 @@ public abstract class AbstractBsonDocument extends CachedHashAbstractBsonValue<B
     @Override
     public boolean isEmpty() {
         return size() == 0;
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return 0;
+        }
+
+        assert o.isDocument();
+        BsonDocument other = o.asDocument();
+        //TODO: Check how MongoDB compares documents!
+
+        diff = this.size() - other.size();
+        if (diff != 0) {
+            return diff;
+        }
+
+        Iterator<Entry<?>> myIt = this.iterator();
+        Iterator<Entry<?>> otherIt = other.iterator();
+        while (myIt.hasNext() && otherIt.hasNext()) {
+            diff = myIt.next().getValue().compareTo(otherIt.next().getValue());
+            if (diff != 0) {
+                return diff;
+            }
+        }
+        assert !myIt.hasNext() : "the other document has more entries than ourself!";
+        assert !otherIt.hasNext() : "the other document has less entries than ourself!";
+        
+        return 0;
     }
 
     @Override
