@@ -347,7 +347,7 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
                 }
                 builder.append(WRITE_CONCERN_ERRORS_FIELD, array.build());
             }
-            if (upserts.isEmpty()) {
+            if (!upserts.isEmpty()) {
                 BsonArrayBuilder array = new BsonArrayBuilder();
                 for (UpsertResult upsert : upserts) {
                     array.add(upsert.marshall());
