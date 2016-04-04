@@ -228,7 +228,7 @@ public class IndexOptions {
                     break;
                 }
                 case EXPIRE_AFTER_SECONDS_FIELD_NAME: {
-                    expireAfterSeconds = BsonReaderTool.getInteger(entry, EXPIRE_AFTER_SECONDS_FIELD);
+                    expireAfterSeconds = BsonReaderTool.getNumeric(entry, EXPIRE_AFTER_SECONDS_FIELD.getFieldName()).intValue();
                     break;
                 }
                 case KEYS_FIELD_NAME: {
