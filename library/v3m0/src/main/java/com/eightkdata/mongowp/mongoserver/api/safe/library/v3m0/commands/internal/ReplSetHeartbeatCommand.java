@@ -36,7 +36,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
 
     @Override
     public boolean isReadyToReplyResult(ReplSetHeartbeatReply r) {
-        return true;
+        return !r.errorCode.isOk();
     }
 
     @Override
@@ -286,6 +286,8 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
         private static final HostAndPortField SYNC_SOURCE_FIELD_NAME = new HostAndPortField("syncingTo");
         private static final LongField TIME_FIELD_NAME = new LongField("time");
 
+        private final @Nonnull ErrorCode errorCode;
+        private final @Nullable String errMsg;
         private final @Nonnull OpTime electionTime;
         private final @Nullable Long time;
         private final @Nullable OpTime opTime;
@@ -316,6 +318,8 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                 @Nonnull String hbmsg,
                 @Nullable HostAndPort syncingTo,
                 @Nullable ReplicaSetConfig config) {
+            this.errorCode = ErrorCode.OK;
+            this.errMsg = null;
             this.electionTime = electionTime;
             this.time = time;
             this.opTime = opTime;
@@ -330,6 +334,25 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             this.hbmsg = hbmsg;
             this.syncingTo = syncingTo;
             this.config = config;
+        }
+
+        public ReplSetHeartbeatReply(ErrorCode errorCode, String errMsg, boolean mismatch, String setName) {
+            this.errorCode = errorCode;
+            this.errMsg = errMsg;
+            this.electionTime = OpTime.EPOCH;
+            this.time = null;
+            this.opTime = null;
+            this.electable = false;
+            this.hasData = false;
+            this.mismatch = mismatch;
+            this.isReplSet = false;
+            this.stateDisagreement = false;
+            this.state = null;
+            this.configVersion = -1;
+            this.setName = setName;
+            this.hbmsg = "";
+            this.syncingTo = null;
+            this.config = null;
         }
 
         public OpTime getElectionTime() {
@@ -402,7 +425,15 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                 return doc.build();
             }
 
-            doc.append(OK_FIELD_NAME, MongoConstants.OK);
+            if (errorCode.isOk()) {
+                doc.append(OK_FIELD_NAME, MongoConstants.OK);
+            } else {
+                doc.append(OK_FIELD_NAME, MongoConstants.KO);
+                doc.append(ERROR_CODE_FIELD_NAME, errorCode.getErrorCode());
+                if (errMsg != null) {
+                    doc.append(ERR_MSG_FIELD_NAME, errMsg);
+                }
+            }
 
             if (opTime != null) {
                 doc.append(OP_TIME_FIELD, opTime);
@@ -459,15 +490,17 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             if (!ok) {
                 String errMsg = BsonReaderTool.getString(bson, ERR_MSG_FIELD_NAME, "");
 
+                ErrorCode errorCode;
                 try {
-                    int errorCode;
-                    errorCode = BsonReaderTool.getNumeric(bson, ERROR_CODE_FIELD_NAME).intValue();
-                    throw new MongoException(errMsg, ErrorCode.fromErrorCode(errorCode));
+                    errorCode = ErrorCode.fromErrorCode(
+                            BsonReaderTool.getNumeric(bson, ERROR_CODE_FIELD_NAME).intValue()
+                    );
                 } catch (TypesMismatchException ex) {
                     throw new BadValueException(ERROR_CODE_FIELD_NAME + " is not a number");
                 } catch (NoSuchKeyException ex) {
                     throw new UnknownErrorException();
                 }
+                return new ReplSetHeartbeatReply(errorCode, errMsg, mismatch, setName);
             }
 
             Boolean hasData;
@@ -626,6 +659,23 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                 this.electionTime = electionTime;
                 this.setName = setName;
                 this.hbmsg = hbmsg;
+            }
+
+            public Builder(ReplSetHeartbeatReply other) {
+                this.electionTime = other.getElectionTime();
+                this.time = other.getTime();
+                this.opTime = other.getOpTime();
+                this.electable = other.isElectable();
+                this.hasData = other.getHasData();
+                this.mismatch = other.isMismatch();
+                this.isReplSet = other.isReplSet;
+                this.stateDisagreement = other.isStateDisagreement();
+                this.state = other.getState();
+                this.configVersion = other.getConfigVersion();
+                this.setName = other.getSetName();
+                this.hbmsg = other.getHbMsg();
+                this.syncingTo = other.syncingTo;
+                this.config = other.config;
             }
 
             public Builder setElectionTime(@Nonnull OpTime electionTime) {

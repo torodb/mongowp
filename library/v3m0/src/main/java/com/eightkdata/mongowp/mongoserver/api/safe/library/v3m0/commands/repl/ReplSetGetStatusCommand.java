@@ -1,6 +1,8 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
+import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonValue;
@@ -43,6 +45,11 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
     }
 
     @Override
+    public boolean isReadyToReplyResult(ReplSetGetStatusReply r) {
+        return r instanceof InvalidReplSetGetStatusReply;
+    }
+
+    @Override
     public Class<? extends Empty> getArgClass() {
         return Empty.class;
     }
@@ -80,6 +87,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
 
     @Immutable
     public static class InvalidReplSetGetStatusReply extends ReplSetGetStatusReply {
+        private final @Nonnull String errMsg;
         private final @Nonnull MemberState state;
         private final @Nonnull Duration uptime;
         private final @Nonnull OpTime optime;
@@ -87,11 +95,13 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         private final @Nullable String heartbeatMessage;
 
         public InvalidReplSetGetStatusReply(
+                @Nonnull String errMsg,
                 MemberState state,
                 Duration uptime,
                 OpTime optime,
                 int maintenanceModeCalls,
                 String heartbeatMessage) {
+            this.errMsg = errMsg;
             this.state = state;
             this.uptime = uptime;
             this.optime = optime;
@@ -99,6 +109,9 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             this.heartbeatMessage = heartbeatMessage;
         }
 
+        private static final StringField ERR_MSG_FIELD_NAME = new StringField("errmsg");
+        private static final IntField ERROR_CODE_FIELD_NAME = new IntField("code");
+        private static final DoubleField OK_FIELD_NAME = new DoubleField("ok");
         private static final IntField STATE_FIELD = new IntField("state");
         private static final StringField STATE_STR_FIELD = new StringField("stateStr");
         private static final IntField UPTIME_FIELD = new IntField("uptime");
@@ -110,7 +123,10 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         @Override
         protected BsonDocument marshall() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
-            builder.append(STATE_FIELD, state.getId())
+            builder.append(ERR_MSG_FIELD_NAME, errMsg)
+                    .append(ERROR_CODE_FIELD_NAME, ErrorCode.INVALID_REPLICA_SET_CONFIG.getErrorCode())
+                    .append(OK_FIELD_NAME, MongoConstants.KO)
+                    .append(STATE_FIELD, state.getId())
                     .append(STATE_STR_FIELD, state.name())
                     .append(UPTIME_FIELD, UnsignedInteger.valueOf(uptime.getSeconds()).intValue()) //TODO: Check if cast to int is correct
                     .append(OPTIME_FIELD, optime)

@@ -8,11 +8,13 @@ import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.CommandReply;
 import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
+import com.google.common.base.Optional;
 import java.io.Closeable;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+import org.threeten.bp.Duration;
 
 /**
  *
@@ -81,6 +83,15 @@ public interface MongoConnection extends Closeable {
             @Nonnull Arg arg)
             throws MongoException;
 
+    @Nonnull
+    public <Arg, Result> RemoteCommandResponse<Result> execute(
+            @Nonnull Command<? super Arg, Result> command,
+            String database,
+            boolean isSlaveOk,
+            @Nonnull Arg arg,
+            Duration timeout)
+            throws MongoException;
+
     /**
      * Returns true iff this object represents a remote server.
      *
@@ -97,10 +108,19 @@ public interface MongoConnection extends Closeable {
 
     public static interface RemoteCommandResponse<Result> {
 
-        Result getCommandReply();
+        /**
+         * The command reply.
+         *
+         * If there were no errors, it is always present. It is posible to be present even if
+         * {@link #isOK() } returns true.
+         * @return
+         */
+        Optional<Result> getCommandReply();
 
-        long getElapsedMillis();
+        @Nonnull
+        Duration getNetworkTime();
 
+        @Nullable
         BsonDocument getBson();
 
         public ErrorCode getErrorCode();
@@ -111,6 +131,64 @@ public interface MongoConnection extends Closeable {
          */
         public boolean isOK();
 
+        @Nonnull
         public String getErrorDesc();
+    }
+
+    public static class ErroneousRemoteCommandResponse<Result> implements RemoteCommandResponse<Result> {
+
+        @Nonnull
+        private final ErrorCode errorCode;
+        @Nonnull
+        private final String errorDesc;
+        @Nonnull
+        private final Duration networkTime;
+        @Nonnull
+        private final Optional<Result> result;
+        private final BsonDocument bson;
+
+        public ErroneousRemoteCommandResponse(
+                ErrorCode errorCode,
+                String errorDesc,
+                Duration networkTime,
+                @Nullable Result result,
+                @Nullable BsonDocument bson) {
+            this.errorDesc = errorDesc;
+            this.networkTime = networkTime;
+            this.errorCode = errorCode;
+            this.result = Optional.fromNullable(result);
+            this.bson = bson;
+        }
+
+        @Override
+        public Optional<Result> getCommandReply() {
+            return result;
+        }
+
+        @Override
+        public Duration getNetworkTime() {
+            return networkTime;
+        }
+
+        @Override
+        public BsonDocument getBson() {
+            return bson;
+        }
+
+        @Override
+        public ErrorCode getErrorCode() {
+            return errorCode;
+        }
+
+        @Override
+        public boolean isOK() {
+            return false;
+        }
+
+        @Override
+        public String getErrorDesc() {
+            return errorDesc;
+        }
+
     }
 }

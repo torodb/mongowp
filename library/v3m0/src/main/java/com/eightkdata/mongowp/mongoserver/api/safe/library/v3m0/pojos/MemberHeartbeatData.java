@@ -7,22 +7,35 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.interna
 import com.google.common.net.HostAndPort;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 /**
  * This class contains the data returned from a heartbeat command for one member
  * of a replica set.
  */
-@Immutable
 public class MemberHeartbeatData {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MemberHeartbeatData.class);
+    private Health health;
+    private @Nullable Instant upSince;
+    private Instant lastHeartbeat;
+    private Instant lastHeartbeatRecv;
+    private boolean authIssue;
+    private @Nonnull ReplSetHeartbeatReply lastResponse;
 
-    private final Health health;
-    private final @Nullable Instant upSince;
-    private final Instant lastHeartbeat;
-    private final Instant lastHeartbeatRecv;
-    private final boolean authIssue;
-    private final @Nonnull ReplSetHeartbeatReply lastResponse;
+    public MemberHeartbeatData() {
+        this.health = Health.NOT_CHECKED;
+        this.upSince = Instant.EPOCH;
+        this.lastHeartbeat = Instant.EPOCH;
+        this.lastHeartbeatRecv = Instant.EPOCH;
+        this.authIssue = false;
+
+        lastResponse = new ReplSetHeartbeatReply.Builder(OpTime.EPOCH, "_unnamed", "")
+                .setState(MemberState.RS_UNKNOWN)
+                .setOpTime(OpTime.EPOCH)
+                .build();
+    }
 
     public MemberHeartbeatData(
             Health health,
@@ -103,6 +116,62 @@ public class MemberHeartbeatData {
 
     public boolean isUnelectable() {
         return lastResponse.isElectable();
+    }
+
+    public void setUpValues(@Nonnull Instant now, @Nonnull HostAndPort host,
+            @Nonnull ReplSetHeartbeatReply hbResponse) {
+        health = Health.UP;
+        if (upSince.equals(Instant.EPOCH)) {
+            upSince = now;
+        }
+        authIssue = false;
+        lastHeartbeat = now;
+
+        ReplSetHeartbeatReply.Builder lastResponseBuilder = new ReplSetHeartbeatReply.Builder(hbResponse);
+        if (hbResponse.getState() == null) {
+            lastResponseBuilder.setState(MemberState.RS_UNKNOWN);
+        }
+        if (hbResponse.getElectionTime() == null) {
+            lastResponseBuilder.setElectionTime(lastResponse.getElectionTime());
+        }
+        if (hbResponse.getOpTime() == null) {
+            lastResponseBuilder.setOpTime(lastResponse.getOpTime());
+        }
+
+        // Log if the state changes
+        if (lastResponse.getState() != hbResponse.getState()) {
+            LOGGER.info("Member {} is now in state {}", host, hbResponse.getState());
+        }
+
+        lastResponse = lastResponseBuilder.build();
+    }
+
+    public void setAuthIssue(Instant now) {
+        health = Health.UNREACHABLE;  // set health to 0 so that this doesn't count towards majority.
+        upSince = Instant.EPOCH;
+        lastHeartbeat = now;
+        authIssue = true;
+
+        lastResponse = new ReplSetHeartbeatReply.Builder(
+                OpTime.EPOCH, lastResponse.getSetName(), "")
+                .setState(MemberState.RS_UNKNOWN)
+                .setOpTime(OpTime.EPOCH)
+                .setSyncingTo(null)
+                .build();
+    }
+
+    public void setDownValues(Instant now, @Nonnull String errorDesc) {
+        health = Health.UNREACHABLE;  // set health to 0 so that this doesn't count towards majority.
+        upSince = Instant.EPOCH;
+        lastHeartbeat = now;
+        authIssue = false;
+
+        lastResponse = new ReplSetHeartbeatReply.Builder(
+                OpTime.EPOCH, lastResponse.getSetName(), errorDesc)
+                .setState(MemberState.RS_DOWN)
+                .setOpTime(OpTime.EPOCH)
+                .setSyncingTo(null)
+                .build();
     }
 
     public static enum Health {

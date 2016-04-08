@@ -79,7 +79,7 @@ public class MemberConfig {
         return priority;
     }
 
-    public int getVotes() {
+    public int getNumVotes() {
         return votes;
     }
 

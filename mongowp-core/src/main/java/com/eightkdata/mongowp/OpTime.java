@@ -37,6 +37,10 @@ public class OpTime implements Comparable<OpTime>, Serializable {
         this.term = term.intValue();
     }
 
+    public OpTime(BsonTimestamp timestamp) {
+        this(timestamp.getSecondsSinceEpoch(), timestamp.getSecondsSinceEpoch());
+    }
+
     /**
      *
      * @param secs secs since epoch, <b>used as an unsigned int</b>!
