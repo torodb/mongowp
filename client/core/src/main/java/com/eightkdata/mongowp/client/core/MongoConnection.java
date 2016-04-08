@@ -1,6 +1,15 @@
 
 package com.eightkdata.mongowp.client.core;
 
+import java.io.Closeable;
+import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
+
+import org.threeten.bp.Duration;
+
 import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.exceptions.MongoException;
@@ -9,12 +18,6 @@ import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.CommandReply;
 import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
 import com.google.common.base.Optional;
-import java.io.Closeable;
-import java.util.List;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.NotThreadSafe;
-import org.threeten.bp.Duration;
 
 /**
  *
@@ -133,6 +136,51 @@ public interface MongoConnection extends Closeable {
 
         @Nonnull
         public String getErrorDesc();
+    }
+    
+    public static class CorrectRemoteCommandResponse<Result> implements RemoteCommandResponse<Result> {
+
+        @Nonnull
+    	private final Duration networkTime;
+    	private final Optional<Result> commandReply;
+        private final BsonDocument bson;
+    	
+		public CorrectRemoteCommandResponse(@Nonnull Duration networkTime, @Nullable Result commandReply, @Nullable BsonDocument bson) {
+			super();
+			this.networkTime = networkTime;
+			this.commandReply = Optional.fromNullable(commandReply);
+			this.bson = bson;
+		}
+
+		@Override
+		public Optional<Result> getCommandReply() {
+			return commandReply;
+		}
+
+		@Override
+		public Duration getNetworkTime() {
+			return networkTime;
+		}
+
+		@Override
+		public BsonDocument getBson() {
+			return bson;
+		}
+
+		@Override
+		public ErrorCode getErrorCode() {
+			return ErrorCode.OK;
+		}
+
+		@Override
+		public boolean isOK() {
+			return true;
+		}
+
+		@Override
+		public String getErrorDesc() {
+			return "";
+		}
     }
 
     public static class ErroneousRemoteCommandResponse<Result> implements RemoteCommandResponse<Result> {
