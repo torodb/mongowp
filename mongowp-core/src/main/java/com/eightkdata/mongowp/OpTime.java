@@ -134,6 +134,7 @@ public class OpTime implements Comparable<OpTime>, Serializable {
      *         the last to {@link #getTerm() }
      */
     public Long asLong() {
-
+        final long INT_MASK = 0xffffffffL;
+        return (secs & INT_MASK) << 32 | (term & INT_MASK);
     }
 }

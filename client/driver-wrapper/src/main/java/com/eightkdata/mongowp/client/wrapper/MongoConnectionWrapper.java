@@ -1,5 +1,6 @@
 package com.eightkdata.mongowp.client.wrapper;
 
+import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.org.bson.utils.MongoBsonTranslator;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
@@ -12,7 +13,6 @@ import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.MarshalException;
 import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
 import com.eightkdata.mongowp.server.api.pojos.SimpleBatch;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -29,6 +29,7 @@ import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Duration;
 
 /**
  *
@@ -42,6 +43,7 @@ public class MongoConnectionWrapper implements MongoConnection {
 
     private final CodecRegistry codecRegistry;
     private final MongoClientWrapper owner;
+    private boolean close = false;
 
     public MongoConnectionWrapper(
             CodecRegistry codecRegistry,
@@ -183,11 +185,12 @@ public class MongoConnectionWrapper implements MongoConnection {
     }
 
     @Override
-    public <Arg, Result> Result execute(
+    public <Arg, Result> RemoteCommandResponse<Result> execute(
             Command<? super Arg, Result> command,
             String database,
             boolean isSlaveOk,
-            Arg arg) throws MongoException {
+            Arg arg) {
+        long startMillis = System.currentTimeMillis();
         try {
             ReadPreference readPreference;
             if (isSlaveOk) {
@@ -203,16 +206,41 @@ public class MongoConnectionWrapper implements MongoConnection {
                     );
             org.bson.BsonDocument bsonDoc
                     = document.toBsonDocument(Document.class, codecRegistry);
-            return command.unmarshallResult(MongoBsonTranslator.translate(bsonDoc));
+            Result commandResult = command.unmarshallResult(MongoBsonTranslator.translate(bsonDoc));
+            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+            return new CorrectRemoteCommandResponse<>(command, d, commandResult);
         } catch (MarshalException ex) {
-            throw new BadValueException(
-                    "It was impossible to marshall the given argument to "
-                    + command.getCommandName(),
-                    ex
-            );
+            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+            return new ErroneousRemoteCommandResponse<>(
+                    ErrorCode.BAD_VALUE,
+                    "It was impossible to marshall the given argument to " + command,
+                    d, null, null);
         } catch (IOException ex) {
-            throw new BadValueException("Unexpected IO exception", ex);
+            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+            return new ErroneousRemoteCommandResponse<>(
+                    ErrorCode.BAD_VALUE,
+                    "Unexpected IO exception",
+                    d, null, null);
+        } catch (MongoException ex) {
+            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+            return new FromExceptionRemoteCommandRequest<>(ex, d, null, null);
         }
+    }
+
+    @Override
+    public <Arg, Result> RemoteCommandResponse<Result> execute(
+            Command<? super Arg, Result> command,
+            String database,
+            boolean isSlaveOk,
+            Arg arg,
+            Duration timeout) {
+        //TODO: manage duration!
+        throw new UnsupportedOperationException("Timeout command execution is not supported yet");
+    }
+
+    @Override
+    public boolean isClosed() {
+        return close;
     }
 
     @Override
@@ -222,6 +250,8 @@ public class MongoConnectionWrapper implements MongoConnection {
 
     @Override
     public void close() {
+        //Nothing to do
+        close = true;
     }
 
     private static class MyMongoCursor implements MongoCursor<BsonDocument> {

@@ -84,8 +84,7 @@ public interface MongoConnection extends Closeable {
             @Nonnull Command<? super Arg, Result> command,
             String database,
             boolean isSlaveOk,
-            @Nonnull Arg arg)
-            throws MongoException;
+            @Nonnull Arg arg);
 
     @Nonnull
     public <Arg, Result> RemoteCommandResponse<Result> execute(
@@ -93,8 +92,7 @@ public interface MongoConnection extends Closeable {
             String database,
             boolean isSlaveOk,
             @Nonnull Arg arg,
-            Duration timeout)
-            throws MongoException;
+            Duration timeout);
 
     /**
      * Returns true iff this object represents a remote server.
@@ -283,5 +281,61 @@ public interface MongoConnection extends Closeable {
             return new MongoException(errorDesc, errorCode);
         }
 
+    }
+
+    public static class FromExceptionRemoteCommandRequest<Result> implements RemoteCommandResponse<Result> {
+        @Nonnull
+        private final MongoException exception;
+        @Nonnull
+        private final Duration networkTime;
+        @Nonnull
+        private final Optional<Result> result;
+        private final BsonDocument bson;
+
+        public FromExceptionRemoteCommandRequest(
+                @Nonnull MongoException exception,
+                @Nonnull Duration networkTime,
+                @Nullable Result result,
+                @Nullable BsonDocument bson) {
+            this.exception = exception;
+            this.networkTime = networkTime;
+            this.result = Optional.fromNullable(result);
+            this.bson = bson;
+        }
+
+        @Override
+        public Optional<Result> getCommandReply() {
+            return result;
+        }
+
+        @Override
+        public Duration getNetworkTime() {
+            return networkTime;
+        }
+
+        @Override
+        public BsonDocument getBson() {
+            return bson;
+        }
+
+        @Override
+        public ErrorCode getErrorCode() {
+            return exception.getErrorCode();
+        }
+
+        @Override
+        public boolean isOK() {
+            return false;
+        }
+
+        @Override
+        public String getErrorDesc() {
+            return exception.getLocalizedMessage();
+        }
+
+        @Override
+        public MongoException asMongoException() throws IllegalStateException {
+            return exception;
+        }
     }
 }
