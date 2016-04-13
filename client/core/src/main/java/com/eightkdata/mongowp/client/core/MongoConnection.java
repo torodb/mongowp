@@ -1,23 +1,24 @@
 
 package com.eightkdata.mongowp.client.core;
 
-import java.io.Closeable;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.NotThreadSafe;
-
-import org.threeten.bp.Duration;
-
 import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.CommandReply;
+import com.eightkdata.mongowp.server.api.MarshalException;
 import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.google.common.base.Optional;
+import java.io.Closeable;
+import java.util.List;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.NotThreadSafe;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.Duration;
 
 /**
  *
@@ -83,8 +84,7 @@ public interface MongoConnection extends Closeable {
             @Nonnull Command<? super Arg, Result> command,
             String database,
             boolean isSlaveOk,
-            @Nonnull Arg arg)
-            throws MongoException;
+            @Nonnull Arg arg);
 
     @Nonnull
     public <Arg, Result> RemoteCommandResponse<Result> execute(
@@ -92,8 +92,7 @@ public interface MongoConnection extends Closeable {
             String database,
             boolean isSlaveOk,
             @Nonnull Arg arg,
-            Duration timeout)
-            throws MongoException;
+            Duration timeout);
 
     /**
      * Returns true iff this object represents a remote server.
@@ -123,6 +122,15 @@ public interface MongoConnection extends Closeable {
         @Nonnull
         Duration getNetworkTime();
 
+        /**
+         * Returns the reply marshalled as bson for report purposes.
+         *
+         * The returned bson can be null if {@link #getCommandReply() } is absent or if its unknown
+         * how to marshal the response. As the purpose of this method is to be used on human reports,
+         * the given BSON can even not be unmarshalled by the related command.
+         *
+         * @return the reply marshalled as BSON or null if {@link #getCommandReply() } is absent.
+         */
         @Nullable
         BsonDocument getBson();
 
@@ -136,22 +144,35 @@ public interface MongoConnection extends Closeable {
 
         @Nonnull
         public String getErrorDesc();
+
+        /**
+         *
+         * @return
+         * @throws IllegalStateException if {@link #getErrorCode()}.isOk()
+         */
+        @Nonnull
+        public MongoException asMongoException() throws IllegalStateException;
     }
     
     public static class CorrectRemoteCommandResponse<Result> implements RemoteCommandResponse<Result> {
+        private static final org.slf4j.Logger LOGGER
+                = LoggerFactory.getLogger(CorrectRemoteCommandResponse.class);
 
+        private final Command<?, Result> command;
         @Nonnull
     	private final Duration networkTime;
     	private final Optional<Result> commandReply;
-        private final BsonDocument bson;
-    	
-		public CorrectRemoteCommandResponse(@Nonnull Duration networkTime, @Nullable Result commandReply, @Nullable BsonDocument bson) {
-			super();
-			this.networkTime = networkTime;
-			this.commandReply = Optional.fromNullable(commandReply);
-			this.bson = bson;
-		}
+        private BsonDocument bson;
 
+        public CorrectRemoteCommandResponse(
+                @Nonnull Command<?, Result> command,
+                @Nonnull Duration networkTime,
+                @Nonnull Result commandReply) {
+            this.command = command;
+            this.networkTime = networkTime;
+            this.commandReply = Optional.of(commandReply);
+        }
+    	
 		@Override
 		public Optional<Result> getCommandReply() {
 			return commandReply;
@@ -164,7 +185,19 @@ public interface MongoConnection extends Closeable {
 
 		@Override
 		public BsonDocument getBson() {
-			return bson;
+            if (bson == null) {
+                try {
+                    bson = command.marshallResult(commandReply.get());
+                } catch (MarshalException ex) {
+                    LOGGER.debug("Impossible to marshall a reply for " + command.getCommandName()
+                            + " command", ex);
+                    bson = new BsonDocumentBuilder(2)
+                            .appendUnsafe("errorOn", DefaultBsonValues.newString("marshallable respose"))
+                            .appendUnsafe("command", DefaultBsonValues.newString(command.getCommandName()))
+                            .build();
+                }
+            }
+            return bson;
 		}
 
 		@Override
@@ -181,6 +214,11 @@ public interface MongoConnection extends Closeable {
 		public String getErrorDesc() {
 			return "";
 		}
+
+        @Nullable
+        public MongoException asMongoException() {
+            throw new IllegalStateException("This is a correct Remote Command Response");
+        }
     }
 
     public static class ErroneousRemoteCommandResponse<Result> implements RemoteCommandResponse<Result> {
@@ -238,5 +276,66 @@ public interface MongoConnection extends Closeable {
             return errorDesc;
         }
 
+        @Override
+        public MongoException asMongoException() throws IllegalStateException {
+            return new MongoException(errorDesc, errorCode);
+        }
+
+    }
+
+    public static class FromExceptionRemoteCommandRequest<Result> implements RemoteCommandResponse<Result> {
+        @Nonnull
+        private final MongoException exception;
+        @Nonnull
+        private final Duration networkTime;
+        @Nonnull
+        private final Optional<Result> result;
+        private final BsonDocument bson;
+
+        public FromExceptionRemoteCommandRequest(
+                @Nonnull MongoException exception,
+                @Nonnull Duration networkTime,
+                @Nullable Result result,
+                @Nullable BsonDocument bson) {
+            this.exception = exception;
+            this.networkTime = networkTime;
+            this.result = Optional.fromNullable(result);
+            this.bson = bson;
+        }
+
+        @Override
+        public Optional<Result> getCommandReply() {
+            return result;
+        }
+
+        @Override
+        public Duration getNetworkTime() {
+            return networkTime;
+        }
+
+        @Override
+        public BsonDocument getBson() {
+            return bson;
+        }
+
+        @Override
+        public ErrorCode getErrorCode() {
+            return exception.getErrorCode();
+        }
+
+        @Override
+        public boolean isOK() {
+            return false;
+        }
+
+        @Override
+        public String getErrorDesc() {
+            return exception.getLocalizedMessage();
+        }
+
+        @Override
+        public MongoException asMongoException() throws IllegalStateException {
+            return exception;
+        }
     }
 }
