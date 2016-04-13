@@ -14,6 +14,9 @@ import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
+
+import java.util.Map;
+
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -111,27 +114,85 @@ public class MemberConfig {
             TypesMismatchException, NoSuchKeyException, BadValueException {
         int id = BsonReaderTool.getNumeric(bson, "_id").intValue();
         HostAndPort host = BsonReaderTool.getHostAndPort(bson, "host");
-        int votes = BsonReaderTool.getInteger(bson, "votes", DEFAULT_VOTES);
-        double priority = BsonReaderTool.getDouble(bson, "priority", DEFAULT_PRIORITY);
-        boolean arbiterOnly
-                = BsonReaderTool.getBooleanOrNumeric(bson, "arbiterOnly", DEFAULT_ARBITER_ONLY);
-        long slaveDelay = BsonReaderTool.getNumeric(bson, "slaveDelay", DEFAULT_SLAVE_DELAY).longValue();
-        boolean hidden
-                = BsonReaderTool.getBooleanOrNumeric(bson, "hidden", DEFAULT_HIDDEN);
-        boolean buildIndexes
-                = BsonReaderTool.getBooleanOrNumeric(bson, "buildIndexes", DEFAULT_BUILD_INDEXES);
+        Builder builder = new Builder(id, host)
+        		.setVotes(BsonReaderTool.getInteger(bson, "votes", DEFAULT_VOTES))
+        		.setPriority(BsonReaderTool.getDouble(bson, "priority", DEFAULT_PRIORITY))
+        		.setArbiterOnly(BsonReaderTool.getBooleanOrNumeric(bson, "arbiterOnly", DEFAULT_ARBITER_ONLY))
+        		.setSlaveDelay(BsonReaderTool.getNumeric(bson, "slaveDelay", DEFAULT_SLAVE_DELAY).longValue())
+        		.setHidden(BsonReaderTool.getBooleanOrNumeric(bson, "hidden", DEFAULT_HIDDEN))
+        		.setBuildIndexes(BsonReaderTool.getBooleanOrNumeric(bson, "buildIndexes", DEFAULT_BUILD_INDEXES));
         BsonDocument castedTags = BsonReaderTool.getDocument(bson, "tags");
-        ImmutableMap.Builder<String, String> tagsBuilder
-                = ImmutableMap.builder();
         for (Entry entry : castedTags) {
             BsonValue value = entry.getValue();
             if (value.isString()) {
                 throw new TypesMismatchException(entry.getKey(), "string", value.getType());
             }
             String castedValue = value.asString().getValue();
-            tagsBuilder.put(entry.getKey(), castedValue);
+            builder.putTag(entry.getKey(), castedValue);
         }
-        return new MemberConfig(id, host, priority, votes, arbiterOnly, slaveDelay, hidden, buildIndexes, tagsBuilder.build());
+        return builder.build();
+    }
+    
+    public static class Builder {
+        private final int id;
+        private final HostAndPort host;
+        private int votes = DEFAULT_VOTES;
+        private double priority = DEFAULT_PRIORITY;
+        private boolean arbiterOnly = DEFAULT_ARBITER_ONLY;
+        private long slaveDelay = DEFAULT_SLAVE_DELAY.longValue();
+        private boolean hidden = DEFAULT_HIDDEN;
+        private boolean buildIndexes = DEFAULT_BUILD_INDEXES;
+        private final ImmutableMap.Builder<String, String> tagsBuilder = ImmutableMap.builder();
+        
+    	public Builder(int id, HostAndPort host) {
+			super();
+			this.id = id;
+			this.host = host;
+		}
+
+		public Builder setVotes(int votes) {
+			this.votes = votes;
+			return this;
+		}
+
+		public Builder setPriority(double priority) {
+			this.priority = priority;
+			return this;
+		}
+
+		public Builder setArbiterOnly(boolean arbiterOnly) {
+			this.arbiterOnly = arbiterOnly;
+			return this;
+		}
+
+		public Builder setSlaveDelay(long slaveDelay) {
+			this.slaveDelay = slaveDelay;
+			return this;
+		}
+
+		public Builder setHidden(boolean hidden) {
+			this.hidden = hidden;
+			return this;
+		}
+
+		public Builder setBuildIndexes(boolean buildIndexes) {
+			this.buildIndexes = buildIndexes;
+			return this;
+		}
+
+		public Builder putTag(String key, String value) {
+			this.tagsBuilder.put(key, value);
+			return this;
+		}
+
+		public Builder putAllTags(Map<String, String> map) {
+			this.tagsBuilder.putAll(map);
+			return this;
+		}
+
+		public MemberConfig build() {
+            return new MemberConfig(id, host, priority, votes, arbiterOnly, slaveDelay, hidden, buildIndexes, tagsBuilder.build());
+    	}
     }
 
     public void validate() throws BadValueException {

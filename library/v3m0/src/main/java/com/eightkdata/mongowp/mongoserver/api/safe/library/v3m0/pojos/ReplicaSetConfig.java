@@ -2,6 +2,7 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
 import com.eightkdata.mongowp.WriteConcern;
+import com.eightkdata.mongowp.WriteConcern.SyncMode;
 import com.eightkdata.mongowp.WriteConcern.WType;
 import com.eightkdata.mongowp.bson.BsonArray;
 import com.eightkdata.mongowp.bson.BsonDocument;
@@ -38,7 +39,9 @@ public class ReplicaSetConfig {
     private static final DocField GET_LAST_ERROR_DEFAULTS_FIELD = new DocField("getLastErrorDefaults");
     private static final DocField GET_LAST_ERROR_MODES_FIELD = new DocField("getLastErrorModes");
     
-    private static final int DEFAULT_HEARTBEAT_TIMEOUT = 10;
+    private static final int DEFAULT_HEARTBEAT_TIMEOUT_SECONDS = 10;
+    private static final int DEFAULT_HEARTBEAT_TIMEOUT_MILLIS = 
+    		DEFAULT_HEARTBEAT_TIMEOUT_SECONDS * 1000;
     private static final boolean DEFAULT_CHAINING_ALLOWED = true;
     
     private static final ImmutableSet<String> VALID_FIELD_NAMES = ImmutableSet.of(
@@ -273,8 +276,8 @@ public class ReplicaSetConfig {
 
         int version = BsonReaderTool.getInteger(bson, VERSION_FIELD);
 
+        Builder builder = new Builder(id, version);
         BsonArray uncastedMembers = BsonReaderTool.getArray(bson, MEMBERS_FIELD);
-        ImmutableList.Builder<MemberConfig> membersBuilder = ImmutableList.builder();
         int i = 0;
         for (BsonValue uncastedMember : uncastedMembers) {
             if (uncastedMember == null || !uncastedMember.isDocument()) {
@@ -284,7 +287,7 @@ public class ReplicaSetConfig {
                             uncastedMember == null ? null : uncastedMember.getType()
                     );
             }
-            membersBuilder.add(MemberConfig.fromDocument(uncastedMember.asDocument()));
+            builder.addMemberConfig(MemberConfig.fromDocument(uncastedMember.asDocument()));
             i++;
         }
         
@@ -294,9 +297,10 @@ public class ReplicaSetConfig {
         } catch (NoSuchKeyException ex) {
             settings = DefaultBsonValues.EMPTY_DOC;
         }
-        int hbTimeout = BsonReaderTool.getInteger(settings, HEARTHBEAT_TIMEOUT_FIELD, DEFAULT_HEARTBEAT_TIMEOUT);
         
-        boolean chainingAllowed = BsonReaderTool.getBoolean(settings, CHAINING_ALLOWED_FIELD, DEFAULT_CHAINING_ALLOWED);
+        builder
+        	.setHbTimeout(BsonReaderTool.getInteger(settings, HEARTHBEAT_TIMEOUT_FIELD, DEFAULT_HEARTBEAT_TIMEOUT_MILLIS))
+        	.setChainingAllowed(BsonReaderTool.getBoolean(settings, CHAINING_ALLOWED_FIELD, DEFAULT_CHAINING_ALLOWED));
 
 
         BsonDocument uncastedGetLastErrorDefaults = BsonReaderTool.getDocument(
@@ -305,6 +309,7 @@ public class ReplicaSetConfig {
         );
 
         WriteConcern wc = WriteConcern.fromDocument(uncastedGetLastErrorDefaults);
+        builder.setWriteConcern(wc);     
         
         BsonDocument uncastedCustomWriteConcerns;
         try {
@@ -313,19 +318,78 @@ public class ReplicaSetConfig {
             uncastedCustomWriteConcerns = DefaultBsonValues.EMPTY_DOC;
         }
         Map<String, ReplicaSetTagPattern> customWriteConcernsBuilder = parseCustomWriteConcerns(uncastedCustomWriteConcerns);
+        for (Map.Entry<String, ReplicaSetTagPattern> customWriteConcern : customWriteConcernsBuilder.entrySet()) {
+        	builder.putCustomWriteConcern(customWriteConcern.getKey(), customWriteConcern.getValue());
+        }
         
-        long protocolVersion = BsonReaderTool.getLong(settings, PROTOCOL_VERSION_FIELD);
+        builder.setProtocolVersion(BsonReaderTool.getLong(settings, PROTOCOL_VERSION_FIELD));
 
-        return new ReplicaSetConfig(
-                id, 
-                version, 
-                membersBuilder.build(), 
-                wc, 
-                hbTimeout, 
-                chainingAllowed, 
-                customWriteConcernsBuilder,
-                protocolVersion
-        );
+        return builder.build();
+    }
+    
+    public static class Builder {
+        private final String id;
+        private final int version;
+        private final ImmutableList.Builder<MemberConfig> membersBuilder = ImmutableList.builder();
+        private int hbTimeout = DEFAULT_HEARTBEAT_TIMEOUT_MILLIS;
+        boolean chainingAllowed = DEFAULT_CHAINING_ALLOWED;
+        private WriteConcern wc = WriteConcern.with(SyncMode.NONE, 0, 0);
+        private Map<String, ReplicaSetTagPattern> customWriteConcernsBuilder = new HashMap<>();
+        private long protocolVersion = 0;
+        
+    	public Builder(String id, int version) {
+			super();
+			this.id = id;
+			this.version = version;
+		}
+    	
+    	public Builder addMemberConfig(MemberConfig memberConfig) {
+    		this.membersBuilder.add(memberConfig);
+    		return this;
+    	}
+    	
+    	public Builder addAllMemberConfig(List<MemberConfig> memberConfigList) {
+    		this.membersBuilder.addAll(memberConfigList);
+    		return this;
+    	}
+
+		public Builder setHbTimeout(int hbTimeout) {
+			this.hbTimeout = hbTimeout;
+			return this;
+		}
+
+		public Builder setChainingAllowed(boolean chainingAllowed) {
+			this.chainingAllowed = chainingAllowed;
+			return this;
+		}
+
+		public Builder setWriteConcern(WriteConcern wc) {
+			this.wc = wc;
+			return this;
+		}
+
+		public Builder setProtocolVersion(long protocolVersion) {
+			this.protocolVersion = protocolVersion;
+			return this;
+		}
+		
+		public Builder putCustomWriteConcern(String key, ReplicaSetTagPattern value) {
+			this.customWriteConcernsBuilder.put(key, value);
+			return this;
+		}
+
+		public ReplicaSetConfig build() {
+    		return new ReplicaSetConfig(
+                    id, 
+                    version, 
+                    membersBuilder.build(), 
+                    wc, 
+                    hbTimeout, 
+                    chainingAllowed, 
+                    customWriteConcernsBuilder,
+                    protocolVersion
+            );
+    	}
     }
 
     public ReplicaSetTagPattern getCustomWriteConcernTagPattern(String patternName) throws UnknownReplWriteConcernException {

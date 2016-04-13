@@ -354,6 +354,14 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             this.syncingTo = null;
             this.config = null;
         }
+        
+        public ErrorCode getErrorCode() {
+        	return errorCode;
+        }
+        
+        public String getErrMsg() {
+        	return errMsg;
+        }
 
         public OpTime getElectionTime() {
             return electionTime;

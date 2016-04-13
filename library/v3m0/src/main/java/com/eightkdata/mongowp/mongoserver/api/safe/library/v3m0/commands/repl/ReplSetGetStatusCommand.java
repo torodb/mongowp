@@ -1,6 +1,19 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.annotation.Nonnegative;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
+
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
+
 import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.OpTime;
@@ -8,7 +21,15 @@ import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.MongoException;
-import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.fields.ArrayField;
+import com.eightkdata.mongowp.fields.BooleanField;
+import com.eightkdata.mongowp.fields.DateTimeField;
+import com.eightkdata.mongowp.fields.DoubleField;
+import com.eightkdata.mongowp.fields.HostAndPortField;
+import com.eightkdata.mongowp.fields.IntField;
+import com.eightkdata.mongowp.fields.NumberField;
+import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.fields.TimestampField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetGetStatusCommand.ReplSetGetStatusReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberHeartbeatData;
@@ -18,19 +39,10 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyComma
 import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.google.common.primitives.UnsignedInteger;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import org.threeten.bp.Duration;
-import org.threeten.bp.Instant;
 
 /**
  * Report status of a replica set from the POV of this server.
@@ -82,11 +94,21 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
 
     @Immutable
     public static abstract class ReplSetGetStatusReply {
+    	public abstract ErrorCode getErrorCode();
+    	public abstract String getErrMsg();
+    	public abstract String getSetName();
+    	public abstract MemberState getMyState();
+    	public abstract Instant getDate();
+    	public abstract Map<MemberConfig, MemberHeartbeatData> getMembers();
+    	public abstract boolean hasMember(HostAndPort target);
+    	public abstract Entry<MemberConfig, MemberHeartbeatData> getMember(HostAndPort target);
+    	
         protected abstract BsonDocument marshall();
     }
 
     @Immutable
     public static class InvalidReplSetGetStatusReply extends ReplSetGetStatusReply {
+        private final @Nonnull ErrorCode errorCode;
         private final @Nonnull String errMsg;
         private final @Nonnull MemberState state;
         private final @Nonnull Duration uptime;
@@ -95,12 +117,14 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         private final @Nullable String heartbeatMessage;
 
         public InvalidReplSetGetStatusReply(
+                @Nonnull ErrorCode errorCode,
                 @Nonnull String errMsg,
                 MemberState state,
                 Duration uptime,
                 OpTime optime,
                 int maintenanceModeCalls,
                 String heartbeatMessage) {
+        	this.errorCode = errorCode;
             this.errMsg = errMsg;
             this.state = state;
             this.uptime = uptime;
@@ -109,7 +133,47 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             this.heartbeatMessage = heartbeatMessage;
         }
 
-        private static final StringField ERR_MSG_FIELD_NAME = new StringField("errmsg");
+        @Override
+		public ErrorCode getErrorCode() {
+			return errorCode;
+		}
+
+        @Override
+		public String getErrMsg() {
+			return errMsg;
+		}
+
+        @Override
+		public String getSetName() {
+			return null;
+		}
+
+		@Override
+		public MemberState getMyState() {
+			return state;
+		}
+
+		@Override
+		public Instant getDate() {
+			return null;
+		}
+
+		@Override
+		public Map<MemberConfig, MemberHeartbeatData> getMembers() {
+			return ImmutableMap.of();
+		}
+
+		@Override
+		public boolean hasMember(HostAndPort target) {
+			return false;
+		}
+		
+		@Override
+		public Entry<MemberConfig, MemberHeartbeatData> getMember(HostAndPort target) {
+			throw new IllegalArgumentException("member " + target + " was not found in reply");
+		}
+
+		private static final StringField ERR_MSG_FIELD_NAME = new StringField("errmsg");
         private static final IntField ERROR_CODE_FIELD_NAME = new IntField("code");
         private static final DoubleField OK_FIELD_NAME = new DoubleField("ok");
         private static final IntField STATE_FIELD = new IntField("state");
@@ -194,6 +258,58 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             this.pings = pings;
             this.replConfig = replConfig;
         }
+
+        @Override
+		public ErrorCode getErrorCode() {
+			return ErrorCode.OK;
+		}
+
+		@Override
+		public String getErrMsg() {
+			return "";
+		}
+
+		@Override
+		public String getSetName() {
+			return setName;
+		}
+
+		@Override
+		public MemberState getMyState() {
+			return null;
+		}
+
+		@Override
+		public Instant getDate() {
+			return now;
+		}
+
+		@Override
+		public Map<MemberConfig, MemberHeartbeatData> getMembers() {
+			return ImmutableMap.copyOf(membersInfo);
+		}
+
+		@Override
+		public boolean hasMember(HostAndPort target) {
+			for (Entry<MemberConfig, MemberHeartbeatData> entry : membersInfo.entrySet()) {
+				if (entry.getKey().getHostAndPort().equals(target)) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+
+		@Override
+		public Entry<MemberConfig, MemberHeartbeatData> getMember(HostAndPort target) {
+			for (Entry<MemberConfig, MemberHeartbeatData> entry : membersInfo.entrySet()) {
+				if (entry.getKey().getHostAndPort().equals(target)) {
+					return entry;
+				}
+			}
+			
+			throw new IllegalArgumentException("member " + target + " was not found in reply");
+		}
 
 
         @Override
