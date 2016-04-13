@@ -146,6 +146,14 @@ public interface MongoConnection extends Closeable {
 
         @Nonnull
         public String getErrorDesc();
+
+        /**
+         *
+         * @return
+         * @throws IllegalStateException if {@link #getErrorCode()}.isOk()
+         */
+        @Nonnull
+        public MongoException asMongoException() throws IllegalStateException;
     }
     
     public static class CorrectRemoteCommandResponse<Result> implements RemoteCommandResponse<Result> {
@@ -208,6 +216,11 @@ public interface MongoConnection extends Closeable {
 		public String getErrorDesc() {
 			return "";
 		}
+
+        @Nullable
+        public MongoException asMongoException() {
+            throw new IllegalStateException("This is a correct Remote Command Response");
+        }
     }
 
     public static class ErroneousRemoteCommandResponse<Result> implements RemoteCommandResponse<Result> {
@@ -263,6 +276,11 @@ public interface MongoConnection extends Closeable {
         @Override
         public String getErrorDesc() {
             return errorDesc;
+        }
+
+        @Override
+        public MongoException asMongoException() throws IllegalStateException {
+            return new MongoException(errorDesc, errorCode);
         }
 
     }
