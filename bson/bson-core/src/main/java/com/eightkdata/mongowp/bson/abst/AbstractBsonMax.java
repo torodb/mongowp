@@ -53,7 +53,7 @@ public abstract class AbstractBsonMax extends AbstractBsonValue<BsonMax> impleme
         }
         int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
         if (diff != 0) {
-            return 0;
+            return diff;
         }
 
         assert o instanceof BsonMax;

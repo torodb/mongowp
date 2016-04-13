@@ -121,7 +121,11 @@ public abstract class AbstractBsonObjectId extends AbstractBsonValue<BsonObjectI
         }
         int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
         if (diff != 0) {
-            return 0;
+            return diff;
+        }
+        
+        if (o.isDbPointer()) {
+        	return -1;
         }
 
         assert o instanceof BsonObjectId;

@@ -93,6 +93,12 @@ public final class BsonTypeComparator implements Comparator<BsonType>, Serializa
         if (isNumeric(type)) {
             return DOUBLE;
         }
+        if (type == UNDEFINED || type == DEPRECATED) {
+        	return NULL;
+        }
+        if (type == DB_POINTER) {
+        	return OBJECT_ID;
+        }
         assert ORDERED_TYPES.contains(type);
         return type;
     }

@@ -54,7 +54,7 @@ public abstract class AbstractBsonNumber<V extends Number> extends AbstractBsonV
         }
         int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
         if (diff != 0) {
-            return 0;
+            return diff;
         }
 
         assert o instanceof BsonNumber;

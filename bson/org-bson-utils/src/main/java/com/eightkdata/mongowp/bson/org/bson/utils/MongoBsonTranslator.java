@@ -107,7 +107,7 @@ public class MongoBsonTranslator {
             }
             case UNDEFINED:
                 return new BsonUndefined();
-            case DEPRECTED:
+            case DEPRECATED:
             default:
                 throw new AssertionError("It is not defined how to translate the type " + value.getType());
         }

@@ -62,10 +62,18 @@ public abstract class AbstractBsonDeprecated extends AbstractBsonValue<String> i
         }
         int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
         if (diff != 0) {
-            return 0;
+            return diff;
+        }
+        
+        if (o.isNull()) {
+        	return 1;
         }
 
-        assert o.isUndefined();
+        if (o.isUndefined()) {
+        	return 1;
+        }
+
+        assert o.isDeprecated();
         return 0;
     }
 

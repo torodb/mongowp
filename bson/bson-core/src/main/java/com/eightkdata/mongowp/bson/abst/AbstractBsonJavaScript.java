@@ -58,7 +58,7 @@ public abstract class AbstractBsonJavaScript extends AbstractBsonValue<String> i
         }
         int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
         if (diff != 0) {
-            return 0;
+            return diff;
         }
 
         //TODO: Check how MongoDB compares js!

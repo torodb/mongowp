@@ -38,7 +38,7 @@ public class OpTime implements Comparable<OpTime>, Serializable {
     }
 
     public OpTime(BsonTimestamp timestamp) {
-        this(timestamp.getSecondsSinceEpoch(), timestamp.getSecondsSinceEpoch());
+        this(timestamp.getSecondsSinceEpoch(), timestamp.getOrdinal());
     }
 
     /**

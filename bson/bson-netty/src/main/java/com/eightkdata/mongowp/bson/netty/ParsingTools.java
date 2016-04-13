@@ -64,7 +64,7 @@ class ParsingTools {
             case 0x0B: return REGEX;
             case 0x0C: return DB_POINTER;
             case 0x0D: return JAVA_SCRIPT;
-            case 0x0E: return DEPRECTED;
+            case 0x0E: return DEPRECATED;
             case 0x0F: return JAVA_SCRIPT_WITH_SCOPE;
             case 0x10: return INT32;
             case 0x11: return TIMESTAMP;
@@ -90,7 +90,7 @@ class ParsingTools {
             case REGEX: return 0x0B;
             case DB_POINTER: return 0x0C;
             case JAVA_SCRIPT: return 0x0D;
-            case DEPRECTED: return 0x0E;
+            case DEPRECATED: return 0x0E;
             case JAVA_SCRIPT_WITH_SCOPE: return 0x0F;
             case INT32: return 0x10;
             case TIMESTAMP: return 0x11;

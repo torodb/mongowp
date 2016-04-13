@@ -85,9 +85,11 @@ public interface BsonValue<V> extends Serializable, Comparable<BsonValue<?>> {
     boolean isDateTime();
     boolean isNull();
     boolean isRegex();
+    boolean isDbPointer();
     boolean isJavaScript();
     boolean isJavaScriptWithScope();
     boolean isTimestamp();
+    boolean isDeprecated();
 
     BsonNumber asNumber() throws UnsupportedOperationException;
     BsonDouble asDouble() throws UnsupportedOperationException;
@@ -101,11 +103,13 @@ public interface BsonValue<V> extends Serializable, Comparable<BsonValue<?>> {
     BsonDateTime asDateTime() throws UnsupportedOperationException;
     BsonNull asNull() throws UnsupportedOperationException;
     BsonRegex asRegex() throws UnsupportedOperationException;
+    BsonDbPointer asDbPointer() throws UnsupportedOperationException;
     BsonJavaScript asJavaScript() throws UnsupportedOperationException;
     BsonJavaScriptWithScope asJavaScriptWithScope() throws UnsupportedOperationException;
     BsonInt32 asInt32() throws UnsupportedOperationException;
     BsonTimestamp asTimestamp() throws UnsupportedOperationException;
     BsonInt64 asInt64() throws UnsupportedOperationException;
+    BsonDeprecated asDeprecated() throws UnsupportedOperationException;
 
     @Nullable
     <Result, Arg> Result accept(BsonValueVisitor<Result, Arg> visitor, @Nullable Arg arg);

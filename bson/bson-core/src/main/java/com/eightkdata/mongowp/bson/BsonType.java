@@ -39,7 +39,7 @@ public enum BsonType {
     REGEX(BsonRegex.class, 11),
     DB_POINTER(BsonDbPointer.class, 12),
     JAVA_SCRIPT(BsonJavaScript.class, 13),
-    DEPRECTED(BsonDeprecated.class, 14),
+    DEPRECATED(BsonDeprecated.class, 14),
     JAVA_SCRIPT_WITH_SCOPE(BsonJavaScriptWithScope.class, 15),
     INT32(BsonInt32.class, 16),
     TIMESTAMP(BsonTimestamp.class, 17),

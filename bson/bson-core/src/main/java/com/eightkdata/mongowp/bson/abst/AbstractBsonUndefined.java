@@ -63,9 +63,17 @@ public abstract class AbstractBsonUndefined extends AbstractBsonValue<BsonUndefi
         }
         int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
         if (diff != 0) {
-            return 0;
+            return diff;
+        }
+        
+        if (o.isNull()) {
+        	return 1;
         }
 
+        if (o.isDeprecated()) {
+        	return -1;
+        }
+        
         assert o.isUndefined();
         return 0;
     }

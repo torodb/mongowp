@@ -2,6 +2,7 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,7 +40,6 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyComma
 import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.google.common.primitives.UnsignedInteger;
@@ -99,9 +99,6 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
     	public abstract String getSetName();
     	public abstract MemberState getMyState();
     	public abstract Instant getDate();
-    	public abstract Map<MemberConfig, MemberHeartbeatData> getMembers();
-    	public abstract boolean hasMember(HostAndPort target);
-    	public abstract Entry<MemberConfig, MemberHeartbeatData> getMember(HostAndPort target);
     	
         protected abstract BsonDocument marshall();
     }
@@ -158,21 +155,6 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
 			return null;
 		}
 
-		@Override
-		public Map<MemberConfig, MemberHeartbeatData> getMembers() {
-			return ImmutableMap.of();
-		}
-
-		@Override
-		public boolean hasMember(HostAndPort target) {
-			return false;
-		}
-		
-		@Override
-		public Entry<MemberConfig, MemberHeartbeatData> getMember(HostAndPort target) {
-			throw new IllegalArgumentException("member " + target + " was not found in reply");
-		}
-
 		private static final StringField ERR_MSG_FIELD_NAME = new StringField("errmsg");
         private static final IntField ERROR_CODE_FIELD_NAME = new IntField("code");
         private static final DoubleField OK_FIELD_NAME = new DoubleField("ok");
@@ -213,7 +195,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         private static final HostAndPortField SYNCING_TO_FIELD = new HostAndPortField("syncingTo");
         private static final ArrayField MEMBERS_FIELD = new ArrayField("members");
 
-        private static final IntField MEMBER_ID_FIELD = new IntField("id");
+        private static final IntField MEMBER_ID_FIELD = new IntField("_id");
         private static final HostAndPortField MEMBER_NAME_FIELD = new HostAndPortField("name");
         private static final DoubleField MEMBER_HEALTH_FIELD = new DoubleField("health");
         private static final IntField MEMBER_STATE_FIELD = new IntField("state");
@@ -284,34 +266,6 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
 			return now;
 		}
 
-		@Override
-		public Map<MemberConfig, MemberHeartbeatData> getMembers() {
-			return ImmutableMap.copyOf(membersInfo);
-		}
-
-		@Override
-		public boolean hasMember(HostAndPort target) {
-			for (Entry<MemberConfig, MemberHeartbeatData> entry : membersInfo.entrySet()) {
-				if (entry.getKey().getHostAndPort().equals(target)) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
-
-		@Override
-		public Entry<MemberConfig, MemberHeartbeatData> getMember(HostAndPort target) {
-			for (Entry<MemberConfig, MemberHeartbeatData> entry : membersInfo.entrySet()) {
-				if (entry.getKey().getHostAndPort().equals(target)) {
-					return entry;
-				}
-			}
-			
-			throw new IllegalArgumentException("member " + target + " was not found in reply");
-		}
-
-
         @Override
         protected BsonDocument marshall() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
@@ -337,7 +291,15 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                     membersList.add(marshallOtherMember(memberConfig, memberData));
                 }
             }
-            Collections.sort(membersList);
+            //TODO: find out how mongo actually sort the members array
+            Collections.sort(membersList, new Comparator<BsonValue<?>>() {
+				@Override
+				public int compare(BsonValue<?> o1, BsonValue<?> o2) {
+					
+					return o1.asDocument().get(MEMBER_ID_FIELD.getFieldName()).compareTo(
+							o2.asDocument().get(MEMBER_ID_FIELD.getFieldName()));
+				}
+            });
 
             builder.append(MEMBERS_FIELD, DefaultBsonValues.newArray(membersList));
 
@@ -354,7 +316,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                     .append(MEMBER_STATE_STR_FIELD, selfData.getState().name())
                     .append(MEMBER_UPTIME_FIELD, UnsignedInteger.valueOf(selfData.getUptime().getSeconds()).intValue()); //TODO: Check if cast to int is correct
 
-            if (selfData.getState().equals(MemberState.RS_ARBITER)) {
+            if (!selfData.getState().equals(MemberState.RS_ARBITER)) {
                     builder.append(MEMBER_OPTIME_FIELD, selfData.getOpTime())
                             .appendInstant(MEMBER_OPTIME_DATE_FIELD, selfData.getOpTime().toEpochMilli());
             }
@@ -364,7 +326,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             if (selfData.getMaintenanceModeCalls() != 0) {
                 builder.append(MEMBER_MAINTENANCE_MODE_FIELD, selfData.getMaintenanceModeCalls());
             }
-            if (selfData.getHeartbeatMessage() != null) {
+            if (selfData.getHeartbeatMessage() != null && !selfData.getHeartbeatMessage().isEmpty()) {
                 builder.append(MEMBER_INFO_MESSAGE_FIELD, selfData.getHeartbeatMessage());
             }
             if (selfData.getState().equals(MemberState.RS_PRIMARY)) {
@@ -393,7 +355,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                 builder.append(MEMBER_STATE_STR_FIELD, data.getState().name());
             }
             Instant upSince = data.getUpSince();
-            if (upSince == null) {
+            if (upSince == null || upSince.equals(Instant.EPOCH)) {
                 builder.append(MEMBER_UPTIME_FIELD, 0);
             }
             else {

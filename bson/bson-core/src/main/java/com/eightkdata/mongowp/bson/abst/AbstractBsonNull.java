@@ -63,7 +63,11 @@ public abstract class AbstractBsonNull extends AbstractBsonValue<BsonNull> imple
         }
         int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
         if (diff != 0) {
-            return 0;
+            return diff;
+        }
+
+        if (o.isUndefined() || o.isDeprecated()) {
+        	return -1;
         }
 
         assert o.isNull();

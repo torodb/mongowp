@@ -86,7 +86,7 @@ public abstract class AbstractBsonRegex extends AbstractBsonValue<BsonRegex> imp
         }
         int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
         if (diff != 0) {
-            return 0;
+            return diff;
         }
 
         assert o.isRegex();
