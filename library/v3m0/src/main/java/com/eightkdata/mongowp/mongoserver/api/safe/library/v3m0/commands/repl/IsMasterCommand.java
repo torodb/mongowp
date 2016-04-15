@@ -193,6 +193,14 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             this.me = null;
             this.electionId = null;
         }
+        
+        public boolean isMaster() {
+        	return master;
+        }
+        
+        public boolean isSecondary() {
+        	return secondary;
+        }
 
         private BsonDocument toBson() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
