@@ -6,9 +6,9 @@ import com.eightkdata.mongowp.bson.BsonObjectId;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.HandshakeCommand.HandshakeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.Nullable;
@@ -115,6 +115,11 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, Empty>{
 
         public MemberConfig getConfig() {
             return config;
+        }
+
+        @Override
+        public String toString() {
+            return HandshakeCommand.INSTANCE.marshallArg(this).toString();
         }
     }
 

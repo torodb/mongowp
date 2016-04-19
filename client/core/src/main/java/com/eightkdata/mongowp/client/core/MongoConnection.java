@@ -2,6 +2,7 @@
 package com.eightkdata.mongowp.client.core;
 
 import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.Status;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.MongoException;
@@ -152,6 +153,8 @@ public interface MongoConnection extends Closeable {
          */
         @Nonnull
         public MongoException asMongoException() throws IllegalStateException;
+
+        public Status<Result> asStatus();
     }
     
     public static class CorrectRemoteCommandResponse<Result> implements RemoteCommandResponse<Result> {
@@ -219,6 +222,11 @@ public interface MongoConnection extends Closeable {
         public MongoException asMongoException() {
             throw new IllegalStateException("This is a correct Remote Command Response");
         }
+
+        @Override
+        public Status<Result> asStatus() {
+            return new Status<>(getCommandReply().get());
+        }
     }
 
     public static class ErroneousRemoteCommandResponse<Result> implements RemoteCommandResponse<Result> {
@@ -232,6 +240,10 @@ public interface MongoConnection extends Closeable {
         @Nonnull
         private final Optional<Result> result;
         private final BsonDocument bson;
+
+        public ErroneousRemoteCommandResponse(ErrorCode errorCode, String errorDesc, Duration networkTime) {
+            this(errorCode, errorDesc, networkTime, null, null);
+        }
 
         public ErroneousRemoteCommandResponse(
                 ErrorCode errorCode,
@@ -281,6 +293,11 @@ public interface MongoConnection extends Closeable {
             return new MongoException(errorDesc, errorCode);
         }
 
+        @Override
+        public Status<Result> asStatus() {
+            return new Status<>(errorCode, errorDesc);
+        }
+
     }
 
     public static class FromExceptionRemoteCommandRequest<Result> implements RemoteCommandResponse<Result> {
@@ -291,6 +308,10 @@ public interface MongoConnection extends Closeable {
         @Nonnull
         private final Optional<Result> result;
         private final BsonDocument bson;
+
+        public FromExceptionRemoteCommandRequest(MongoException exception, Duration networkTime) {
+            this(exception, networkTime, null, null);
+        }
 
         public FromExceptionRemoteCommandRequest(
                 @Nonnull MongoException exception,
@@ -336,6 +357,11 @@ public interface MongoConnection extends Closeable {
         @Override
         public MongoException asMongoException() throws IllegalStateException {
             return exception;
+        }
+
+        @Override
+        public Status<Result> asStatus() {
+            return new Status(getErrorCode(), getErrorDesc(), exception);
         }
     }
 }

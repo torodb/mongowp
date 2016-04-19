@@ -398,6 +398,32 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             private BsonObjectId electionId;
             private boolean built = false;
 
+            public Builder() {
+            }
+
+            public Builder(IsMasterReply other) {
+                if (other.master) {
+                    this.myState = MemberState.RS_PRIMARY;
+                }
+                else if (other.secondary) {
+                    this.myState = MemberState.RS_SECONDARY;
+                }
+                this.setName = other.setName;
+                this.setVersion = other.setVersion;
+                this.hosts.addAll(other.hosts);
+                this.passives.addAll(other.passives);
+                this.arbiters.addAll(other.arbiters);
+                this.primary = other.primary;
+                this.arbiterOnly = other.arbiterOnly;
+                this.passive = other.passive;
+                this.hidden = other.hidden;
+                this.buildIndexes = other.buildIndexes;
+                this.slaveDelay = other.slaveDelay;
+                this.tags.putAll(other.tags);
+                this.me = other.me;
+                this.electionId = other.electionId;
+            }
+
             public Builder setMyState(MemberState myState) {
                 Preconditions.checkState(!built);
                 this.myState = myState;

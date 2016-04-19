@@ -14,10 +14,9 @@ import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
-
 import java.util.Map;
-
 import javax.annotation.concurrent.Immutable;
+import org.threeten.bp.Duration;
 
 /**
  * Replication configuration about a particular member of a replica set.
@@ -96,6 +95,10 @@ public class MemberConfig {
 
     public long getSlaveDelay() {
         return slaveDelay;
+    }
+
+    public Duration getSlaveDelayDuration() {
+        return Duration.ofSeconds(slaveDelay);
     }
 
     public boolean isHidden() {
