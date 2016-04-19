@@ -29,7 +29,7 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
     private static final String UPDATE_ARRAY_FIELD_NAME = "optimes";
 
     private ReplSetUpdatePositionCommand() {
-        super("replSetUpdatePosition");
+        super(COMMAND_FIELD_NAME);
     }
 
     @Override

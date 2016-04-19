@@ -193,8 +193,72 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             this.me = null;
             this.electionId = null;
         }
+        
+        public boolean isMaster() {
+        	return master;
+        }
+        
+        public boolean isSecondary() {
+        	return secondary;
+        }
 
-        private BsonDocument toBson() {
+        public String getSetName() {
+			return setName;
+		}
+
+		public Integer getSetVersion() {
+			return setVersion;
+		}
+
+		public List<HostAndPort> getHosts() {
+			return hosts;
+		}
+
+		public List<HostAndPort> getPassives() {
+			return passives;
+		}
+
+		public List<HostAndPort> getArbiters() {
+			return arbiters;
+		}
+
+		public Boolean isArbiterOnly() {
+			return arbiterOnly;
+		}
+
+		public Boolean isPassive() {
+			return passive;
+		}
+
+		public Boolean isHidden() {
+			return hidden;
+		}
+
+		public Boolean shouldBuildIndexes() {
+			return buildIndexes;
+		}
+
+		public UnsignedInteger getSlaveDelay() {
+			return slaveDelay;
+		}
+
+		public ImmutableMap<String, String> getTags() {
+			return ImmutableMap.copyOf(tags);
+		}
+
+		public HostAndPort getMe() {
+			return me;
+		}
+
+		public BsonObjectId getElectionId() {
+			return electionId;
+		}
+
+		public boolean isConfigSet() {
+			return configSet;
+		}
+
+		private BsonDocument toBson() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
 
             if (!configSet) {
