@@ -89,7 +89,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
     @Override
     public ReplSetGetStatusReply unmarshallResult(BsonDocument resultDoc) throws
             MongoException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet."); //TODO
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Immutable
@@ -208,7 +208,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         private static final StringField MEMBER_INFO_MESSAGE_FIELD = new StringField("infoMessage");
         private static final TimestampField MEMBER_ELECTION_TIME_FIELD = new TimestampField("electionTime");
         private static final DateTimeField MEMBER_ELECTION_DATE_FIELD = new DateTimeField("electionDate");
-        private static final NumberField MEMBER_CONFIG_VERSION_FIELD = new DoubleField("configVersion");
+        private static final DoubleField MEMBER_CONFIG_VERSION_FIELD = new DoubleField("configVersion");
         private static final BooleanField MEMBER_SELF_FIELD = new BooleanField("self");
         private static final DateTimeField MEMBER_LAST_HEARTBEAT = new DateTimeField("lastHeartbeat");
         private static final DateTimeField MEMBER_LAST_HEARTBEAT_RECIVED = new DateTimeField("lastHeartbeatRecv");

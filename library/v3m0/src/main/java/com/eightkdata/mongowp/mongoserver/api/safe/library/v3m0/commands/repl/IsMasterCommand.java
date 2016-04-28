@@ -62,12 +62,12 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
 
     @Override
     public BsonDocument marshallResult(IsMasterReply reply) {
-        return reply.toBson();
+        return reply.marshall();
     }
 
     @Override
     public IsMasterReply unmarshallResult(BsonDocument replyDoc) throws TypesMismatchException, NoSuchKeyException, FailedToParseException {
-        return IsMasterReply.fromDocument(replyDoc);
+        return IsMasterReply.unmarshall(replyDoc);
     }
 
     @Immutable
@@ -258,7 +258,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
 			return configSet;
 		}
 
-		private BsonDocument toBson() {
+		private BsonDocument marshall() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
 
             if (!configSet) {
@@ -358,7 +358,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             }
         }
 
-        private static IsMasterReply fromDocument(BsonDocument bson) throws TypesMismatchException, NoSuchKeyException, FailedToParseException {
+        private static IsMasterReply unmarshall(BsonDocument bson) throws TypesMismatchException, NoSuchKeyException, FailedToParseException {
             boolean master = BsonReaderTool.getBoolean(bson, IS_MASTER_FIELD);
             boolean secondary = BsonReaderTool.getBoolean(bson, SECONDARY_FIELD);
             if (bson.containsKey(INFO_FIELD.getFieldName())) {

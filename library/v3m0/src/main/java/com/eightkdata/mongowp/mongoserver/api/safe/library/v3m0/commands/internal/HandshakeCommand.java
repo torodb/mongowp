@@ -1,6 +1,8 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
+import javax.annotation.Nullable;
+
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonObjectId;
 import com.eightkdata.mongowp.exceptions.BadValueException;
@@ -8,7 +10,6 @@ import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.fields.IntField;
-import com.eightkdata.mongowp.fields.LongField;
 import com.eightkdata.mongowp.fields.ObjectIdField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.HandshakeCommand.HandshakeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
@@ -16,7 +17,7 @@ import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
-import javax.annotation.Nullable;
+import com.google.common.collect.ImmutableSet;
 
 /**
  *
@@ -67,8 +68,13 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, Empty>{
         private static final IntField REPL_SET_UPDATE_POSITION_FIELD = new IntField("replSetUpdatePosition");
         private static final DocField HANDSHAKE_OBJ_FIELD = new DocField("handshake");
         private static final ObjectIdField RID_FIELD = new ObjectIdField("handshake");
-        private static final LongField MEMBER_FIELD = new LongField("member");
+        private static final IntField MEMBER_FIELD = new IntField("member");
         private static final DocField CONFIG_FIELD = new DocField("config");
+
+        private static final ImmutableSet<String> VALID_FIELD_NAMES = ImmutableSet.of(
+        		REPL_SET_UPDATE_POSITION_FIELD.getFieldName(), HANDSHAKE_OBJ_FIELD.getFieldName(),
+        		RID_FIELD.getFieldName(), MEMBER_FIELD.getFieldName(), CONFIG_FIELD.getFieldName()
+        );
 
         private final BsonObjectId rid;
         private final Integer memberId;
@@ -106,7 +112,8 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, Empty>{
 
         private static HandshakeArgument unmarshall(BsonDocument requestDoc) 
                 throws TypesMismatchException, NoSuchKeyException, BadValueException {
-            TODO: CHECK UNMARSHALLING;
+            //TODO: CHECK UNMARSHALLING;
+            BsonReaderTool.checkOnlyHasFields("HandshakeArgs", requestDoc, VALID_FIELD_NAMES);
 
             BsonObjectId rid = BsonReaderTool.getObjectId(requestDoc, RID_FIELD);
             Integer memberId;
@@ -114,7 +121,7 @@ public class HandshakeCommand extends AbstractCommand<HandshakeArgument, Empty>{
                 memberId = null;
             }
             else {
-                memberId = BsonReaderTool.getLong(requestDoc, MEMBER_FIELD);
+                memberId = BsonReaderTool.getInteger(requestDoc, MEMBER_FIELD);
             }
             BsonDocument configBson = BsonReaderTool.getDocument(
                     requestDoc,

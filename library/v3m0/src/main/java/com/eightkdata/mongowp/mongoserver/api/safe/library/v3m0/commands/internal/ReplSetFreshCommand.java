@@ -7,7 +7,11 @@ import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.BooleanField;
 import com.eightkdata.mongowp.fields.DateTimeField;
+import com.eightkdata.mongowp.fields.HostAndPortField;
+import com.eightkdata.mongowp.fields.IntField;
+import com.eightkdata.mongowp.fields.LongField;
 import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.fields.TimestampField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetFreshCommand.ReplSetFreshArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetFreshCommand.ReplSetFreshReply;
 import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
@@ -17,16 +21,19 @@ import com.google.common.net.HostAndPort;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.threeten.bp.Instant;
+import org.threeten.bp.temporal.ChronoField;
+import org.threeten.bp.temporal.TemporalField;
 
 /**
  *
  */
 public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, ReplSetFreshReply>{
+	private static final IntField COMMAND_FIELD = new IntField("replSetFresh");
 
     public static final ReplSetFreshCommand INSTANCE = new ReplSetFreshCommand();
 
     private ReplSetFreshCommand() {
-        super("replSetFresh");
+        super(COMMAND_FIELD.getFieldName());
     }
 
     @Override
@@ -37,12 +44,12 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
     @Override
     public ReplSetFreshArgument unmarshallArg(BsonDocument requestDoc)
             throws TypesMismatchException, NoSuchKeyException, BadValueException {
-        return ReplSetFreshArgument.fromDocument(requestDoc);
+        return ReplSetFreshArgument.unmarshall(requestDoc);
     }
 
     @Override
     public BsonDocument marshallArg(ReplSetFreshArgument request) {
-        throw new UnsupportedOperationException("Not supported yet."); //TODO
+        return request.marshall();
     }
 
     @Override
@@ -57,16 +64,16 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
 
     @Override
     public ReplSetFreshReply unmarshallResult(BsonDocument resultDoc) {
-        throw new UnsupportedOperationException("Not supported yet."); //TODO
+        throw new UnsupportedOperationException("Not implemented yet!"); //TODO
     }
 
     public static class ReplSetFreshArgument {
 
-        private static final String SET_NAME_FIELD_NAME = "set";
-        private static final String WHO_FIELD_NAME = "who";
-        private static final String ID_FIELD_NAME = "id";
-        private static final String CFG_VER_FIELD_NAME = "cfgver";
-        private static final String OPTIME_FIELD_NAME = "optime";
+        private static final StringField SET_NAME_FIELD = new StringField("set");
+        private static final HostAndPortField WHO_FIELD = new HostAndPortField("who");
+        private static final IntField ID_FIELD = new IntField("id");
+        private static final LongField CFG_VER_FIELD = new LongField("cfgver");
+        private static final TimestampField OPTIME_FIELD = new TimestampField("opTime");
 
         private final String setName;
         private final HostAndPort who;
@@ -126,16 +133,29 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
         public OpTime getOpTime() {
             return opTime;
         }
+        
+        private BsonDocument marshall() {
+        	BsonDocumentBuilder builder = new BsonDocumentBuilder();
+        	
+        	builder.append(COMMAND_FIELD, 1);
+        	builder.append(SET_NAME_FIELD, setName);
+        	builder.append(OPTIME_FIELD, opTime);
+        	builder.append(WHO_FIELD, who);
+        	builder.append(CFG_VER_FIELD, cfgVersion);
+        	builder.append(ID_FIELD, clientId);
+        	
+        	return builder.build();
+        }
 
-        public static ReplSetFreshArgument fromDocument(BsonDocument bson) throws
+        private static ReplSetFreshArgument unmarshall(BsonDocument bson) throws
                 TypesMismatchException, NoSuchKeyException {
-            int clientId = BsonReaderTool.getInteger(bson, ID_FIELD_NAME);
-            String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD_NAME);
-            HostAndPort who = BsonReaderTool.getHostAndPort(bson, WHO_FIELD_NAME);
-            long cfgver = BsonReaderTool.getNumeric(bson, CFG_VER_FIELD_NAME).longValue();
-            Instant optimeInstant = BsonReaderTool.getInstant(bson, OPTIME_FIELD_NAME);
+            int clientId = BsonReaderTool.getInteger(bson, ID_FIELD);
+            String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD);
+            HostAndPort who = BsonReaderTool.getHostAndPort(bson, WHO_FIELD);
+            long cfgver = BsonReaderTool.getNumeric(bson, CFG_VER_FIELD).longValue();
+            OpTime optime = BsonReaderTool.getOpTime(bson, OPTIME_FIELD);
 
-            return new ReplSetFreshArgument(setName, who, clientId, cfgver, new OpTime(optimeInstant));
+            return new ReplSetFreshArgument(setName, who, clientId, cfgver, optime);
         }
 
     }
@@ -200,14 +220,16 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
         private BsonDocument marshall() {
             BsonDocumentBuilder result = new BsonDocumentBuilder();
 
-            result.append(FRESHER_FIELD, isWeAreFresher());
+            result.append(FRESHER_FIELD, weAreFresher);
             if (getInfo() != null) {
-                result.append(INFO_FIELD, getInfo());
+                result.append(INFO_FIELD, info);
             }
             if (getVetoMessage() != null) {
-                result.append(ERRMSG_FIELD, getVetoMessage());
+                result.append(ERRMSG_FIELD, vetoMessage);
             }
-            result.appendInstant(OPTIME_FIELD, getOpTime().asLong());
+            result.append(OPTIME_FIELD, Instant.EPOCH
+            		.with(ChronoField.INSTANT_SECONDS, opTime.getSecs().longValue())
+            		.with(ChronoField.NANO_OF_SECOND, opTime.getTerm().longValue()));
             result.append(VETO_FIELD, isDoVeto());
 
             return result.build();

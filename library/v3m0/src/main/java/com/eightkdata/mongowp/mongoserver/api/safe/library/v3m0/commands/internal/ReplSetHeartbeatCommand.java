@@ -27,11 +27,12 @@ import javax.annotation.Nullable;
  *
  */
 public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArgument, ReplSetHeartbeatReply>{
-
+    private static final StringField COMMAND_FIELD = new StringField("replSetHeartbeat");
+	
     public static final ReplSetHeartbeatCommand INSTANCE = new ReplSetHeartbeatCommand();
 
     private ReplSetHeartbeatCommand() {
-        super("replSetHeartbeat");
+        super(COMMAND_FIELD.getFieldName());
     }
 
     @Override
@@ -47,12 +48,12 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
     @Override
     public ReplSetHeartbeatArgument unmarshallArg(BsonDocument requestDoc)
             throws TypesMismatchException, NoSuchKeyException, BadValueException {
-        return ReplSetHeartbeatArgument.fromDocument(requestDoc);
+        return ReplSetHeartbeatArgument.unmarshall(requestDoc);
     }
 
     @Override
     public BsonDocument marshallArg(ReplSetHeartbeatArgument request) {
-        return request.toBSON();
+        return request.marshall();
     }
 
     @Override
@@ -62,12 +63,12 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
 
     @Override
     public BsonDocument marshallResult(ReplSetHeartbeatReply reply) {
-        return reply.toBSON();
+        return reply.marshall();
     }
 
     @Override
     public ReplSetHeartbeatReply unmarshallResult(BsonDocument replyDoc) throws NoSuchKeyException, TypesMismatchException, FailedToParseException, MongoException {
-        return ReplSetHeartbeatReply.fromDocument(replyDoc);
+        return ReplSetHeartbeatReply.unmarshall(replyDoc);
     }
 
     public static class ReplSetHeartbeatArgument {
@@ -76,7 +77,6 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
         private static final LongField PROTOCOL_VERSION_FIELD = new LongField("pv");
         private static final LongField CONFIG_VERSION_FIELD = new LongField("v");
         private static final LongField SENDER_ID_FIELD = new LongField("fromId");
-        private static final StringField SET_NAME_FIELD = new StringField("replSetHeartbeat");
         private static final HostAndPortField SENDER_HOST_FIELD = new HostAndPortField("from");
 
         private static final Set<String> VALID_FIELD_NAMES = Sets.newHashSet(
@@ -84,7 +84,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                 PROTOCOL_VERSION_FIELD.getFieldName(),
                 CONFIG_VERSION_FIELD.getFieldName(),
                 SENDER_ID_FIELD.getFieldName(),
-                SET_NAME_FIELD.getFieldName(),
+                COMMAND_FIELD.getFieldName(),
                 SENDER_HOST_FIELD.getFieldName()
         );
 
@@ -153,10 +153,10 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             return senderHost;
         }
 
-        public BsonDocument toBSON() {
+        private BsonDocument marshall() {
             BsonDocumentBuilder result = new BsonDocumentBuilder();
 
-            result.append(SET_NAME_FIELD, setName);
+            result.append(COMMAND_FIELD, setName);
             result.append(PROTOCOL_VERSION_FIELD, protocolVersion.getVersionId());
             result.append(CONFIG_VERSION_FIELD, configVersion);
             if (senderHost == null) {
@@ -182,7 +182,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
          * @return
          * @throws MongoException
          */
-        public static ReplSetHeartbeatArgument fromDocument(BsonDocument bson) 
+        private static ReplSetHeartbeatArgument unmarshall(BsonDocument bson) 
                 throws BadValueException, TypesMismatchException, NoSuchKeyException {
 
             BsonReaderTool.checkOnlyHasFields("ReplSetHeartbeatArgs", bson, VALID_FIELD_NAMES);
@@ -200,7 +200,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             assert senderIdLong < Integer.MAX_VALUE;
             senderId = senderIdLong == -1 ? null : (int) senderIdLong;
 
-            String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD);
+            String setName = BsonReaderTool.getString(bson, COMMAND_FIELD);
 
             HostAndPort senderHost = BsonReaderTool.getHostAndPort(bson, SENDER_HOST_FIELD, null);
             
@@ -304,7 +304,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
         private final @Nullable ReplicaSetConfig config;
 
         public ReplSetHeartbeatReply(
-                @Nonnull OpTime electionTime,
+        		@Nullable OpTime electionTime,
                 @Nullable Long time,
                 @Nullable OpTime opTime,
                 boolean electable,
@@ -364,6 +364,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
         	return errMsg;
         }
 
+        @Nullable
         public OpTime getElectionTime() {
             return electionTime;
         }
@@ -426,7 +427,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             return config;
         }
 
-        public BsonDocument toBSON() {
+        private BsonDocument marshall() {
             BsonDocumentBuilder doc = new BsonDocumentBuilder();
             if (mismatch) {
                 doc.append(OK_FIELD_NAME, MongoConstants.KO)
@@ -476,7 +477,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             return doc.build();
         }
 
-        public static ReplSetHeartbeatReply fromDocument(BsonDocument bson) 
+        private static ReplSetHeartbeatReply unmarshall(BsonDocument bson) 
                 throws TypesMismatchException, NoSuchKeyException, BadValueException, FailedToParseException, MongoException {
 
             // Old versions set this even though they returned not "ok"
@@ -651,7 +652,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
 
         public static class Builder {
 
-            private @Nonnull OpTime electionTime;
+            private @Nullable OpTime electionTime;
             private @Nullable Long time;
             private @Nullable OpTime opTime;
             private boolean electable;
@@ -666,12 +667,11 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             private @Nullable HostAndPort syncingTo;
             private @Nullable ReplicaSetConfig config;
 
-            public Builder(@Nonnull OpTime electionTime, @Nonnull String setName, @Nonnull String hbmsg) {
-                this.electionTime = electionTime;
-                this.setName = setName;
-                this.hbmsg = hbmsg;
+            public Builder() {
+            	this.setName = "";
+            	this.hbmsg = "";
             }
-
+            
             public Builder(ReplSetHeartbeatReply other) {
                 this.electionTime = other.getElectionTime();
                 this.time = other.getTime();

@@ -31,7 +31,9 @@ public class MemberHeartbeatData {
         this.lastHeartbeatRecv = Instant.EPOCH;
         this.authIssue = false;
 
-        lastResponse = new ReplSetHeartbeatReply.Builder(OpTime.EPOCH, "_unnamed", "")
+        lastResponse = new ReplSetHeartbeatReply.Builder()
+        		.setSetName("_unnamed")
+        		.setElectionTime(OpTime.EPOCH)
                 .setState(MemberState.RS_UNKNOWN)
                 .setOpTime(OpTime.EPOCH)
                 .build();
@@ -152,8 +154,9 @@ public class MemberHeartbeatData {
         lastHeartbeat = now;
         authIssue = true;
 
-        lastResponse = new ReplSetHeartbeatReply.Builder(
-                OpTime.EPOCH, lastResponse.getSetName(), "")
+        lastResponse = new ReplSetHeartbeatReply.Builder()
+        		.setSetName(lastResponse.getSetName())
+        		.setElectionTime(OpTime.EPOCH)
                 .setState(MemberState.RS_UNKNOWN)
                 .setOpTime(OpTime.EPOCH)
                 .setSyncingTo(null)
@@ -166,8 +169,10 @@ public class MemberHeartbeatData {
         lastHeartbeat = now;
         authIssue = false;
 
-        lastResponse = new ReplSetHeartbeatReply.Builder(
-                OpTime.EPOCH, lastResponse.getSetName(), errorDesc)
+        lastResponse = new ReplSetHeartbeatReply.Builder()
+        		.setSetName(lastResponse.getSetName())
+                .setElectionTime(OpTime.EPOCH)
+                .setHbmsg(errorDesc)
                 .setState(MemberState.RS_DOWN)
                 .setOpTime(OpTime.EPOCH)
                 .setSyncingTo(null)

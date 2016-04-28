@@ -42,7 +42,7 @@ public class ReplSetInitiateCommand extends AbstractCommand<ReplicaSetConfig, Em
 
     @Override
     public BsonDocument marshallArg(ReplicaSetConfig request) {
-        throw new UnsupportedOperationException("Not supported yet."); //TODO
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Override

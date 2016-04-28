@@ -37,4 +37,8 @@ public class InvalidReplicaSetConfigException extends MongoException {
         super(customMessage, ErrorCode.INVALID_REPLICA_SET_CONFIG);
     }
 
+    public InvalidReplicaSetConfigException(String customMessage, Throwable throwable) {
+        super(customMessage, throwable, ErrorCode.INVALID_REPLICA_SET_CONFIG);
+    }
+
 }
