@@ -83,7 +83,7 @@ public interface Command<Arg, Result> {
     public Class<? extends Arg> getArgClass();
 
     @Nonnull
-    public Arg unmarshallArg(@Nonnull BsonDocument requestDoc) throws BadValueException, TypesMismatchException, NoSuchKeyException, FailedToParseException;
+    public Arg unmarshallArg(@Nonnull BsonDocument requestDoc) throws MongoException;
 
     @Nonnull
     public BsonDocument marshallArg(Arg request) throws MarshalException;

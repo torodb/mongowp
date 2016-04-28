@@ -9,14 +9,16 @@ import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument.UpdateInfo;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -101,12 +103,15 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
             private final OpTime ts;
             private final long cfgVer;
             private final long memberId;
+            @Nullable
+            private final MemberConfig config;
 
-            public UpdateInfo(BsonObjectId rid, OpTime ts, long cfgVer, long memberId) {
+            public UpdateInfo(BsonObjectId rid, OpTime ts, long cfgVer, long memberId, MemberConfig config) {
                 this.rid = rid;
                 this.ts = ts;
                 this.cfgVer = cfgVer;
                 this.memberId = memberId;
+                this.config = config;
             }
 
             public UpdateInfo(BsonDocument doc) throws BadValueException, TypesMismatchException, NoSuchKeyException {
@@ -124,6 +129,13 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
                 cfgVer = BsonReaderTool.getLong(doc, CONFIG_VERSION_FIELD_NAME, -1);
                 rid = BsonReaderTool.getObjectId(doc, MEMBER_RID_FIELD_NAME, null);
                 memberId = BsonReaderTool.getLong(doc, MEMBER_ID_FIELD_NAME, -1);
+                BsonDocument configDoc = BsonReaderTool.getDocument(doc, MEMBER_CONFIG_FIELD_NAME, null);
+                if (configDoc != null) {
+                    this.config = MemberConfig.fromDocument(configDoc);
+                }
+                else {
+                    this.config = null;
+                }
             }
 
             public BsonObjectId getRid() {
@@ -140,6 +152,11 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
 
             public long getMemberId() {
                 return memberId;
+            }
+
+            @Nullable
+            public MemberConfig getConfig() {
+                return config;
             }
         }
 

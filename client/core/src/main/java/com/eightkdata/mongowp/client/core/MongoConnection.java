@@ -225,7 +225,7 @@ public interface MongoConnection extends Closeable {
 
         @Override
         public Status<Result> asStatus() {
-            return new Status<>(getCommandReply().get());
+            return Status.of(getCommandReply().get());
         }
     }
 
@@ -295,7 +295,7 @@ public interface MongoConnection extends Closeable {
 
         @Override
         public Status<Result> asStatus() {
-            return new Status<>(errorCode, errorDesc);
+            return Status.error(errorCode, errorDesc);
         }
 
     }
@@ -361,7 +361,7 @@ public interface MongoConnection extends Closeable {
 
         @Override
         public Status<Result> asStatus() {
-            return new Status(getErrorCode(), getErrorDesc(), exception);
+            return Status.error(exception);
         }
     }
 }

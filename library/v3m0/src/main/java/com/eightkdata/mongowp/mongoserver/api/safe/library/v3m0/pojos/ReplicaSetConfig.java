@@ -1,6 +1,8 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
+import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.Status;
 import com.eightkdata.mongowp.WriteConcern;
 import com.eightkdata.mongowp.WriteConcern.SyncMode;
 import com.eightkdata.mongowp.WriteConcern.WType;
@@ -10,7 +12,10 @@ import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.BsonType;
 import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
-import com.eightkdata.mongowp.exceptions.*;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
@@ -328,20 +333,30 @@ public class ReplicaSetConfig {
     }
     
     public static class Builder {
-        private final String id;
+        private final String setName;
         private final int version;
         private final ImmutableList.Builder<MemberConfig> membersBuilder = ImmutableList.builder();
         private int hbTimeout = DEFAULT_HEARTBEAT_TIMEOUT_MILLIS;
         boolean chainingAllowed = DEFAULT_CHAINING_ALLOWED;
         private WriteConcern wc = WriteConcern.with(SyncMode.NONE, 0, 0);
-        private Map<String, ReplicaSetTagPattern> customWriteConcernsBuilder = new HashMap<>();
+        private final Map<String, ReplicaSetTagPattern> customWriteConcernsBuilder = new HashMap<>();
         private long protocolVersion = 0;
         
-    	public Builder(String id, int version) {
-			super();
-			this.id = id;
+    	public Builder(String setName, int version) {
+			this.setName = setName;
 			this.version = version;
 		}
+
+        public Builder(ReplicaSetConfig other) {
+            this.setName = other.setName;
+            this.version = other.version;
+            this.membersBuilder.addAll(other.members);
+            this.hbTimeout = other.heartbeatTimeoutPeriod;
+            this.chainingAllowed = other.chainingAllowed;
+            this.wc = other.defaultWriteConcern;
+            this.customWriteConcernsBuilder.putAll(other.customWriteConcern);
+            this.protocolVersion = other.protocolVersion;
+        }
     	
     	public Builder addMemberConfig(MemberConfig memberConfig) {
     		this.membersBuilder.add(memberConfig);
@@ -380,7 +395,7 @@ public class ReplicaSetConfig {
 
 		public ReplicaSetConfig build() {
     		return new ReplicaSetConfig(
-                    id, 
+                    setName,
                     version, 
                     membersBuilder.build(), 
                     wc, 
@@ -392,13 +407,13 @@ public class ReplicaSetConfig {
     	}
     }
 
-    public ReplicaSetTagPattern getCustomWriteConcernTagPattern(String patternName) throws UnknownReplWriteConcernException {
+    public Status<ReplicaSetTagPattern> getCustomWriteConcernTagPattern(String patternName) {
         ReplicaSetTagPattern result = customWriteConcern.get(patternName);
         if (result == null) {
-            throw new UnknownReplWriteConcernException(patternName, "No write concern mode named '"
-                    + patternName + "' found in replica set configuration");
+            return Status.error(ErrorCode.UNKNOWN_REPL_WRITE_CONCERN, "No write concern mode "
+                    + "named '" + patternName + "' found in replica set configuration");
         }
-        return result;
+        return Status.of(result);
     }
     
     private static Map<String, ReplicaSetTagPattern> parseCustomWriteConcerns(BsonDocument bson)
@@ -478,23 +493,25 @@ public class ReplicaSetConfig {
         return toBSON().toString();
     }
 
-    public void checkIfWriteConcernCanBeSatisfied(WriteConcern writeConcern)
-            throws UnknownReplWriteConcernException, CannotSatisfyWriteConcernException {
+    public Status<?> checkIfWriteConcernCanBeSatisfied(WriteConcern writeConcern) {
         if (writeConcern.getWType() == WType.TEXT && !writeConcern.getWString().equals("majority")) {
-            ReplicaSetTagPattern pattern = getCustomWriteConcernTagPattern(writeConcern.getWString());
+            Status<ReplicaSetTagPattern> pattern = getCustomWriteConcernTagPattern(writeConcern.getWString());
+            if (!pattern.isOk()) {
+                return pattern;
+            }
 
-            ReplicaSetTagMatch matcher = pattern.matcher();
+            ReplicaSetTagMatch matcher = pattern.getValue().matcher();
             for (MemberConfig member : getMembers()) {
                 for (Map.Entry<String, String> entry : member.getTags().entrySet()) {
                     if (matcher.update(entry.getKey(), entry.getValue())) {
-                        return ;
+                        return Status.ok();
                     }
                 }
             }
             // Even if all the nodes in the set had a given write it still would not satisfy this
             // write concern mode.
-            throw new CannotSatisfyWriteConcernException("Not enough nodes match write concern "
-                    + "mode \"" + writeConcern.getWString() + "\"");
+            return Status.error(ErrorCode.CANNOT_SATISFY_WRITE_CONCERN, "Not enough nodes match "
+                    + "write concern mode \"" + writeConcern.getWString() + "\"");
         } else {
             int nodesRemaining = writeConcern.getWInt();
             for (MemberConfig member : getMembers()) {
@@ -503,9 +520,9 @@ public class ReplicaSetConfig {
                 }
             }
             if (nodesRemaining <= 0) {
-                return ;
+                return Status.ok();
             }
-            throw new CannotSatisfyWriteConcernException("Not enough data-bearing nodes");
+            return Status.error(ErrorCode.CANNOT_SATISFY_WRITE_CONCERN, "Not enough data-bearing nodes");
         }
     }
 

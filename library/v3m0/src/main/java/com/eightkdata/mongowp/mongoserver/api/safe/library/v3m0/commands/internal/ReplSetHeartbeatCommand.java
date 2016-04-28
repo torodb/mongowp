@@ -298,7 +298,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
         private final boolean stateDisagreement;
         private final @Nullable MemberState state;
         private final long configVersion;
-        private final @Nonnull String setName;
+        private final @Nullable String setName;
         private final @Nonnull String hbmsg;
         private final @Nullable HostAndPort syncingTo;
         private final @Nullable ReplicaSetConfig config;
@@ -336,7 +336,8 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             this.config = config;
         }
 
-        public ReplSetHeartbeatReply(ErrorCode errorCode, String errMsg, boolean mismatch, String setName) {
+        public ReplSetHeartbeatReply(ErrorCode errorCode, String errMsg, boolean mismatch,
+                @Nullable String setName) {
             this.errorCode = errorCode;
             this.errMsg = errMsg;
             this.electionTime = OpTime.EPOCH;
@@ -405,7 +406,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             return configVersion;
         }
 
-        @Nonnull
+        @Nullable
         public String getSetName() {
             return setName;
         }
@@ -462,7 +463,9 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
             }
             doc.append(CONFIG_VERSION_FIELD_NAME, configVersion);
             doc.append(HB_MESSAGE_FIELD_NAME, hbmsg);
-            doc.append(REPL_SET_FIELD_NAME, setName);
+            if (setName != null) {
+                doc.append(REPL_SET_FIELD_NAME, setName);
+            }
             if (syncingTo != null) {
                 doc.append(SYNC_SOURCE_FIELD_NAME, syncingTo);
             }

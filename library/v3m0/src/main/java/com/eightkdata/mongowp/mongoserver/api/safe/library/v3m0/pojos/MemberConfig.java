@@ -85,6 +85,10 @@ public class MemberConfig {
         return votes;
     }
 
+    public boolean isVoter() {
+        return votes != 0;
+    }
+
     public boolean isArbiter() {
         return arbiterOnly;
     }
@@ -248,10 +252,6 @@ public class MemberConfig {
         object.append(SLAVE_DELAY_FIELD, slaveDelay);
         object.append(VOTES_FIELD, votes);
         return object.build();
-    }
-
-    boolean isVoter() {
-        return votes != 0;
     }
 
     /**
