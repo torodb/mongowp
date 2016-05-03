@@ -52,6 +52,10 @@ public class Status<E> {
         return new Status<>(null, errorCode, errorMsg, null);
     }
 
+    public static <E1> Status<E1> error(E1 value, @Nonnull ErrorCode errorCode, @Nullable String errorMsg) {
+        return new Status<>(value, errorCode, errorMsg, null);
+    }
+
     public static <E1> Status<E1> error(@Nonnull MongoException ex) {
         return new Status<>(null, ex.getErrorCode(), ex.getLocalizedMessage(), ex);
     }
