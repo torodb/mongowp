@@ -1,6 +1,7 @@
 
 package com.eightkdata.mongowp.utils;
 
+import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.*;
@@ -21,7 +22,7 @@ import org.threeten.bp.Instant;
  *
  */
 public class BsonReaderTool {
-
+    
     private BsonReaderTool() {}
 
     public static String toStringBsonType(BsonType type) {
@@ -522,7 +523,12 @@ public class BsonReaderTool {
     @Nonnull
     public static HostAndPort getHostAndPort(Entry<?> entry, String fieldId) throws TypesMismatchException {
         String string = getString(entry, fieldId);
-        return HostAndPort.fromString(string);
+        return getHostAndPort(string);
+    }
+    
+    public static HostAndPort getHostAndPort(String hostPortString) {
+        return HostAndPort.fromString(hostPortString)
+                .withDefaultPort(MongoConstants.DEFAULT_PORT);
     }
 
     @Nonnull

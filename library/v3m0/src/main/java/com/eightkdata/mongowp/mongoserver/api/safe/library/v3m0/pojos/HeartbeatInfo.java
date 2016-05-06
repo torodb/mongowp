@@ -96,7 +96,7 @@ public class HeartbeatInfo {
         String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD_NAME);
         
         String senderHostString = BsonReaderTool.getString(bson, SENDER_HOST_FIELD_NAME, null);
-        HostAndPort senderHost = senderHostString != null ? HostAndPort.fromString(senderHostString) : null;
+        HostAndPort senderHost = senderHostString != null ? BsonReaderTool.getHostAndPort(senderHostString) : null;
         
         return new HeartbeatInfo(protocolVersion, configVersion, setName, senderHost, senderId, checkEmpty);
     }
