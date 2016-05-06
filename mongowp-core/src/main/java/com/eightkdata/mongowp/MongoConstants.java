@@ -30,6 +30,7 @@ import com.google.common.primitives.Ints;
  */
 public class MongoConstants {
 
+    public static final int DEFAULT_PORT = 27017;
     //TODO: MAX_MESSAGE_SIZE_BYTES is a value that the server could change, so it should be configurable
     public static final int MAX_MESSAGE_SIZE_BYTES = 48 * 1000 * 1000;
     public static final int MESSAGE_LENGTH_FIELD_BYTES = Ints.BYTES;
