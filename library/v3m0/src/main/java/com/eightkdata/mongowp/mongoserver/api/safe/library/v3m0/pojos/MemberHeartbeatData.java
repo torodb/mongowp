@@ -5,10 +5,10 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
 import com.google.common.net.HostAndPort;
+import java.time.Instant;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.threeten.bp.Instant;
 
 /**
  * This class contains the data returned from a heartbeat command for one member

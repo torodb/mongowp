@@ -8,15 +8,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
 import javax.annotation.Nonnull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This message replier writes and flush the reply to the given netty channel.
  */
 public class NettyMessageReplier extends MessageReplier {
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(NettyMessageReplier.class);
+    private static final Logger LOGGER = LogManager.getLogger(NettyMessageReplier.class);
 	/**
 	 * The requestId must be unique for each request
 	 */

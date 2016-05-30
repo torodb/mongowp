@@ -32,11 +32,11 @@ import com.eightkdata.mongowp.fields.ObjectIdField;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.threeten.bp.Instant;
 
 import static com.eightkdata.mongowp.bson.utils.DefaultBsonValues.*;
 

@@ -12,7 +12,6 @@ import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.MarshalException;
 import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
 import com.eightkdata.mongowp.server.api.pojos.SimpleBatch;
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
@@ -25,18 +24,17 @@ import com.mongodb.client.model.UpdateOptions;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class MongoConnectionWrapper implements MongoConnection {
 
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(MongoConnectionWrapper.class);
+    private static final Logger LOGGER = LogManager.getLogger(MongoConnectionWrapper.class);
     private static final int DEFAULT_MAX_BATCH_SIZE = 100;
     private static final BsonDocument EMPTY_DOC = DefaultBsonValues.EMPTY_DOC;
 

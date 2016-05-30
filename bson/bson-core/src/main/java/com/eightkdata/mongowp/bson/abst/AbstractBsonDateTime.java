@@ -23,7 +23,7 @@ package com.eightkdata.mongowp.bson.abst;
 import com.eightkdata.mongowp.bson.BsonDateTime;
 import com.eightkdata.mongowp.bson.BsonType;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
-import org.threeten.bp.Instant;
+import java.time.Instant;
 
 /**
  *

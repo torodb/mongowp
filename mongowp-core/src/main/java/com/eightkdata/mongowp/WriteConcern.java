@@ -36,16 +36,15 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  */
 @Immutable
 public abstract class WriteConcern {
-    private static final org.slf4j.Logger LOGGER
-            = LoggerFactory.getLogger(WriteConcern.class);
-
+    private static final Logger LOGGER = LogManager.getLogger(WriteConcern.class);
     private static final WriteConcern ACKNOWLEDGED = new IntWriteConcern(SyncMode.NONE, 0, 1);
     private static final WriteConcern UNACKNOWLEDGED = new IntWriteConcern(SyncMode.NONE, 0, 0);
 

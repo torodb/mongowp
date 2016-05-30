@@ -4,24 +4,25 @@
     <parent>
         <groupId>com.8kdata.mongowp.bson</groupId>
         <artifactId>bson-pom</artifactId>
-        <version>0.50.0-SNAPSHOT</version>
+        <version>0.40-alpha4-SNAPSHOT</version>
     </parent>
-    <artifactId>bson-core</artifactId>
+    <artifactId>org-bson-utils</artifactId>
     <packaging>jar</packaging>
     
-    <name>MongoWP: Bson</name>
+    <name>MongoWP: Bson org.bson.utils</name>
     <dependencies>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>bson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bson-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
         </dependency>
     </dependencies>
 </project>

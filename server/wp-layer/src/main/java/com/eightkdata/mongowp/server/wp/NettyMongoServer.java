@@ -39,15 +39,15 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.nio.ByteOrder;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  */
 //TODO: Modify this server to be able to stop the thread that runs it
 public class NettyMongoServer extends AbstractIdleService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NettyMongoServer.class);
+    private static final Logger LOGGER = LogManager.getLogger(NettyMongoServer.class);
 	
     private final int port;
     private final RequestProcessor requestProcessor;

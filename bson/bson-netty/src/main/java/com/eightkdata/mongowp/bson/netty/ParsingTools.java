@@ -26,8 +26,8 @@ import com.eightkdata.mongowp.bson.BsonType;
 import com.google.common.primitives.UnsignedBytes;
 import java.util.EnumSet;
 import javax.annotation.Nonnull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static com.eightkdata.mongowp.bson.BsonType.*;
 
@@ -35,8 +35,7 @@ import static com.eightkdata.mongowp.bson.BsonType.*;
  *
  */
 class ParsingTools {
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(ParsingTools.class);
+    private static final Logger LOGGER = LogManager.getLogger(ParsingTools.class);
 
     private static final byte FIRST_USER_DEFINED = UnsignedBytes.parseUnsignedByte("80", 16);
 

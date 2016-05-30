@@ -29,8 +29,8 @@ import com.eightkdata.mongowp.bson.netty.annotations.ModifiesIndexes;
 import com.eightkdata.mongowp.bson.netty.annotations.Tight;
 import io.netty.buffer.ByteBuf;
 import javax.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static com.eightkdata.mongowp.bson.BsonType.*;
 
@@ -38,8 +38,7 @@ import static com.eightkdata.mongowp.bson.BsonType.*;
  *
  */
 public abstract class NettyBsonLowLevelReader {
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(NettyBsonLowLevelReader.class);
+    private static final Logger LOGGER = LogManager.getLogger(NettyBsonLowLevelReader.class);
     
     private final NettyStringReader stringReader;
 

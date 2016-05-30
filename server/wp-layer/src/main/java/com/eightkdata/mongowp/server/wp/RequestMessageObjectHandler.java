@@ -23,20 +23,19 @@ package com.eightkdata.mongowp.server.wp;
 
 import com.eightkdata.mongowp.messages.request.*;
 import com.eightkdata.mongowp.server.callback.MessageReplier;
-import com.eightkdata.mongowp.server.wp.NettyMessageReplier;
 import com.eightkdata.mongowp.server.callback.RequestProcessor;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
 import javax.inject.Inject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  */
 public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RequestMessageObjectHandler.class);
+    private static final Logger LOGGER = LogManager.getLogger(RequestMessageObjectHandler.class);
     
     public static final AttributeKey<RequestOpCode> REQUEST_OP_CODE = AttributeKey.valueOf("requestOpCode");
 

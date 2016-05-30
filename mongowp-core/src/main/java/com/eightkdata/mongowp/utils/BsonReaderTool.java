@@ -12,11 +12,11 @@ import com.eightkdata.mongowp.fields.*;
 import com.google.common.collect.Sets;
 import com.google.common.net.HostAndPort;
 import com.google.common.primitives.UnsignedInteger;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.threeten.bp.Instant;
 
 /**
  *

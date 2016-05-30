@@ -25,8 +25,8 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -84,7 +84,7 @@ public interface BsonRegex extends BsonValue<BsonRegex> {
          */
         UNICODE('u');
 
-        private static final Logger LOGGER = LoggerFactory.getLogger(Options.class);
+        private static final Logger LOGGER = LogManager.getLogger(Options.class);
         private static final Comparator<Options> LEXICOGRAPHICAL_COMPARATOR = new LexicographicalComparator();
 
         private final char charId;

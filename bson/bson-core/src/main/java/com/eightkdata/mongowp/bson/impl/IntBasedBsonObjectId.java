@@ -23,7 +23,7 @@ package com.eightkdata.mongowp.bson.impl;
 import com.eightkdata.mongowp.bson.abst.AbstractBsonObjectId;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
-import org.threeten.bp.Instant;
+import java.time.Instant;
 
 /**
  *

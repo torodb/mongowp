@@ -22,15 +22,14 @@ package com.eightkdata.mongowp.bson.utils;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  */
 public class IntBaseHasher {
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(IntBaseHasher.class);
+    private static final Logger LOGGER = LogManager.getLogger(IntBaseHasher.class);
     private static final HashFunction FUNCTION = Hashing.goodFastHash(32);
 
     public static int hash(int lenght) {

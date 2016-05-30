@@ -9,20 +9,22 @@
     <parent>
         <groupId>com.8kdata.mongowp</groupId>
         <artifactId>mongowp-parent</artifactId>
-        <version>0.50.0-SNAPSHOT</version>
+        <version>0.40-alpha4-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.8kdata.mongowp.api.safe.library</groupId>
-    <artifactId>library</artifactId>
+    <groupId>com.8kdata.mongowp.server</groupId>
+    <artifactId>mongo-server-pom</artifactId>
     <packaging>pom</packaging>
     
-    <name>MongoWP: Commands Libraries</name>
+    <name>Mongo Server (POM)</name>
     <description>
-        Aggregation project that contains MongoWP safe command libraries.
+        Aggregation project that contains MongoWP server implementations
     </description>
     
     <modules>
-        <module>v3m0</module>
+        <module>server-core</module>
+        <module>mongo-server-api</module>
+        <module>wp-layer</module>
     </modules>
 
 </project>

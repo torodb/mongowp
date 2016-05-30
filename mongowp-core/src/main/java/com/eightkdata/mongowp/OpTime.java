@@ -6,7 +6,7 @@ import com.eightkdata.mongowp.bson.impl.DefaultBsonTimestamp;
 import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedInts;
 import java.io.Serializable;
-import org.threeten.bp.Instant;
+import java.time.Instant;
 
 /**
  * OpTime encompasses an Instant and a 64-bit Term

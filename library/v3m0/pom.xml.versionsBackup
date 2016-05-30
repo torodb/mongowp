@@ -7,18 +7,17 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.8kdata.mongowp.client</groupId>
-        <artifactId>parent-pom</artifactId>
-        <version>0.50.0-SNAPSHOT</version>
+        <groupId>com.8kdata.mongowp.api.safe.library</groupId>
+        <artifactId>library</artifactId>
+        <version>0.40-alpha4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>v3m0</artifactId>
     <packaging>jar</packaging>
     
-    <name>Mongo Client: Core</name>
+    <name>MongoWP: v3.0 Library</name>
     <description>
-        MongoWP Client core project, used by other client projects to share
-        common platform independent implementations
+        Mongo library that emulates MongoDB 3.0 commands
     </description>
     
     <dependencies>
@@ -27,7 +26,7 @@
             <artifactId>mongo-server-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
@@ -35,6 +34,14 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.threeten</groupId>
+            <artifactId>threetenbp</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
     </dependencies>
 

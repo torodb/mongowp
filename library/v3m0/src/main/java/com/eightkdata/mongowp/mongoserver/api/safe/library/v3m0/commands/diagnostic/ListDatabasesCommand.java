@@ -21,15 +21,14 @@ import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
 
 /**
  *
  */
 public class ListDatabasesCommand extends AbstractCommand<Empty, ListDatabasesReply>{
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(ListDatabasesCommand.class);
+    private static final org.apache.logging.log4j.Logger LOGGER
+            = LogManager.getLogger(ListDatabasesCommand.class);
     public static final ListDatabasesCommand INSTANCE = new ListDatabasesCommand();
     private static final String COMMAND_NAME = "listDatabases";
 

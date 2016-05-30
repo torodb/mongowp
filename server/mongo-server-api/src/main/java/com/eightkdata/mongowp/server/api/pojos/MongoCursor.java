@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
@@ -79,8 +79,7 @@ public interface MongoCursor<E> extends Iterable<E> {
     }
 
     public static class MongoCursorIterator<E> extends UnmodifiableIterator<E> {
-        private static final Logger LOGGER
-                = LoggerFactory.getLogger(MongoCursorIterator.class);
+        private static final Logger LOGGER = LogManager.getLogger(MongoCursorIterator.class);
         private final MongoCursor<E> cursor;
         private Batch<E> _batch;
 

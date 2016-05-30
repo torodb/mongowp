@@ -9,20 +9,22 @@
     <parent>
         <groupId>com.8kdata.mongowp</groupId>
         <artifactId>mongowp-parent</artifactId>
-        <version>0.50.0-SNAPSHOT</version>
+        <version>0.40-alpha4-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.8kdata.mongowp.api.safe.library</groupId>
-    <artifactId>library</artifactId>
+    <groupId>com.8kdata.mongowp.bson</groupId>
+    <artifactId>bson-pom</artifactId>
     <packaging>pom</packaging>
     
-    <name>MongoWP: Commands Libraries</name>
+    <name>MongoWP: Bson (POM)</name>
     <description>
-        Aggregation project that contains MongoWP safe command libraries.
+        Aggregation project that contains BSON implementations used by MongoWP project
     </description>
     
     <modules>
-        <module>v3m0</module>
+        <module>bson-core</module>
+        <module>bson-netty</module>
+        <module>org-bson-utils</module>
     </modules>
 
 </project>

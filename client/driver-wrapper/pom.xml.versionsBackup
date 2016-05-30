@@ -9,32 +9,32 @@
     <parent>
         <groupId>com.8kdata.mongowp.client</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>0.50.0-SNAPSHOT</version>
+        <version>0.40-alpha4-SNAPSHOT</version>
     </parent>
 
-    <artifactId>core</artifactId>
+    <artifactId>driver-wrapper</artifactId>
     <packaging>jar</packaging>
     
-    <name>Mongo Client: Core</name>
+    <name>Mongo Client: Driver Wrapper</name>
     <description>
-        MongoWP Client core project, used by other client projects to share
-        common platform independent implementations
+        MongoWP Client project that delegates on the official MongoDB Java Driver
     </description>
     
     <dependencies>
         <dependency>
-            <groupId>com.8kdata.mongowp.server</groupId>
-            <artifactId>mongo-server-api</artifactId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>core</artifactId>
             <version>${project.version}</version>
         </dependency>
         
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>com.8kdata.mongowp.bson</groupId>
+            <artifactId>org-bson-utils</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

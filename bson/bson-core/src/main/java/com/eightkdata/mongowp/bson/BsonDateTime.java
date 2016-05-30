@@ -19,7 +19,7 @@
  */
 package com.eightkdata.mongowp.bson;
 
-import org.threeten.bp.Instant;
+import java.time.Instant;
 
 /**
  *

@@ -21,7 +21,7 @@
 package com.eightkdata.mongowp.fields;
 
 import com.eightkdata.mongowp.bson.BsonDateTime;
-import org.threeten.bp.Instant;
+import java.time.Instant;
 
 /**
  *

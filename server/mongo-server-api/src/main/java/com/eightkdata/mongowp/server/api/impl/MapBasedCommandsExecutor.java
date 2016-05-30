@@ -19,15 +19,9 @@
  */
 package com.eightkdata.mongowp.server.api.impl;
 
-import com.eightkdata.mongowp.server.api.CommandImplementation;
-import com.eightkdata.mongowp.server.api.CommandResult;
-import com.eightkdata.mongowp.server.api.CommandReply;
-import com.eightkdata.mongowp.server.api.CommandsExecutor;
-import com.eightkdata.mongowp.server.api.CommandsLibrary;
-import com.eightkdata.mongowp.server.api.Command;
-import com.eightkdata.mongowp.server.api.CommandRequest;
 import com.eightkdata.mongowp.exceptions.CommandNotSupportedException;
 import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.server.api.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -36,16 +30,15 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  */
 @SuppressWarnings("unchecked")
 public class MapBasedCommandsExecutor implements CommandsExecutor {
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(MapBasedCommandsExecutor.class);
+    private static final Logger LOGGER = LogManager.getLogger(MapBasedCommandsExecutor.class);
 
     /**
      * A map that associates each command with its implementation.

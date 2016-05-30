@@ -21,8 +21,8 @@
 package com.eightkdata.mongowp.bson;
 
 import com.google.common.primitives.UnsignedInteger;
+import java.time.Instant;
 import javax.annotation.Nonnegative;
-import org.threeten.bp.Instant;
 
 /**
  *

@@ -7,7 +7,6 @@ import com.eightkdata.mongowp.bson.netty.NettyBsonReaderException;
 import com.eightkdata.mongowp.bson.netty.NettyBsonReaderRuntimeException;
 import com.eightkdata.mongowp.bson.netty.annotations.ConservesIndexes;
 import com.eightkdata.mongowp.bson.netty.annotations.ModifiesIndexes;
-import com.eightkdata.mongowp.bson.netty.annotations.Retains;
 import com.eightkdata.mongowp.bson.netty.annotations.Tight;
 import com.eightkdata.mongowp.bson.utils.BsonDocumentReader.AllocationType;
 import com.eightkdata.mongowp.messages.utils.IterableDocumentProvider;
@@ -16,17 +15,15 @@ import com.google.common.collect.UnmodifiableIterator;
 import io.netty.buffer.ByteBuf;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  */
 public final class ByteBufIterableDocumentProvider extends IterableDocumentProvider<BsonDocument> {
 
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(ByteBufIterableDocumentProvider.class);
+    private static final Logger LOGGER = LogManager.getLogger(ByteBufIterableDocumentProvider.class);
     private boolean closed = false;
     private final ByteBuf byteBuf;
     private final NettyBsonDocumentReader reader;

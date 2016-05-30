@@ -14,18 +14,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bson.*;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class MongoBsonTranslator {
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(MongoBsonTranslator.class);
+    private static final Logger LOGGER = LogManager.getLogger(MongoBsonTranslator.class);
 
     public static final Function<BsonDocument, com.eightkdata.mongowp.bson.BsonDocument> FROM_MONGO_FUNCTION = new FromMongoFunction();
     public static final Function<com.eightkdata.mongowp.bson.BsonDocument, BsonDocument> TO_MONGO_FUNCTION = new ToMongoFunction();
