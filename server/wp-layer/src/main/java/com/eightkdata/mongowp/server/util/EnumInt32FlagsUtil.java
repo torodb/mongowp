@@ -32,6 +32,9 @@ import javax.annotation.Nullable;
  */
 public class EnumInt32FlagsUtil {
 
+    private EnumInt32FlagsUtil() {
+    }
+
     public static boolean isActive(EnumBitFlags flag, int flags) {
         return (flags & 1 << flag.getFlagBitPosition()) != 0;
     }

@@ -13,6 +13,8 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.bson.*;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -29,15 +31,25 @@ public class MongoBsonTranslator {
     public static final Function<com.eightkdata.mongowp.bson.BsonDocument, BsonDocument> TO_MONGO_FUNCTION = new ToMongoFunction();
     private static final byte FIRST_USER_DEFINED = UnsignedBytes.parseUnsignedByte("80", 16);
 
-    public static BsonDocument translate(com.eightkdata.mongowp.bson.BsonDocument wpDocument) throws IOException {
+    private MongoBsonTranslator() {
+    }
+
+    @Nullable
+    public static BsonDocument translate(@Nullable com.eightkdata.mongowp.bson.BsonDocument wpDocument) throws IOException {
         return (BsonDocument) _translate(wpDocument);
     }
 
-    public static com.eightkdata.mongowp.bson.BsonDocument translate(org.bson.BsonDocument mongoDocument) {
+    @Nullable
+    public static com.eightkdata.mongowp.bson.BsonDocument translate(@Nullable org.bson.BsonDocument mongoDocument) {
         return (com.eightkdata.mongowp.bson.BsonDocument) _translate(mongoDocument);
     }
 
-    private static BsonValue _translate(com.eightkdata.mongowp.bson.BsonValue<?> value) throws IOException {
+    @Nullable
+    private static BsonValue _translate(@Nullable com.eightkdata.mongowp.bson.BsonValue<?> value) throws IOException {
+    	if (value == null) {
+    		return null;
+    	}
+    	
         switch (value.getType()) {
             case ARRAY:  {
                 com.eightkdata.mongowp.bson.BsonArray casted = (com.eightkdata.mongowp.bson.BsonArray) value;
@@ -117,7 +129,11 @@ public class MongoBsonTranslator {
         return new ObjectId(id.toHexString());
     }
 
-    private static com.eightkdata.mongowp.bson.BsonValue<?> _translate(BsonValue value) {
+    @Nullable
+    private static com.eightkdata.mongowp.bson.BsonValue<?> _translate(@Nullable BsonValue value) {
+    	if (value == null) {
+    		return null;
+    	}
         switch (value.getBsonType()) {
             case ARRAY:  {
                 List<com.eightkdata.mongowp.bson.BsonValue<?>> list = new ArrayList<>();

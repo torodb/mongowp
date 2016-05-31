@@ -81,7 +81,7 @@ public class OplogOperationParser {
             collection = ns.substring(firstDotIndex + 1);
         }
         
-        OpTime optime = new OpTime(BsonReaderTool.getInstant(doc, "ts"));
+        OpTime optime = BsonReaderTool.getOpTime(doc, "ts");
         long h = BsonReaderTool.getLong(doc, "h");
         OplogVersion version = OplogVersion.valueOf(BsonReaderTool.getInteger(doc, "v"));
         boolean fromMigrate = doc.containsKey("fromMigrate"); //Note: Mongodb v3 checks if the key exists or not, but doesn't check the value
