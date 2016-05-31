@@ -40,6 +40,9 @@ class ParsingTools {
 
     private static final byte FIRST_USER_DEFINED = UnsignedBytes.parseUnsignedByte("80", 16);
 
+    private ParsingTools() {
+    }
+
     /**
      * Translate a byte to the {@link BsonType} it represents, as specified on
      * the <a href="http://bsonspec.org/spec.html">BSON Spec</a>

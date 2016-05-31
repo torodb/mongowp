@@ -35,6 +35,9 @@ public class MongoDocumentProvider {
 
     private static final String testDocumentsFileName = "test-documents.json";
 
+    private MongoDocumentProvider() {
+    }
+
     public static Collection<Object[]> readTestDocuments() throws IOException {
         try (InputStream is = MongoDocumentProvider.class.getResourceAsStream('/' + testDocumentsFileName)) {
             BsonValue value = MongoBsonUtils.read(is);

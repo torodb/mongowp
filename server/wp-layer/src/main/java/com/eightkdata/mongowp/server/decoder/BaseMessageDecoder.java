@@ -31,6 +31,9 @@ import java.net.InetSocketAddress;
  *
  */
 public class BaseMessageDecoder {
+    private BaseMessageDecoder() {
+    }
+
     /**
      * Method that constructs a RequestBaseMessage object based on a correctly-positioned ByteBuf.
      * This method modifies the internal state of the ByteBuf.
