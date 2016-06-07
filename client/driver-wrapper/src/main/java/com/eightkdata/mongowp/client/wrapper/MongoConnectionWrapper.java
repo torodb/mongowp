@@ -330,11 +330,10 @@ public class MongoConnectionWrapper implements MongoConnection {
         @Override
         public Iterator<BsonDocument> iterator() {
             Preconditions.checkState(!close, "This cursor is closed");
-            Iterators.transform(
+            return Iterators.transform(
                     cursor,
                     MongoBsonTranslator.FROM_MONGO_FUNCTION
             );
-            return null;
         }
 
     }

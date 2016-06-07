@@ -36,7 +36,7 @@ public abstract class AbstractBsonDeprecated extends AbstractBsonValue<String> i
 
     @Override
     public BsonType getType() {
-        return BsonType.STRING;
+        return BsonType.DEPRECTED;
     }
 
     @Override

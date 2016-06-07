@@ -1,26 +1,31 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
-import com.eightkdata.mongowp.bson.BsonInt32;
 import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.fields.BooleanField;
+import com.eightkdata.mongowp.fields.DocField;
+import com.eightkdata.mongowp.fields.IntField;
+import com.eightkdata.mongowp.fields.NumberField;
+import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  *
@@ -61,7 +66,7 @@ public class IndexOptions {
     @Nonnull
     private final BsonDocument otherProps;
 
-    private final Map<List<String>, Boolean> keys;
+    private final Map<List<String>, IndexType> keys;
     @Nonnull
     private final BsonDocument storageEngine;
 
@@ -77,7 +82,7 @@ public class IndexOptions {
             boolean unique,
             boolean sparse,
             int expireAfterSeconds,
-            @Nonnull Map<List<String>, Boolean> keys,
+            @Nonnull Map<List<String>, IndexType> keys,
             @Nullable BsonDocument storageEngine,
             @Nullable BsonDocument otherProps) {
         this.version = version;
@@ -119,7 +124,7 @@ public class IndexOptions {
      * descending.
      * @return
      */
-    public Map<List<String>, Boolean> getKeys() {
+    public Map<List<String>, IndexType> getKeys() {
         return Collections.unmodifiableMap(keys);
     }
 
@@ -152,9 +157,9 @@ public class IndexOptions {
     public BsonDocument marshall() {
 
         BsonDocumentBuilder keysDoc = new BsonDocumentBuilder();
-        for (java.util.Map.Entry<List<String>, Boolean> entry : keys.entrySet()) {
+        for (java.util.Map.Entry<List<String>, IndexType> entry : keys.entrySet()) {
             String path = PATH_JOINER.join(entry.getKey());
-            BsonInt32 value = DefaultBsonValues.newInt(entry.getValue() ? 1 : -1);
+            BsonValue value = entry.getValue().toBsonValue();
             keysDoc.appendUnsafe(path, value);
         }
 
@@ -223,7 +228,7 @@ public class IndexOptions {
                     break;
                 }
                 case EXPIRE_AFTER_SECONDS_FIELD_NAME: {
-                    expireAfterSeconds = BsonReaderTool.getInteger(entry, EXPIRE_AFTER_SECONDS_FIELD);
+                    expireAfterSeconds = BsonReaderTool.getNumeric(entry, EXPIRE_AFTER_SECONDS_FIELD.getFieldName()).intValue();
                     break;
                 }
                 case KEYS_FIELD_NAME: {
@@ -259,25 +264,24 @@ public class IndexOptions {
             throw new NoSuchKeyException(KEYS_FIELD_NAME, "Indexes need at least one key to index");
         }
 
-        Map<List<String>, Boolean> keys = Maps.newHashMapWithExpectedSize(keyDoc.size());
+        Map<List<String>, IndexType> keys = Maps.newHashMapWithExpectedSize(keyDoc.size());
         for (Entry<?> entry : keyDoc) {
             List<String> key = PATH_SPLITER.splitToList(entry.getKey());
-            int keyInt = BsonReaderTool.getNumeric(entry, KEYS_FIELD.getFieldName() + '.' + entry.getKey())
-                    .asInt32().intValue();
-
-            Boolean value;
-            switch (keyInt) {
-                case 1:
-                    value = true;
+            IndexType value = null;
+            
+            for (IndexType indexType : IndexType.values()) {
+                if (indexType.equalsToBsonValue(entry.getValue())) {
+                    value = indexType;
                     break;
-                case -1:
-                    value = false;
-                    break;
-                default:
-                    throw new BadValueException("It was expected 1 or -1 as "
-                            + "value of " + KEYS_FIELD.getFieldName() + '.'
-                            + entry.getKey() + " but " + keyInt + " was found");
+                }
             }
+                
+            if (value == null) {
+                String fieldId = KEYS_FIELD.getFieldName() + '.' + entry.getKey();
+                throw new BadValueException("It was expected 1, -1, text, geospatial or hashed as "
+                        + "value of " + fieldId + " but " + entry.getValue().toString() + " was found");
+            }
+
             keys.put(key, value);
         }
 
@@ -338,4 +342,42 @@ public class IndexOptions {
         }
     }
 
+    public enum IndexType {
+        asc(DefaultBsonValues.newInt(1)) {
+            @Override
+            public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
+                return sameNumber(bsonValue);
+            }
+        }, 
+        desc(DefaultBsonValues.newInt(-1)) {
+            @Override
+            public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
+                return sameNumber(bsonValue);
+            }
+        },
+        text(DefaultBsonValues.newString("text")),
+        geospatial(DefaultBsonValues.newString("geospatial")),
+        hashed(DefaultBsonValues.newString("hashed")); 
+        
+        private final BsonValue<?> bsonValue;
+        
+        private IndexType(BsonValue<?> bsonValue) {
+            this.bsonValue = bsonValue;
+        }
+        
+        public BsonValue<?> toBsonValue() {
+            return bsonValue;
+        }
+        
+        public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
+            return this.bsonValue.equals(bsonValue);
+        }
+        
+        protected boolean sameNumber(BsonValue<?> bsonValue) {
+            return bsonValue.isNumber() && 
+                    toBsonValue().asInt32()
+                        .equals(bsonValue.asInt32());
+        }
+    }
+    
 }

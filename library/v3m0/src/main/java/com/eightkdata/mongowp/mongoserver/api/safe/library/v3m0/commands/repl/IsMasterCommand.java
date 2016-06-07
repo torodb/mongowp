@@ -263,7 +263,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
                                         + "found type " + uncastedValue.getType()
                         );
                     }
-                    resultBuilder.add(HostAndPort.fromString(uncastedList.asString().getValue()));
+                    resultBuilder.add(BsonReaderTool.getHostAndPort(uncastedList.asString().getValue()));
                 }
                 return resultBuilder.build();
             }
