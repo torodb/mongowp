@@ -234,7 +234,7 @@ public abstract class CollectionOptions {
 
     }
 
-    public static enum AutoIndexMode {
+    public enum AutoIndexMode {
         /**
          * {@linkplain #YES} for most collections, {@linkplain #NO} for some system ones
          */
@@ -243,7 +243,7 @@ public abstract class CollectionOptions {
         NO
     }
 
-    public static enum Flag {
+    public enum Flag {
         USE_POWER_OF_2(0),
         NO_PADDING(1);
 

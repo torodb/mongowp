@@ -47,7 +47,7 @@ public interface BsonDocumentReader<Source> {
     @Nonnull
     public BsonDocument readDocument(AllocationType allocationType, Source source) throws BsonDocumentReaderException;
 
-    public static enum AllocationType {
+    public enum AllocationType {
         /**
          * Returns documents that are totally stored on the heap.
          */
