@@ -21,7 +21,6 @@ import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -39,11 +38,6 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
 
     private InsertCommand() {
         super("insert");
-    }
-
-    @Override
-    public boolean isReadyToReplyResult(InsertResult r) {
-        return true;
     }
 
     @Override
@@ -85,19 +79,19 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
         private static final DocField METADATA_FIELD = new DocField("metadata");
 
         private final @Nonnull String collection;
-        private final @Nonnull FluentIterable<BsonDocument> documents;
+        private final @Nonnull List<BsonDocument> documents;
         private final WriteConcern writeConcern;
         private final boolean ordered;
         private final @Nullable BsonDocument metadata; //TODO: parse metadata
 
         public InsertArgument(
                 String collection,
-                Iterable<BsonDocument> documents,
+                List<BsonDocument> documents,
                 WriteConcern writeConcern,
                 boolean ordered,
                 @Nullable BsonDocument metadata) {
             this.collection = collection;
-            this.documents = FluentIterable.from(documents);
+            this.documents = documents;
             this.writeConcern = writeConcern;
             this.ordered = ordered;
             this.metadata = metadata;
@@ -109,7 +103,7 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
         }
 
         @Nonnull
-        public FluentIterable<BsonDocument> getDocuments() {
+        public List<BsonDocument> getDocuments() {
             return documents;
         }
 

@@ -28,10 +28,8 @@ import com.eightkdata.mongowp.server.util.LengthFieldPrependerLittleEndian;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
+import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -53,17 +51,22 @@ public class NettyMongoServer extends AbstractIdleService {
     private final RequestProcessor requestProcessor;
     private EventLoopGroup connectionGroup;
     private EventLoopGroup workerGroup;
-    private final Provider<RequestMessageByteHandler> requestMessageByteHandlerProvider;
+    private final RequestMessageObjectHandler requestMessageObjectHandler;
+    private final RequestMessageByteHandler requestMessageByteHandler;
     private final Provider<ReplyMessageObjectHandler> replyMessageObjectHandler;
+    private final LengthFieldPrependerLittleEndian lengthFieldPrependerLittleEndian;
 
     @Inject
     public NettyMongoServer(MongoServerConfig mongoServerConfig, RequestProcessor requestProcessor,
-            Provider<RequestMessageByteHandler> requestMessageByteHandlerProvider,
-            Provider<ReplyMessageObjectHandler> replyMessageObjectHandler) {
+            RequestMessageByteHandler requestMessageByteHandler,
+            Provider<ReplyMessageObjectHandler> replyMessageObjectHandler,
+            RequestMessageObjectHandler requestMessageObjectHandler) {
+        this.lengthFieldPrependerLittleEndian = new LengthFieldPrependerLittleEndian(MongoConstants.MESSAGE_LENGTH_FIELD_BYTES, true);
         this.port = mongoServerConfig.getPort();
         this.requestProcessor = requestProcessor;
-        this.requestMessageByteHandlerProvider = requestMessageByteHandlerProvider;
+        this.requestMessageByteHandler = requestMessageByteHandler;
         this.replyMessageObjectHandler = replyMessageObjectHandler;
+        this.requestMessageObjectHandler = requestMessageObjectHandler;
     }
 
     private void buildChildHandlerPipeline(ChannelPipeline pipeline) {
@@ -72,10 +75,10 @@ public class NettyMongoServer extends AbstractIdleService {
                 MongoConstants.MESSAGE_LENGTH_FIELD_BYTES, -MongoConstants.MESSAGE_LENGTH_FIELD_BYTES,
                 MongoConstants.MESSAGE_LENGTH_FIELD_BYTES, true
         ));
-        pipeline.addLast(requestMessageByteHandlerProvider.get());
-        pipeline.addLast(new LengthFieldPrependerLittleEndian(MongoConstants.MESSAGE_LENGTH_FIELD_BYTES, true));
+        pipeline.addLast(requestMessageByteHandler);
+        pipeline.addLast(lengthFieldPrependerLittleEndian);
         pipeline.addLast(replyMessageObjectHandler.get());
-        pipeline.addLast(new RequestMessageObjectHandler(requestProcessor));
+        pipeline.addLast(requestMessageObjectHandler);
     }
 
     @Override
@@ -86,6 +89,7 @@ public class NettyMongoServer extends AbstractIdleService {
         ServerBootstrap bootstrap = new ServerBootstrap();
         bootstrap.group(connectionGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
+                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {

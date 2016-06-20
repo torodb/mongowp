@@ -1,8 +1,6 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
-import com.eightkdata.mongowp.server.api.Command;
-import com.eightkdata.mongowp.server.api.CommandImplementation;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.DeleteCommand.DeleteArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorReply;
@@ -10,6 +8,8 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.UpdateCommand.UpdateArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.UpdateCommand.UpdateResult;
+import com.eightkdata.mongowp.server.api.Command;
+import com.eightkdata.mongowp.server.api.CommandImplementation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Iterator;
@@ -33,15 +33,15 @@ public class GeneralCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class GeneralCommandsImplementationsBuilder implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
+    public static abstract class GeneralCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
 
-        public abstract CommandImplementation<GetLastErrorArgument, GetLastErrorReply> getGetLastErrrorImplementation();
+        public abstract CommandImplementation<GetLastErrorArgument, GetLastErrorReply, Context> getGetLastErrrorImplementation();
 
-        public abstract CommandImplementation<InsertArgument, InsertResult> getInsertImplementation();
+        public abstract CommandImplementation<InsertArgument, InsertResult, Context> getInsertImplementation();
 
-        public abstract CommandImplementation<DeleteArgument, Long> getDeleteImplementation();
+        public abstract CommandImplementation<DeleteArgument, Long, Context> getDeleteImplementation();
 
-        public abstract CommandImplementation<UpdateArgument, UpdateResult> getUpdateImplementation();
+        public abstract CommandImplementation<UpdateArgument, UpdateResult, Context> getUpdateImplementation();
 
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()

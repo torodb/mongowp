@@ -1,12 +1,12 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0;
 
-import com.eightkdata.mongowp.server.api.Command;
-import com.eightkdata.mongowp.server.api.CommandImplementation;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.AdminCommands;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.AdminCommands.AdminCommandsImplementationsBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation.AggregationCommands;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation.AggregationCommands.AggregationCommandsImplementationsBuilder;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.authentication.AuthenticationCommands;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.authentication.AuthenticationCommands.AuthenticationCommandsImplementationsBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.DiagnosticCommands;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.DiagnosticCommands.DiagnosticCommandsImplementationsBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GeneralCommands;
@@ -15,6 +15,8 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.interna
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.InternalCommands.InternalCommandsImplementationsBuilder;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplCommands;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplCommands.ReplCommandsImplementationsBuilder;
+import com.eightkdata.mongowp.server.api.Command;
+import com.eightkdata.mongowp.server.api.CommandImplementation;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
@@ -34,6 +36,7 @@ public class MongoDb30Commands implements Iterable<Command> {
                 Iterables.concat(
                         new AdminCommands(),
                         new AggregationCommands(),
+                        new AuthenticationCommands(),
                         new DiagnosticCommands(),
                         new GeneralCommands(),
                         new InternalCommands(),
@@ -51,6 +54,7 @@ public class MongoDb30Commands implements Iterable<Command> {
 
         private final AdminCommandsImplementationsBuilder adminCommandsImplementationsBuilder;
         private final AggregationCommandsImplementationsBuilder aggregationImplementationsBuilder;
+        private final AuthenticationCommandsImplementationsBuilder authenticationCommandsImplementationsBuilder;
         private final DiagnosticCommandsImplementationsBuilder diagnosticImplementationsBuilder;
         private final GeneralCommandsImplementationsBuilder generalImplementationsBuilder;
         private final InternalCommandsImplementationsBuilder internalCommandsImplementationsBuilder;
@@ -59,6 +63,7 @@ public class MongoDb30Commands implements Iterable<Command> {
         public MongoDb30CommandsImplementationBuilder(
                 AdminCommandsImplementationsBuilder adminCommandsImplementationsBuilder,
                 AggregationCommandsImplementationsBuilder aggregationImplementationsBuilder,
+                AuthenticationCommandsImplementationsBuilder authenticationCommandsImplementationsBuilder,
                 DiagnosticCommandsImplementationsBuilder diagnosticImplementationsBuilder,
                 GeneralCommandsImplementationsBuilder generalImplementationsBuilder,
                 InternalCommandsImplementationsBuilder internalCommandsImplementationsBuilder,
@@ -67,6 +72,8 @@ public class MongoDb30Commands implements Iterable<Command> {
                     = adminCommandsImplementationsBuilder;
             this.aggregationImplementationsBuilder
                     = aggregationImplementationsBuilder;
+            this.authenticationCommandsImplementationsBuilder
+                    = authenticationCommandsImplementationsBuilder;
             this.diagnosticImplementationsBuilder
                     = diagnosticImplementationsBuilder;
             this.generalImplementationsBuilder = generalImplementationsBuilder;
@@ -82,6 +89,7 @@ public class MongoDb30Commands implements Iterable<Command> {
             return Iterators.concat(
                     adminCommandsImplementationsBuilder.iterator(),
                     aggregationImplementationsBuilder.iterator(),
+                    authenticationCommandsImplementationsBuilder.iterator(),
                     diagnosticImplementationsBuilder.iterator(),
                     generalImplementationsBuilder.iterator(),
                     internalCommandsImplementationsBuilder.iterator(),

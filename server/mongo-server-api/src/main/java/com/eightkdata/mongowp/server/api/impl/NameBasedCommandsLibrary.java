@@ -39,7 +39,7 @@ public class NameBasedCommandsLibrary implements CommandsLibrary {
     private final String version;
     private final ImmutableMap<String, Command> commandsMap;
 
-    public NameBasedCommandsLibrary(String version, Iterable<Command> commands) {
+    public NameBasedCommandsLibrary(String version, Iterable<Command<?,?>> commands) {
         this.version = version;
         
         ImmutableMap.Builder<String, Command> commandsMapBuilder = ImmutableMap.builder();

@@ -11,9 +11,9 @@ import com.eightkdata.mongowp.exceptions.FailedToParseException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.IsMasterCommand.IsMasterReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
@@ -21,6 +21,7 @@ import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -91,6 +92,12 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
         private static final ObjectIdField ELECTION_ID_FIELD = new ObjectIdField("electionId");
         private static final StringField INFO_FIELD = new StringField("info");
         private static final BooleanField IS_REPLICA_SET_FIELD = new BooleanField("isreplicaset");
+        private static final IntField MAX_BSON_OBJECT_SIZE = new IntField("maxBsonObjectSize");
+        private static final IntField MAX_MESSAGE_SIZE_BYTES = new IntField("maxMessageSizeBytes");
+        private static final IntField MAX_WRITE_BATCH_SIZE = new IntField("maxWriteBatchSize");
+        private static final DateTimeField LOCAL_TIME = new DateTimeField("localTime");
+        private static final IntField MAX_WIRE_VERSION = new IntField("maxWireVersion");
+        private static final IntField MIN_WIRE_VERSION = new IntField("minWireVersion");
 
         private final Boolean master;
         private final Boolean secondary;
@@ -109,6 +116,12 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
         private final HostAndPort me;
         private final BsonObjectId electionId;
         private final boolean configSet;
+        private final int maxBsonObjectSize;
+        private final int maxMessageSizeBytes;
+        private final int maxWriteBatchSize;
+        private final Instant localTime;
+        private final int maxWireVersion;
+        private final int minWireVersion;
 
         public IsMasterReply(
                 boolean master,
@@ -125,7 +138,13 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
                 int slaveDelay,
                 @Nullable ImmutableMap<String, String> tags,
                 @Nonnull HostAndPort me,
-                @Nullable BsonObjectId electionId) {
+                @Nullable BsonObjectId electionId,
+                int maxBsonObjectSize,
+                int maxMessageSizeBytes,
+                int maxWriteBatchSize,
+                Instant localTime,
+                int maxWireVersion,
+                int minWireVersion) {
             this.master = master;
             this.secondary = !master;
             this.setName = setName;
@@ -142,6 +161,12 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             this.tags = tags;
             this.me = me;
             this.electionId = electionId;
+            this.maxBsonObjectSize = maxBsonObjectSize;
+            this.maxMessageSizeBytes = maxMessageSizeBytes;
+            this.maxWriteBatchSize = maxWriteBatchSize;
+            this.localTime = localTime;
+            this.maxWireVersion = maxWireVersion;
+            this.minWireVersion = minWireVersion;
 
             configSet = true;
         }
@@ -165,6 +190,12 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             this.tags = null;
             this.me = null;
             this.electionId = null;
+            this.maxBsonObjectSize = 0;
+            this.maxMessageSizeBytes = 0;
+            this.maxWriteBatchSize = 0;
+            this.localTime = null;
+            this.maxWireVersion = 0;
+            this.minWireVersion = 0;
         }
 
         private BsonDocument toBson() {
@@ -224,6 +255,14 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             if (electionId != null) {
                 builder.append(ELECTION_ID_FIELD, electionId);
             }
+
+            builder.append(MAX_BSON_OBJECT_SIZE, maxBsonObjectSize);
+            builder.append(MAX_MESSAGE_SIZE_BYTES, maxMessageSizeBytes);
+            builder.append(MAX_WRITE_BATCH_SIZE, maxWriteBatchSize);
+            builder.append(LOCAL_TIME, localTime);
+            builder.append(MAX_WIRE_VERSION, maxWireVersion);
+            builder.append(MIN_WIRE_VERSION, minWireVersion);
+
             return builder.build();
         }
 
@@ -348,7 +387,13 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
                     slaveDelay,
                     tags,
                     me,
-                    electionId
+                    electionId,
+                    BsonReaderTool.getInteger(bson, MAX_BSON_OBJECT_SIZE),
+                    BsonReaderTool.getInteger(bson, MAX_MESSAGE_SIZE_BYTES),
+                    BsonReaderTool.getInteger(bson, MAX_WRITE_BATCH_SIZE),
+                    BsonReaderTool.getInstant(bson, LOCAL_TIME),
+                    BsonReaderTool.getInteger(bson, MAX_WIRE_VERSION),
+                    BsonReaderTool.getInteger(bson, MIN_WIRE_VERSION)
             );
         }
     }

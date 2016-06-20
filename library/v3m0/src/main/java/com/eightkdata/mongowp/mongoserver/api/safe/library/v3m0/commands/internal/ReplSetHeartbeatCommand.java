@@ -3,15 +3,16 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.intern
 import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.OpTime;
-import com.eightkdata.mongowp.bson.*;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonNumber;
 import com.eightkdata.mongowp.exceptions.*;
 import com.eightkdata.mongowp.fields.*;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplSetProtocolVersion;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.Sets;
@@ -30,11 +31,6 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
 
     private ReplSetHeartbeatCommand() {
         super("replSetHeartbeat");
-    }
-
-    @Override
-    public boolean isReadyToReplyResult(ReplSetHeartbeatReply r) {
-        return true;
     }
 
     @Override

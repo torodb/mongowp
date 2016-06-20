@@ -1,14 +1,14 @@
 package com.eightkdata.mongowp.server.api;
 
-import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.Status;
 import javax.annotation.Nonnull;
 
 /**
  *
  */
-public interface CommandImplementation<Arg, Result> {
+public interface CommandImplementation<Arg, Result, Context> {
 
     @Nonnull
-    public CommandResult<Result> apply(Command<? super Arg, ? super Result> command, CommandRequest<Arg> req) throws MongoException;
+    public Status<Result> apply(Request req, Command<? super Arg, ? super Result> command, Arg arg, Context context);
 
 }

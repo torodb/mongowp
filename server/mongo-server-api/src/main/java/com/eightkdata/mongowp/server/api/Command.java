@@ -66,20 +66,6 @@ public interface Command<Arg, Result> {
      */
     public boolean canChangeReplicationState();
 
-    /**
-     * Returns true if {@link #marshallResult(org.bson.BsonDocument) } produces
-     * documents that already contains correction fields like <em>ok</em>,
-     * <em>errmsg</em> or whatever special field used by the protocol to specify
-     * errors on the execution.
-     *
-     * If true is returned, then a non null object is returned when
-     * {@linkplain #marshallResult(java.lang.Object) } is called with the same
-     * argument.
-     * @param r
-     * @return
-     */
-    public boolean isReadyToReplyResult(Result r);
-    
     public Class<? extends Arg> getArgClass();
 
     @Nonnull

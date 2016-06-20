@@ -50,11 +50,6 @@ public abstract class AbstractCommand<Arg, Result> implements Command<Arg, Resul
     }
 
     @Override
-    public boolean isReadyToReplyResult(Result r) {
-        return false;
-    }
-
-    @Override
     public String toString() {
         return getCommandName();
     }

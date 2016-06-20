@@ -1,49 +1,32 @@
 package com.eightkdata.mongowp.server.api;
 
+import com.eightkdata.mongowp.Status;
+import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.messages.request.*;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
-import com.eightkdata.mongowp.server.api.impl.UpdateOpResult;
 import com.eightkdata.mongowp.server.api.pojos.QueryRequest;
-import com.eightkdata.mongowp.server.callback.WriteOpResult;
-import com.eightkdata.mongowp.exceptions.CommandNotSupportedException;
-import com.eightkdata.mongowp.exceptions.MongoException;
-import com.google.common.util.concurrent.ListenableFuture;
-import javax.annotation.Nonnull;
 
 /**
  *
  */
-public interface SafeRequestProcessor extends CommandsExecutor{
+public interface SafeRequestProcessor<C extends Connection> extends CommandsExecutor<C> {
 
-    public void onConnectionActive(Connection connection);
-
-    public void onConnectionInactive(Connection connection);
-
-    @Nonnull
-    public ReplyMessage getMore(Request request, GetMoreMessage getMoreMessage)
-            throws MongoException;
-
-    public ListenableFuture<?> killCursors(Request request, KillCursorsMessage killCursorsMessage)
-            throws MongoException;
+    public C openConnection();
 
     public CommandsLibrary getCommandsLibrary();
 
     @Override
-    public <Arg, Result> CommandReply<Result> execute(
-            Command<? super Arg, ? super Result> command,
-            CommandRequest<Arg> request) throws MongoException, CommandNotSupportedException;
+    public <Arg, Result> Status<Result> execute(Request request, Command<? super Arg, ? super Result> command, Arg arg, C context);
+    
+    public ReplyMessage query(C connection, Request req, QueryRequest build) throws MongoException;
 
-    @Nonnull
-    public ReplyMessage query(Request request, QueryRequest queryMessage)
-            throws MongoException;
+    public ReplyMessage getMore(C connection, Request req, GetMoreMessage moreMessage) throws MongoException;
 
-    public ListenableFuture<? extends WriteOpResult> insert(Request request, InsertMessage insertMessage)
-            throws MongoException;
+    public void killCursors(C connection, Request req, KillCursorsMessage killCursorsMessage) throws MongoException;
 
-    public ListenableFuture<? extends UpdateOpResult> update(Request request, UpdateMessage deleteMessage)
-            throws MongoException;
+    public void insert(C connection, Request req, InsertMessage insertMessage) throws MongoException;
 
-    public ListenableFuture<? extends WriteOpResult> delete(Request request, DeleteMessage deleteMessage)
-            throws MongoException;
+    public void update(C connection, Request req, UpdateMessage updateMessage) throws MongoException;
 
+    public void delete(C connection, Request req, DeleteMessage deleteMessage) throws MongoException;
 }

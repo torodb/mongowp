@@ -1,17 +1,17 @@
 /*
- *     This file is part of mongowp.
+ *     This file is part from mongowp.
  *
  *     mongowp is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
+ *     it under the terms from the GNU Affero General Public License as published by
+ *     the Free Software Foundation, either version 3 from the License, or
  *     (at your option) any later version.
  *
  *     mongowp is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty from
  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *     GNU Affero General Public License for more details.
  *
- *     You should have received a copy of the GNU Affero General Public License
+ *     You should have received a copy from the GNU Affero General Public License
  *     along with mongowp. If not, see <http://www.gnu.org/licenses/>.
  *
  *     Copyright (c) 2014, 8Kdata Technology
@@ -19,8 +19,8 @@
  */
 package com.eightkdata.mongowp.server.api.impl;
 
+import com.eightkdata.mongowp.Status;
 import com.eightkdata.mongowp.exceptions.CommandNotSupportedException;
-import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.server.api.*;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -37,7 +37,7 @@ import org.apache.logging.log4j.Logger;
  *
  */
 @SuppressWarnings("unchecked")
-public class MapBasedCommandsExecutor implements CommandsExecutor {
+public class MapBasedCommandsExecutor<Context> implements CommandsExecutor<Context> {
     private static final Logger LOGGER = LogManager.getLogger(MapBasedCommandsExecutor.class);
 
     /**
@@ -46,61 +46,47 @@ public class MapBasedCommandsExecutor implements CommandsExecutor {
      * It is guaranteed by construction that the implementation uses the same
      * request and reply than command it is associated with.
      */
-    private final ImmutableMap<Command, CommandImplementation> implementations;
+    private final ImmutableMap<Command, CommandImplementation<?, ?, Context>> implementations;
 
-    private MapBasedCommandsExecutor(ImmutableMap<Command, CommandImplementation> implementations) {
+    private MapBasedCommandsExecutor(ImmutableMap<Command, CommandImplementation<?, ?, Context>> implementations) {
         this.implementations = implementations;
     }
-    
+
     @Override
-    public <Arg, Result> CommandReply<Result> execute(
-            @Nonnull Command<? super Arg, ? super Result> command,
-            @Nonnull CommandRequest<Arg> request)
-            throws MongoException, CommandNotSupportedException {
-        CommandImplementation<Arg, Result> implementation = implementations.get(command);
+        public <Arg, Result> Status<Result> execute(Request request, Command<? super Arg, ? super Result> command, Arg arg, Context context) {
+        CommandImplementation<Arg, Result, Context> implementation = (CommandImplementation<Arg, Result, Context>) implementations.get(command);
         if (implementation == null) {
-            throw new CommandNotSupportedException(command.getCommandName());
+            return Status.from(new CommandNotSupportedException(command.getCommandName()));
         }
-        try {
-            CommandResult<Result> result = implementation.apply(command, request);
-            if (command.isReadyToReplyResult(result.getResult())) {
-                return new DelegateCommandReply<>(command, result);
-            }
-            else {
-                return new CorrectCommandReply<>(command, result);
-            }
-        } catch (MongoException ex) {
-            return new FailedCommandReply<>(ex);
-        }
+        return implementation.apply(request, command, arg, context);
     }
     
-    
-    public static Builder fromLibraryBuilder(CommandsLibrary library) {
-        return new FromLibraryBuilder(library);
+    public static <Context> Builder<Context> fromLibraryBuilder(CommandsLibrary library) {
+        return new FromLibraryBuilder<>(library);
     }
 
-    public static Builder builder() {
-        return new UnsafeBuilder();
+    public static <Context> Builder<Context> builder() {
+        return new UnsafeBuilder<>();
     }
     
-    public static interface Builder {
+    public static interface Builder<Context> {
         
-        public <Req, Result> Builder addImplementation(
+        public <Req, Result> Builder<Context> addImplementation(
                 @Nonnull Command<Req, Result> command,
-                @Nonnull CommandImplementation<Req, Result> implementation);
+                @Nonnull CommandImplementation<Req, Result, Context> implementation);
 
-        public <Req, Result> Builder addImplementations(
+        public <Req, Result> Builder<Context> addImplementations(
                 Iterable<Map.Entry<Command<?,?>, CommandImplementation>> entries);
         
-        public MapBasedCommandsExecutor build();
+        public MapBasedCommandsExecutor<Context> build();
     }
 
-    private static class UnsafeBuilder implements Builder {
+    private static class UnsafeBuilder<Context> implements Builder<Context> {
 
         private final Map<Command, CommandImplementation> implementations = Maps.newHashMap();
 
         @Override
-        public <Req, Result> Builder addImplementations(
+        public <Req, Result> Builder<Context> addImplementations(
                 Iterable<Map.Entry<Command<?,?>, CommandImplementation>> entries) {
             for (Entry<Command<?,?>, CommandImplementation> entry : entries) {
                 addImplementation(entry.getKey(), entry.getValue());
@@ -109,9 +95,9 @@ public class MapBasedCommandsExecutor implements CommandsExecutor {
         }
 
         @Override
-        public <Req, Result> Builder addImplementation(
+        public <Req, Result> Builder<Context> addImplementation(
                 Command<Req, Result> command,
-                CommandImplementation<Req, Result> implementation) {
+                CommandImplementation<Req, Result, Context> implementation) {
             if (implementations.containsKey(command)) {
                 throw new IllegalArgumentException(
                         "There is another implementation ("
@@ -125,20 +111,20 @@ public class MapBasedCommandsExecutor implements CommandsExecutor {
         }
 
         @Override
-        public MapBasedCommandsExecutor build() {
+        public MapBasedCommandsExecutor<Context> build() {
             return new MapBasedCommandsExecutor(
                     ImmutableMap.copyOf(implementations)
             );
         }
     }
     
-    private static class FromLibraryBuilder extends UnsafeBuilder {
+    private static class FromLibraryBuilder<Context> extends UnsafeBuilder<Context> {
         private final @Nullable Set<Command> notImplementedCommands;
 
         public FromLibraryBuilder(CommandsLibrary library) {
             this.notImplementedCommands = library.getSupportedCommands();
             if (this.notImplementedCommands == null) {
-                LOGGER.warn("An unsafe commands library has been used to "
+                LOGGER.debug("An unsafe commands library has been used to "
                         + "create an executor. It is impossible to check at "
                         + "creation time if all commands supported by the "
                         + "library have an associated implementation");
@@ -146,7 +132,7 @@ public class MapBasedCommandsExecutor implements CommandsExecutor {
         }
 
         @Override
-        public <Req, Result> Builder addImplementations(
+        public <Req, Result> Builder<Context> addImplementations(
                 Iterable<Map.Entry<Command<?,?>, CommandImplementation>> entries) {
             for (Entry<Command<?,?>, CommandImplementation> entry : entries) {
                 addImplementation(entry.getKey(), entry.getValue());
@@ -155,9 +141,9 @@ public class MapBasedCommandsExecutor implements CommandsExecutor {
         }
         
         @Override
-        public <Req, Result> Builder addImplementation(
+        public <Req, Result> Builder<Context> addImplementation(
                 Command<Req, Result> command,
-                CommandImplementation<Req, Result> implementation) {
+                CommandImplementation<Req, Result, Context> implementation) {
             if (notImplementedCommands != null && !notImplementedCommands.remove(command)) {
                 throw new IllegalArgumentException("Command " + command + " is "
                         + "not supported by the given library");
@@ -166,7 +152,7 @@ public class MapBasedCommandsExecutor implements CommandsExecutor {
         }
         
         @Override
-        public MapBasedCommandsExecutor build() {
+        public MapBasedCommandsExecutor<Context> build() {
             if (notImplementedCommands != null) {
                 Preconditions.checkState(
                         notImplementedCommands.isEmpty(),

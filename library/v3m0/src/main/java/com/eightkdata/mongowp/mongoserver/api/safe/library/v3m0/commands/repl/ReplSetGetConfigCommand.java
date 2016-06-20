@@ -4,9 +4,9 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.MongoException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 
 /**
@@ -18,12 +18,6 @@ public class ReplSetGetConfigCommand extends AbstractCommand<Empty, ReplicaSetCo
 
     private ReplSetGetConfigCommand() {
         super("replSetGetConfig");
-    }
-
-    @Override
-    public boolean isReadyToReplyResult(ReplicaSetConfig r) {
-        //it seems this command returns a document whose only key is "config"
-        return true;
     }
 
     @Override

@@ -22,14 +22,15 @@
 package com.eightkdata.mongowp.server.util;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldPrepender;
-
 import java.nio.ByteOrder;
 
 /**
  *
  */
+@ChannelHandler.Sharable
 public class LengthFieldPrependerLittleEndian extends LengthFieldPrepender {
     public LengthFieldPrependerLittleEndian(int lengthFieldLength, boolean lengthIncludesLengthFieldLength) {
         super(lengthFieldLength, lengthIncludesLengthFieldLength);

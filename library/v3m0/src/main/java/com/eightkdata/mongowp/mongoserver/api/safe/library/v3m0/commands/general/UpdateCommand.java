@@ -37,11 +37,6 @@ public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>
     }
 
     @Override
-    public boolean isReadyToReplyResult(UpdateResult r) {
-        return true;
-    }
-
-    @Override
     public UpdateArgument unmarshallArg(BsonDocument requestDoc) throws
             BadValueException, TypesMismatchException, NoSuchKeyException,
             FailedToParseException {

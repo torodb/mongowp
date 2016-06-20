@@ -1,46 +1,48 @@
 
 package com.eightkdata.mongowp.server.api;
 
+import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.Status;
 import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.exceptions.CommandNotFoundException;
+import com.eightkdata.mongowp.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.exceptions.UnauthorizedException;
+import com.eightkdata.mongowp.fields.DoubleField;
+import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.messages.request.*;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
+import com.eightkdata.mongowp.server.api.Request.ExternalClientInfo;
 import com.eightkdata.mongowp.server.api.pojos.QueryRequest;
 import com.eightkdata.mongowp.server.callback.MessageReplier;
 import com.eightkdata.mongowp.server.callback.RequestProcessor;
-import com.eightkdata.mongowp.server.callback.WriteOpResult;
-import com.eightkdata.mongowp.exceptions.CommandNotFoundException;
-import com.eightkdata.mongowp.exceptions.MongoException;
-import com.eightkdata.mongowp.exceptions.UnauthorizedException;
-import com.google.common.util.concurrent.Futures;
+import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
-import io.netty.util.DefaultAttributeMap;
-import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 
 /**
  *
  */
-public class RequestProcessorAdaptor implements RequestProcessor {
-    public final static AttributeKey<Connection> CONNECTION =
-			AttributeKey.valueOf(RequestProcessorAdaptor.class.getCanonicalName() + ".connection");
+public class RequestProcessorAdaptor<C extends Connection> implements RequestProcessor {
+    public final AttributeKey<C> CONNECTION = AttributeKey.valueOf(
+            RequestProcessorAdaptor.class.getCanonicalName() + ".connection");
 
     public static final String QUERY_MESSAGE_COMMAND_COLLECTION = "$cmd";
     public static final String QUERY_MESSAGE_ADMIN_DATABASE = "admin";
+    public static final StringField ERR_MSG_FIELD = new StringField("errmsg");
+    public static final DoubleField OK_FIELD = new DoubleField("ok");
 
-    private final ConnectionIdFactory connectionIdFactory;
-    private final SafeRequestProcessor safeRequestProcessor;
+    private final SafeRequestProcessor<C> safeRequestProcessor;
     private final ErrorHandler errorHandler;
 
     @Inject
     public RequestProcessorAdaptor(
-            ConnectionIdFactory connectionIdFactory,
-            SafeRequestProcessor safeRequestProcessor,
+            SafeRequestProcessor<C> safeRequestProcessor,
             ErrorHandler errorHandler) {
         this.safeRequestProcessor = safeRequestProcessor;
-        this.connectionIdFactory = connectionIdFactory;
         this.errorHandler = errorHandler;
     }
 
@@ -50,16 +52,13 @@ public class RequestProcessorAdaptor implements RequestProcessor {
     }
 
     @Nonnull
-    protected Connection getConnection(MessageReplier messageReplier) {
+    protected C getConnection(MessageReplier messageReplier) {
         return messageReplier.getAttributeMap().attr(CONNECTION).get();
     }
 
     @Override
     public void onChannelActive(AttributeMap attMap) {
-        Connection newConnection = new Connection(
-                connectionIdFactory.newConnectionId(),
-                new DefaultAttributeMap()
-        );
+        C newConnection = safeRequestProcessor.openConnection();
         Connection oldConnection = attMap.attr(CONNECTION).setIfAbsent(
                 newConnection
         );
@@ -68,20 +67,19 @@ public class RequestProcessorAdaptor implements RequestProcessor {
                     + oldConnection.getConnectionId() + " was stored before "
                     + "channel became active!");
         }
-        safeRequestProcessor.onConnectionActive(newConnection);
     }
 
     @Override
     public void onChannelInactive(AttributeMap attMap) {
-        Connection connection = attMap.attr(CONNECTION).getAndRemove();
+        C connection = attMap.attr(CONNECTION).getAndRemove();
         if (connection != null) {
-            safeRequestProcessor.onConnectionInactive(connection);
+            connection.close();
         }
     }
     
     @Override
     public void queryMessage(QueryMessage queryMessage, MessageReplier messageReplier) throws MongoException {
-        Connection connection = getConnection(messageReplier.getAttributeMap());
+        C connection = getConnection(messageReplier);
 
         if (QUERY_MESSAGE_COMMAND_COLLECTION.equals(queryMessage.getCollection())) {
             executeCommand(connection, queryMessage, messageReplier);
@@ -114,12 +112,12 @@ public class RequestProcessorAdaptor implements RequestProcessor {
             }
 
             ReplyMessage reply = safeRequestProcessor.query(
+                    connection,
                     new Request(
-                            connection,
-                            messageReplier.getRequestId(),
                             queryMessage.getDatabase(),
-                            queryMessage.getClientAddress(),
-                            queryMessage.getClientPort()
+                            new ExternalClientInfo(queryMessage.getClientAddress(), queryMessage.getClientPort()),
+                            requestBuilder.isSlaveOk(),
+                            null //Set the requested timeout
                     ),
                     requestBuilder.build()
             );
@@ -130,12 +128,11 @@ public class RequestProcessorAdaptor implements RequestProcessor {
 
     @SuppressWarnings("unchecked")
     private void executeCommand(
-            Connection connection,
+            C connection,
             QueryMessage queryMessage,
             MessageReplier messageReplier) throws MongoException {
         BsonDocument document = queryMessage.getQuery();
-        Command command
-                = safeRequestProcessor.getCommandsLibrary().find(document);
+        Command command = safeRequestProcessor.getCommandsLibrary().find(document);
         if (command == null) {
             if (document.isEmpty()) {
                 throw new CommandNotFoundException("Empty document query");
@@ -154,38 +151,48 @@ public class RequestProcessorAdaptor implements RequestProcessor {
         }
 
         Object arg = command.unmarshallArg(document);
-        CommandRequest request = new CommandRequest(
-                connection,
-                queryMessage.getRequestId(),
+
+        Request request = new Request(
                 queryMessage.getDatabase(),
-                queryMessage.getClientAddress(),
-                queryMessage.getClientPort(),
-                arg,
-                queryMessage.getQueryOptions().isSlaveOk()
+                new ExternalClientInfo(queryMessage.getClientAddress(), queryMessage.getClientPort()),
+                queryMessage.getQueryOptions().isSlaveOk(),
+                null //Set the requested timeout
         );
-        CommandReply reply = safeRequestProcessor.execute(command, request);
+        Status<?> reply = safeRequestProcessor.execute(request, command, arg, connection);
 
-        if (reply.getWriteOpResult() != null) {
-            connection.setAppliedWriteOp(Futures.immediateFuture(reply.getWriteOpResult()));
+        BsonDocument bson;
+        if (reply.isOK()) {
+            try {
+                bson = command.marshallResult(reply.getResult());
+                bson = new BsonDocumentBuilder(bson)
+                        .append(OK_FIELD, MongoConstants.OK)
+                        .build();
+            } catch (MarshalException ex) {
+                throw new FailedToParseException(ex.getLocalizedMessage());
+            }
         }
-        BsonDocument bsonReply = reply.marshall();
+        else {
+            bson = new BsonDocumentBuilder()
+                    .append(ERR_MSG_FIELD, reply.getErrorMsg())
+                    .append(OK_FIELD, MongoConstants.KO)
+                    .build();
+        }
 
-        messageReplier.replyMessageNoCursor(bsonReply);
+        messageReplier.replyMessageNoCursor(bson);
     }
 
     @Override
     public void getMore(GetMoreMessage getMoreMessage, MessageReplier messageReplier) {
-        Connection connection = getConnection(messageReplier);
+        C connection = getConnection(messageReplier);
         try {
             Request req = new Request(
-                    connection,
-                    getMoreMessage.getRequestId(),
                     getMoreMessage.getDatabase(),
-                    getMoreMessage.getClientAddress(),
-                    getMoreMessage.getClientPort()
+                    new ExternalClientInfo(getMoreMessage.getClientAddress(), getMoreMessage.getRequestId()),
+                    true,
+                    null //Set the requested timeout
             );
 
-            ReplyMessage reply = safeRequestProcessor.getMore(req, getMoreMessage);
+            ReplyMessage reply = safeRequestProcessor.getMore(connection, req, getMoreMessage);
             messageReplier.replyMessage(reply);
         } catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
@@ -194,16 +201,15 @@ public class RequestProcessorAdaptor implements RequestProcessor {
 
     @Override
     public void killCursors(KillCursorsMessage killCursorsMessage, MessageReplier messageReplier) {
-        Connection connection = getConnection(messageReplier);
+        C connection = getConnection(messageReplier);
         try {
             Request req = new Request(
-                    connection,
-                    killCursorsMessage.getRequestId(),
-                    null,
-                    killCursorsMessage.getClientAddress(),
-                    killCursorsMessage.getClientPort()
+                    "admin", //an arbitary database
+                    new ExternalClientInfo(killCursorsMessage.getClientAddress(), killCursorsMessage.getRequestId()),
+                    true,
+                    null //Set the requested timeout
             );
-            safeRequestProcessor.killCursors(req, killCursorsMessage);
+            safeRequestProcessor.killCursors(connection, req, killCursorsMessage);
         } catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
@@ -211,22 +217,15 @@ public class RequestProcessorAdaptor implements RequestProcessor {
 
     @Override
     public void insert(InsertMessage insertMessage, MessageReplier messageReplier) {
-        Connection connection = getConnection(messageReplier);
+        C connection = getConnection(messageReplier);
         try {
             Request req = new Request(
-                    connection,
-                    insertMessage.getRequestId(),
                     insertMessage.getDatabase(),
-                    insertMessage.getClientAddress(),
-                    insertMessage.getClientPort()
+                    new ExternalClientInfo(insertMessage.getClientAddress(), insertMessage.getRequestId()),
+                    false,
+                    null //Set the requested timeout
             );
-            Future<? extends WriteOpResult> futureWriteOp = safeRequestProcessor
-                    .insert(
-                            req,
-                            insertMessage
-                    );
-
-            connection.setAppliedWriteOp(futureWriteOp);
+            safeRequestProcessor.insert(connection, req, insertMessage);
         } catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
@@ -234,21 +233,15 @@ public class RequestProcessorAdaptor implements RequestProcessor {
 
     @Override
     public void update(UpdateMessage updateMessage, MessageReplier messageReplier) {
-        Connection connection = getConnection(messageReplier);
+        C connection = getConnection(messageReplier);
         try {
             Request req = new Request(
-                    connection,
-                    updateMessage.getRequestId(),
                     updateMessage.getDatabase(),
-                    updateMessage.getClientAddress(),
-                    updateMessage.getClientPort());
-            Future<? extends WriteOpResult> futureWriteOp = safeRequestProcessor
-                    .update(
-                            req,
-                            updateMessage
-                    );
-
-            connection.setAppliedWriteOp(futureWriteOp);
+                    new ExternalClientInfo(updateMessage.getClientAddress(), updateMessage.getRequestId()),
+                    false,
+                    null //Set the requested timeout
+            );
+            safeRequestProcessor.update(connection, req, updateMessage);
         } catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
         }
@@ -256,21 +249,15 @@ public class RequestProcessorAdaptor implements RequestProcessor {
 
     @Override
     public void delete(DeleteMessage deleteMessage, MessageReplier messageReplier) {
-        Connection connection = getConnection(messageReplier);
+        C connection = getConnection(messageReplier);
         try {
             Request req = new Request(
-                    connection,
-                    deleteMessage.getRequestId(),
                     deleteMessage.getDatabase(),
-                    deleteMessage.getClientAddress(),
-                    deleteMessage.getClientPort());
-            Future<? extends WriteOpResult> futureWriteOp = safeRequestProcessor
-                    .delete(
-                            req,
-                            deleteMessage
-                    );
-
-            connection.setAppliedWriteOp(futureWriteOp);
+                    new ExternalClientInfo(deleteMessage.getClientAddress(), deleteMessage.getRequestId()),
+                    false,
+                    null //Set the requested timeout
+            );
+            safeRequestProcessor.delete(connection, req, deleteMessage);
         }
         catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);

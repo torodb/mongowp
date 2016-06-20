@@ -5,7 +5,6 @@ import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.server.api.Command;
-import com.eightkdata.mongowp.server.api.CommandReply;
 import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
 import java.io.Closeable;
 import java.util.List;

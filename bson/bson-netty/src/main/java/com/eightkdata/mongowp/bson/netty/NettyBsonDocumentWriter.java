@@ -29,10 +29,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import javax.inject.Singleton;
 
 /**
  *
  */
+@Singleton
 public class NettyBsonDocumentWriter {
 
     private static final WriterBsonValueVisitor VISITOR = new WriterBsonValueVisitor();

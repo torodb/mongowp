@@ -19,19 +19,19 @@
  */
 package com.eightkdata.mongowp.server.api;
 
-import com.eightkdata.mongowp.exceptions.CommandNotSupportedException;
-import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.Status;
 import javax.annotation.Nonnull;
 
 /**
  *
  */
-public interface CommandsExecutor {
+public interface CommandsExecutor<Context> {
 
     @Nonnull
-    public <Arg, Result> CommandReply<Result> execute(
+    public <Arg, Result> Status<Result> execute(
+            @Nonnull Request request,
             @Nonnull Command<? super Arg, ? super Result> command,
-            @Nonnull CommandRequest<Arg> request) 
-            throws MongoException, CommandNotSupportedException;
+            @Nonnull Arg arg,
+            @Nonnull Context context);
     
 }

@@ -24,6 +24,7 @@ package com.eightkdata.mongowp.server.wp;
 import com.eightkdata.mongowp.messages.request.*;
 import com.eightkdata.mongowp.server.callback.MessageReplier;
 import com.eightkdata.mongowp.server.callback.RequestProcessor;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.AttributeKey;
@@ -34,6 +35,7 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  */
+@ChannelHandler.Sharable
 public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LogManager.getLogger(RequestMessageObjectHandler.class);
     

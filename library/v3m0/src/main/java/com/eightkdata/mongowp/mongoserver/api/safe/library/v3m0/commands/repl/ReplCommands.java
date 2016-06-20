@@ -1,8 +1,6 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
-import com.eightkdata.mongowp.server.api.Command;
-import com.eightkdata.mongowp.server.api.CommandImplementation;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.IsMasterCommand.IsMasterReply;
@@ -13,6 +11,8 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.Re
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetStepDownCommand.ReplSetStepDownArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetSyncFromCommand.ReplSetSyncFromReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
+import com.eightkdata.mongowp.server.api.Command;
+import com.eightkdata.mongowp.server.api.CommandImplementation;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -44,27 +44,27 @@ public class ReplCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class ReplCommandsImplementationsBuilder implements Iterable<Entry<Command<?,?>, CommandImplementation>> {
+    public static abstract class ReplCommandsImplementationsBuilder<Context> implements Iterable<Entry<Command<?,?>, CommandImplementation>> {
 
-        public abstract CommandImplementation<ApplyOpsArgument, ApplyOpsReply> getApplyOpsImplementation();
+        public abstract CommandImplementation<ApplyOpsArgument, ApplyOpsReply, Context> getApplyOpsImplementation();
 
-        public abstract CommandImplementation<Empty, IsMasterReply> getIsMasterImplementation();
+        public abstract CommandImplementation<Empty, IsMasterReply, Context> getIsMasterImplementation();
 
-        public abstract CommandImplementation<ReplSetFreezeArgument, ReplSetFreezeReply> getReplSetFreezeImplementation();
+        public abstract CommandImplementation<ReplSetFreezeArgument, ReplSetFreezeReply, Context> getReplSetFreezeImplementation();
 
-        public abstract CommandImplementation<Empty, ReplicaSetConfig> getReplSetGetConfigImplementation();
+        public abstract CommandImplementation<Empty, ReplicaSetConfig, Context> getReplSetGetConfigImplementation();
 
-        public abstract CommandImplementation<Empty, ReplSetGetStatusReply> getReplSetGetStatusImplementation();
+        public abstract CommandImplementation<Empty, ReplSetGetStatusReply, Context> getReplSetGetStatusImplementation();
 
-        public abstract CommandImplementation<ReplicaSetConfig, Empty> getReplSetInitiateImplementation();
+        public abstract CommandImplementation<ReplicaSetConfig, Empty, Context> getReplSetInitiateImplementation();
 
-        public abstract CommandImplementation<Boolean, Empty> getReplSetMaintenanceImplementation();
+        public abstract CommandImplementation<Boolean, Empty, Context> getReplSetMaintenanceImplementation();
 
-        public abstract CommandImplementation<ReplSetReconfigArgument, Empty> getReplSetReconfigImplementation();
+        public abstract CommandImplementation<ReplSetReconfigArgument, Empty, Context> getReplSetReconfigImplementation();
 
-        public abstract CommandImplementation<ReplSetStepDownArgument, Empty> getReplSetStepDownImplementation();
+        public abstract CommandImplementation<ReplSetStepDownArgument, Empty, Context> getReplSetStepDownImplementation();
 
-        public abstract CommandImplementation<HostAndPort, ReplSetSyncFromReply> getReplSetSyncFromImplementation();
+        public abstract CommandImplementation<HostAndPort, ReplSetSyncFromReply, Context> getReplSetSyncFromImplementation();
 
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
