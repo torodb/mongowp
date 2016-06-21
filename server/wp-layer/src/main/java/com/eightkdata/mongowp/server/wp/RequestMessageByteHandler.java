@@ -31,7 +31,6 @@ import com.eightkdata.mongowp.server.util.ChannelLittleEndianHandler;
 import com.google.common.primitives.Ints;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.EmptyByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 import javax.inject.Inject;
@@ -42,7 +41,6 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  */
-@ChannelHandler.Sharable
 @Singleton
 public class RequestMessageByteHandler extends ChannelLittleEndianHandler {
     private static final Logger LOGGER = LogManager.getLogger(RequestMessageByteHandler.class);

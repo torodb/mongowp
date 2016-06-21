@@ -23,7 +23,6 @@ package com.eightkdata.mongowp.server.wp;
 
 import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.server.MongoServerConfig;
-import com.eightkdata.mongowp.server.callback.RequestProcessor;
 import com.eightkdata.mongowp.server.util.LengthFieldPrependerLittleEndian;
 import com.google.common.util.concurrent.AbstractIdleService;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -48,22 +47,20 @@ public class NettyMongoServer extends AbstractIdleService {
     private static final Logger LOGGER = LogManager.getLogger(NettyMongoServer.class);
 	
     private final int port;
-    private final RequestProcessor requestProcessor;
     private EventLoopGroup connectionGroup;
     private EventLoopGroup workerGroup;
     private final RequestMessageObjectHandler requestMessageObjectHandler;
-    private final RequestMessageByteHandler requestMessageByteHandler;
+    private final Provider<RequestMessageByteHandler> requestMessageByteHandler;
     private final Provider<ReplyMessageObjectHandler> replyMessageObjectHandler;
     private final LengthFieldPrependerLittleEndian lengthFieldPrependerLittleEndian;
 
     @Inject
-    public NettyMongoServer(MongoServerConfig mongoServerConfig, RequestProcessor requestProcessor,
-            RequestMessageByteHandler requestMessageByteHandler,
+    public NettyMongoServer(MongoServerConfig mongoServerConfig,
+            Provider<RequestMessageByteHandler> requestMessageByteHandler,
             Provider<ReplyMessageObjectHandler> replyMessageObjectHandler,
             RequestMessageObjectHandler requestMessageObjectHandler) {
         this.lengthFieldPrependerLittleEndian = new LengthFieldPrependerLittleEndian(MongoConstants.MESSAGE_LENGTH_FIELD_BYTES, true);
         this.port = mongoServerConfig.getPort();
-        this.requestProcessor = requestProcessor;
         this.requestMessageByteHandler = requestMessageByteHandler;
         this.replyMessageObjectHandler = replyMessageObjectHandler;
         this.requestMessageObjectHandler = requestMessageObjectHandler;
@@ -75,7 +72,7 @@ public class NettyMongoServer extends AbstractIdleService {
                 MongoConstants.MESSAGE_LENGTH_FIELD_BYTES, -MongoConstants.MESSAGE_LENGTH_FIELD_BYTES,
                 MongoConstants.MESSAGE_LENGTH_FIELD_BYTES, true
         ));
-        pipeline.addLast(requestMessageByteHandler);
+        pipeline.addLast(requestMessageByteHandler.get());
         pipeline.addLast(lengthFieldPrependerLittleEndian);
         pipeline.addLast(replyMessageObjectHandler.get());
         pipeline.addLast(requestMessageObjectHandler);
@@ -83,6 +80,8 @@ public class NettyMongoServer extends AbstractIdleService {
 
     @Override
     protected void startUp() throws Exception {
+        LOGGER.info("Listening MongoDB requests on port " + port);
+
         connectionGroup = new NioEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("netty-connection-%d").build());
         workerGroup = new NioEventLoopGroup(0, new ThreadFactoryBuilder().setNameFormat("netty-worker-%d").build());
 

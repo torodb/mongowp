@@ -30,8 +30,6 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import static java.lang.Thread.State.*;
-
 /**
  *
  */
