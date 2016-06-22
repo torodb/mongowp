@@ -107,6 +107,7 @@ public class NettyMongoServer extends AbstractIdleService {
 
     @Override
     protected void shutDown() throws Exception {
+        LOGGER.debug("Shutting down " + this.getClass().getSimpleName());
         if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
         if (connectionGroup != null) connectionGroup.shutdownGracefully().syncUninterruptibly();
     }
