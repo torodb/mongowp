@@ -34,14 +34,12 @@ import io.netty.buffer.EmptyByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  *
  */
-@Singleton
 public class RequestMessageByteHandler extends ChannelLittleEndianHandler {
     private static final Logger LOGGER = LogManager.getLogger(RequestMessageByteHandler.class);
     private static final String INVALID_OPCODE_MESSAGE = "Received and invalid message with opCode ";
