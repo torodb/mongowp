@@ -4,6 +4,7 @@ package com.eightkdata.mongowp.server.api;
 import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.Status;
 import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.CommandNotFoundException;
 import com.eightkdata.mongowp.exceptions.FailedToParseException;
 import com.eightkdata.mongowp.exceptions.MongoException;
@@ -164,6 +165,9 @@ public class RequestProcessorAdaptor<C extends Connection> implements RequestPro
         if (reply.isOK()) {
             try {
                 bson = command.marshallResult(reply.getResult());
+                if (bson == null) {
+                    bson = DefaultBsonValues.EMPTY_DOC;
+                }
                 bson = new BsonDocumentBuilder(bson)
                         .append(OK_FIELD, MongoConstants.OK)
                         .build();
