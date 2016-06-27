@@ -74,7 +74,7 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
         private static final StringField COMPILER_FLAGS_FIELD = new StringField("compilerFlags");
         private static final StringField ALLOCATOR_FIELD = new StringField("allocator");
         private static final StringField JAVASCRIPT_ENGINE_FIELD = new StringField("javascriptEngine");
-        private static final ArrayField VERSION_ARRAY_FIELD = new ArrayField("versionArrayField");
+        private static final ArrayField VERSION_ARRAY_FIELD = new ArrayField("versionArray");
         private static final NumberField<?> BITS_FIELD = new NumberField<>("bits");
         private static final BooleanField DEBUG_FIELD = new BooleanField("debug");
         private static final NumberField<?> MAX_OBJECT_SIZE_FIELD = new NumberField<>("maxObjectSize");
