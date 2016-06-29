@@ -10,6 +10,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.interna
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.WhatsMyUriCommand.WhatsMyUriReply;
 import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.CommandImplementation;
 import com.eightkdata.mongowp.server.api.tools.Empty;
@@ -30,7 +31,8 @@ public class InternalCommands implements Iterable<Command> {
             ReplSetFreshCommand.INSTANCE,
             ReplSetGetRBIDCommand.INSTANCE,
             ReplSetHeartbeatCommand.INSTANCE,
-            ReplSetUpdatePositionCommand.INSTANCE
+            ReplSetUpdatePositionCommand.INSTANCE,
+            WhatsMyUriCommand.INSTANCE
     );
 
     @Override
@@ -52,6 +54,8 @@ public class InternalCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<ReplSetUpdatePositionArgument, Empty, Context> getReplSetUpdateImplementation();
 
+        public abstract CommandImplementation<Empty, WhatsMyUriReply, Context> getWhatsMyUriImplementation();
+
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
                     .put(HandshakeCommand.INSTANCE, getHandshakeImplementation())
@@ -60,6 +64,7 @@ public class InternalCommands implements Iterable<Command> {
                     .put(ReplSetGetRBIDCommand.INSTANCE, getReplSetGetRBIDImplementation())
                     .put(ReplSetHeartbeatCommand.INSTANCE, getReplSetHeartbeatImplementation())
                     .put(ReplSetUpdatePositionCommand.INSTANCE, getReplSetUpdateImplementation())
+                    .put(WhatsMyUriCommand.INSTANCE, getWhatsMyUriImplementation())
                     .build();
         }
 
