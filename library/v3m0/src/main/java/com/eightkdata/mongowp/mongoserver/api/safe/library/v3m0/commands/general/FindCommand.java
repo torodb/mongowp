@@ -32,6 +32,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CursorResu
 import com.eightkdata.mongowp.server.api.MarshalException;
 import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
 import java.util.OptionalLong;
 import java.util.function.Function;
@@ -595,9 +596,9 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
              * the key pattern hinted.  If the hint was by index name, the value of '_hint' is
              * {$hint: &lt;String&gt;}, where &lt;String&gt; is the index name hinted.
              */
-            private BsonDocument hint;
+            private @Nonnull BsonDocument hint = DefaultBsonValues.EMPTY_DOC;
             // The read concern is parsed elsewhere.
-            private BsonDocument readConcern;
+            private @Nonnull BsonDocument readConcern = DefaultBsonValues.EMPTY_DOC;
 
             private boolean wantMore = true;
 
@@ -637,8 +638,8 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
             private int maxScan = 0;
             private int maxTimeMS = 0;
 
-            private BsonDocument min;
-            private BsonDocument max;
+            private @Nonnull BsonDocument min = DefaultBsonValues.EMPTY_DOC;
+            private @Nonnull BsonDocument max = DefaultBsonValues.EMPTY_DOC;
 
             private boolean returnKey = false;
             boolean showRecordId = false;
@@ -656,32 +657,32 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
 
             private long replicationTerm;
 
-            public Builder setCollection(String collection) {
+            public Builder setCollection(@Nonnull String collection) {
                 this.collection = collection;
                 return this;
             }
 
-            public Builder setFilter(BsonDocument filter) {
+            public Builder setFilter(@Nonnull BsonDocument filter) {
                 this.filter = filter;
                 return this;
             }
 
-            public Builder setProj(BsonDocument proj) {
+            public Builder setProj(@Nonnull BsonDocument proj) {
                 this.proj = proj;
                 return this;
             }
 
-            public Builder setSort(BsonDocument sort) {
+            public Builder setSort(@Nonnull BsonDocument sort) {
                 this.sort = sort;
                 return this;
             }
 
-            public Builder setHint(BsonDocument hint) {
+            public Builder setHint(@Nonnull BsonDocument hint) {
                 this.hint = hint;
                 return this;
             }
 
-            public Builder setReadConcern(BsonDocument readConcern) {
+            public Builder setReadConcern(@Nonnull BsonDocument readConcern) {
                 this.readConcern = readConcern;
                 return this;
             }
@@ -732,11 +733,13 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
             }
 
             public Builder setMin(BsonDocument min) {
+                Preconditions.checkArgument(min != null, "Min cannot be null");
                 this.min = min;
                 return this;
             }
 
             public Builder setMax(BsonDocument max) {
+                Preconditions.checkArgument(max != null, "Max cannot be null");
                 this.max = max;
                 return this;
             }
@@ -810,12 +813,7 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
             public void addMetaProjection() {
                 if (returnKey) {
                     BsonDocumentBuilder projBob;
-                    if (proj != null) {
-                        projBob = new BsonDocumentBuilder(proj);
-                    }
-                    else {
-                        projBob = new BsonDocumentBuilder();
-                    }
+                    projBob = new BsonDocumentBuilder(proj);
                     // We use $$ because it's never going to show up in a user's projection.
                     // The exact text doesn't matter.
                     projBob.append(

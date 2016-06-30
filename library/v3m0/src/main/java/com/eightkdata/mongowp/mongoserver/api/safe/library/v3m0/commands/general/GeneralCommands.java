@@ -50,7 +50,7 @@ public class GeneralCommands implements Iterable<Command> {
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
                     .put(DeleteCommand.INSTANCE, getDeleteImplementation())
-                    .put(DeleteCommand.INSTANCE, getFindImplementation())
+                    .put(FindCommand.INSTANCE, getFindImplementation())
                     .put(InsertCommand.INSTANCE, getInsertImplementation())
                     .put(GetLastErrorCommand.INSTANCE, getGetLastErrrorImplementation())
                     .put(UpdateCommand.INSTANCE, getUpdateImplementation())

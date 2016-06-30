@@ -60,6 +60,10 @@ public interface Command<Arg, Result> {
      */
     public boolean isAllowedOnMaintenance();
 
+    public default boolean supportsReadConcern() {
+        return false;
+    }
+
     /**
      *
      * @return iff the command can change the replication state
