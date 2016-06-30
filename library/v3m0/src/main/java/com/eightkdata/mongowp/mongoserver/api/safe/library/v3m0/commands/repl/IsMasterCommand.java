@@ -116,6 +116,7 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
         private final HostAndPort me;
         private final BsonObjectId electionId;
         private final boolean configSet;
+        private final boolean standalone;
         private final int maxBsonObjectSize;
         private final int maxMessageSizeBytes;
         private final int maxWriteBatchSize;
@@ -169,10 +170,48 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
             this.minWireVersion = minWireVersion;
 
             configSet = true;
+            
+            standalone = false;
+        }
+
+        public IsMasterReply(
+                int maxBsonObjectSize,
+                int maxMessageSizeBytes,
+                int maxWriteBatchSize,
+                Instant localTime,
+                int maxWireVersion,
+                int minWireVersion) {
+            this.master = null;
+            this.secondary = null;
+            this.setName = null;
+            this.setVersion = null;
+            this.hosts = null;
+            this.passives = null;
+            this.arbiters = null;
+            this.primary = null;
+            this.arbiterOnly = null;
+            this.passive = null;
+            this.hidden = null;
+            this.buildIndexes = null;
+            this.slaveDelay = null;
+            this.tags = null;
+            this.me = null;
+            this.electionId = null;
+            this.maxBsonObjectSize = maxBsonObjectSize;
+            this.maxMessageSizeBytes = maxMessageSizeBytes;
+            this.maxWriteBatchSize = maxWriteBatchSize;
+            this.localTime = localTime;
+            this.maxWireVersion = maxWireVersion;
+            this.minWireVersion = minWireVersion;
+
+            configSet = false;
+            
+            standalone = true;
         }
 
         private IsMasterReply() {
             this.configSet = false;
+            this.standalone = false;
 
             this.master = null;
             this.secondary = null;
@@ -200,6 +239,18 @@ public class IsMasterCommand extends AbstractCommand<Empty, IsMasterReply> {
 
         private BsonDocument toBson() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
+
+            if (standalone) {
+                builder.append(IS_MASTER_FIELD, true);
+                builder.append(MAX_BSON_OBJECT_SIZE, maxBsonObjectSize);
+                builder.append(MAX_MESSAGE_SIZE_BYTES, maxMessageSizeBytes);
+                builder.append(MAX_WRITE_BATCH_SIZE, maxWriteBatchSize);
+                builder.append(LOCAL_TIME, localTime);
+                builder.append(MAX_WIRE_VERSION, maxWireVersion);
+                builder.append(MIN_WIRE_VERSION, minWireVersion);
+
+                return builder.build();
+            }
 
             if (!configSet) {
                 builder.append(IS_MASTER_FIELD, false);

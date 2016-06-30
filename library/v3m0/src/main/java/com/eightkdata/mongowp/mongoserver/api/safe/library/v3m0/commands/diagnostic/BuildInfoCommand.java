@@ -77,7 +77,7 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
         private static final ArrayField VERSION_ARRAY_FIELD = new ArrayField("versionArray");
         private static final NumberField<?> BITS_FIELD = new NumberField<>("bits");
         private static final BooleanField DEBUG_FIELD = new BooleanField("debug");
-        private static final NumberField<?> MAX_OBJECT_SIZE_FIELD = new NumberField<>("maxObjectSize");
+        private static final NumberField<?> MAX_BSON_OBJECT_SIZE_FIELD = new NumberField<>("maxBsonObjectSize");
 
         private final MongoVersion version;
         private final int patchVersion;
@@ -89,7 +89,7 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
         private final String javascriptEngine;
         private final int bits;
         private final boolean debug;
-        private final long maxObjectSize;
+        private final long maxBsonObjectSize;
 
         public BuildInfoResult(
                 MongoVersion version,
@@ -102,7 +102,7 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
                 String javascriptEngine,
                 int bits,
                 boolean debug,
-                long maxObjectSize) {
+                long maxBsonObjectSize) {
             this.version = version;
             this.gitVersion = gitVersion;
             this.sysInfo = sysInfo;
@@ -112,7 +112,7 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
             this.javascriptEngine = javascriptEngine;
             this.bits = bits;
             this.debug = debug;
-            this.maxObjectSize = maxObjectSize;
+            this.maxBsonObjectSize = maxBsonObjectSize;
             this.patchVersion = patchVersion;
         }
 
@@ -133,7 +133,7 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
             }
             long maxObjectSize;
             try {
-                maxObjectSize = BsonReaderTool.getNumeric(resultDoc, MAX_OBJECT_SIZE_FIELD).longValue();
+                maxObjectSize = BsonReaderTool.getNumeric(resultDoc, MAX_BSON_OBJECT_SIZE_FIELD).longValue();
             } catch (NoSuchKeyException ex) {
                 maxObjectSize = 0;
             }
@@ -178,7 +178,7 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
                     .append(VERSION_ARRAY_FIELD, versionArray)
                     .appendNumber(BITS_FIELD, bits)
                     .append(DEBUG_FIELD, debug)
-                    .appendNumber(MAX_OBJECT_SIZE_FIELD, maxObjectSize)
+                    .appendNumber(MAX_BSON_OBJECT_SIZE_FIELD, maxBsonObjectSize)
                     .build();
         }
 
@@ -219,7 +219,7 @@ public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
         }
 
         public long getMaxObjectSize() {
-            return maxObjectSize;
+            return maxBsonObjectSize;
         }
 
         public int getParchVersion() {
