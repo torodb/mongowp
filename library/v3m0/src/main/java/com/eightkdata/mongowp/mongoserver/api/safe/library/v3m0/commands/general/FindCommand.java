@@ -916,6 +916,10 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
             this.cursor = cursor;
         }
 
+        public CursorResult<BsonDocument> getCursor() {
+            return cursor;
+        }
+
         private static FindResult unmarshall(BsonDocument resultDoc) throws BadValueException, TypesMismatchException, NoSuchKeyException {
 
             return new FindResult(CursorResult.unmarshall(resultDoc, DOWN_CAST));

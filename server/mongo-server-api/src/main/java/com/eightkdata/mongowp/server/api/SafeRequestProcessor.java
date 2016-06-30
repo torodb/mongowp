@@ -18,9 +18,9 @@ public interface SafeRequestProcessor<C extends Connection> extends CommandsExec
     @Override
     public <Arg, Result> Status<Result> execute(Request request, Command<? super Arg, ? super Result> command, Arg arg, C context);
     
-    public ReplyMessage query(C connection, Request req, QueryRequest build) throws MongoException;
+    public ReplyMessage query(C connection, Request req, int requestId, QueryRequest queryRequest) throws MongoException;
 
-    public ReplyMessage getMore(C connection, Request req, GetMoreMessage moreMessage) throws MongoException;
+    public ReplyMessage getMore(C connection, Request req, int requestId, GetMoreMessage moreMessage) throws MongoException;
 
     public void killCursors(C connection, Request req, KillCursorsMessage killCursorsMessage) throws MongoException;
 

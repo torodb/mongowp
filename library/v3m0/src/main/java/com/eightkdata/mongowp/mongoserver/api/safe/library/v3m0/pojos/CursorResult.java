@@ -99,7 +99,7 @@ public abstract class CursorResult<E> {
 
     public abstract long getCursorId();
 
-    protected abstract Iterator<E> getFirstBatch();
+    public abstract Iterator<E> getFirstBatch();
 
     protected static class DefaultCursorResult<E> extends CursorResult<E> {
         private final String database;
@@ -130,7 +130,7 @@ public abstract class CursorResult<E> {
         }
 
         @Override
-        protected Iterator<E> getFirstBatch() {
+        public Iterator<E> getFirstBatch() {
             return firstBatch;
         }
     }

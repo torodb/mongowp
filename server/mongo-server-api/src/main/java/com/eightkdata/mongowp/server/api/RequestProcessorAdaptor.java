@@ -120,6 +120,7 @@ public class RequestProcessorAdaptor<C extends Connection> implements RequestPro
                             requestBuilder.isSlaveOk(),
                             null //Set the requested timeout
                     ),
+                    messageReplier.getRequestId(),
                     requestBuilder.build()
             );
             messageReplier.replyMessage(reply);
@@ -196,7 +197,7 @@ public class RequestProcessorAdaptor<C extends Connection> implements RequestPro
                     null //Set the requested timeout
             );
 
-            ReplyMessage reply = safeRequestProcessor.getMore(connection, req, getMoreMessage);
+            ReplyMessage reply = safeRequestProcessor.getMore(connection, req, messageReplier.getRequestId(), getMoreMessage);
             messageReplier.replyMessage(reply);
         } catch (MongoException ex) {
             errorHandler.handleMongodbException(connection, messageReplier.getRequestId(), false, ex);
