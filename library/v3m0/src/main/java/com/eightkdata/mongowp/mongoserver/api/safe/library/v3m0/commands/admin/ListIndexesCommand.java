@@ -6,16 +6,14 @@ import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.fields.BsonField;
 import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.server.api.MarshalException;
 import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
-import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListIndexesCommand.ListIndexesArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListIndexesCommand.ListIndexesResult;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CursorResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.IndexOptions;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.CursorMarshaller;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.Nonnull;
@@ -107,13 +105,13 @@ public class ListIndexesCommand extends AbstractCommand<ListIndexesArgument, Lis
 
     public static class ListIndexesResult {
         private static final DocField CURSOR_FIELD = new DocField("cursor");
-        private final MongoCursor<IndexOptions> cursor;
+        private final CursorResult<IndexOptions> cursor;
 
-        public ListIndexesResult(MongoCursor<IndexOptions> cursor) {
+        public ListIndexesResult(CursorResult<IndexOptions> cursor) {
             this.cursor = cursor;
         }
 
-        public MongoCursor<IndexOptions> getCursor() {
+        public CursorResult<IndexOptions> getCursor() {
             return cursor;
         }
 
@@ -122,7 +120,7 @@ public class ListIndexesCommand extends AbstractCommand<ListIndexesArgument, Lis
             BsonDocument cursorDoc = BsonReaderTool.getDocument(reply, CURSOR_FIELD);
 
             return new ListIndexesResult(
-                    CursorMarshaller.unmarshall(cursorDoc, IndexOptions.UNMARSHALLER_FUN)
+                    CursorResult.unmarshall(cursorDoc, IndexOptions.UNMARSHALLER_FUN)
             );
         }
 
@@ -130,7 +128,7 @@ public class ListIndexesCommand extends AbstractCommand<ListIndexesArgument, Lis
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
 
             return builder
-                    .append(CURSOR_FIELD, CursorMarshaller.marshall(cursor, IndexOptions.MARSHALLER_FUN))
+                    .append(CURSOR_FIELD, cursor.marshall(IndexOptions.MARSHALLER_FUN))
                     .build();
         }
 

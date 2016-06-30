@@ -40,17 +40,17 @@ public class InternalCommands implements Iterable<Command> {
 
     public static abstract class InternalCommandsImplementationsBuilder<Context> implements Iterable<Entry<Command<?,?>, CommandImplementation>> {
 
-        public abstract CommandImplementation<HandshakeArgument, Empty, Context> getHandshakeImplementation();
+        public abstract CommandImplementation<HandshakeArgument, Empty, ? super Context> getHandshakeImplementation();
 
-        public abstract CommandImplementation<ReplSetElectArgument, ReplSetElectReply, Context> getReplSetElectImplementation();
+        public abstract CommandImplementation<ReplSetElectArgument, ReplSetElectReply, ? super Context> getReplSetElectImplementation();
 
-        public abstract CommandImplementation<ReplSetFreshArgument, ReplSetFreshReply, Context> getReplSetFreshImplementation();
+        public abstract CommandImplementation<ReplSetFreshArgument, ReplSetFreshReply, ? super Context> getReplSetFreshImplementation();
 
-        public abstract CommandImplementation<Empty, ReplSetGetRBIDReply, Context> getReplSetGetRBIDImplementation();
+        public abstract CommandImplementation<Empty, ReplSetGetRBIDReply, ? super Context> getReplSetGetRBIDImplementation();
 
-        public abstract CommandImplementation<ReplSetHeartbeatArgument, ReplSetHeartbeatReply, Context> getReplSetHeartbeatImplementation();
+        public abstract CommandImplementation<ReplSetHeartbeatArgument, ReplSetHeartbeatReply, ? super Context> getReplSetHeartbeatImplementation();
 
-        public abstract CommandImplementation<ReplSetUpdatePositionArgument, Empty, Context> getReplSetUpdateImplementation();
+        public abstract CommandImplementation<ReplSetUpdatePositionArgument, Empty, ? super Context> getReplSetUpdateImplementation();
 
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()

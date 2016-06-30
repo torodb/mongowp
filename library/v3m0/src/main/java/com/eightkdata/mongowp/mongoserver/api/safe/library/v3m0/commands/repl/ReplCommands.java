@@ -46,25 +46,25 @@ public class ReplCommands implements Iterable<Command> {
 
     public static abstract class ReplCommandsImplementationsBuilder<Context> implements Iterable<Entry<Command<?,?>, CommandImplementation>> {
 
-        public abstract CommandImplementation<ApplyOpsArgument, ApplyOpsReply, Context> getApplyOpsImplementation();
+        public abstract CommandImplementation<ApplyOpsArgument, ApplyOpsReply, ? super Context> getApplyOpsImplementation();
 
-        public abstract CommandImplementation<Empty, IsMasterReply, Context> getIsMasterImplementation();
+        public abstract CommandImplementation<Empty, IsMasterReply, ? super Context> getIsMasterImplementation();
 
-        public abstract CommandImplementation<ReplSetFreezeArgument, ReplSetFreezeReply, Context> getReplSetFreezeImplementation();
+        public abstract CommandImplementation<ReplSetFreezeArgument, ReplSetFreezeReply, ? super Context> getReplSetFreezeImplementation();
 
-        public abstract CommandImplementation<Empty, ReplicaSetConfig, Context> getReplSetGetConfigImplementation();
+        public abstract CommandImplementation<Empty, ReplicaSetConfig, ? super Context> getReplSetGetConfigImplementation();
 
-        public abstract CommandImplementation<Empty, ReplSetGetStatusReply, Context> getReplSetGetStatusImplementation();
+        public abstract CommandImplementation<Empty, ReplSetGetStatusReply, ? super Context> getReplSetGetStatusImplementation();
 
-        public abstract CommandImplementation<ReplicaSetConfig, Empty, Context> getReplSetInitiateImplementation();
+        public abstract CommandImplementation<ReplicaSetConfig, Empty, ? super Context> getReplSetInitiateImplementation();
 
-        public abstract CommandImplementation<Boolean, Empty, Context> getReplSetMaintenanceImplementation();
+        public abstract CommandImplementation<Boolean, Empty, ? super Context> getReplSetMaintenanceImplementation();
 
-        public abstract CommandImplementation<ReplSetReconfigArgument, Empty, Context> getReplSetReconfigImplementation();
+        public abstract CommandImplementation<ReplSetReconfigArgument, Empty, ? super Context> getReplSetReconfigImplementation();
 
-        public abstract CommandImplementation<ReplSetStepDownArgument, Empty, Context> getReplSetStepDownImplementation();
+        public abstract CommandImplementation<ReplSetStepDownArgument, Empty, ? super Context> getReplSetStepDownImplementation();
 
-        public abstract CommandImplementation<HostAndPort, ReplSetSyncFromReply, Context> getReplSetSyncFromImplementation();
+        public abstract CommandImplementation<HostAndPort, ReplSetSyncFromReply, ? super Context> getReplSetSyncFromImplementation();
 
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()

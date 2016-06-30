@@ -7,20 +7,18 @@ import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.fields.BsonField;
 import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.fields.DoubleField;
 import com.eightkdata.mongowp.fields.StringField;
-import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
-import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListCollectionsCommand.ListCollectionsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListCollectionsCommand.ListCollectionsResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CollectionOptions;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.CursorMarshaller;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CursorResult;
+import com.eightkdata.mongowp.server.api.MarshalException;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
-import com.google.common.base.Function;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -127,9 +125,9 @@ public class ListCollectionsCommand extends AbstractCommand<ListCollectionsArgum
         private static final StringField NAME_FIELD = new StringField("name");
         private static final DocField OPTIONS_FIELD = new DocField("options");
 
-        private final MongoCursor<Entry> cursor;
+        private final CursorResult<Entry> cursor;
 
-        public ListCollectionsResult(MongoCursor<Entry> cursor) {
+        public ListCollectionsResult(CursorResult<Entry> cursor) {
             this.cursor = cursor;
         }
 
@@ -139,7 +137,7 @@ public class ListCollectionsCommand extends AbstractCommand<ListCollectionsArgum
             BsonDocument cursorDoc = BsonReaderTool.getDocument(resultDoc, CURSOR_FIELD);
 
             return new ListCollectionsResult(
-                    CursorMarshaller.unmarshall(cursorDoc, Entry.TO_ENTRY)
+                    CursorResult.unmarshall(cursorDoc, Entry.TO_ENTRY)
             );
         }
 
@@ -147,18 +145,18 @@ public class ListCollectionsCommand extends AbstractCommand<ListCollectionsArgum
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
 
             return builder
-                    .append(CURSOR_FIELD, CursorMarshaller.marshall(cursor, Entry.FROM_ENTRY))
+                    .append(CURSOR_FIELD, cursor.marshall(Entry.FROM_ENTRY))
                     .build();
         }
 
-        public MongoCursor<Entry> getCursor() {
+        public CursorResult<Entry> getCursor() {
             return cursor;
         }
 
         public static class Entry {
             private final String name;
             private final CollectionOptions options;
-            public static final Function<BsonValue, Entry> TO_ENTRY = new ToEntryConverter();
+            public static final Function<BsonValue<?>, Entry> TO_ENTRY = new ToEntryConverter();
             public static final Function<Entry, BsonDocument> FROM_ENTRY = new FromEntryConverter();
 
             public Entry(String name, CollectionOptions options) {
@@ -175,10 +173,10 @@ public class ListCollectionsCommand extends AbstractCommand<ListCollectionsArgum
             }
         }
 
-        private static class ToEntryConverter implements Function<BsonValue, Entry> {
+        private static class ToEntryConverter implements Function<BsonValue<?>, Entry> {
 
             @Override
-            public Entry apply(@Nonnull BsonValue from) {
+            public Entry apply(@Nonnull BsonValue<?> from) {
                 if (!from.isDocument()) {
                     throw new IllegalArgumentException("Expected a document, "
                             + "but a " + from.getType()+ " was found");

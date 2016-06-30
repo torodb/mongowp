@@ -1,13 +1,6 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.BsonValue;
@@ -15,17 +8,18 @@ import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.fields.BooleanField;
-import com.eightkdata.mongowp.fields.DocField;
-import com.eightkdata.mongowp.fields.IntField;
-import com.eightkdata.mongowp.fields.NumberField;
-import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -70,8 +64,8 @@ public class IndexOptions {
     @Nonnull
     private final BsonDocument storageEngine;
 
-    public static final Function<IndexOptions, BsonValue> MARSHALLER_FUN = new MyMarshaller();
-    public static final Function<BsonValue, IndexOptions> UNMARSHALLER_FUN = new MyUnMarshaller();
+    public static final Function<IndexOptions, BsonDocument> MARSHALLER_FUN = new MyMarshaller();
+    public static final Function<BsonValue<?>, IndexOptions> UNMARSHALLER_FUN = new MyUnMarshaller();
 
     public IndexOptions(
             IndexVersion version,
@@ -313,7 +307,7 @@ public class IndexOptions {
         }
     }
 
-    private static class MyMarshaller implements Function<IndexOptions, BsonValue> {
+    private static class MyMarshaller implements Function<IndexOptions, BsonDocument> {
 
         @Override
         public BsonDocument apply(@Nonnull IndexOptions input) {
@@ -322,10 +316,10 @@ public class IndexOptions {
 
     }
 
-    private static class MyUnMarshaller implements Function<BsonValue, IndexOptions> {
+    private static class MyUnMarshaller implements Function<BsonValue<?>, IndexOptions> {
 
         @Override
-        public IndexOptions apply(@Nonnull BsonValue input) {
+        public IndexOptions apply(@Nonnull BsonValue<?> input) {
             try {
                 if (!input.isDocument()) {
                     throw new IllegalArgumentException("Expected a document, "

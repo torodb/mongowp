@@ -38,17 +38,17 @@ public class AdminCommands implements Iterable<Command> {
 
     public static abstract class AdminCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
 
-        public abstract CommandImplementation<ListCollectionsArgument, ListCollectionsResult, Context> getListCollectionsImplementation();
+        public abstract CommandImplementation<ListCollectionsArgument, ListCollectionsResult, ? super Context> getListCollectionsImplementation();
 
-        public abstract CommandImplementation<Empty, Empty, Context> getDropDatabaseImplementation();
+        public abstract CommandImplementation<Empty, Empty, ? super Context> getDropDatabaseImplementation();
 
-        public abstract CommandImplementation<CollectionCommandArgument, Empty, Context> getDropCollectionImplementation();
+        public abstract CommandImplementation<CollectionCommandArgument, Empty, ? super Context> getDropCollectionImplementation();
 
-        public abstract CommandImplementation<CreateCollectionArgument, Empty, Context> getCreateCollectionImplementation();
+        public abstract CommandImplementation<CreateCollectionArgument, Empty, ? super Context> getCreateCollectionImplementation();
 
-        public abstract CommandImplementation<ListIndexesArgument, ListIndexesResult, Context> getListIndexesImplementation();
+        public abstract CommandImplementation<ListIndexesArgument, ListIndexesResult, ? super Context> getListIndexesImplementation();
 
-        public abstract CommandImplementation<CreateIndexesArgument, CreateIndexesResult, Context> getCreateIndexesImplementation();
+        public abstract CommandImplementation<CreateIndexesArgument, CreateIndexesResult, ? super Context> getCreateIndexesImplementation();
 
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()

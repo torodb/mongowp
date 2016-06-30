@@ -44,7 +44,7 @@ public class AuthenticationCommands implements Iterable<Command> {
 
     public static abstract class AuthenticationCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
 
-        public abstract CommandImplementation<Empty, String, Context> getGetNonceImplementation();
+        public abstract CommandImplementation<Empty, String, ? super Context> getGetNonceImplementation();
 
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()

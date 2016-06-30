@@ -2,6 +2,8 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general;
 
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.DeleteCommand.DeleteArgument;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.FindCommand.FindArgument;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.FindCommand.FindResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertArgument;
@@ -35,17 +37,20 @@ public class GeneralCommands implements Iterable<Command> {
 
     public static abstract class GeneralCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
 
-        public abstract CommandImplementation<GetLastErrorArgument, GetLastErrorReply, Context> getGetLastErrrorImplementation();
+        public abstract CommandImplementation<GetLastErrorArgument, GetLastErrorReply, ? super Context> getGetLastErrrorImplementation();
 
-        public abstract CommandImplementation<InsertArgument, InsertResult, Context> getInsertImplementation();
+        public abstract CommandImplementation<InsertArgument, InsertResult, ? super Context> getInsertImplementation();
 
-        public abstract CommandImplementation<DeleteArgument, Long, Context> getDeleteImplementation();
+        public abstract CommandImplementation<DeleteArgument, Long, ? super Context> getDeleteImplementation();
 
-        public abstract CommandImplementation<UpdateArgument, UpdateResult, Context> getUpdateImplementation();
+        public abstract CommandImplementation<FindArgument, FindResult, ? super Context> getFindImplementation();
+
+        public abstract CommandImplementation<UpdateArgument, UpdateResult, ? super Context> getUpdateImplementation();
 
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
                     .put(DeleteCommand.INSTANCE, getDeleteImplementation())
+                    .put(DeleteCommand.INSTANCE, getFindImplementation())
                     .put(InsertCommand.INSTANCE, getInsertImplementation())
                     .put(GetLastErrorCommand.INSTANCE, getGetLastErrrorImplementation())
                     .put(UpdateCommand.INSTANCE, getUpdateImplementation())

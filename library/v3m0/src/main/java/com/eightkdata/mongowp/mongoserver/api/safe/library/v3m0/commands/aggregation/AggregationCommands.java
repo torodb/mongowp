@@ -25,7 +25,7 @@ public class AggregationCommands implements Iterable<Command> {
 
     public static abstract class AggregationCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
 
-        public abstract CommandImplementation<CountArgument, Long, Context> getCountImplementation();
+        public abstract CommandImplementation<CountArgument, Long, ? super Context> getCountImplementation();
 
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()

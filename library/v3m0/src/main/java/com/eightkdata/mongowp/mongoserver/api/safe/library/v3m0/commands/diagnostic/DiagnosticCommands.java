@@ -39,17 +39,17 @@ public class DiagnosticCommands implements Iterable<Command> {
 
     public static abstract class DiagnosticCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
 
-        public abstract CommandImplementation<CollStatsArgument, CollStatsReply, Context> getCollStatsImplementation();
+        public abstract CommandImplementation<CollStatsArgument, CollStatsReply, ? super Context> getCollStatsImplementation();
 
-        public abstract CommandImplementation<GetLogArgument, GetLogReply, Context> getGetLogImplementation();
+        public abstract CommandImplementation<GetLogArgument, GetLogReply, ? super Context> getGetLogImplementation();
 
-        public abstract CommandImplementation<Empty, ListDatabasesReply, Context> getListDatabasesImplementation();
+        public abstract CommandImplementation<Empty, ListDatabasesReply, ? super Context> getListDatabasesImplementation();
 
-        public abstract CommandImplementation<Empty, Empty, Context> getPingCommandImplementation();
+        public abstract CommandImplementation<Empty, Empty, ? super Context> getPingCommandImplementation();
 
-        public abstract CommandImplementation<Empty, BuildInfoResult, Context> getBuildInfoImplementation();
+        public abstract CommandImplementation<Empty, BuildInfoResult, ? super Context> getBuildInfoImplementation();
 
-        public abstract CommandImplementation<ServerStatusArgument, ServerStatusReply, Context> getServerStatusImplementation();
+        public abstract CommandImplementation<ServerStatusArgument, ServerStatusReply, ? super Context> getServerStatusImplementation();
 
         private Map<Command<?,?>, CommandImplementation> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
