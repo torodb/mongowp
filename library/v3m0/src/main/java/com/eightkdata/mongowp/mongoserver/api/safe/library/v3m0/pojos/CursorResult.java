@@ -34,6 +34,7 @@ import com.eightkdata.mongowp.utils.BsonReaderTool;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  *
@@ -60,6 +61,10 @@ public abstract class CursorResult<E> {
 
     public static <E> CursorResult<E> createSingleBatchCursor(String db, String col, Iterator<E> it) {
         return new DefaultCursorResult<>(db, col, 0, it);
+    }
+
+    public static <E> CursorResult<E> createSingleBatchCursor(String db, String col, Stream<E> stream) {
+        return new DefaultCursorResult<>(db, col, 0, stream.iterator());
     }
 
     public static <E> CursorResult<E> unmarshall(BsonDocument doc, Function<BsonValue<?>, E> transformation)

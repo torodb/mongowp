@@ -14,8 +14,7 @@ import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -334,9 +333,9 @@ public abstract class CollectionOptions {
                     cappedSize,
                     cappedMaxDocs,
                     initialNumExtents,
-                    ImmutableList.copyOf(initialExtentSizes),
+                    initialExtentSizes,
                     autoIndexMode,
-                    Sets.immutableEnumSet(flags),
+                    flags,
                     storageEngine,
                     temp
             );
@@ -352,7 +351,7 @@ public abstract class CollectionOptions {
         private final Long initialNumExtents;
         private final ImmutableList<Long> initialExtentSizes;
         private final AutoIndexMode autoIndexMode;
-        private final ImmutableSet<Flag> flags;
+        private final Set<Flag> flags;
         private final BsonDocument storageEngine;
         private final boolean temp;
 
@@ -375,7 +374,7 @@ public abstract class CollectionOptions {
             this.initialNumExtents = initialNumExtents;
             this.initialExtentSizes = initialExtentSizes != null ? ImmutableList.copyOf(initialExtentSizes) : null;
             this.autoIndexMode = autoIndexMode;
-            this.flags = ImmutableSet.copyOf(flags);
+            this.flags = flags != null ? flags : Collections.emptySet();
             this.storageEngine = storageEngine;
             this.temp = temp;
         }
