@@ -34,6 +34,7 @@ import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.OptionalLong;
 import java.util.function.Function;
 import java.util.function.LongConsumer;
@@ -293,7 +294,8 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
             }
         }
 
-        private static final int parseMaxTimeMS(Entry<?> entry) throws BadValueException {
+        @SuppressFBWarnings("FE_FLOATING_POINT_EQUALITY")
+        private static int parseMaxTimeMS(Entry<?> entry) throws BadValueException {
             if (!entry.getValue().isNumber()) {
                 throw new BadValueException(entry.getKey() + " must be a number");
             }
@@ -302,7 +304,7 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
                 throw new BadValueException(entry.getKey() + " is out of range");
             }
             double maxTimeMsDouble = entry.getValue().asNumber().doubleValue();
-            if (entry.getValue().getType() == BsonType.DOUBLE && Math.floor(maxTimeMsDouble) != maxTimeMsDouble) {
+            if (entry.getValue().getType() == BsonType.DOUBLE && Math.floor(maxTimeMsDouble) == maxTimeMsDouble) {
                 throw new BadValueException(entry.getKey() + " has non-integral value");
             }
             return (int) maxTimeMsLong;
@@ -586,6 +588,7 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
             return allowPartialResults;
         }
 
+        @SuppressFBWarnings("URF_UNREAD_FIELD")
         public static class Builder {
             private String collection;
             private @Nonnull BsonDocument filter = DefaultBsonValues.EMPTY_DOC;
@@ -826,12 +829,7 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
                 }
                 if (showRecordId) {
                     BsonDocumentBuilder projBob;
-                    if (proj != null) {
-                        projBob = new BsonDocumentBuilder(proj);
-                    }
-                    else {
-                        projBob = new BsonDocumentBuilder();
-                    }
+                    projBob = new BsonDocumentBuilder(proj);
 
                     projBob.append(
                             new DocField("$recordId"),
@@ -869,7 +867,7 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
                 for (Entry<?> entry : proj) {
                     if (isTextScoreMeta(entry.getValue())) {
                         BsonValue<?> valueOnSort = sort.get(entry.getKey());
-                        if (valueOnSort == null || !isTextScoreMeta(valueOnSort)) {
+                        if (valueOnSort != null && !isTextScoreMeta(valueOnSort)) {
                             throw new BadValueException("can't have a non-$meta sort on a $meta projection");
                         }
                     }
@@ -879,7 +877,7 @@ public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
                 for (Entry<?> entry : sort) {
                     if (isTextScoreMeta(entry.getValue())) {
                         BsonValue<?> valueOnProj = proj.get(entry.getKey());
-                        if (valueOnProj != null || !isTextScoreMeta(valueOnProj)) {
+                        if (valueOnProj == null || !isTextScoreMeta(valueOnProj)) {
                             throw new BadValueException("must have $meta projection for all $meta sort keys");
                         }
                     }
