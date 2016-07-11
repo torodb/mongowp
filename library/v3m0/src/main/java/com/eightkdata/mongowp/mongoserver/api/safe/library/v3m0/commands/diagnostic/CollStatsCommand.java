@@ -111,7 +111,12 @@ public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollSta
                     throw noSuchKeyException;
                 }
             }
-            int scale = BsonReaderTool.getNumeric(doc, SCALE_FIELD, DefaultBsonValues.INT32_ONE).intValue();
+            int scale;
+            try {
+                scale = BsonReaderTool.getNumeric(doc, SCALE_FIELD, DefaultBsonValues.INT32_ONE).intValue();
+            } catch(TypesMismatchException typesMismatchException) {
+                scale = 1;
+            }
             if (scale <= 0) {
                 throw new BadValueException("Scale must be a value >= 1");
             }
