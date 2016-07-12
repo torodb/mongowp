@@ -29,6 +29,7 @@ public interface MongoConnection extends Closeable {
             int numberToSkip,
             int numberToReturn,
             @Nonnull QueryOptions queryOptions,
+            @Nullable BsonDocument sortBy,
             @Nullable BsonDocument projection) throws MongoException;
 
     public void asyncKillCursors(@Nonnull Iterable<Long> cursors) throws
