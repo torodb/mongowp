@@ -21,6 +21,7 @@
 package com.eightkdata.mongowp;
 
 import com.eightkdata.mongowp.exceptions.MongoException;
+import java.text.MessageFormat;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -60,6 +61,17 @@ public interface Status<Result> {
     }
 
     public static <T> Status<T> from(ErrorCode errorCode, String errorMsg) {
+        return new ErrorStatus<>(errorCode, errorMsg);
+    }
+
+    public static <T> Status<T> withDefaultMsg(ErrorCode errorCode, Object... args) {
+        String errorMsg;
+        try {
+            errorMsg = MessageFormat.format(errorCode.getErrorMessage(), args);
+        } catch (IllegalArgumentException ex) {
+            errorMsg = "Unknown error message";
+        }
+
         return new ErrorStatus<>(errorCode, errorMsg);
     }
 
