@@ -441,6 +441,35 @@ public class BsonReaderTool {
         return getBooleanOrNumeric(doc, field.getFieldName(), defaultValue);
     }
 
+    public static boolean getBooleanOrUndefined(Entry<?> entry, String fieldId, boolean defaultValue) throws TypesMismatchException{
+        BsonValue object = entry.getValue();
+        if (object.isUndefined()) {
+            return defaultValue;
+        }
+        if (object.isBoolean()) {
+            return object.asBoolean().getPrimitiveValue();
+        }
+        throw new TypesMismatchException(
+                fieldId, BsonType.BOOLEAN, object.getType(),
+                "Expected boolean or undefined type for field " + fieldId
+                + ". Found " + object.getType().toString().toLowerCase(Locale.ROOT)
+        );
+    }
+
+    public static boolean getBooleanOrUndefined(BsonDocument doc, String fieldId, boolean defaultValue)
+            throws TypesMismatchException{
+        Entry<?> entry = doc.getEntry(fieldId);
+        if (entry == null) {
+            return defaultValue;
+        }
+        return getBooleanOrUndefined(entry, fieldId, defaultValue);
+    }
+
+    public static boolean getBooleanOrUndefined(BsonDocument doc, BooleanField field, boolean defaultValue)
+            throws TypesMismatchException{
+        return getBooleanOrUndefined(doc, field.getFieldName(), defaultValue);
+    }
+
     public static boolean getBoolean(Entry<?> entry, String fieldId) throws TypesMismatchException {
         BsonValue object = entry.getValue();
         if (object.isBoolean()) {
