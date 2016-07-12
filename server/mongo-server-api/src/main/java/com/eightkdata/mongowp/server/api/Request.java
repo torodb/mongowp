@@ -18,7 +18,7 @@ public class Request {
     private final boolean slaveOk;
     private final Duration timeout;
 
-    public Request(String database, ExternalClientInfo externalClientInfo,
+    public Request(String database, @Nullable ExternalClientInfo externalClientInfo,
             boolean slaveOk, @Nullable Duration timeout) {
         this.database = database;
         this.externalClientInfo = externalClientInfo;

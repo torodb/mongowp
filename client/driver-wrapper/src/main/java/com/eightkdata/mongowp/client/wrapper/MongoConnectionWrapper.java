@@ -61,6 +61,7 @@ public class MongoConnectionWrapper implements MongoConnection {
             int numberToSkip,
             int numberToReturn,
             QueryOptions queryOptions,
+            BsonDocument sortBy,
             BsonDocument projection) throws MongoException {
 
         try {
@@ -70,13 +71,16 @@ public class MongoConnectionWrapper implements MongoConnection {
             if (projection == null) {
                 projection = EMPTY_DOC;
             }
-            FindIterable<org.bson.BsonDocument> findIterable
-                    = owner.getDriverClient()
+            if (sortBy == null) {
+                sortBy = EMPTY_DOC;
+            }
+            FindIterable<org.bson.BsonDocument> findIterable = owner.getDriverClient()
                     .getDatabase(database)
                     .getCollection(collection)
                     .find(MongoBsonTranslator.translate(query), org.bson.BsonDocument.class)
                     .skip(numberToSkip)
                     .limit(numberToReturn)
+                    .sort(MongoBsonTranslator.translate(sortBy))
                     .projection(MongoBsonTranslator.translate(projection))
                     .cursorType(toCursorType(queryOptions))
                     .noCursorTimeout(queryOptions.isNoCursorTimeout())
