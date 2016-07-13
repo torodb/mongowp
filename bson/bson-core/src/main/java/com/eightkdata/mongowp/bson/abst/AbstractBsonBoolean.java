@@ -69,6 +69,11 @@ public abstract class AbstractBsonBoolean extends AbstractBsonValue<Boolean> imp
     }
 
     @Override
+    public String toString() {
+        return getValue().toString();
+    }
+
+    @Override
     public <Result, Arg> Result accept(BsonValueVisitor<Result, Arg> visitor, Arg arg) {
         return visitor.visit(this, arg);
     }

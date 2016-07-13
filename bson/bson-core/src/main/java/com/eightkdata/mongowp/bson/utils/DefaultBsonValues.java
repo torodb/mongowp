@@ -25,7 +25,6 @@ import com.eightkdata.mongowp.bson.annotations.NotMutable;
 import com.eightkdata.mongowp.bson.impl.*;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -129,6 +128,11 @@ public class DefaultBsonValues {
 
     public static final BsonDateTime newDateTime(long millis) {
         return new LongBsonDateTime(millis);
+    }
+
+    @Override
+    public String toString() {
+        return "{}";
     }
 
 }

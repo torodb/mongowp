@@ -23,6 +23,7 @@ package com.eightkdata.mongowp.bson.abst;
 import com.eightkdata.mongowp.bson.BsonTimestamp;
 import com.eightkdata.mongowp.bson.BsonType;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.google.common.primitives.UnsignedInts;
 
 /**
  *
@@ -84,6 +85,12 @@ public abstract class AbstractBsonTimestamp extends AbstractBsonValue<BsonTimest
     @Override
     public final int hashCode() {
         return getSecondsSinceEpoch() << 4 | (getOrdinal() & 0xF);
+    }
+
+    @Override
+    public String toString() {
+        return "{ \"$timestamp\": { \"t\": " + UnsignedInts.toString(getSecondsSinceEpoch())
+                + ", \"i\": " + UnsignedInts.toString(getOrdinal())+ "} }";
     }
 
     @Override
