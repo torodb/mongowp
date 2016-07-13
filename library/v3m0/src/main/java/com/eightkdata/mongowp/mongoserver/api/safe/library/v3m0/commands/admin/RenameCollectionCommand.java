@@ -76,20 +76,24 @@ public class RenameCollectionCommand extends AbstractCommand<RenameCollectionArg
             this.dropTarget = dropTarget;
         }
 
-        public String getDatabase() {
+        public boolean isDropTarget() {
+            return dropTarget;
+        }
+
+        public String getFromDatabase() {
             return fromDatabase;
         }
 
-        public String getCollection() {
+        public String getFromCollection() {
             return fromCollection;
         }
 
-        public String getTo() {
-            return toCollection;
+        public String getToDatabase() {
+            return toDatabase;
         }
 
-        public boolean isDropTarget() {
-            return dropTarget;
+        public String getToCollection() {
+            return toCollection;
         }
 
         private BsonDocument marshall() {

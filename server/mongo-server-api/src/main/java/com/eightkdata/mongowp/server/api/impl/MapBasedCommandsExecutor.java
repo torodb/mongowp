@@ -46,14 +46,18 @@ public class MapBasedCommandsExecutor<Context> implements CommandsExecutor<Conte
      * It is guaranteed by construction that the implementation uses the same
      * request and reply than command it is associated with.
      */
-    private final ImmutableMap<Command, CommandImplementation<?, ?, Context>> implementations;
+    private final ImmutableMap<Command<?, ?>, CommandImplementation<?, ?, ? super Context>> implementations;
 
-    private MapBasedCommandsExecutor(ImmutableMap<Command, CommandImplementation<?, ?, Context>> implementations) {
+    private MapBasedCommandsExecutor(ImmutableMap<Command<?, ?>, CommandImplementation<?, ?, ? super Context>> implementations) {
         this.implementations = implementations;
     }
 
+    public static <Context> CommandsExecutor<Context> fromMap(ImmutableMap<Command<?, ?>, CommandImplementation<?, ?, ? super Context>> map) {
+        return new MapBasedCommandsExecutor<>(map);
+    }
+
     @Override
-        public <Arg, Result> Status<Result> execute(Request request, Command<? super Arg, ? super Result> command, Arg arg, Context context) {
+    public <Arg, Result> Status<Result> execute(Request request, Command<? super Arg, ? super Result> command, Arg arg, Context context) {
         CommandImplementation<Arg, Result, Context> implementation = (CommandImplementation<Arg, Result, Context>) implementations.get(command);
         if (implementation == null) {
             return Status.from(new CommandNotSupportedException(command.getCommandName()));
@@ -73,23 +77,23 @@ public class MapBasedCommandsExecutor<Context> implements CommandsExecutor<Conte
         
         public <Req, Result> Builder<Context> addImplementation(
                 @Nonnull Command<Req, Result> command,
-                @Nonnull CommandImplementation<Req, Result, Context> implementation);
+                @Nonnull CommandImplementation<Req, Result, ? super Context> implementation);
 
         public <Req, Result> Builder<Context> addImplementations(
-                Iterable<Map.Entry<Command<?,?>, CommandImplementation>> entries);
+                Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> entries);
         
         public MapBasedCommandsExecutor<Context> build();
     }
 
     private static class UnsafeBuilder<Context> implements Builder<Context> {
 
-        private final Map<Command, CommandImplementation> implementations = Maps.newHashMap();
+        private final Map<Command<?, ?>, CommandImplementation<?, ?, ? super Context>> implementations = Maps.newHashMap();
 
         @Override
         public <Req, Result> Builder<Context> addImplementations(
-                Iterable<Map.Entry<Command<?,?>, CommandImplementation>> entries) {
-            for (Entry<Command<?,?>, CommandImplementation> entry : entries) {
-                addImplementation(entry.getKey(), entry.getValue());
+                Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> entries) {
+            for (Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>> entry : entries) {
+                _addImplementation(entry.getKey(), entry.getValue());
             }
             return this;
         }
@@ -97,7 +101,13 @@ public class MapBasedCommandsExecutor<Context> implements CommandsExecutor<Conte
         @Override
         public <Req, Result> Builder<Context> addImplementation(
                 Command<Req, Result> command,
-                CommandImplementation<Req, Result, Context> implementation) {
+                CommandImplementation<Req, Result, ? super Context> implementation) {
+            return _addImplementation(command, implementation);
+        }
+
+        private Builder<Context> _addImplementation(
+                Command<?, ?> command,
+                CommandImplementation<?, ?, ? super Context> implementation) {
             if (implementations.containsKey(command)) {
                 throw new IllegalArgumentException(
                         "There is another implementation ("
@@ -133,9 +143,9 @@ public class MapBasedCommandsExecutor<Context> implements CommandsExecutor<Conte
 
         @Override
         public <Req, Result> Builder<Context> addImplementations(
-                Iterable<Map.Entry<Command<?,?>, CommandImplementation>> entries) {
-            for (Entry<Command<?,?>, CommandImplementation> entry : entries) {
-                addImplementation(entry.getKey(), entry.getValue());
+                Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> entries) {
+            for (Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>> entry : entries) {
+                _addImplementation(entry.getKey(), entry.getValue());
             }
             return this;
         }
@@ -143,12 +153,18 @@ public class MapBasedCommandsExecutor<Context> implements CommandsExecutor<Conte
         @Override
         public <Req, Result> Builder<Context> addImplementation(
                 Command<Req, Result> command,
-                CommandImplementation<Req, Result, Context> implementation) {
+                CommandImplementation<Req, Result, ? super Context> implementation) {
+            return _addImplementation(command, implementation);
+        }
+
+        private Builder<Context> _addImplementation(
+                Command<?, ?> command,
+                CommandImplementation<?, ?, ? super Context> implementation) {
             if (notImplementedCommands != null && !notImplementedCommands.remove(command)) {
                 throw new IllegalArgumentException("Command " + command + " is "
                         + "not supported by the given library");
             }
-            return super.addImplementation(command, implementation);
+            return super._addImplementation(command, implementation);
         }
         
         @Override

@@ -37,7 +37,7 @@ public class DiagnosticCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class DiagnosticCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
+    public static abstract class DiagnosticCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> {
 
         public abstract CommandImplementation<CollStatsArgument, CollStatsReply, ? super Context> getCollStatsImplementation();
 
@@ -51,8 +51,8 @@ public class DiagnosticCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<ServerStatusArgument, ServerStatusReply, ? super Context> getServerStatusImplementation();
 
-        private Map<Command<?,?>, CommandImplementation> createMap() {
-            return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
+        private Map<Command<?,?>, CommandImplementation<?, ?, ? super Context>> createMap() {
+            return ImmutableMap.<Command<?,?>, CommandImplementation<?, ?, ? super Context>>builder()
                     .put(CollStatsCommand.INSTANCE, getCollStatsImplementation())
                     .put(GetLogCommand.INSTANCE, getGetLogImplementation())
                     .put(ListDatabasesCommand.INSTANCE, getListDatabasesImplementation())
@@ -63,7 +63,7 @@ public class DiagnosticCommands implements Iterable<Command> {
         }
 
         @Override
-        public Iterator<Entry<Command<?,?>, CommandImplementation>> iterator() {
+        public Iterator<Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> iterator() {
             return createMap().entrySet().iterator();
         }
 

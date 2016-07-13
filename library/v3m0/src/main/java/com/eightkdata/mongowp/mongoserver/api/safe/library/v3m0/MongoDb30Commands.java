@@ -22,6 +22,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  *
@@ -50,24 +51,24 @@ public class MongoDb30Commands implements Iterable<Command> {
          return commands.iterator();
     }
 
-    public static class MongoDb30CommandsImplementationBuilder implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
+    public static class MongoDb30CommandsImplementationBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> {
 
-        private final AdminCommandsImplementationsBuilder adminCommandsImplementationsBuilder;
-        private final AggregationCommandsImplementationsBuilder aggregationImplementationsBuilder;
-        private final AuthenticationCommandsImplementationsBuilder authenticationCommandsImplementationsBuilder;
-        private final DiagnosticCommandsImplementationsBuilder diagnosticImplementationsBuilder;
-        private final GeneralCommandsImplementationsBuilder generalImplementationsBuilder;
-        private final InternalCommandsImplementationsBuilder internalCommandsImplementationsBuilder;
-        private final ReplCommandsImplementationsBuilder replCommandsImplementationsBuilder;
+        private final AdminCommandsImplementationsBuilder<Context> adminCommandsImplementationsBuilder;
+        private final AggregationCommandsImplementationsBuilder<Context> aggregationImplementationsBuilder;
+        private final AuthenticationCommandsImplementationsBuilder<Context> authenticationCommandsImplementationsBuilder;
+        private final DiagnosticCommandsImplementationsBuilder<Context> diagnosticImplementationsBuilder;
+        private final GeneralCommandsImplementationsBuilder<Context> generalImplementationsBuilder;
+        private final InternalCommandsImplementationsBuilder<Context> internalCommandsImplementationsBuilder;
+        private final ReplCommandsImplementationsBuilder<Context> replCommandsImplementationsBuilder;
 
         public MongoDb30CommandsImplementationBuilder(
-                AdminCommandsImplementationsBuilder adminCommandsImplementationsBuilder,
-                AggregationCommandsImplementationsBuilder aggregationImplementationsBuilder,
-                AuthenticationCommandsImplementationsBuilder authenticationCommandsImplementationsBuilder,
-                DiagnosticCommandsImplementationsBuilder diagnosticImplementationsBuilder,
-                GeneralCommandsImplementationsBuilder generalImplementationsBuilder,
-                InternalCommandsImplementationsBuilder internalCommandsImplementationsBuilder,
-                ReplCommandsImplementationsBuilder replCommandsImplementationsBuilder) {
+                AdminCommandsImplementationsBuilder<Context> adminCommandsImplementationsBuilder,
+                AggregationCommandsImplementationsBuilder<Context> aggregationImplementationsBuilder,
+                AuthenticationCommandsImplementationsBuilder<Context> authenticationCommandsImplementationsBuilder,
+                DiagnosticCommandsImplementationsBuilder<Context> diagnosticImplementationsBuilder,
+                GeneralCommandsImplementationsBuilder<Context> generalImplementationsBuilder,
+                InternalCommandsImplementationsBuilder<Context> internalCommandsImplementationsBuilder,
+                ReplCommandsImplementationsBuilder<Context> replCommandsImplementationsBuilder) {
             this.adminCommandsImplementationsBuilder
                     = adminCommandsImplementationsBuilder;
             this.aggregationImplementationsBuilder
@@ -83,9 +84,9 @@ public class MongoDb30Commands implements Iterable<Command> {
                     = replCommandsImplementationsBuilder;
         }
 
-        @SuppressWarnings("unchecked")
         @Override
-        public Iterator<Map.Entry<Command<?,?>, CommandImplementation>> iterator() {
+        @SuppressWarnings("unchecked")
+        public Iterator<Entry<Command<?, ?>, CommandImplementation<?, ?, ? super Context>>> iterator() {
             return Iterators.concat(
                     adminCommandsImplementationsBuilder.iterator(),
                     aggregationImplementationsBuilder.iterator(),

@@ -1,9 +1,6 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateCollectionCommand.CreateCollectionArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesResult;
@@ -18,6 +15,8 @@ import com.eightkdata.mongowp.server.api.impl.CollectionCommandArgument;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  *
@@ -39,7 +38,7 @@ public class AdminCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class AdminCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
+    public static abstract class AdminCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> {
 
         public abstract CommandImplementation<ListCollectionsArgument, ListCollectionsResult, ? super Context> getListCollectionsImplementation();
 
@@ -55,8 +54,8 @@ public class AdminCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<RenameCollectionArgument, Empty, ? super Context> getRenameCollectionImplementation();
 
-        private Map<Command<?,?>, CommandImplementation> createMap() {
-            return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
+        private Map<Command<?,?>, CommandImplementation<?, ?, ? super Context>> createMap() {
+            return ImmutableMap.<Command<?,?>, CommandImplementation<?, ?, ? super Context>>builder()
                     .put(ListCollectionsCommand.INSTANCE, getListCollectionsImplementation())
                     .put(DropDatabaseCommand.INSTANCE, getDropDatabaseImplementation())
                     .put(DropCollectionCommand.INSTANCE, getDropCollectionImplementation())
@@ -68,7 +67,7 @@ public class AdminCommands implements Iterable<Command> {
         }
 
         @Override
-        public Iterator<Map.Entry<Command<?,?>, CommandImplementation>> iterator() {
+        public Iterator<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> iterator() {
             return createMap().entrySet().iterator();
         }
 

@@ -23,18 +23,18 @@ public class AggregationCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class AggregationCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
+    public static abstract class AggregationCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> {
 
         public abstract CommandImplementation<CountArgument, Long, ? super Context> getCountImplementation();
 
-        private Map<Command<?,?>, CommandImplementation> createMap() {
-            return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
+        private Map<Command<?,?>, CommandImplementation<?, ?, ? super Context>> createMap() {
+            return ImmutableMap.<Command<?,?>, CommandImplementation<?, ?, ? super Context>>builder()
                     .put(CountCommand.INSTANCE, getCountImplementation())
                     .build();
         }
 
         @Override
-        public Iterator<Map.Entry<Command<?,?>, CommandImplementation>> iterator() {
+        public Iterator<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> iterator() {
             return createMap().entrySet().iterator();
         }
 

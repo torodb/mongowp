@@ -35,7 +35,7 @@ public class GeneralCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class GeneralCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
+    public static abstract class GeneralCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> {
 
         public abstract CommandImplementation<GetLastErrorArgument, GetLastErrorReply, ? super Context> getGetLastErrrorImplementation();
 
@@ -47,8 +47,8 @@ public class GeneralCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<UpdateArgument, UpdateResult, ? super Context> getUpdateImplementation();
 
-        private Map<Command<?,?>, CommandImplementation> createMap() {
-            return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
+        private Map<Command<?,?>, CommandImplementation<?, ?, ? super Context>> createMap() {
+            return ImmutableMap.<Command<?,?>, CommandImplementation<?, ?, ? super Context>>builder()
                     .put(DeleteCommand.INSTANCE, getDeleteImplementation())
                     .put(FindCommand.INSTANCE, getFindImplementation())
                     .put(InsertCommand.INSTANCE, getInsertImplementation())
@@ -58,7 +58,7 @@ public class GeneralCommands implements Iterable<Command> {
         }
 
         @Override
-        public Iterator<Entry<Command<?,?>, CommandImplementation>> iterator() {
+        public Iterator<Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> iterator() {
             return createMap().entrySet().iterator();
         }
 
