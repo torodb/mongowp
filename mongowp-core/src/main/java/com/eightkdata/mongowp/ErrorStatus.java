@@ -58,4 +58,9 @@ class ErrorStatus<Result> implements Status<Result> {
         return errorMsg;
     }
 
+    @Override
+    public String toString() {
+        return "{errCode :" + errorCode + ", errorMsg:" + errorMsg + '}';
+    }
+
 }

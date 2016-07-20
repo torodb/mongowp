@@ -20,7 +20,6 @@
 
 package com.eightkdata.mongowp.bson.abst;
 
-import com.eightkdata.mongowp.bson.BsonInt32;
 import com.eightkdata.mongowp.bson.BsonInt64;
 import com.eightkdata.mongowp.bson.BsonType;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;

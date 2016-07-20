@@ -44,7 +44,7 @@ public class ReplCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class ReplCommandsImplementationsBuilder<Context> implements Iterable<Entry<Command<?,?>, CommandImplementation>> {
+    public static abstract class ReplCommandsImplementationsBuilder<Context> implements Iterable<Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> {
 
         public abstract CommandImplementation<ApplyOpsArgument, ApplyOpsReply, ? super Context> getApplyOpsImplementation();
 
@@ -66,8 +66,8 @@ public class ReplCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<HostAndPort, ReplSetSyncFromReply, ? super Context> getReplSetSyncFromImplementation();
 
-        private Map<Command<?,?>, CommandImplementation> createMap() {
-            return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
+        private Map<Command<?,?>, CommandImplementation<?, ?, ? super Context>> createMap() {
+            return ImmutableMap.<Command<?,?>, CommandImplementation<?, ?, ? super Context>>builder()
                     .put(ApplyOpsCommand.INSTANCE, getApplyOpsImplementation())
                     .put(IsMasterCommand.INSTANCE, getIsMasterImplementation())
                     .put(ReplSetFreezeCommand.INSTANCE, getReplSetFreezeImplementation())
@@ -83,7 +83,7 @@ public class ReplCommands implements Iterable<Command> {
         }
 
         @Override
-        public Iterator<Entry<Command<?,?>, CommandImplementation>> iterator() {
+        public Iterator<Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> iterator() {
             return createMap().entrySet().iterator();
         }
 

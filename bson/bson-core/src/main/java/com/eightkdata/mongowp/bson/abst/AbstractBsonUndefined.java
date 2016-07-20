@@ -65,6 +65,11 @@ public abstract class AbstractBsonUndefined extends AbstractBsonValue<BsonUndefi
     }
 
     @Override
+    public String toString() {
+        return "undefined";
+    }
+
+    @Override
     public <Result, Arg> Result accept(BsonValueVisitor<Result, Arg> visitor, Arg arg) {
         return visitor.visit(this, arg);
     }

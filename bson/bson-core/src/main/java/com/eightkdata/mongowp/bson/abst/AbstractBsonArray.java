@@ -22,6 +22,7 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonArray;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
 import com.eightkdata.mongowp.bson.utils.IntBaseHasher;
 import com.google.common.collect.Iterators;
@@ -82,6 +83,24 @@ public abstract class AbstractBsonArray extends CachedHashAbstractBsonValue<Bson
     @Override
     final int calculateHash() {
         return IntBaseHasher.hash(size());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(size() * 20);
+        sb.append('[');
+
+        for (BsonValue<?> value : this) {
+            sb.append(value);
+            sb.append(", ");
+        }
+        if (!isEmpty()) {
+            sb.delete(sb.length() - 2, sb.length());
+        }
+
+        sb.append(']');
+
+        return sb.toString();
     }
 
     @Override

@@ -42,18 +42,18 @@ public class AuthenticationCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class AuthenticationCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation>> {
+    public static abstract class AuthenticationCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> {
 
         public abstract CommandImplementation<Empty, String, ? super Context> getGetNonceImplementation();
 
-        private Map<Command<?,?>, CommandImplementation> createMap() {
-            return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
+        private Map<Command<?,?>, CommandImplementation<?, ?, ? super Context>> createMap() {
+            return ImmutableMap.<Command<?,?>, CommandImplementation<?, ?, ? super Context>>builder()
                     .put(GetNonceCommand.INSTANCE, getGetNonceImplementation())
                     .build();
         }
 
         @Override
-        public Iterator<Map.Entry<Command<?,?>, CommandImplementation>> iterator() {
+        public Iterator<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> iterator() {
             return createMap().entrySet().iterator();
         }
 

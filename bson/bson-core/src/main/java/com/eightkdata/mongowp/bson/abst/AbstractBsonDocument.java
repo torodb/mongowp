@@ -92,6 +92,24 @@ public abstract class AbstractBsonDocument extends CachedHashAbstractBsonValue<B
     }
 
     @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(size() * 20);
+        sb.append('{');
+
+        for (Entry<?> entry : this) {
+            sb.append(entry.getKey()).append(": ").append(entry.getValue());
+            sb.append(", ");
+        }
+        if (!isEmpty()) {
+            sb.delete(sb.length() - 2, sb.length());
+        }
+
+        sb.append('}');
+
+        return sb.toString();
+    }
+
+    @Override
     public <Result, Arg> Result accept(BsonValueVisitor<Result, Arg> visitor, Arg arg) {
         return visitor.visit(this, arg);
     }

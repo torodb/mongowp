@@ -70,6 +70,11 @@ public abstract class AbstractBsonDateTime extends AbstractBsonValue<Instant> im
     }
 
     @Override
+    public String toString() {
+        return "{$date: " + getValue()+ "}";
+    }
+
+    @Override
     public <Result, Arg> Result accept(BsonValueVisitor<Result, Arg> visitor, Arg arg) {
         return visitor.visit(this, arg);
     }

@@ -79,6 +79,21 @@ public abstract class AbstractBsonBinary extends CachedHashAbstractBsonValue<Bso
     }
 
     @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(size() * 20);
+        sb.append('{');
+
+        sb.append("$binary: ")
+                .append("<data...>");
+        sb.append(", $type:")
+                .append(getType());
+
+        sb.append('}');
+
+        return sb.toString();
+    }
+
+    @Override
     public <Result, Arg> Result accept(BsonValueVisitor<Result, Arg> visitor, Arg arg) {
         return visitor.visit(this, arg);
     }

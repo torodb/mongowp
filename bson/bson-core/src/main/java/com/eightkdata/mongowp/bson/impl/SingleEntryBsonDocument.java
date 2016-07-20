@@ -69,4 +69,9 @@ public class SingleEntryBsonDocument extends AbstractBsonDocument {
         return Iterators.<Entry<?>>singletonIterator(entry);
     }
 
+    @Override
+    public String toString() {
+        return "{" + entry.getKey() + ": " + entry.getValue() + '}';
+    }
+
 }

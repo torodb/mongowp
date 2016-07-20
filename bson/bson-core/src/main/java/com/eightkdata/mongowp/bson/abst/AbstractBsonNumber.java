@@ -57,4 +57,9 @@ public abstract class AbstractBsonNumber<V extends Number> extends AbstractBsonV
     public BsonNumber asNumber() throws UnsupportedOperationException {
         return this;
     }
+
+    @Override
+    public String toString() {
+        return getValue().toString();
+    }
 }

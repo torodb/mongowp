@@ -40,7 +40,7 @@ public class InternalCommands implements Iterable<Command> {
         return commands.iterator();
     }
 
-    public static abstract class InternalCommandsImplementationsBuilder<Context> implements Iterable<Entry<Command<?,?>, CommandImplementation>> {
+    public static abstract class InternalCommandsImplementationsBuilder<Context> implements Iterable<Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> {
 
         public abstract CommandImplementation<HandshakeArgument, Empty, ? super Context> getHandshakeImplementation();
 
@@ -56,8 +56,8 @@ public class InternalCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<Empty, WhatsMyUriReply, Context> getWhatsMyUriImplementation();
 
-        private Map<Command<?,?>, CommandImplementation> createMap() {
-            return ImmutableMap.<Command<?,?>, CommandImplementation>builder()
+        private Map<Command<?,?>, CommandImplementation<?, ?, ? super Context>> createMap() {
+            return ImmutableMap.<Command<?,?>, CommandImplementation<?, ?, ? super Context>>builder()
                     .put(HandshakeCommand.INSTANCE, getHandshakeImplementation())
                     .put(ReplSetElectCommand.INSTANCE, getReplSetElectImplementation())
                     .put(ReplSetFreshCommand.INSTANCE, getReplSetFreshImplementation())
@@ -69,7 +69,7 @@ public class InternalCommands implements Iterable<Command> {
         }
 
         @Override
-        public Iterator<Entry<Command<?,?>, CommandImplementation>> iterator() {
+        public Iterator<Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> iterator() {
             return createMap().entrySet().iterator();
         }
 
