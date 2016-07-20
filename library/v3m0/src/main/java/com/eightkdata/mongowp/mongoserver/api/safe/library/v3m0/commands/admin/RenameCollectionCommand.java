@@ -76,15 +76,19 @@ public class RenameCollectionCommand extends AbstractCommand<RenameCollectionArg
             this.dropTarget = dropTarget;
         }
 
-        public String getDatabase() {
+        public String getFromDatabase() {
             return fromDatabase;
         }
 
-        public String getCollection() {
+        public String getFromCollection() {
             return fromCollection;
         }
 
-        public String getTo() {
+        public String getToDatabase() {
+            return toDatabase;
+        }
+
+        public String getToCollection() {
             return toCollection;
         }
 
@@ -123,7 +127,7 @@ public class RenameCollectionCommand extends AbstractCommand<RenameCollectionArg
             }
             
             return new RenameCollectionArgument(
-                    fromCollection, fromDatabase, toDatabase, toCollection, dropTarget);
+                    fromDatabase, fromCollection, toDatabase, toCollection, dropTarget);
         }
     }
 
