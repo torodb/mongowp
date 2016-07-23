@@ -24,7 +24,7 @@ public class TransformationMongoCursor<I, O> implements MongoCursor<O> {
     public static <I,O> TransformationMongoCursor<I, O> create(
             MongoCursor<I> innerCursor,
             Function<I, O> transformationFun) {
-        return new TransformationMongoCursor<I, O>(innerCursor, transformationFun);
+        return new TransformationMongoCursor<>(innerCursor, transformationFun);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class TransformationMongoCursor<I, O> implements MongoCursor<O> {
 
     @Override
     public Batch<O> fetchBatch() throws MongoException, DeadCursorException {
-        return new TransformationBatch<I, O>(innerCursor.fetchBatch(), transformationFun);
+        return new TransformationBatch<>(innerCursor.fetchBatch(), transformationFun);
     }
 
     @Override
