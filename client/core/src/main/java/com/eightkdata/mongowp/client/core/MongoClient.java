@@ -29,4 +29,6 @@ public interface MongoClient extends Closeable {
     public void close();
 
     public boolean isClosed();
+
+    public boolean isRemote();
 }

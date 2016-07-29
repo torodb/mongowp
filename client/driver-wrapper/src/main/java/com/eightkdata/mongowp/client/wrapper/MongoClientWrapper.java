@@ -44,6 +44,11 @@ public class MongoClientWrapper implements MongoClient {
         closed = false;
     }
 
+    @Override
+    public boolean isRemote() {
+        return true;
+    }
+
     private void testAddress(HostAndPort address) throws UnreachableMongoServerException {
         SocketAddress sa = new InetSocketAddress(address.getHostText(), address.getPort());
         Socket s = null;

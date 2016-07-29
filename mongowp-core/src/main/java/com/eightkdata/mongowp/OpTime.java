@@ -13,6 +13,7 @@ import java.time.Instant;
  * number. OpTime can be used to label every op in an oplog with a unique
  * identifier.
  */
+//TODO: OpTime has been changed on MongoDB 3.2. We need to upgrade it
 public class OpTime implements Comparable<OpTime>, Serializable {
 
     public static final OpTime EPOCH = new OpTime(0, 0);
