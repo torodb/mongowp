@@ -76,10 +76,6 @@ public class RenameCollectionCommand extends AbstractCommand<RenameCollectionArg
             this.dropTarget = dropTarget;
         }
 
-        public boolean isDropTarget() {
-            return dropTarget;
-        }
-
         public String getFromDatabase() {
             return fromDatabase;
         }
@@ -94,6 +90,10 @@ public class RenameCollectionCommand extends AbstractCommand<RenameCollectionArg
 
         public String getToCollection() {
             return toCollection;
+        }
+
+        public boolean isDropTarget() {
+            return dropTarget;
         }
 
         private BsonDocument marshall() {
@@ -127,7 +127,7 @@ public class RenameCollectionCommand extends AbstractCommand<RenameCollectionArg
             }
             
             return new RenameCollectionArgument(
-                    fromCollection, fromDatabase, toDatabase, toCollection, dropTarget);
+                    fromDatabase, fromCollection, toDatabase, toCollection, dropTarget);
         }
     }
 
