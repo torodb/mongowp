@@ -22,6 +22,7 @@
 package com.eightkdata.mongowp.server.wp;
 
 import com.eightkdata.mongowp.MongoConstants;
+import com.eightkdata.mongowp.annotations.MongoWP;
 import com.eightkdata.mongowp.server.MongoServerConfig;
 import com.eightkdata.mongowp.server.util.LengthFieldPrependerLittleEndian;
 import com.google.common.util.concurrent.AbstractIdleService;
@@ -34,6 +35,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import java.nio.ByteOrder;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadFactory;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import org.apache.logging.log4j.LogManager;
@@ -53,9 +56,10 @@ public class NettyMongoServer extends AbstractIdleService {
     private final Provider<RequestMessageByteHandler> requestMessageByteHandler;
     private final Provider<ReplyMessageObjectHandler> replyMessageObjectHandler;
     private final LengthFieldPrependerLittleEndian lengthFieldPrependerLittleEndian;
+    private final ThreadFactory threadFactory;
 
     @Inject
-    public NettyMongoServer(MongoServerConfig mongoServerConfig,
+    public NettyMongoServer(@MongoWP ThreadFactory threadFactory, MongoServerConfig mongoServerConfig,
             Provider<RequestMessageByteHandler> requestMessageByteHandler,
             Provider<ReplyMessageObjectHandler> replyMessageObjectHandler,
             RequestMessageObjectHandler requestMessageObjectHandler) {
@@ -64,6 +68,16 @@ public class NettyMongoServer extends AbstractIdleService {
         this.requestMessageByteHandler = requestMessageByteHandler;
         this.replyMessageObjectHandler = replyMessageObjectHandler;
         this.requestMessageObjectHandler = requestMessageObjectHandler;
+        this.threadFactory = threadFactory;
+    }
+
+    @Override
+    protected Executor executor() {
+        return (Runnable command) -> {
+            Thread thread = threadFactory.newThread(command);
+            thread.setName(serviceName() + " " + state());
+            thread.start();
+        };
     }
 
     private void buildChildHandlerPipeline(ChannelPipeline pipeline) {
