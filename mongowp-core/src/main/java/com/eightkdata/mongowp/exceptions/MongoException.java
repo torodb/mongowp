@@ -20,6 +20,7 @@
 package com.eightkdata.mongowp.exceptions;
 
 import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.Status;
 import java.text.MessageFormat;
 import javax.annotation.Nonnull;
 
@@ -34,6 +35,11 @@ public class MongoException extends Exception {
     public MongoException(ErrorCode errorCode) {
         super(errorCode.getErrorMessage());
         this.errorCode = errorCode;
+    }
+
+    public MongoException(Status<?> status) {
+        super(status.getErrorMsg());
+        errorCode = status.getErrorCode();
     }
 
     public MongoException(
