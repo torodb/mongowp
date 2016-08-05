@@ -3,6 +3,7 @@ package com.eightkdata.mongowp.server.api.pojos;
 
 import com.eightkdata.mongowp.exceptions.MongoException;
 import com.google.common.collect.UnmodifiableIterator;
+import com.google.common.net.HostAndPort;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -14,11 +15,14 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  */
-public interface MongoCursor<E> extends Iterable<E> {
+public interface MongoCursor<E> extends Iterator<E> {
 
     public String getDatabase();
 
     public String getCollection();
+
+    @Nonnull
+    public Batch<E> fetchBatch() throws MongoException, DeadCursorException;
 
     public long getId();
 
@@ -29,21 +33,32 @@ public interface MongoCursor<E> extends Iterable<E> {
     public boolean isTailable();
 
     /**
-     * A cursor is dead when it is not possible to fetch new batches.
-     * @return 
-     */
-    public boolean isDead();
-
-    @Nonnull
-    public Batch<E> fetchBatch() throws MongoException, DeadCursorException;
-
-    /**
-     * Returns one element of the cursor and close it.
-     * @return 
-     * @throws com.eightkdata.mongowp.mongoserver.protocol.exceptions.MongoException
+     * Like {@link #next() } but returns null when there should be more elements on the remote side
+     * but their are not fetch yet.
+     *
+     * It also returns null when this cursor is tailable and it is waiting for more documents.
+     * @return
      */
     @Nullable
-    public E getOne() throws MongoException, DeadCursorException;
+    public E tryNext();
+
+    @Nonnull
+    @Override
+    public E next();
+
+    /**
+     * Returns {@code true} if the cursor has more elements.
+     *
+     * {@inheritDoc }
+     *
+     * This method could block until more elements are fetch from the remote server.
+     *
+     * @return
+     */
+    @Override
+    public boolean hasNext();
+
+    HostAndPort getServerAddress();
 
     public void close();
 

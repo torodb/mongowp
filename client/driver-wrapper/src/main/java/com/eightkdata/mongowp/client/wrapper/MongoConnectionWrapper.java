@@ -7,6 +7,7 @@ import com.eightkdata.mongowp.client.core.MongoClient;
 import com.eightkdata.mongowp.client.core.MongoConnection;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.fields.HostAndPortField;
 import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.MarshalException;
@@ -15,8 +16,10 @@ import com.eightkdata.mongowp.server.api.pojos.SimpleBatch;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.net.HostAndPort;
 import com.mongodb.CursorType;
 import com.mongodb.ReadPreference;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.InsertManyOptions;
@@ -85,7 +88,7 @@ public class MongoConnectionWrapper implements MongoConnection {
                     .cursorType(toCursorType(queryOptions))
                     .noCursorTimeout(queryOptions.isNoCursorTimeout())
                     .oplogReplay(queryOptions.isOplogReplay());
-            return new MyMongoCursor(
+            return new WrappedMongoCursor(
                     database,
                     collection,
                     DEFAULT_MAX_BATCH_SIZE,
@@ -226,7 +229,7 @@ public class MongoConnectionWrapper implements MongoConnection {
     public void close() {
     }
 
-    private static class MyMongoCursor implements MongoCursor<BsonDocument> {
+    private static class WrappedMongoCursor implements MongoCursor<BsonDocument> {
 
         private static final long MAX_WAIT_TIME = 10;
 
@@ -235,9 +238,10 @@ public class MongoConnectionWrapper implements MongoConnection {
         private int maxBatchSize;
         private final boolean tailable;
         private boolean close = false;
+        private HostAndPort serverAddress;
         private final com.mongodb.client.MongoCursor<org.bson.BsonDocument> cursor;
 
-        public MyMongoCursor(
+        public WrappedMongoCursor(
                 String database,
                 String collection,
                 int maxBatchSize,
@@ -263,7 +267,7 @@ public class MongoConnectionWrapper implements MongoConnection {
 
         @Override
         public long getId() {
-            throw new UnsupportedOperationException("This kind of cursors does not have id");
+            return cursor.getServerCursor().getId();
         }
 
         @Override
@@ -280,11 +284,6 @@ public class MongoConnectionWrapper implements MongoConnection {
         @Override
         public boolean isTailable() {
             return tailable;
-        }
-
-        @Override
-        public boolean isDead() {
-            return close || !cursor.hasNext();
         }
 
         @Override
@@ -314,11 +313,28 @@ public class MongoConnectionWrapper implements MongoConnection {
         }
 
         @Override
-        public BsonDocument getOne() throws MongoException, DeadCursorException {
+        public HostAndPort getServerAddress() {
+            if (serverAddress == null) {
+                ServerAddress mongoServerAddress = cursor.getServerAddress();
+                serverAddress = HostAndPort.fromParts(mongoServerAddress.getHost(), mongoServerAddress.getPort());
+            }
+            return serverAddress;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return close || !cursor.hasNext();
+        }
+
+        @Override
+        public BsonDocument next() {
             Preconditions.checkState(!close, "This cursor is closed");
-            BsonDocument next = MongoBsonTranslator.translate(cursor.next());
-            close();
-            return next;
+            return MongoBsonTranslator.translate(cursor.next());
+        }
+
+        @Override
+        public BsonDocument tryNext() {
+            return MongoBsonTranslator.translate(cursor.tryNext());
         }
 
         @Override
@@ -327,15 +343,6 @@ public class MongoConnectionWrapper implements MongoConnection {
                 close = true;
                 cursor.close();
             }
-        }
-
-        @Override
-        public Iterator<BsonDocument> iterator() {
-            Preconditions.checkState(!close, "This cursor is closed");
-            return Iterators.transform(
-                    cursor,
-                    MongoBsonTranslator.FROM_MONGO_FUNCTION
-            );
         }
 
     }

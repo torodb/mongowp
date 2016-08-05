@@ -2,11 +2,11 @@
 package com.eightkdata.mongowp.server.api.pojos;
 
 import com.eightkdata.mongowp.exceptions.MongoException;
-import com.google.common.base.Function;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
+import com.google.common.net.HostAndPort;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  *
@@ -24,7 +24,7 @@ public class TransformationMongoCursor<I, O> implements MongoCursor<O> {
     public static <I,O> TransformationMongoCursor<I, O> create(
             MongoCursor<I> innerCursor,
             Function<I, O> transformationFun) {
-        return new TransformationMongoCursor<I, O>(innerCursor, transformationFun);
+        return new TransformationMongoCursor<>(innerCursor, transformationFun);
     }
 
     @Override
@@ -58,30 +58,37 @@ public class TransformationMongoCursor<I, O> implements MongoCursor<O> {
     }
 
     @Override
-    public boolean isDead() {
-        return innerCursor.isDead();
-    }
-
-    @Override
     public Batch<O> fetchBatch() throws MongoException, DeadCursorException {
-        return new TransformationBatch<I, O>(innerCursor.fetchBatch(), transformationFun);
+        return new TransformationBatch<>(innerCursor.fetchBatch(), transformationFun);
     }
 
     @Override
-    public O getOne() throws MongoException, DeadCursorException {
-        I one = innerCursor.getOne();
-        close();
-        return transformationFun.apply(one);
+    public O tryNext() {
+        I next = innerCursor.tryNext();
+        if (next == null) {
+            return null;
+        }
+        return transformationFun.apply(next);
+    }
+
+    @Override
+    public HostAndPort getServerAddress() {
+        return innerCursor.getServerAddress();
+    }
+
+    @Override
+    public boolean hasNext() {
+        return innerCursor.hasNext();
+    }
+
+    @Override
+    public O next() {
+        return transformationFun.apply(innerCursor.next());
     }
 
     @Override
     public void close() {
         innerCursor.close();
-    }
-
-    @Override
-    public Iterator<O> iterator() {
-        return Iterators.transform(innerCursor.iterator(), transformationFun);
     }
 
     private static class TransformationBatch<I, O> implements Batch<O> {
@@ -121,7 +128,7 @@ public class TransformationMongoCursor<I, O> implements MongoCursor<O> {
 
         @Override
         public List<? extends O> asList() {
-            return Lists.transform(innerBatch.asList(), transformationFun);
+            return Lists.transform(innerBatch.asList(), (i) -> transformationFun.apply(i));
         }
 
         @Override

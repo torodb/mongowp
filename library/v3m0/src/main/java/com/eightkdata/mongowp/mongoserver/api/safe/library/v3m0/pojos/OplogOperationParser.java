@@ -17,8 +17,8 @@ import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
-import com.google.common.base.Function;
 import java.util.Locale;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 
 import static com.eightkdata.mongowp.server.api.oplog.OplogOperationType.*;
