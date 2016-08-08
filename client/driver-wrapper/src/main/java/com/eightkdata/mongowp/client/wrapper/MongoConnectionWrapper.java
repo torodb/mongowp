@@ -323,7 +323,7 @@ public class MongoConnectionWrapper implements MongoConnection {
 
         @Override
         public boolean hasNext() {
-            return !close || !cursor.hasNext();
+            return !close && cursor.hasNext();
         }
 
         @Override
