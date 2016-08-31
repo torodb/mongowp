@@ -26,6 +26,7 @@ package com.eightkdata.mongowp;
 class OkStatus<Result> implements Status<Result> {
 
     static final Status<?> OK = new OkStatus<>(null);
+    private static final long serialVersionUID = -2094761991032243073L;
     private final Result result;
 
     public OkStatus(Result result) {

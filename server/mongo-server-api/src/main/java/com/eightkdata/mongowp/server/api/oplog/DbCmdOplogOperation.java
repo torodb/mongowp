@@ -5,6 +5,7 @@ import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import java.util.Optional;
 
 /**
  *
@@ -36,6 +37,10 @@ public class DbCmdOplogOperation extends OplogOperation {
     @Override
     public OplogOperationType getType() {
         return OplogOperationType.DB_CMD;
+    }
+
+    public Optional<String> getCommandName() {
+        return Optional.ofNullable(getRequest().getFirstEntry().getKey());
     }
 
     @Override

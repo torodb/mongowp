@@ -21,6 +21,7 @@
 package com.eightkdata.mongowp;
 
 import com.eightkdata.mongowp.exceptions.MongoException;
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -28,7 +29,7 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public interface Status<Result> {
+public interface Status<Result> extends Serializable{
     public ErrorCode getErrorCode();
 
     public default boolean isOK() {

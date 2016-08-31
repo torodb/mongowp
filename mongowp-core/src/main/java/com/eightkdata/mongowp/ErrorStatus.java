@@ -27,6 +27,8 @@ import com.google.common.base.Preconditions;
  */
 class ErrorStatus<Result> implements Status<Result> {
 
+    private static final long serialVersionUID = 7915632879225884360L;
+
     private final ErrorCode errorCode;
     private final String errorMsg;
 

@@ -7,17 +7,16 @@ import com.eightkdata.mongowp.client.core.MongoClient;
 import com.eightkdata.mongowp.client.core.MongoConnection;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.MongoException;
-import com.eightkdata.mongowp.fields.HostAndPortField;
 import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.MarshalException;
 import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
-import com.eightkdata.mongowp.server.api.pojos.SimpleBatch;
+import com.eightkdata.mongowp.server.api.pojos.CollectionBatch;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.mongodb.CursorType;
+import com.mongodb.MongoCursorNotFoundException;
 import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
@@ -25,7 +24,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.model.UpdateOptions;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -287,6 +285,29 @@ public class MongoConnectionWrapper implements MongoConnection {
         }
 
         @Override
+        public Batch<BsonDocument> tryFetchBatch() throws MongoException, DeadCursorException {
+            Preconditions.checkState(!close, "This cursor is closed");
+            long start = System.currentTimeMillis();
+
+            List<BsonDocument> docs = Lists.newArrayList();
+
+            try {
+                org.bson.BsonDocument tryNext = cursor.tryNext();
+                while (tryNext != null && docs.size() < maxBatchSize) {
+                    docs.add(MongoBsonTranslator.translate(tryNext));
+                    tryNext = cursor.tryNext();
+                }
+                if (docs.isEmpty()) {
+                    return null;
+                }
+            } catch (MongoCursorNotFoundException ex) {
+                this.close();
+                throw new DeadCursorException();
+            }
+            return new CollectionBatch<>(docs, start);
+        }
+
+        @Override
         public Batch<BsonDocument> fetchBatch() throws MongoException,
                 DeadCursorException {
             Preconditions.checkState(!close, "This cursor is closed");
@@ -294,22 +315,27 @@ public class MongoConnectionWrapper implements MongoConnection {
 
             List<BsonDocument> docs = Lists.newArrayList();
 
-            if (!cursor.hasNext()) {
-                return new SimpleBatch<>(docs, start);
-            }
-            docs.add(MongoBsonTranslator.translate(cursor.next()));
-
-            while (docs.size() < maxBatchSize && System.currentTimeMillis()
-                    - start < MAX_WAIT_TIME) {
-                BsonDocument next
-                        = MongoBsonTranslator.translate(cursor.tryNext());
-                if (next == null) {
-                    break;
+            try {
+                if (!cursor.hasNext()) {
+                    return new CollectionBatch<>(docs, start);
                 }
-                docs.add(next);
+                docs.add(MongoBsonTranslator.translate(cursor.next()));
+
+                while (docs.size() < maxBatchSize && System.currentTimeMillis()
+                        - start < MAX_WAIT_TIME) {
+                    BsonDocument next
+                            = MongoBsonTranslator.translate(cursor.tryNext());
+                    if (next == null) {
+                        break;
+                    }
+                    docs.add(next);
+                }
+            } catch (MongoCursorNotFoundException ex) {
+                this.close();
+                throw new DeadCursorException();
             }
 
-            return new SimpleBatch<>(docs, start);
+            return new CollectionBatch<>(docs, start);
         }
 
         @Override
@@ -323,18 +349,41 @@ public class MongoConnectionWrapper implements MongoConnection {
 
         @Override
         public boolean hasNext() {
-            return !close && cursor.hasNext();
+            if (close) {
+                return false;
+            }
+            try {
+                return cursor.hasNext();
+            } catch (MongoCursorNotFoundException ex) {
+                this.close();
+                return false;
+            }
         }
 
         @Override
         public BsonDocument next() {
             Preconditions.checkState(!close, "This cursor is closed");
-            return MongoBsonTranslator.translate(cursor.next());
+            try {
+                return MongoBsonTranslator.translate(cursor.next());
+            } catch (MongoCursorNotFoundException ex) {
+                this.close();
+                throw new DeadCursorException();
+            }
         }
 
         @Override
         public BsonDocument tryNext() {
-            return MongoBsonTranslator.translate(cursor.tryNext());
+            try {
+                return MongoBsonTranslator.translate(cursor.tryNext());
+            } catch (MongoCursorNotFoundException ex) {
+                this.close();
+                throw new DeadCursorException();
+            }
+        }
+
+        @Override
+        public boolean isClosed() {
+            return close;
         }
 
         @Override

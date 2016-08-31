@@ -1,10 +1,10 @@
 package com.eightkdata.mongowp.server.api.oplog;
 
 import com.eightkdata.mongowp.OpTime;
-import com.eightkdata.mongowp.bson.BsonDocument;
-import com.eightkdata.mongowp.bson.BsonString;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -37,5 +37,8 @@ public abstract class CollectionOplogOperation extends OplogOperation {
         result.append(NS_FIELD, getDatabase() + '.' + collection);
         return result;
     }
+
+    @Nullable
+    public abstract BsonValue<?> getDocId();
 
 }
