@@ -20,9 +20,11 @@ import com.eightkdata.mongowp.client.core.UnreachableMongoServerException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
+import com.google.inject.Inject;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -35,7 +37,11 @@ public class MongoClientWrapper implements MongoClient {
     private final com.mongodb.MongoClient driverClient;
     private final CodecRegistry codecRegistry;
 
-    public MongoClientWrapper(HostAndPort address, MongoClientOptions mongoClientOptions, MongoCredential credential) throws UnreachableMongoServerException {
+    @Inject
+    public MongoClientWrapper(
+            HostAndPort address,
+            MongoClientOptions mongoClientOptions,
+            @Nullable MongoCredential credential) throws UnreachableMongoServerException {
         testAddress(address, mongoClientOptions);
 
         this.address = address.withDefaultPort(27017);
