@@ -24,33 +24,22 @@ import com.eightkdata.mongowp.client.core.MongoClientFactory;
 import com.eightkdata.mongowp.client.core.UnreachableMongoServerException;
 import com.google.common.net.HostAndPort;
 import com.google.inject.Inject;
-import com.mongodb.MongoClientOptions;
-import com.mongodb.MongoCredential;
-import java.util.Optional;
-import javax.annotation.Nullable;
 
 /**
  *
  */
 public class MongoClientWrapperFactory implements MongoClientFactory {
 
-    private final MongoClientOptions mongoClientOptions;
-    @Nullable
-    private final MongoCredential credential;
-
-    public MongoClientWrapperFactory(MongoClientOptions mongoClientOptions) {
-        this(mongoClientOptions, Optional.empty());
-    }
+    private final MongoClientConfiguration mongoClientConfiguration;
 
     @Inject
-    public MongoClientWrapperFactory(MongoClientOptions mongoClientOptions, Optional<MongoCredential> credential) {
-        this.mongoClientOptions = mongoClientOptions;
-        this.credential = credential.orElse(null);
+    public MongoClientWrapperFactory(MongoClientConfiguration mongoClientConfiguration) {
+        this.mongoClientConfiguration = mongoClientConfiguration;
     }
 
     @Override
     public MongoClientWrapper createClient(HostAndPort address) throws UnreachableMongoServerException {
-        return new MongoClientWrapper(address, mongoClientOptions, credential);
+        return new MongoClientWrapper(mongoClientConfiguration.builder(address).build());
     }
 
 }
