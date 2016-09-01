@@ -30,27 +30,65 @@ import com.mongodb.ServerAddress;
 public class MongoClientWrapper implements MongoClient {
 
     private boolean closed;
-    private final HostAndPort address;
+    private final MongoClientConfiguration configuration;
     private final MongoVersion version;
     private final com.mongodb.MongoClient driverClient;
     private final CodecRegistry codecRegistry;
 
-    public MongoClientWrapper(HostAndPort address, MongoClientOptions mongoClientOptions, MongoCredential credential) throws UnreachableMongoServerException {
-        testAddress(address, mongoClientOptions);
+    public MongoClientWrapper(MongoClientConfiguration configuration) throws UnreachableMongoServerException {
+        testAddress(configuration);
 
-        this.address = address.withDefaultPort(27017);
+        this.configuration = configuration;
 
+        MongoClientOptions options = toMongoClientOptions(configuration);
+        ImmutableList<MongoCredential> credentials = toMongoCredentials(configuration);
+        
         this.driverClient = new com.mongodb.MongoClient(
             new ServerAddress(
-                this.address.getHostText(),
-                this.address.getPort()),
-            credential != null ? ImmutableList.of(credential) : ImmutableList.of(),
-            mongoClientOptions
+                configuration.getHostAndPort().getHostText(),
+                configuration.getHostAndPort().getPort()),
+            credentials,
+            options
         );
 
         version = calculateVersion();
         codecRegistry = CodecRegistries.fromCodecs(new DocumentCodec());
         closed = false;
+    }
+    
+    private MongoClientOptions toMongoClientOptions(MongoClientConfiguration configuration) {
+        MongoClientOptions.Builder optionsBuilder = MongoClientOptions.builder();
+        if (configuration.isSslEnabled()) {
+            optionsBuilder.sslEnabled(configuration.isSslEnabled());
+            if (configuration.getSocketFactory() != null) {
+                optionsBuilder.socketFactory(configuration.getSocketFactory());
+                optionsBuilder.sslInvalidHostNameAllowed(configuration.isSslAllowInvalidHostnames());
+            }
+        }
+        return optionsBuilder.build();
+    }
+    
+    private ImmutableList<MongoCredential> toMongoCredentials(MongoClientConfiguration configuration) {
+        ImmutableList.Builder<MongoCredential> credentialsBuilder = ImmutableList.builder();
+        for (MongoAuthenticationConfiguration authConfiguration : configuration.getAuthenticationConfigurations()) {
+            credentialsBuilder.add(toMongoCredential(authConfiguration));
+        }
+        return credentialsBuilder.build();
+    }
+    
+    private MongoCredential toMongoCredential(MongoAuthenticationConfiguration authConfiguration) {
+        switch(authConfiguration.getMechanism()) {
+        case cr:
+            return MongoCredential.createMongoCRCredential(authConfiguration.getUser(), authConfiguration.getSource(), authConfiguration.getPassword().toCharArray());
+        case scram_sha1:
+            return MongoCredential.createScramSha1Credential(authConfiguration.getUser(), authConfiguration.getSource(), authConfiguration.getPassword().toCharArray());
+        case negotiate:
+            return MongoCredential.createCredential(authConfiguration.getUser(), authConfiguration.getSource(), authConfiguration.getPassword().toCharArray());
+        case x509:
+            return MongoCredential.createMongoX509Credential(authConfiguration.getUser());
+        default:
+            throw new UnsupportedOperationException("Authentication mechanism " + authConfiguration.getMechanism() + " not supported");
+        }
     }
 
     @Override
@@ -58,14 +96,14 @@ public class MongoClientWrapper implements MongoClient {
         return true;
     }
 
-    private void testAddress(HostAndPort address, MongoClientOptions mongoClientOptions) throws UnreachableMongoServerException {
-        SocketAddress sa = new InetSocketAddress(address.getHostText(), address.getPort());
+    private void testAddress(MongoClientConfiguration configuration) throws UnreachableMongoServerException {
+        SocketAddress sa = new InetSocketAddress(configuration.getHostAndPort().getHostText(), configuration.getHostAndPort().getPort());
         Socket s = null;
         try {
-            s = mongoClientOptions.getSocketFactory().createSocket();
+            s = configuration.getSocketFactory().createSocket();
             s.connect(sa, 3000);
         } catch (IOException ex) {
-            throw new UnreachableMongoServerException(address, ex);
+            throw new UnreachableMongoServerException(configuration.getHostAndPort(), ex);
         } finally {
             if (s != null) {
                 try {
@@ -88,7 +126,7 @@ public class MongoClientWrapper implements MongoClient {
 
     @Override
     public HostAndPort getAddress() {
-        return address;
+        return configuration.getHostAndPort();
     }
 
     @Override
