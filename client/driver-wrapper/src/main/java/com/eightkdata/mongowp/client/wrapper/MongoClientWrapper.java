@@ -38,13 +38,13 @@ public class MongoClientWrapper implements MongoClient {
 
     @Inject
     public MongoClientWrapper(MongoClientConfiguration configuration) throws UnreachableMongoServerException {
-        testAddress(configuration);
-
-        this.configuration = configuration;
-
         MongoClientOptions options = toMongoClientOptions(configuration);
         ImmutableList<MongoCredential> credentials = toMongoCredentials(configuration);
         
+        testAddress(configuration.getHostAndPort(), options);
+
+        this.configuration = configuration;
+
         this.driverClient = new com.mongodb.MongoClient(
             new ServerAddress(
                 configuration.getHostAndPort().getHostText(),
@@ -98,14 +98,14 @@ public class MongoClientWrapper implements MongoClient {
         return true;
     }
 
-    private void testAddress(MongoClientConfiguration configuration) throws UnreachableMongoServerException {
-        SocketAddress sa = new InetSocketAddress(configuration.getHostAndPort().getHostText(), configuration.getHostAndPort().getPort());
+    private void testAddress(HostAndPort address, MongoClientOptions options) throws UnreachableMongoServerException {
+        SocketAddress sa = new InetSocketAddress(address.getHostText(), address.getPort());
         Socket s = null;
         try {
-            s = configuration.getSocketFactory().createSocket();
+            s = options.getSocketFactory().createSocket();
             s.connect(sa, 3000);
         } catch (IOException ex) {
-            throw new UnreachableMongoServerException(configuration.getHostAndPort(), ex);
+            throw new UnreachableMongoServerException(address, ex);
         } finally {
             if (s != null) {
                 try {
