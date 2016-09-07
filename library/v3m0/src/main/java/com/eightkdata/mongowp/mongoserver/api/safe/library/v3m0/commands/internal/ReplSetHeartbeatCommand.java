@@ -449,7 +449,7 @@ public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArg
                     throw new BadValueException("Value for \""
                             + MEMBER_STATE_FIELD_NAME + "\" in response to "
                             + "replSetHeartbeat is out of range; legal values are "
-                            + "non-negative and no more than " + MemberState.RS_MAX.getId()
+                            + "non-negative and no more than " + MemberState.getMaxId()
                     );
                 }
             }
