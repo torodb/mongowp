@@ -35,17 +35,15 @@ public class IteratorMongoCursor<E> implements MongoCursor<E> {
     private final String database;
     private final String collection;
     private final long id;
-    private final boolean tailable;
     private final HostAndPort remoteAddress;
     private final Iterator<E> iterator;
     private boolean closed = false;
     private int batchSize = 1000;
 
-    public IteratorMongoCursor(String database, String collection, long id, boolean tailable, HostAndPort remoteAddress, Iterator<E> iterator) {
+    public IteratorMongoCursor(String database, String collection, long id, HostAndPort remoteAddress, Iterator<E> iterator) {
         this.database = database;
         this.collection = collection;
         this.id = id;
-        this.tailable = tailable;
         this.remoteAddress = remoteAddress;
         this.iterator = iterator;
     }
@@ -91,7 +89,7 @@ public class IteratorMongoCursor<E> implements MongoCursor<E> {
 
     @Override
     public boolean isTailable() {
-        return tailable;
+        return false;
     }
 
     @Override
