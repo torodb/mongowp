@@ -292,10 +292,14 @@ public class MongoConnectionWrapper implements MongoConnection {
             List<BsonDocument> docs = Lists.newArrayList();
 
             try {
-                org.bson.BsonDocument tryNext = cursor.tryNext();
-                while (tryNext != null && docs.size() < maxBatchSize) {
-                    docs.add(MongoBsonTranslator.translate(tryNext));
-                    tryNext = cursor.tryNext();
+                boolean noMoreDocs = false;
+                while (docs.size() < maxBatchSize && !noMoreDocs) {
+                    org.bson.BsonDocument tryNext = cursor.tryNext();
+                    if (tryNext != null) {
+                        docs.add(MongoBsonTranslator.translate(tryNext));
+                    } else {
+                        noMoreDocs = true;
+                    }
                 }
                 if (docs.isEmpty()) {
                     return null;
