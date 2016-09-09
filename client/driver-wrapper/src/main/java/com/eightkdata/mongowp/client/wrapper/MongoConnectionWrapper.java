@@ -320,7 +320,7 @@ public class MongoConnectionWrapper implements MongoConnection {
             List<BsonDocument> docs = Lists.newArrayList();
 
             try {
-                if (!cursor.hasNext()) {
+                if (!isTailable() && !cursor.hasNext()) {
                     return new CollectionBatch<>(docs, start);
                 }
                 docs.add(MongoBsonTranslator.translate(cursor.next()));
