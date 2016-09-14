@@ -143,7 +143,7 @@ public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>
                     WriteConcern.acknowledged()
             );
 
-            boolean orderend = BsonReaderTool.getBoolean(doc, ORDERED_FIELD);
+            boolean orderend = BsonReaderTool.getBoolean(doc, ORDERED_FIELD, false);
 
             BsonDocument metadata = BsonReaderTool.getDocument(doc, METADATA_FIELD, null);
 
