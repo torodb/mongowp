@@ -66,6 +66,16 @@ public class MongoClientConfiguration {
         return authenticationConfigurations;
     }
     
+    public Builder builder(HostAndPort hostAndPort) {
+        Builder builder = new Builder(hostAndPort);
+        builder.socketFactory = socketFactory;
+        builder.sslEnabled = sslEnabled;
+        builder.sslAllowInvalidHostnames = sslAllowInvalidHostnames;
+        builder.authenticationConfigurations.addAll(authenticationConfigurations);
+        
+        return builder;
+    }
+    
     @Override
     public String toString() {
         return hostAndPort.toString();

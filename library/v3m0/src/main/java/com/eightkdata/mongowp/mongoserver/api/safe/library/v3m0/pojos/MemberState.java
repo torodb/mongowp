@@ -38,9 +38,7 @@ public enum MemberState {
     /**
      * node removed from replica set
      */
-    RS_REMOVED(10),
-    
-    RS_MAX(10);
+    RS_REMOVED(10);
 
     private final int id;
 
@@ -60,5 +58,9 @@ public enum MemberState {
         }
         throw new IllegalArgumentException("There is no member state whose id is equal to '"
                 + id + "'");
+    }
+
+    public static int getMaxId() {
+        return values()[values().length - 1].id;
     }
 }

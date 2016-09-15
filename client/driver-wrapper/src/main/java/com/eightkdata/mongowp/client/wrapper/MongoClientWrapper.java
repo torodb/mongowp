@@ -20,6 +20,7 @@ import com.eightkdata.mongowp.client.core.UnreachableMongoServerException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
+import com.google.inject.Inject;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -35,6 +36,7 @@ public class MongoClientWrapper implements MongoClient {
     private final com.mongodb.MongoClient driverClient;
     private final CodecRegistry codecRegistry;
 
+    @Inject
     public MongoClientWrapper(MongoClientConfiguration configuration) throws UnreachableMongoServerException {
         MongoClientOptions options = toMongoClientOptions(configuration);
         ImmutableList<MongoCredential> credentials = toMongoCredentials(configuration);

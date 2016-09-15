@@ -4,6 +4,7 @@ package com.eightkdata.mongowp.server.api.oplog;
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonString;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import javax.annotation.concurrent.Immutable;
@@ -36,6 +37,11 @@ public class InsertOplogOperation extends CollectionOplogOperation {
     @Override
     public OplogOperationType getType() {
         return OplogOperationType.INSERT;
+    }
+
+    @Override
+    public BsonValue<?> getDocId() {
+        return getDocToInsert().get("_id");
     }
 
     @Override

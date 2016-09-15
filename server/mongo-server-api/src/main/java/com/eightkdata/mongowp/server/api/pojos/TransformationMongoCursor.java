@@ -58,6 +58,15 @@ public class TransformationMongoCursor<I, O> implements MongoCursor<O> {
     }
 
     @Override
+    public Batch<O> tryFetchBatch() throws MongoException, DeadCursorException {
+        Batch<I> innerBatch = innerCursor.tryFetchBatch();
+        if (innerBatch == null) {
+            return null;
+        }
+        return new TransformationBatch<>(innerBatch, transformationFun);
+    }
+
+    @Override
     public Batch<O> fetchBatch() throws MongoException, DeadCursorException {
         return new TransformationBatch<>(innerCursor.fetchBatch(), transformationFun);
     }
@@ -84,6 +93,11 @@ public class TransformationMongoCursor<I, O> implements MongoCursor<O> {
     @Override
     public O next() {
         return transformationFun.apply(innerCursor.next());
+    }
+
+    @Override
+    public boolean isClosed() {
+        return innerCursor.isClosed();
     }
 
     @Override
@@ -127,7 +141,7 @@ public class TransformationMongoCursor<I, O> implements MongoCursor<O> {
         }
 
         @Override
-        public List<? extends O> asList() {
+        public List<O> asList() {
             return Lists.transform(innerBatch.asList(), (i) -> transformationFun.apply(i));
         }
 

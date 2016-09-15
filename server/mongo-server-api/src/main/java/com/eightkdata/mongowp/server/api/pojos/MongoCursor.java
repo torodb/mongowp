@@ -24,6 +24,17 @@ public interface MongoCursor<E> extends Iterator<E> {
     @Nonnull
     public Batch<E> fetchBatch() throws MongoException, DeadCursorException;
 
+    /**
+     * Like {@link #fetchBatch() } but do not block when there are no more elements on the remote side.
+     *
+     *
+     * @return
+     * @throws MongoException
+     * @throws com.eightkdata.mongowp.server.api.pojos.MongoCursor.DeadCursorException
+     * @see #tryNext() 
+     */
+    public Batch<E> tryFetchBatch() throws MongoException, DeadCursorException;
+
     public long getId();
 
     public void setMaxBatchSize(int newBatchSize);
@@ -32,19 +43,21 @@ public interface MongoCursor<E> extends Iterator<E> {
 
     public boolean isTailable();
 
+    @Nonnull
+    @Override
+    public E next();
+
     /**
-     * Like {@link #next() } but returns null when there should be more elements on the remote side
-     * but their are not fetch yet.
+     * Like {@link #next() } but do not block when there are not more elements on the remote side,
+     * returning null instead.
      *
-     * It also returns null when this cursor is tailable and it is waiting for more documents.
+     * The main use of this method is to not wait indefinitely on a tailable cursor when there are
+     * no new elements on the remote side. When the cursor is not tailable and there are no more
+     * elements on the remote side, it could return null or a runtime exception.
      * @return
      */
     @Nullable
     public E tryNext();
-
-    @Nonnull
-    @Override
-    public E next();
 
     /**
      * Returns {@code true} if the cursor has more elements.
@@ -62,13 +75,17 @@ public interface MongoCursor<E> extends Iterator<E> {
 
     public void close();
 
+    public boolean isClosed();
+
     public static interface Batch<T> extends Iterator<T> {
 
         /**
          * Not supported.
          */
         @Override
-        public void remove() throws UnsupportedOperationException;
+        public default void remove() throws UnsupportedOperationException {
+            throw new UnsupportedOperationException("remove");
+        }
 
         @Override
         public T next();
@@ -88,7 +105,7 @@ public interface MongoCursor<E> extends Iterator<E> {
          * Return a list that contains all elements of this batch and consumes it.
          * @return
          */
-        public List<? extends T> asList();
+        public List<T> asList();
 
         public void close();
     }
