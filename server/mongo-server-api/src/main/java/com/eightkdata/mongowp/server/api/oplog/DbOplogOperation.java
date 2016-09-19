@@ -8,6 +8,7 @@ import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
  *
  */
 public class DbOplogOperation extends OplogOperation {
+    private static final long serialVersionUID = 1L;
     
     public DbOplogOperation(String database, OpTime optime, long h, OplogVersion version, boolean fromMigrate) {
         super(database, optime, h, version, fromMigrate);

@@ -14,6 +14,8 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class InsertOplogOperation extends CollectionOplogOperation {
+    private static final long serialVersionUID = 1L;
+    
     private static final DocField DOC_TO_INSERT_FIELD = new DocField("o");
 
     private final BsonDocument docToInsert;

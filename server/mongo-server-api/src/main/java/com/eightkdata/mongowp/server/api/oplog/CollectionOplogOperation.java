@@ -12,7 +12,8 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public abstract class CollectionOplogOperation extends OplogOperation {
-
+    private static final long serialVersionUID = 1L;
+    
     private static final StringField NS_FIELD = new StringField("ns");
     private final String collection;
 

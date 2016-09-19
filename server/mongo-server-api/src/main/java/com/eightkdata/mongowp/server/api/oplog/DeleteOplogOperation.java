@@ -14,6 +14,8 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class DeleteOplogOperation extends CollectionOplogOperation {
+    private static final long serialVersionUID = 1L;
+    
     private static final DocField FILFER_FIELD = new DocField("o");
     private static final BooleanField JUST_ONE_FIELD = new BooleanField("b");
 

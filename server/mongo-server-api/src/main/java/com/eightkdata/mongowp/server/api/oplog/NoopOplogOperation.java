@@ -13,7 +13,8 @@ import javax.annotation.Nullable;
  *
  */
 public class NoopOplogOperation extends OplogOperation {
-
+    private static final long serialVersionUID = 1L;
+    
     private static final StringField NS_FIELD = new StringField("ns");
     private static final DocField MSG_FIELD = new DocField("o");
     private final @Nullable BsonDocument msg;

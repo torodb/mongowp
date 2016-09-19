@@ -14,7 +14,8 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class UpdateOplogOperation extends CollectionOplogOperation {
-
+    private static final long serialVersionUID = 1L;
+    
     private static final DocField FILTER_FIELD = new DocField("o");
     private static final DocField MODIFICATION_FIELD = new DocField("o2");
     private static final BooleanField UPSERT_FIELD = new BooleanField("b");

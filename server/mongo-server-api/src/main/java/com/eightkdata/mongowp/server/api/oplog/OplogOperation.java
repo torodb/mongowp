@@ -4,6 +4,9 @@ package com.eightkdata.mongowp.server.api.oplog;
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+
+import java.io.Serializable;
+
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
@@ -11,7 +14,9 @@ import javax.annotation.concurrent.Immutable;
  *
  */
 @Immutable
-public abstract class OplogOperation {
+public abstract class OplogOperation implements Serializable {
+    private static final long serialVersionUID = 1L;
+    
     static final StringField OP_FIELD = new StringField("op");
     private static final TimestampField OPTIME_FIELD = new TimestampField("ts");
     private static final LongField HASH_FIELD = new LongField("h");
