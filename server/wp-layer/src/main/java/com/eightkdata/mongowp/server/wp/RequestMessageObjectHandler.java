@@ -92,13 +92,21 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LOGGER.error("Error while processing request", cause);
+        logCaughtException(cause);
 
         MessageReplier messageReplier = new NettyMessageReplier(ctx);
         requestProcessor.handleError(ctx.attr(REQUEST_OP_CODE).get(), messageReplier, cause);
     }
 
-	@Override
+    private void logCaughtException(Throwable cause) {
+        String message = "Error while processing request";
+        if (cause.getMessage() != null)
+            message += " (" + cause.getMessage() + ")";
+
+        LOGGER.error(message, cause);
+    }
+
+    @Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		requestProcessor.onChannelActive(ctx);
 		
