@@ -99,7 +99,10 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void logCaughtException(Throwable cause) {
-        String message = "Error while processing request (" + cause.getMessage() + ")";
+        String message = "Error while processing request";
+        if (cause.getMessage() != null)
+            message += " (" + cause.getMessage() + ")";
+
         LOGGER.error(message, cause);
     }
 
