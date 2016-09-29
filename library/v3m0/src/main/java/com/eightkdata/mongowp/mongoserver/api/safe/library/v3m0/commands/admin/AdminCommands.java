@@ -8,6 +8,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.C
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.DropIndexesCommand.DropIndexesArgument;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.DropIndexesCommand.DropIndexesResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListCollectionsCommand.ListCollectionsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListCollectionsCommand.ListCollectionsResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListIndexesCommand.ListIndexesArgument;
@@ -56,7 +57,7 @@ public class AdminCommands implements Iterable<Command> {
 
         public abstract CommandImplementation<CreateIndexesArgument, CreateIndexesResult, ? super Context> getCreateIndexesImplementation();
 
-        public abstract CommandImplementation<DropIndexesArgument, Empty, ? super Context> getDropIndexesImplementation();
+        public abstract CommandImplementation<DropIndexesArgument, DropIndexesResult, ? super Context> getDropIndexesImplementation();
 
         public abstract CommandImplementation<RenameCollectionArgument, Empty, ? super Context> getRenameCollectionImplementation();
 
