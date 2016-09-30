@@ -125,4 +125,9 @@ public class NettyMongoServer extends AbstractIdleService {
         if (workerGroup != null) workerGroup.shutdownGracefully().syncUninterruptibly();
         if (connectionGroup != null) connectionGroup.shutdownGracefully().syncUninterruptibly();
     }
+
+    public int getPort() {
+        return port;
+    }
+    
 }
