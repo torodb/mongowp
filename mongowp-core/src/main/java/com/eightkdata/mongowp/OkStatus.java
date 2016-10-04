@@ -44,7 +44,7 @@ class OkStatus<Result> implements Status<Result> {
     }
 
     @Override
-    public boolean isOK() {
+    public boolean isOk() {
         return true;
     }
 

@@ -22,8 +22,10 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonTimestamp;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
 import com.google.common.primitives.UnsignedInts;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 
 /**
  *
@@ -56,6 +58,19 @@ public abstract class AbstractBsonTimestamp extends AbstractBsonValue<BsonTimest
     }
 
     @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return diff;
+        }
+
+        assert o.isTimestamp();
+        return compareTo(o.asTimestamp());
+    }
+
     public int compareTo(BsonTimestamp o) {
         int diff = this.getSecondsSinceEpoch() - o.getSecondsSinceEpoch();
         if (diff != 0) {

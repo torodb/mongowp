@@ -23,7 +23,7 @@ package com.eightkdata.mongowp.bson;
 /**
  *
  */
-public interface BsonTimestamp extends BsonValue<BsonTimestamp>, Comparable<BsonTimestamp>{
+public interface BsonTimestamp extends BsonValue<BsonTimestamp> {
 
     int getSecondsSinceEpoch();
 

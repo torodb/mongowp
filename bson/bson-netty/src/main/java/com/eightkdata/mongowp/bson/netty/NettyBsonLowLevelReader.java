@@ -59,7 +59,7 @@ public abstract class NettyBsonLowLevelReader {
             case BINARY: return readBinary(byteBuf);
             case DATETIME: return readDateTime(byteBuf);
             case DB_POINTER: return readDbPointer(byteBuf);
-            case DEPRECTED: return readDeprecated(byteBuf);
+            case DEPRECATED: return readDeprecated(byteBuf);
             case DOCUMENT: return readDocument(byteBuf);
             case DOUBLE: return readDouble(byteBuf);
             case BOOLEAN: return readBoolean(byteBuf);
@@ -87,7 +87,7 @@ public abstract class NettyBsonLowLevelReader {
             case BINARY: return new SimpleEntry<>(key, readBinary(byteBuf));
             case DATETIME: return new SimpleEntry<>(key, readDateTime(byteBuf));
             case DB_POINTER: return new SimpleEntry<>(key, readDbPointer(byteBuf));
-            case DEPRECTED: return new SimpleEntry<>(key, readDeprecated(byteBuf));
+            case DEPRECATED: return new SimpleEntry<>(key, readDeprecated(byteBuf));
             case DOCUMENT: return new SimpleEntry<>(key, readDocument(byteBuf));
             case DOUBLE: return new SimpleEntry<>(key, readDouble(byteBuf));
             case BOOLEAN: return new SimpleEntry<>(key, readBoolean(byteBuf));

@@ -22,7 +22,9 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonBoolean;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 import com.google.common.primitives.Booleans;
 
 
@@ -54,6 +56,22 @@ public abstract class AbstractBsonBoolean extends AbstractBsonValue<Boolean> imp
     @Override
     public boolean isBoolean() {
         return true;
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return diff;
+        }
+
+        assert o instanceof BsonBoolean;
+        BsonBoolean other = o.asBoolean();
+        //TODO: Check how MongoDB compares booleans!
+        return this.getValue().compareTo(other.getValue());
     }
 
     @Override

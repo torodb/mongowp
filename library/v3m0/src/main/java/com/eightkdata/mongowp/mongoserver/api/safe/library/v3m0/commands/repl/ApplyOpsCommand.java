@@ -45,7 +45,7 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
     @Override
     public ApplyOpsArgument unmarshallArg(BsonDocument requestDoc) 
             throws BadValueException, TypesMismatchException, NoSuchKeyException {
-        return ApplyOpsArgument.fromBson(requestDoc);
+        return ApplyOpsArgument.unmarshall(requestDoc);
     }
 
     @Override
@@ -97,7 +97,7 @@ public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsR
             return preconditions;
         }
 
-        private static ApplyOpsArgument fromBson(BsonDocument requestDoc) 
+        private static ApplyOpsArgument unmarshall(BsonDocument requestDoc) 
                 throws BadValueException, TypesMismatchException, NoSuchKeyException {
             final String commandName = "applyOps";
             if (!requestDoc.containsKey(commandName) || !requestDoc.get(commandName).isArray()) {

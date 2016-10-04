@@ -60,6 +60,10 @@ public enum MemberState {
                 + id + "'");
     }
 
+    public boolean isReadable() {
+        return this == RS_PRIMARY || this == RS_SECONDARY;
+    }
+
     public static int getMaxId() {
         return values()[values().length - 1].id;
     }

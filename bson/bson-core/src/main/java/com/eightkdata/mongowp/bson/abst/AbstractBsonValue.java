@@ -98,6 +98,11 @@ abstract class AbstractBsonValue<V> implements BsonValue<V> {
     }
 
     @Override
+    public boolean isDbPointer() {
+        return false;
+    }
+
+    @Override
     public boolean isJavaScript() {
         return false;
     }
@@ -109,6 +114,11 @@ abstract class AbstractBsonValue<V> implements BsonValue<V> {
 
     @Override
     public boolean isTimestamp() {
+        return false;
+    }
+
+    @Override
+    public boolean isDeprecated() {
         return false;
     }
 
@@ -173,6 +183,11 @@ abstract class AbstractBsonValue<V> implements BsonValue<V> {
     }
 
     @Override
+    public BsonDbPointer asDbPointer() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Values of type " + getType() + " cannot be casted to dbPointer");
+    }
+
+    @Override
     public BsonJavaScript asJavaScript() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Values of type " + getType() + " cannot be casted to javaScript");
     }
@@ -196,6 +211,11 @@ abstract class AbstractBsonValue<V> implements BsonValue<V> {
     @Override
     public BsonInt64 asInt64() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Values of type " + getType() + " cannot be casted to int64");
+    }
+
+    @Override
+    public BsonDeprecated asDeprecated() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Values of type " + getType() + " cannot be casted to deprecated");
     }
 
 }

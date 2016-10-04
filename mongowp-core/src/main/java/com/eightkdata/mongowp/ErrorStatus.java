@@ -46,7 +46,7 @@ class ErrorStatus<Result> implements Status<Result> {
         return errorCode;
     }
 
-    public boolean isOK() {
+    public boolean isOk() {
         return errorCode == ErrorCode.OK;
     }
 

@@ -7,6 +7,7 @@ import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedInts;
 import java.io.Serializable;
 import java.time.Instant;
+import javax.annotation.Nonnull;
 
 /**
  * OpTime encompasses an Instant and a 64-bit Term
@@ -35,6 +36,10 @@ public class OpTime implements Comparable<OpTime>, Serializable {
     public OpTime(UnsignedInteger secs, UnsignedInteger term) {
         this.secs = secs.intValue();
         this.term = term.intValue();
+    }
+
+    public OpTime(BsonTimestamp timestamp) {
+        this(timestamp.getSecondsSinceEpoch(), timestamp.getOrdinal());
     }
 
     /**
@@ -98,8 +103,39 @@ public class OpTime implements Comparable<OpTime>, Serializable {
         return UnsignedInts.compare(term, o.term);
     }
 
+    public final boolean isAfter(@Nonnull OpTime other) {
+        return compareTo(other) > 0;
+    }
+
+    public final boolean isEqualOrAfter(@Nonnull OpTime other) {
+        return compareTo(other) >= 0;
+    }
+
+    public final boolean isBefore(@Nonnull OpTime other) {
+        return compareTo(other) < 0;
+    }
+
+    public final boolean isEqualOrBefore(@Nonnull OpTime other) {
+        return compareTo(other) <= 0;
+    }
+
     @Override
     public String toString() {
         return "{t: " + UnsignedInteger.fromIntBits(secs) + ", i: "+ UnsignedInteger.fromIntBits(term) + "}";
+    }
+
+    /**
+     * Returns this optime as a long where the first 32 bits corresponds to {@link #getSecs() } and
+     * the last to {@link #getTerm()}.
+     *
+     * This might not be the safest or easier way to manipulate a optime, but it is the most compact
+     * way to store a optime.
+     *
+     * @return this optime as a long where the first 32 bits corresponds to {@link #getSecs() } and
+     *         the last to {@link #getTerm() }
+     */
+    public Long asLong() {
+        final long INT_MASK = 0xffffffffL;
+        return (secs & INT_MASK) << 32 | (term & INT_MASK);
     }
 }

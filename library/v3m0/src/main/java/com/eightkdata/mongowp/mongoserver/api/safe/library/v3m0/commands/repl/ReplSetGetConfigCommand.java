@@ -48,7 +48,7 @@ public class ReplSetGetConfigCommand extends AbstractCommand<Empty, ReplicaSetCo
     @Override
     public ReplicaSetConfig unmarshallResult(BsonDocument resultDoc) throws
             MongoException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet."); //TODO
+        throw new UnsupportedOperationException("Not supported");
     }
 
 }

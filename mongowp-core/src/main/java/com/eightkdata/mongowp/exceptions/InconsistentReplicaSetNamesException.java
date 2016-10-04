@@ -31,4 +31,8 @@ public class InconsistentReplicaSetNamesException extends MongoException {
         super(ErrorCode.INCONSISTENT_REPLICA_SET_NAMES);
     }
 
+    public InconsistentReplicaSetNamesException(String customMessage) {
+        super(customMessage, ErrorCode.INCONSISTENT_REPLICA_SET_NAMES);
+    }
+
 }

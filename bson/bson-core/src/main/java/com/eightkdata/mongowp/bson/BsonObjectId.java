@@ -27,7 +27,7 @@ import javax.annotation.Nonnegative;
 /**
  *
  */
-public interface BsonObjectId extends BsonValue<BsonObjectId>, Comparable<BsonObjectId> {
+public interface BsonObjectId extends BsonValue<BsonObjectId> {
 
     byte[] toByteArray();
 

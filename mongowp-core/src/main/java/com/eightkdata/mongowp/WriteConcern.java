@@ -75,8 +75,12 @@ public abstract class WriteConcern {
 
     public abstract @Nonnull WType getWType();
 
+    public static WriteConcern unacknowledged() {
+        return UNACKNOWLEDGED;
+    }
+
     public static WriteConcern acknowledged() {
-        return new IntWriteConcern(SyncMode.NONE, 0, 0);
+        return ACKNOWLEDGED;
     }
 
     /**

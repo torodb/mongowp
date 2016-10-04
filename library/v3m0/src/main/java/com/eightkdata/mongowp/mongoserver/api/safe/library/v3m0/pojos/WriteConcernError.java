@@ -20,26 +20,26 @@ public class WriteConcernError {
     private static final StringField ERR_MSG_FIELD = new StringField("errmsg");
 
     private final int code;
-    private final String errmsg;
+    private final String errMsg;
 
-    public WriteConcernError(int code, String errmsg) {
+    public WriteConcernError(int code, String errMsg) {
         this.code = code;
-        this.errmsg = errmsg;
+        this.errMsg = errMsg;
     }
 
     public int getCode() {
         return code;
     }
 
-    public String getErrmsg() {
-        return errmsg;
+    public String getErrMsg() {
+        return errMsg;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
         hash = 79 * hash + this.code;
-        hash = 79 * hash + (this.errmsg != null ? this.errmsg.hashCode() : 0);
+        hash = 79 * hash + (this.errMsg != null ? this.errMsg.hashCode() : 0);
         return hash;
     }
 
@@ -55,14 +55,14 @@ public class WriteConcernError {
         if (this.code != other.code) {
             return false;
         }
-        return !((this.errmsg == null) ? (other.errmsg != null)
-                : !this.errmsg.equals(other.errmsg));
+        return !((this.errMsg == null) ? (other.errMsg != null)
+                : !this.errMsg.equals(other.errMsg));
     }
 
     public BsonValue<?> marshall() {
         BsonDocumentBuilder bsonWriteConcernError = new BsonDocumentBuilder();
         bsonWriteConcernError.append(CODE_FIELD, code);
-        bsonWriteConcernError.append(ERR_MSG_FIELD, errmsg);
+        bsonWriteConcernError.append(ERR_MSG_FIELD, errMsg);
         return bsonWriteConcernError.build();
     }
 

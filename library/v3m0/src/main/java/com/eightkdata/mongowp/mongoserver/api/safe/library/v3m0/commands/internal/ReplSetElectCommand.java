@@ -1,31 +1,35 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonObjectId;
-import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.HostAndPortField;
 import com.eightkdata.mongowp.fields.IntField;
 import com.eightkdata.mongowp.fields.ObjectIdField;
 import com.eightkdata.mongowp.fields.StringField;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectReply;
+import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
-import javax.annotation.Nonnull;
+import com.google.common.net.HostAndPort;
 
 /**
  *
  */
 public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, ReplSetElectReply>{
-
+	public static final IntField COMMAND_FIELD = new IntField("replSetElect");
+	
     public static final ReplSetElectCommand INSTANCE = new ReplSetElectCommand();
 
     private ReplSetElectCommand() {
-        super("replSetElect");
+        super(COMMAND_FIELD.getFieldName());
     }
 
     @Override
@@ -36,12 +40,12 @@ public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, R
     @Override
     public ReplSetElectArgument unmarshallArg(BsonDocument requestDoc)
             throws TypesMismatchException, NoSuchKeyException, BadValueException {
-        return ReplSetElectArgument.fromDocument(requestDoc);
+        return ReplSetElectArgument.unmarshall(requestDoc);
     }
 
     @Override
     public BsonDocument marshallArg(ReplSetElectArgument request) {
-        throw new UnsupportedOperationException("Not supported yet."); //TODO
+        return request.marshall();
     }
 
     @Override
@@ -59,19 +63,22 @@ public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, R
     }
 
     @Override
-    public ReplSetElectReply unmarshallResult(BsonDocument resultDoc) {
-        throw new UnsupportedOperationException("Not supported yet."); //TODO
+    public ReplSetElectReply unmarshallResult(BsonDocument resultDoc) 
+    		throws BadValueException, TypesMismatchException, NoSuchKeyException {
+        return ReplSetElectReply.unmarshall(resultDoc);
     }
 
     public static class ReplSetElectArgument {
 
-        private static final String SET_NAME_FIELD_NAME = "set";
-        private static final String CLIENT_ID_FIELD_NAME = "whoid";
-        private static final String CFG_VER_FIELD_NAME = "cfgver";
-        private static final String ROUND_FIELD_NAME = "round";
+        private static final StringField SET_NAME_FIELD = new StringField("set");
+        private static final HostAndPortField WHO_FIELD = new HostAndPortField("who");
+        private static final IntField CLIENT_ID_FIELD = new IntField("whoid");
+        private static final IntField CFG_VER_FIELD = new IntField("cfgver");
+        private static final ObjectIdField ROUND_FIELD = new ObjectIdField("round");
 
-        private final @Nonnull String setName;
-        private final int clientId;  
+        private final @Nonnull String replSetName;
+        private final @Nullable HostAndPort who;
+        private final int clientId;
         private final int cfgVersion;
         private final @Nonnull BsonObjectId round;
 
@@ -80,7 +87,21 @@ public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, R
                 int clientId,
                 int cfgVersion,
                 @Nonnull BsonObjectId round) {
-            this.setName = setName;
+            this.replSetName = setName;
+            this.who = null;
+            this.clientId = clientId;
+            this.cfgVersion = cfgVersion;
+            this.round = round;
+        }
+
+        public ReplSetElectArgument(
+                @Nonnull String setName,
+                @Nonnull HostAndPort who,
+                int clientId,
+                int cfgVersion,
+                @Nonnull BsonObjectId round) {
+            this.replSetName = setName;
+            this.who = who;
             this.clientId = clientId;
             this.cfgVersion = cfgVersion;
             this.round = round;
@@ -91,8 +112,8 @@ public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, R
          * @return 
          */
         @Nonnull
-        public String getSetName() {
-            return setName;
+        public String getReplSetName() {
+            return replSetName;
         }
 
         /**
@@ -119,12 +140,26 @@ public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, R
             return round;
         }
 
-        public static ReplSetElectArgument fromDocument(
+        private BsonDocument marshall() {
+        	BsonDocumentBuilder builder = new BsonDocumentBuilder();
+        	builder.append(COMMAND_FIELD, 1);
+        	builder.append(SET_NAME_FIELD, replSetName);
+        	if (who != null) {
+        		builder.append(WHO_FIELD, who);
+        	}
+        	builder.append(CLIENT_ID_FIELD, clientId);
+        	builder.append(CFG_VER_FIELD, cfgVersion);
+        	builder.append(ROUND_FIELD, round);
+        	
+        	return builder.build();
+        }
+        
+        public static ReplSetElectArgument unmarshall(
                 BsonDocument bson) throws TypesMismatchException, NoSuchKeyException {
-            String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD_NAME, "");
-            int cliendId = BsonReaderTool.getInteger(bson, CLIENT_ID_FIELD_NAME);
-            int cfgversion = BsonReaderTool.getNumeric(bson, CFG_VER_FIELD_NAME).intValue();
-            BsonObjectId round = BsonReaderTool.getObjectId(bson, ROUND_FIELD_NAME);
+            String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD);
+            int cliendId = BsonReaderTool.getInteger(bson, CLIENT_ID_FIELD);
+            int cfgversion = BsonReaderTool.getNumeric(bson, CFG_VER_FIELD).intValue();
+            BsonObjectId round = BsonReaderTool.getObjectId(bson, ROUND_FIELD);
 
             return new ReplSetElectArgument(setName, cliendId, cfgversion, round);
         }
@@ -149,6 +184,18 @@ public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, R
 
         public BsonObjectId getRound() {
             return round;
+        }
+        
+        private static ReplSetElectReply unmarshall(BsonDocument doc) 
+        		throws BadValueException, TypesMismatchException, NoSuchKeyException {
+        	if (!doc.get(VOTE_FIELD.getFieldName()).isInt32()) {
+        		throw new BadValueException("wrong type vote argument in replSetElect command: " + 
+        				doc.get(VOTE_FIELD.getFieldName()).getType());
+        	}
+        	int vote = BsonReaderTool.getInteger(doc, VOTE_FIELD);
+        	BsonObjectId round = BsonReaderTool.getObjectId(doc, ROUND_FIELD);
+        	
+        	return new ReplSetElectReply(vote, round);
         }
     }
 

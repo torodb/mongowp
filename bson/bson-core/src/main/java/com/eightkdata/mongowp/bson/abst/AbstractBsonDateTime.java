@@ -22,7 +22,9 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonDateTime;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 import java.time.Instant;
 
 /**
@@ -48,6 +50,21 @@ public abstract class AbstractBsonDateTime extends AbstractBsonValue<Instant> im
     @Override
     public boolean isDateTime() {
         return true;
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return diff;
+        }
+
+        assert o instanceof BsonDateTime;
+        BsonDateTime other = o.asDateTime();
+        return this.getValue().compareTo(other.getValue());
     }
 
     @Override

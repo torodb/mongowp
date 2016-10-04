@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 public interface Status<Result> extends Serializable{
     public ErrorCode getErrorCode();
 
-    public default boolean isOK() {
+    public default boolean isOk() {
         return getErrorCode() == ErrorCode.OK;
     }
 
@@ -43,7 +43,7 @@ public interface Status<Result> extends Serializable{
     public String getErrorMsg() throws IllegalStateException;
 
     public default Optional<Result> asOptional() {
-        if (isOK()) {
+        if (isOk()) {
             return Optional.ofNullable(getResult());
         }
         return Optional.empty();

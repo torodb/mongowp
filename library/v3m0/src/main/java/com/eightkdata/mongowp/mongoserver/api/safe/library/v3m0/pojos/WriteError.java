@@ -22,12 +22,12 @@ public class WriteError {
 
     private final int index;
     private final int code;
-    private final String errmsg;
+    private final String errMsg;
 
-    public WriteError(int index, int code, String errmsg) {
+    public WriteError(int index, int code, String errMsg) {
         this.index = index;
         this.code = code;
-        this.errmsg = errmsg;
+        this.errMsg = errMsg;
     }
 
     public int getIndex() {
@@ -38,8 +38,8 @@ public class WriteError {
         return code;
     }
 
-    public String getErrmsg() {
-        return errmsg;
+    public String getErrMsg() {
+        return errMsg;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class WriteError {
         int hash = 7;
         hash = 19 * hash + this.index;
         hash = 19 * hash + this.code;
-        hash = 19 * hash + (this.errmsg != null ? this.errmsg.hashCode() : 0);
+        hash = 19 * hash + (this.errMsg != null ? this.errMsg.hashCode() : 0);
         return hash;
     }
 
@@ -66,15 +66,15 @@ public class WriteError {
         if (this.code != other.code) {
             return false;
         }
-        return !((this.errmsg == null) ? (other.errmsg != null)
-                : !this.errmsg.equals(other.errmsg));
+        return !((this.errMsg == null) ? (other.errMsg != null)
+                : !this.errMsg.equals(other.errMsg));
     }
 
     public BsonValue<?> marshall() {
         BsonDocumentBuilder bsonWriteError = new BsonDocumentBuilder();
         bsonWriteError.append(INDEX_FIELD, index);
         bsonWriteError.append(CODE_FIELD, code);
-        bsonWriteError.append(ERR_MSG_FIELD, errmsg);
+        bsonWriteError.append(ERR_MSG_FIELD, errMsg);
         return bsonWriteError.build();
     }
 

@@ -21,8 +21,11 @@
 package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonDbPointer;
+import com.eightkdata.mongowp.bson.BsonJavaScript;
 import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 import java.util.Objects;
 
 /**
@@ -41,8 +44,43 @@ public abstract class AbstractBsonDbPointer extends AbstractBsonValue<BsonDbPoin
     }
 
     @Override
+    public BsonDbPointer asDbPointer() {
+        return this;
+    }
+
+    @Override
+    public boolean isDbPointer() {
+        return true;
+    }
+
+    @Override
     public BsonType getType() {
         return BsonType.DB_POINTER;
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return diff;
+        }
+        
+        if (o.isObjectId()) {
+        	return 1;
+        }
+
+        assert o instanceof BsonDbPointer;
+        BsonDbPointer other = (BsonDbPointer) o;
+        //TODO: Check how MongoDB compares pointers!
+
+        diff = this.getNamespace().compareTo(other.getNamespace());
+        if (diff != 0) {
+            return diff;
+        }
+        return this.getId().compareTo(other.getId());
     }
 
     @Override

@@ -22,7 +22,9 @@ package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonType;
 import com.eightkdata.mongowp.bson.BsonUndefined;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
+import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 
 /**
  *
@@ -52,6 +54,28 @@ public abstract class AbstractBsonUndefined extends AbstractBsonValue<BsonUndefi
     @Override
     public boolean isUndefined() {
         return true;
+    }
+
+    @Override
+    public int compareTo(BsonValue<?> o) {
+        if (o == this) {
+            return 0;
+        }
+        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
+        if (diff != 0) {
+            return diff;
+        }
+        
+        if (o.isNull()) {
+        	return 1;
+        }
+
+        if (o.isDeprecated()) {
+        	return -1;
+        }
+        
+        assert o.isUndefined();
+        return 0;
     }
 
     @Override

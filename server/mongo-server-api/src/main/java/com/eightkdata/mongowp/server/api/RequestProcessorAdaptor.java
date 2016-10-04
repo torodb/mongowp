@@ -163,15 +163,18 @@ public class RequestProcessorAdaptor<C extends Connection> implements RequestPro
         Status<?> reply = safeRequestProcessor.execute(request, command, arg, connection);
 
         BsonDocument bson;
-        if (reply.isOK()) {
+        if (reply.isOk()) {
             try {
                 bson = command.marshallResult(reply.getResult());
                 if (bson == null) {
                     bson = DefaultBsonValues.EMPTY_DOC;
+                } else {
+                    if (!bson.containsKey(OK_FIELD.getFieldName())) {
+                        bson = new BsonDocumentBuilder(bson)
+                                .append(OK_FIELD, MongoConstants.OK)
+                                .build();
+                    }
                 }
-                bson = new BsonDocumentBuilder(bson)
-                        .append(OK_FIELD, MongoConstants.OK)
-                        .build();
             } catch (MarshalException ex) {
                 throw new FailedToParseException(ex.getLocalizedMessage());
             }

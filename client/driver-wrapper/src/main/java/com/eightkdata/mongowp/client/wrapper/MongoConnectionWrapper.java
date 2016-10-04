@@ -1,5 +1,6 @@
 package com.eightkdata.mongowp.client.wrapper;
 
+import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.org.bson.utils.MongoBsonTranslator;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
@@ -24,11 +25,13 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.InsertManyOptions;
 import com.mongodb.client.model.UpdateOptions;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
+
 
 /**
  *
@@ -41,6 +44,7 @@ public class MongoConnectionWrapper implements MongoConnection {
 
     private final CodecRegistry codecRegistry;
     private final MongoClientWrapper owner;
+    private boolean close = false;
 
     public MongoConnectionWrapper(
             CodecRegistry codecRegistry,
@@ -186,11 +190,12 @@ public class MongoConnectionWrapper implements MongoConnection {
     }
 
     @Override
-    public <Arg, Result> Result execute(
+    public <Arg, Result> RemoteCommandResponse<Result> execute(
             Command<? super Arg, Result> command,
             String database,
             boolean isSlaveOk,
-            Arg arg) throws MongoException {
+            Arg arg) {
+        long startMillis = System.currentTimeMillis();
         try {
             ReadPreference readPreference;
             if (isSlaveOk) {
@@ -206,16 +211,41 @@ public class MongoConnectionWrapper implements MongoConnection {
                     );
             org.bson.BsonDocument bsonDoc
                     = document.toBsonDocument(Document.class, codecRegistry);
-            return command.unmarshallResult(MongoBsonTranslator.translate(bsonDoc));
+            Result commandResult = command.unmarshallResult(MongoBsonTranslator.translate(bsonDoc));
+            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+            return new CorrectRemoteCommandResponse<>(command, d, commandResult);
         } catch (MarshalException ex) {
-            throw new BadValueException(
-                    "It was impossible to marshall the given argument to "
-                    + command.getCommandName(),
-                    ex
-            );
+            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+            return new ErroneousRemoteCommandResponse<>(
+                    ErrorCode.BAD_VALUE,
+                    "It was impossible to marshall the given argument to " + command,
+                    d, null, null);
         } catch (IOException ex) {
-            throw new BadValueException("Unexpected IO exception", ex);
+            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+            return new ErroneousRemoteCommandResponse<>(
+                    ErrorCode.BAD_VALUE,
+                    "Unexpected IO exception",
+                    d, null, null);
+        } catch (MongoException ex) {
+            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+            return new FromExceptionRemoteCommandRequest<>(ex, d, null, null);
         }
+    }
+
+    @Override
+    public <Arg, Result> RemoteCommandResponse<Result> execute(
+            Command<? super Arg, Result> command,
+            String database,
+            boolean isSlaveOk,
+            Arg arg,
+            Duration timeout) {
+        //TODO: manage duration!
+        throw new UnsupportedOperationException("Timeout command execution is not supported yet");
+    }
+
+    @Override
+    public boolean isClosed() {
+        return close;
     }
 
     @Override
@@ -225,6 +255,8 @@ public class MongoConnectionWrapper implements MongoConnection {
 
     @Override
     public void close() {
+        //Nothing to do
+        close = true;
     }
 
     private static class WrappedMongoCursor implements MongoCursor<BsonDocument> {

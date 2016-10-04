@@ -1,6 +1,8 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl;
 
+import com.eightkdata.mongowp.ErrorCode;
+import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonValue;
@@ -16,13 +18,14 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyComma
 import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import com.google.common.primitives.UnsignedInteger;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -69,16 +72,24 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
     @Override
     public ReplSetGetStatusReply unmarshallResult(BsonDocument resultDoc) throws
             MongoException, UnsupportedOperationException {
-        throw new UnsupportedOperationException("Not supported yet."); //TODO
+        throw new UnsupportedOperationException("Not supported");
     }
 
     @Immutable
     public static abstract class ReplSetGetStatusReply {
+    	public abstract ErrorCode getErrorCode();
+    	public abstract String getErrMsg();
+    	public abstract String getSetName();
+    	public abstract MemberState getMyState();
+    	public abstract Instant getDate();
+    	
         protected abstract BsonDocument marshall();
     }
 
     @Immutable
     public static class InvalidReplSetGetStatusReply extends ReplSetGetStatusReply {
+        private final @Nonnull ErrorCode errorCode;
+        private final @Nonnull String errMsg;
         private final @Nonnull MemberState state;
         private final @Nonnull Duration uptime;
         private final @Nonnull OpTime optime;
@@ -86,11 +97,15 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         private final @Nullable String heartbeatMessage;
 
         public InvalidReplSetGetStatusReply(
+                @Nonnull ErrorCode errorCode,
+                @Nonnull String errMsg,
                 MemberState state,
                 Duration uptime,
                 OpTime optime,
                 int maintenanceModeCalls,
                 String heartbeatMessage) {
+        	this.errorCode = errorCode;
+            this.errMsg = errMsg;
             this.state = state;
             this.uptime = uptime;
             this.optime = optime;
@@ -98,6 +113,34 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             this.heartbeatMessage = heartbeatMessage;
         }
 
+        @Override
+		public ErrorCode getErrorCode() {
+			return errorCode;
+		}
+
+        @Override
+		public String getErrMsg() {
+			return errMsg;
+		}
+
+        @Override
+		public String getSetName() {
+			return null;
+		}
+
+		@Override
+		public MemberState getMyState() {
+			return state;
+		}
+
+		@Override
+		public Instant getDate() {
+			return null;
+		}
+
+		private static final StringField ERR_MSG_FIELD_NAME = new StringField("errmsg");
+        private static final IntField ERROR_CODE_FIELD_NAME = new IntField("code");
+        private static final DoubleField OK_FIELD_NAME = new DoubleField("ok");
         private static final IntField STATE_FIELD = new IntField("state");
         private static final StringField STATE_STR_FIELD = new StringField("stateStr");
         private static final IntField UPTIME_FIELD = new IntField("uptime");
@@ -109,9 +152,12 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         @Override
         protected BsonDocument marshall() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
-            builder.append(STATE_FIELD, state.getId())
+            builder.append(ERR_MSG_FIELD_NAME, errMsg)
+                    .append(ERROR_CODE_FIELD_NAME, ErrorCode.INVALID_REPLICA_SET_CONFIG.getErrorCode())
+                    .append(OK_FIELD_NAME, MongoConstants.KO)
+                    .append(STATE_FIELD, state.getId())
                     .append(STATE_STR_FIELD, state.name())
-                    .append(UPTIME_FIELD, (int) uptime.getSeconds()) //TODO: Check if cast to int is correct
+                    .append(UPTIME_FIELD, UnsignedInteger.valueOf(uptime.getSeconds()).intValue()) //TODO: Check if cast to int is correct
                     .append(OPTIME_FIELD, optime)
                     .appendInstant(OPTIME_DATE_FIELD, optime.toEpochMilli());
             if (maintenanceModeCalls != 0) {
@@ -125,7 +171,6 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         }
     }
 
-    @Immutable
     public static class CorrectReplSetGetStatusReply extends ReplSetGetStatusReply {
         private static final StringField SET_NAME_FIELD = new StringField("set");
         private static final DateTimeField DATE_FIELD = new DateTimeField("date");
@@ -133,7 +178,8 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         private static final HostAndPortField SYNCING_TO_FIELD = new HostAndPortField("syncingTo");
         private static final ArrayField MEMBERS_FIELD = new ArrayField("members");
 
-        private static final IntField MEMBER_ID_FIELD = new IntField("id");
+        private static final DoubleField OK_FIELD_NAME = new DoubleField("ok");
+        private static final IntField MEMBER_ID_FIELD = new IntField("_id");
         private static final HostAndPortField MEMBER_NAME_FIELD = new HostAndPortField("name");
         private static final DoubleField MEMBER_HEALTH_FIELD = new DoubleField("health");
         private static final IntField MEMBER_STATE_FIELD = new IntField("state");
@@ -146,7 +192,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         private static final StringField MEMBER_INFO_MESSAGE_FIELD = new StringField("infoMessage");
         private static final TimestampField MEMBER_ELECTION_TIME_FIELD = new TimestampField("electionTime");
         private static final DateTimeField MEMBER_ELECTION_DATE_FIELD = new DateTimeField("electionDate");
-        private static final NumberField MEMBER_CONFIG_VERSION_FIELD = new DoubleField("configVersion");
+        private static final DoubleField MEMBER_CONFIG_VERSION_FIELD = new DoubleField("configVersion");
         private static final BooleanField MEMBER_SELF_FIELD = new BooleanField("self");
         private static final DateTimeField MEMBER_LAST_HEARTBEAT = new DateTimeField("lastHeartbeat");
         private static final DateTimeField MEMBER_LAST_HEARTBEAT_RECIVED = new DateTimeField("lastHeartbeatRecv");
@@ -154,38 +200,61 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
         private static final StringField MEMBER_LAST_HEARTBEAT_MESSAGE = new StringField("lastHeartbeatMessage");
         private static final BooleanField MEMBER_AUTHENTICATED = new BooleanField("authenticated");
 
-        private final SelfData selfData;
-        private final String setName;
-        private final Instant now;
-        private final MemberState state;
+        private final @Nonnull SelfData selfData;
+        private final @Nonnull String setName;
+        private final @Nonnull Instant now;
         private final @Nullable HostAndPort syncTo;
-        private final ImmutableMap<MemberConfig, MemberHeartbeatData> membersInfo;
-        private final ImmutableMap<MemberConfig, Integer> pings;
-        private final ReplicaSetConfig replConfig;
+        private final Map<MemberConfig, MemberHeartbeatData> membersInfo;
+        private final Map<MemberConfig, Integer> pings;
+        private final @Nonnull ReplicaSetConfig replConfig;
 
         public CorrectReplSetGetStatusReply(
-                SelfData selfData,
-                String setName,
-                Instant now,
-                MemberState state,
-                HostAndPort syncTo,
-                ImmutableMap<MemberConfig, MemberHeartbeatData> membersInfo,
-                ImmutableMap<MemberConfig, Integer> pings,
-                ReplicaSetConfig replConfig) {
+                @Nonnull SelfData selfData,
+                @Nonnull String setName,
+                @Nonnull Instant now,
+                @Nullable HostAndPort syncTo,
+                Map<MemberConfig, MemberHeartbeatData> membersInfo,
+                Map<MemberConfig, Integer> pings,
+                @Nonnull ReplicaSetConfig replConfig) {
             this.selfData = selfData;
             this.setName = setName;
             this.now = now;
-            this.state = state;
             this.syncTo = syncTo;
             this.membersInfo = membersInfo;
             this.pings = pings;
             this.replConfig = replConfig;
         }
 
+        @Override
+		public ErrorCode getErrorCode() {
+			return ErrorCode.OK;
+		}
+
+		@Override
+		public String getErrMsg() {
+			return "";
+		}
+
+		@Override
+		public String getSetName() {
+			return setName;
+		}
+
+		@Override
+		public MemberState getMyState() {
+			return null;
+		}
+
+		@Override
+		public Instant getDate() {
+			return now;
+		}
 
         @Override
         protected BsonDocument marshall() {
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
+
+            MemberState state = selfData.state;
 
             builder.append(SET_NAME_FIELD, setName)
                     .append(DATE_FIELD, now)
@@ -206,8 +275,13 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                     membersList.add(marshallOtherMember(memberConfig, memberData));
                 }
             }
-            //TODO: Older versions of this command sorted the members list. Check if that is necessary
-//            Collections.sort(membersList, new BsonValueComparator(true));
+            //TODO: find out how mongo actually sort the members array
+            Collections.sort(membersList, (BsonValue<?> o1, BsonValue<?> o2) -> {
+                BsonValue<?> v1 = o1.asDocument().get(MEMBER_ID_FIELD.getFieldName());
+                assert v1 != null;
+                BsonValue<?> v2 = o2.asDocument().get(MEMBER_ID_FIELD.getFieldName());
+                return v1.compareTo(v2);
+            });
 
             builder.append(MEMBERS_FIELD, DefaultBsonValues.newArray(membersList));
 
@@ -220,11 +294,12 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             builder.append(MEMBER_ID_FIELD, selfData.getId())
                     .append(MEMBER_NAME_FIELD, selfData.getName())
                     .append(MEMBER_HEALTH_FIELD, 1.0)
+                    .append(OK_FIELD_NAME, MongoConstants.OK)
                     .append(MEMBER_STATE_FIELD, selfData.getState().getId())
                     .append(MEMBER_STATE_STR_FIELD, selfData.getState().name())
-                    .append(MEMBER_UPTIME_FIELD, selfData.getUptime().intValue()); //TODO: Check if cast to int is correct
+                    .append(MEMBER_UPTIME_FIELD, UnsignedInteger.valueOf(selfData.getUptime().getSeconds()).intValue()); //TODO: Check if cast to int is correct
 
-            if (selfData.getState().equals(MemberState.RS_ARBITER)) {
+            if (!selfData.getState().equals(MemberState.RS_ARBITER)) {
                     builder.append(MEMBER_OPTIME_FIELD, selfData.getOpTime())
                             .appendInstant(MEMBER_OPTIME_DATE_FIELD, selfData.getOpTime().toEpochMilli());
             }
@@ -234,14 +309,14 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             if (selfData.getMaintenanceModeCalls() != 0) {
                 builder.append(MEMBER_MAINTENANCE_MODE_FIELD, selfData.getMaintenanceModeCalls());
             }
-            if (selfData.getHeartbeatMessage() != null) {
+            if (selfData.getHeartbeatMessage() != null && !selfData.getHeartbeatMessage().isEmpty()) {
                 builder.append(MEMBER_INFO_MESSAGE_FIELD, selfData.getHeartbeatMessage());
             }
             if (selfData.getState().equals(MemberState.RS_PRIMARY)) {
                 builder.append(MEMBER_ELECTION_TIME_FIELD, selfData.getElectionTime());
                 builder.appendInstant(MEMBER_ELECTION_DATE_FIELD, selfData.getElectionTime().toEpochMilli());
             }
-            builder.appendNumber(MEMBER_CONFIG_VERSION_FIELD, replConfig.getVersion());
+            builder.appendNumber(MEMBER_CONFIG_VERSION_FIELD, replConfig.getConfigVersion());
             builder.append(MEMBER_SELF_FIELD, true);
 
             return builder.build();
@@ -251,7 +326,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             BsonDocumentBuilder builder = new BsonDocumentBuilder();
 
             builder.append(MEMBER_ID_FIELD, config.getId())
-                    .append(MEMBER_NAME_FIELD, config.getHost());
+                    .append(MEMBER_NAME_FIELD, config.getHostAndPort());
             MemberHeartbeatData.Health h = data.getHealth();
             builder.append(MEMBER_HEALTH_FIELD, h.getId())
                     .append(MEMBER_STATE_FIELD, data.getState().getId());
@@ -263,7 +338,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                 builder.append(MEMBER_STATE_STR_FIELD, data.getState().name());
             }
             Instant upSince = data.getUpSince();
-            if (upSince == null) {
+            if (upSince == null || upSince.equals(Instant.EPOCH)) {
                 builder.append(MEMBER_UPTIME_FIELD, 0);
             }
             else {
@@ -305,13 +380,13 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             private final int id;
             private final HostAndPort name;
             private final MemberState state;
-            private final @Nonnull UnsignedInteger uptime;
+            private final @Nonnull Duration uptime;
             private final @Nonnull OpTime opTime;
             private final int maintenanceModeCalls;
             private final @Nullable String heartbeatMessage;
             private final OpTime electionTime;
 
-            public SelfData(int id, HostAndPort name, MemberState state, UnsignedInteger uptime, OpTime opTime, int maintenanceModeCalls, String heartbeatMessage, OpTime electionTime) {
+            public SelfData(int id, HostAndPort name, MemberState state, Duration uptime, OpTime opTime, int maintenanceModeCalls, String heartbeatMessage, OpTime electionTime) {
                 this.id = id;
                 this.name = name;
                 this.state = state;
@@ -334,7 +409,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                 return state;
             }
 
-            public UnsignedInteger getUptime() {
+            public Duration getUptime() {
                 return uptime;
             }
 
