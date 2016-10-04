@@ -108,13 +108,25 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
 
     @Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		requestProcessor.onChannelActive(ctx);
+	    try {
+	        LOGGER.info("Connection established from " + ctx.channel().remoteAddress());
+        } catch (Exception e) {
+            LOGGER.debug("Exception raised while logging connection", e);
+        }
+
+	    requestProcessor.onChannelActive(ctx);
 		
 		super.channelActive(ctx);
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        try {
+            LOGGER.info("Connection finished from " + ctx.channel().remoteAddress());
+        } catch (Exception e) {
+            LOGGER.debug("Exception raised while logging disconnection", e);
+        }
+
 		super.channelInactive(ctx);
 		
 		requestProcessor.onChannelInactive(ctx);
