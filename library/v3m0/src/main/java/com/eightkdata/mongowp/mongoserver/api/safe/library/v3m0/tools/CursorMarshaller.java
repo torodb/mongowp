@@ -32,6 +32,9 @@ public class CursorMarshaller {
     private static final StringField NAMESPACE_FIELD = new StringField("ns");
     private static final ArrayField FIRST_BATCH_FIELD = new ArrayField("firstBatch");
 
+    private CursorMarshaller() {
+    }
+
     public static <T> BsonDocument marshall(
             MongoCursor<T> cursor,
             Function<T, ? extends BsonValue> conversor) throws MongoException {

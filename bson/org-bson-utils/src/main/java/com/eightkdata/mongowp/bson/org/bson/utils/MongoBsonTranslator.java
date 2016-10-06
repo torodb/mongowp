@@ -31,6 +31,9 @@ public class MongoBsonTranslator {
     public static final Function<com.eightkdata.mongowp.bson.BsonDocument, BsonDocument> TO_MONGO_FUNCTION = new ToMongoFunction();
     private static final byte FIRST_USER_DEFINED = UnsignedBytes.parseUnsignedByte("80", 16);
 
+    private MongoBsonTranslator() {
+    }
+
     @Nullable
     public static BsonDocument translate(@Nullable com.eightkdata.mongowp.bson.BsonDocument wpDocument) throws IOException {
         return (BsonDocument) _translate(wpDocument);

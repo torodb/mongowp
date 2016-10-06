@@ -29,6 +29,9 @@ import java.util.Set;
  *
  */
 public class AssertSetsUtil {
+    private AssertSetsUtil() {
+    }
+
     public static <T> boolean assertSetsEqual(Set<T> a, Set<T> b) {
         if(a == null || b == null) {
             return a == b;
