@@ -1,6 +1,13 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.BsonValue;
@@ -8,18 +15,16 @@ import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.fields.*;
+import com.eightkdata.mongowp.fields.BooleanField;
+import com.eightkdata.mongowp.fields.DocField;
+import com.eightkdata.mongowp.fields.IntField;
+import com.eightkdata.mongowp.fields.NumberField;
+import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import com.google.common.collect.Lists;
 
 /**
  *
@@ -60,7 +65,7 @@ public class IndexOptions {
     @Nonnull
     private final BsonDocument otherProps;
 
-    private final Map<List<String>, IndexType> keys;
+    private final List<Key> keys;
     @Nonnull
     private final BsonDocument storageEngine;
 
@@ -76,7 +81,7 @@ public class IndexOptions {
             boolean unique,
             boolean sparse,
             int expireAfterSeconds,
-            @Nonnull Map<List<String>, IndexType> keys,
+            @Nonnull List<Key> keys,
             @Nullable BsonDocument storageEngine,
             @Nullable BsonDocument otherProps) {
         this.version = version;
@@ -113,13 +118,13 @@ public class IndexOptions {
     /**
      * Returns a map with the indexed paths and if they are ascending or descending.
      * 
-     * The kyes are lists of strings that represent the path of the index and
+     * The keys are lists of strings that represent the path of the index and
      * values are booleans that indicates if the index is ascending or
      * descending.
      * @return
      */
-    public Map<List<String>, IndexType> getKeys() {
-        return Collections.unmodifiableMap(keys);
+    public List<Key> getKeys() {
+        return Collections.unmodifiableList(keys);
     }
 
     public boolean isBackground() {
@@ -151,9 +156,9 @@ public class IndexOptions {
     public BsonDocument marshall() {
 
         BsonDocumentBuilder keysDoc = new BsonDocumentBuilder();
-        for (java.util.Map.Entry<List<String>, IndexType> entry : keys.entrySet()) {
-            String path = PATH_JOINER.join(entry.getKey());
-            BsonValue value = entry.getValue().toBsonValue();
+        for (Key key : keys) {
+            String path = PATH_JOINER.join(key.getKeys());
+            BsonValue value = key.getType().toBsonValue();
             keysDoc.appendUnsafe(path, value);
         }
 
@@ -258,7 +263,7 @@ public class IndexOptions {
             throw new NoSuchKeyException(KEYS_FIELD_NAME, "Indexes need at least one key to index");
         }
 
-        Map<List<String>, IndexType> keys = Maps.newHashMapWithExpectedSize(keyDoc.size());
+        List<Key> keys = Lists.newArrayListWithExpectedSize(keyDoc.size());
         for (Entry<?> entry : keyDoc) {
             List<String> key = PATH_SPLITER.splitToList(entry.getKey());
             IndexType value = null;
@@ -276,7 +281,7 @@ public class IndexOptions {
                         + "value of " + fieldId + " but " + entry.getValue().toString() + " was found");
             }
 
-            keys.put(key, value);
+            keys.add(new Key(key, value));
         }
 
         return new IndexOptions(
@@ -371,6 +376,24 @@ public class IndexOptions {
             return bsonValue.isNumber() && 
                     toBsonValue().asInt32()
                         .equals(bsonValue.asInt32());
+        }
+    }
+    
+    public static class Key {
+        private final List<String> keys;
+        private final IndexType type;
+        
+        public Key(List<String> keys, IndexType type) {
+            super();
+            this.keys = keys;
+            this.type = type;
+        }
+
+        public List<String> getKeys() {
+            return keys;
+        }
+        public IndexType getType() {
+            return type;
         }
     }
     
