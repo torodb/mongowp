@@ -144,13 +144,11 @@ public class RequestProcessorAdaptor implements RequestProcessor {
             throw new CommandNotFoundException(firstKey);
         }
 
-        if (command.isAdminOnly()) {
-            if (!QUERY_MESSAGE_ADMIN_DATABASE.equals(queryMessage.getDatabase())) {
-                throw new UnauthorizedException(
-                        command.getCommandName() + "may only be run "
-                        + "against the admin database."
-                );
-            }
+        if (command.isAdminOnly() && !QUERY_MESSAGE_ADMIN_DATABASE.equals(queryMessage.getDatabase())) {
+            throw new UnauthorizedException(
+                    command.getCommandName() + "may only be run "
+                    + "against the admin database."
+            );
         }
 
         Object arg = command.unmarshallArg(document);
