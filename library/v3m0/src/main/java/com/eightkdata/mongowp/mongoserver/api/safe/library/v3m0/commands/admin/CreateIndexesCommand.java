@@ -13,6 +13,7 @@ import com.eightkdata.mongowp.fields.IntField;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesResult;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.IndexOptions;
 import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
@@ -45,11 +46,16 @@ public class CreateIndexesCommand extends AbstractCommand<CreateIndexesArgument,
         return CreateIndexesArgument.unmarshall(requestDoc);
     }
 
+    public CreateIndexesArgument unmarshallArgFromInsert(BsonDocument requestDoc)
+            throws TypesMismatchException, NoSuchKeyException, BadValueException {
+        return CreateIndexesArgument.unmarshallFromInsert(requestDoc);
+    }
+    
     @Override
     public BsonDocument marshallArg(CreateIndexesArgument request) {
         return request.marshall();
     }
-
+    
     @Override
     public Class<? extends CreateIndexesResult> getResultClass() {
         return CreateIndexesResult.class;
@@ -68,6 +74,8 @@ public class CreateIndexesCommand extends AbstractCommand<CreateIndexesArgument,
     public static class CreateIndexesArgument {
         private final static StringField COLLECTION_FIELD = new StringField(COMMAND_NAME);
         private final static ArrayField INDEXES_FIELD = new ArrayField("indexes");
+        
+        private final static StringField NS_FIELD = new StringField("ns");
 
         private final String collection;
         private final List<IndexOptions> indexesToCreate;
@@ -100,6 +108,23 @@ public class CreateIndexesCommand extends AbstractCommand<CreateIndexesArgument,
         private static CreateIndexesArgument unmarshall(BsonDocument requestDoc)
                 throws TypesMismatchException, NoSuchKeyException, BadValueException {
             String collection = BsonReaderTool.getString(requestDoc, COLLECTION_FIELD);
+
+            BsonArray optionsArray = BsonReaderTool.getArray(requestDoc, INDEXES_FIELD);
+            List<IndexOptions> indexes = Lists.newArrayListWithCapacity(optionsArray.size());
+            for (BsonValue element : optionsArray) {
+                if (!element.isDocument()) {
+                    throw new BadValueException("The element " + element
+                            + " inside " + INDEXES_FIELD + " array is not a document");
+                }
+                IndexOptions options = IndexOptions.unmarshall(element.asDocument());
+                indexes.add(options);
+            }
+            return new CreateIndexesArgument(collection, indexes);
+        }
+
+        private static CreateIndexesArgument unmarshallFromInsert(BsonDocument requestDoc)
+                throws TypesMismatchException, NoSuchKeyException, BadValueException {
+            String collection = BsonReaderTool.getString(requestDoc, NS_FIELD);
 
             BsonArray optionsArray = BsonReaderTool.getArray(requestDoc, INDEXES_FIELD);
             List<IndexOptions> indexes = Lists.newArrayListWithCapacity(optionsArray.size());
@@ -146,6 +171,10 @@ public class CreateIndexesCommand extends AbstractCommand<CreateIndexesArgument,
             return numIndexesAfter;
         }
 
+        public int getNumNewIndexes() {
+            return numIndexesAfter - numIndexesBefore;
+        }
+        
         @Nullable
         public String getNote() {
             return note;

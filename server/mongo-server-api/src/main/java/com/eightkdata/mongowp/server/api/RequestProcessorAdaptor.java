@@ -1,6 +1,9 @@
 
 package com.eightkdata.mongowp.server.api;
 
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+
 import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.Status;
 import com.eightkdata.mongowp.bson.BsonDocument;
@@ -10,19 +13,25 @@ import com.eightkdata.mongowp.exceptions.FailedToParseException;
 import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.exceptions.UnauthorizedException;
 import com.eightkdata.mongowp.fields.DoubleField;
+import com.eightkdata.mongowp.fields.IntField;
 import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.messages.request.DeleteMessage;
+import com.eightkdata.mongowp.messages.request.GetMoreMessage;
+import com.eightkdata.mongowp.messages.request.InsertMessage;
+import com.eightkdata.mongowp.messages.request.KillCursorsMessage;
+import com.eightkdata.mongowp.messages.request.QueryMessage;
 import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
-import com.eightkdata.mongowp.messages.request.*;
+import com.eightkdata.mongowp.messages.request.RequestOpCode;
+import com.eightkdata.mongowp.messages.request.UpdateMessage;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
 import com.eightkdata.mongowp.server.api.Request.ExternalClientInfo;
 import com.eightkdata.mongowp.server.api.pojos.QueryRequest;
 import com.eightkdata.mongowp.server.callback.MessageReplier;
 import com.eightkdata.mongowp.server.callback.RequestProcessor;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+
 import io.netty.util.AttributeKey;
 import io.netty.util.AttributeMap;
-import javax.annotation.Nonnull;
-import javax.inject.Inject;
 
 /**
  *
@@ -33,6 +42,7 @@ public class RequestProcessorAdaptor<C extends Connection> implements RequestPro
 
     public static final String QUERY_MESSAGE_COMMAND_COLLECTION = "$cmd";
     public static final String QUERY_MESSAGE_ADMIN_DATABASE = "admin";
+    public static final IntField ERR_CODE = new IntField("code");
     public static final StringField ERR_MSG_FIELD = new StringField("errmsg");
     public static final DoubleField OK_FIELD = new DoubleField("ok");
 
@@ -181,6 +191,7 @@ public class RequestProcessorAdaptor<C extends Connection> implements RequestPro
         }
         else {
             bson = new BsonDocumentBuilder()
+                    .append(ERR_CODE, reply.getErrorCode().getErrorCode())
                     .append(ERR_MSG_FIELD, reply.getErrorMsg())
                     .append(OK_FIELD, MongoConstants.KO)
                     .build();
