@@ -9,6 +9,7 @@ import com.eightkdata.mongowp.WriteConcern.SyncMode;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.BsonObjectId;
+import com.eightkdata.mongowp.bson.BsonTimestamp;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.FailedToParseException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
@@ -133,7 +134,9 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
         private static GetLastErrorArgument unmarshall(BsonDocument requestDoc) {
             OpTime opTime;
             try {
-                opTime = BsonReaderTool.getOpTime(requestDoc, W_OP_TIME_FIELD, null);
+                BsonTimestamp ts = BsonReaderTool.getTimestamp(
+                        requestDoc, W_OP_TIME_FIELD);
+                opTime = new OpTime(ts);
             }
             catch (TypesMismatchException ex) {
                 return new GetLastErrorArgument(
@@ -144,6 +147,8 @@ public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, G
                         null,
                         null
                 );
+            } catch (NoSuchKeyException ex) {
+                opTime = null;
             }
             BsonObjectId electionId;
             try {

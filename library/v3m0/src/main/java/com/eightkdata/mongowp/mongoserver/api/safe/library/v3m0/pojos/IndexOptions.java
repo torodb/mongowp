@@ -226,11 +226,11 @@ public class IndexOptions {
                     break;
                 }
                 case KEYS_FIELD_NAME: {
-                    keyDoc = BsonReaderTool.getDocument(entry, KEYS_FIELD);
+                    keyDoc = BsonReaderTool.getDocument(entry);
                     break;
                 }
                 case STORAGE_ENGINE_FIELD_NAME: {
-                    storageEngine = BsonReaderTool.getDocument(entry, STORAGE_ENGINE_FIELD);
+                    storageEngine = BsonReaderTool.getDocument(entry);
                     break;
                 }
                 default: {

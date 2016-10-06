@@ -191,7 +191,19 @@ public class BsonDocumentBuilder {
         }
         map.put(
                 field.getFieldName(),
-                value.asBsonTimestamp()
+                value.getTimestamp()
+        );
+        return this;
+    }
+
+    public BsonDocumentBuilder append(TimestampField field, BsonTimestamp value) {
+        Preconditions.checkState(!built);
+        if (value == null) {
+            return appendNull(field);
+        }
+        map.put(
+                field.getFieldName(),
+                value
         );
         return this;
     }

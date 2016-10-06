@@ -190,7 +190,7 @@ public class BsonArrayBuilder {
         if (value == null) {
             return addNull();
         }
-        list.add(value.asBsonTimestamp());
+        list.add(value.getTimestamp());
         return this;
     }
 

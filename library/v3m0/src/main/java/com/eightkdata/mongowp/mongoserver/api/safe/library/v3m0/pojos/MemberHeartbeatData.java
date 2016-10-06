@@ -3,7 +3,10 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
 import com.eightkdata.mongowp.OpTime;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatReply;
+import com.eightkdata.mongowp.bson.BsonTimestamp;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatReply;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatReplyBuilder;
 import com.google.common.net.HostAndPort;
 import java.time.Instant;
 import javax.annotation.Nonnull;
@@ -15,6 +18,7 @@ import org.apache.logging.log4j.Logger;
  * This class contains the data returned from a heartbeat command for one member
  * of a replica set.
  */
+//TODO(gortiz): this class generates some extra optionals that can be avoided
 public class MemberHeartbeatData {
     private static final Logger LOGGER = LogManager.getLogger(MemberHeartbeatData.class);
     private Health health;
@@ -31,11 +35,11 @@ public class MemberHeartbeatData {
         this.lastHeartbeatRecv = Instant.EPOCH;
         this.authIssue = false;
 
-        lastResponse = new ReplSetHeartbeatReply.Builder()
+        lastResponse = new ReplSetHeartbeatReplyBuilder()
         		.setSetName("_unnamed")
-        		.setElectionTime(OpTime.EPOCH)
+        		.setElectionTime(DefaultBsonValues.newTimestamp(0))
                 .setState(MemberState.RS_UNKNOWN)
-                .setOpTime(OpTime.EPOCH)
+                .setAppliedOpTime(OpTime.EPOCH)
                 .build();
     }
 
@@ -84,26 +88,29 @@ public class MemberHeartbeatData {
         return lastResponse;
     }
 
+    @Nullable
     public MemberState getState() {
-        return lastResponse.getState();
+        return lastResponse.getState().orElse(null);
     }
 
     @Nullable
     public OpTime getOpTime() {
-        return lastResponse.getOpTime();
+        return lastResponse.getAppliedOptime().orElse(null);
     }
 
     @Nonnull
     public String getLastHeartbeatMessage() {
-        return lastResponse.getHbMsg();
+        return lastResponse.getHbmsg();
     }
 
+    @Nullable
     public HostAndPort getSyncSource() {
-        return lastResponse.getSyncingTo();
+        return lastResponse.getSyncingTo().orElse(null);
     }
 
-    public OpTime getElectionTime() {
-        return lastResponse.getElectionTime();
+    @Nullable
+    public BsonTimestamp getElectionTime() {
+        return lastResponse.getElectionTime().orElse(null);
     }
 
     public long getConfigVersion() {
@@ -122,7 +129,7 @@ public class MemberHeartbeatData {
     }
 
     public boolean isUnelectable() {
-        return lastResponse.isElectable();
+        return lastResponse.getElectable().get();
     }
 
     public void setUpValues(@Nonnull Instant now, @Nonnull HostAndPort host,
@@ -134,20 +141,20 @@ public class MemberHeartbeatData {
         authIssue = false;
         lastHeartbeat = now;
 
-        ReplSetHeartbeatReply.Builder lastResponseBuilder = new ReplSetHeartbeatReply.Builder(hbResponse);
+        ReplSetHeartbeatReplyBuilder lastResponseBuilder = new ReplSetHeartbeatReplyBuilder(hbResponse);
         if (hbResponse.getState() == null) {
             lastResponseBuilder.setState(MemberState.RS_UNKNOWN);
         }
         if (hbResponse.getElectionTime() == null) {
             lastResponseBuilder.setElectionTime(lastResponse.getElectionTime());
         }
-        if (hbResponse.getOpTime() == null) {
-            lastResponseBuilder.setOpTime(lastResponse.getOpTime());
+        if (hbResponse.getAppliedOptime()== null) {
+            lastResponseBuilder.setAppliedOpTime(lastResponse.getAppliedOptime());
         }
 
         // Log if the state changes
-        if (lastResponse.getState() != hbResponse.getState()) {
-            LOGGER.info("Member {} is now in state {}", host, hbResponse.getState());
+        if (!lastResponse.getState().get().equals(hbResponse.getState().get())) {
+            LOGGER.info("Member {} is now in state {}", host, hbResponse.getState().get());
         }
 
         lastResponse = lastResponseBuilder.build();
@@ -159,11 +166,11 @@ public class MemberHeartbeatData {
         lastHeartbeat = now;
         authIssue = true;
 
-        lastResponse = new ReplSetHeartbeatReply.Builder()
+        lastResponse = new ReplSetHeartbeatReplyBuilder()
         		.setSetName(lastResponse.getSetName())
-        		.setElectionTime(OpTime.EPOCH)
+        		.setElectionTime(DefaultBsonValues.newTimestamp(0))
                 .setState(MemberState.RS_UNKNOWN)
-                .setOpTime(OpTime.EPOCH)
+                .setAppliedOpTime(OpTime.EPOCH)
                 .setSyncingTo(null)
                 .build();
     }
@@ -174,12 +181,12 @@ public class MemberHeartbeatData {
         lastHeartbeat = now;
         authIssue = false;
 
-        lastResponse = new ReplSetHeartbeatReply.Builder()
+        lastResponse = new ReplSetHeartbeatReplyBuilder()
         		.setSetName(lastResponse.getSetName())
-                .setElectionTime(OpTime.EPOCH)
+                .setElectionTime(DefaultBsonValues.newTimestamp(0))
                 .setHbmsg(errorDesc)
                 .setState(MemberState.RS_DOWN)
-                .setOpTime(OpTime.EPOCH)
+                .setAppliedOpTime(OpTime.EPOCH)
                 .setSyncingTo(null)
                 .build();
     }

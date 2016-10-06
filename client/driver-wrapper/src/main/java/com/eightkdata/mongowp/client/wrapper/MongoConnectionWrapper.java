@@ -16,10 +16,7 @@ import com.eightkdata.mongowp.server.api.pojos.CollectionBatch;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
-import com.mongodb.CursorType;
-import com.mongodb.MongoCursorNotFoundException;
-import com.mongodb.ReadPreference;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.InsertManyOptions;
@@ -211,7 +208,8 @@ public class MongoConnectionWrapper implements MongoConnection {
                     );
             org.bson.BsonDocument bsonDoc
                     = document.toBsonDocument(Document.class, codecRegistry);
-            Result commandResult = command.unmarshallResult(MongoBsonTranslator.translate(bsonDoc));
+            Result commandResult = command.unmarshallResult(
+                    MongoBsonTranslator.translate(bsonDoc));
             Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
             return new CorrectRemoteCommandResponse<>(command, d, commandResult);
         } catch (MarshalException ex) {
@@ -226,9 +224,12 @@ public class MongoConnectionWrapper implements MongoConnection {
                     ErrorCode.BAD_VALUE,
                     "Unexpected IO exception",
                     d, null, null);
-        } catch (MongoException ex) {
+        } catch (MongoException ex) { //our MongoWP exception
             Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
-            return new FromExceptionRemoteCommandRequest<>(ex, d, null, null);
+            return new FromExceptionRemoteCommandRequest<>(ex, d);
+        } catch (MongoServerException ex) { //a general Mongo driver exception
+            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+            return new FromExceptionRemoteCommandRequest<>(translateException(ex), d);
         }
     }
 
@@ -251,6 +252,16 @@ public class MongoConnectionWrapper implements MongoConnection {
     @Override
     public boolean isRemote() {
         return true;
+    }
+
+    private static final MongoException translateException(MongoServerException ex) {
+        try {
+            ErrorCode errorCode = ErrorCode.fromErrorCode(ex.getCode());
+            return new MongoException(ex.getMessage(), errorCode);
+        } catch (IllegalArgumentException ex2) {
+            throw new RuntimeException("Unrecognized error code "
+                    + ex.getCode() + " from a mongo client exception", ex);
+        }
     }
 
     @Override

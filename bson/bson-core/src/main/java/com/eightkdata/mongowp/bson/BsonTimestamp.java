@@ -20,6 +20,8 @@
 
 package com.eightkdata.mongowp.bson;
 
+import java.time.Instant;
+
 /**
  *
  */
@@ -44,4 +46,11 @@ public interface BsonTimestamp extends BsonValue<BsonTimestamp> {
      */
     @Override
     public int hashCode();
+
+    public default Instant toInstant() {
+        /*
+         * TODO(gortiz): Check this transformation from MongoDB code
+         */
+        return Instant.ofEpochMilli(getSecondsSinceEpoch() << 32 + getOrdinal());
+    }
 }

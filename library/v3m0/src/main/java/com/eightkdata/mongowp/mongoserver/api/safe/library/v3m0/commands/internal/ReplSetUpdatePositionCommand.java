@@ -14,11 +14,7 @@ import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.fields.ArrayField;
-import com.eightkdata.mongowp.fields.DocField;
-import com.eightkdata.mongowp.fields.LongField;
-import com.eightkdata.mongowp.fields.ObjectIdField;
-import com.eightkdata.mongowp.fields.TimestampField;
+import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
 import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
@@ -32,6 +28,7 @@ import com.google.common.collect.ImmutableSet;
 /**
  *
  */
+//TODO: this command is not compatible with MongoDB 3.2.4+
 public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdatePositionArgument, Empty> {
 
     public static final ReplSetUpdatePositionCommand INSTANCE = new ReplSetUpdatePositionCommand();
@@ -150,7 +147,7 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
             public UpdateInfo(BsonDocument doc) throws BadValueException, TypesMismatchException, NoSuchKeyException {
                 BsonReaderTool.checkOnlyHasFields("UpdateInfoArgs", doc, VALID_FIELD_NAMES);
 
-                ts = BsonReaderTool.getOpTime(doc, OP_TIME_FIELD);
+                ts = new OpTime(BsonReaderTool.getTimestamp(doc, OP_TIME_FIELD));
                 cfgVer = BsonReaderTool.getLong(doc, CONFIG_VERSION_FIELD, -1);
                 rid = BsonReaderTool.getObjectId(doc, MEMBER_RID_FIELD, null);
                 memberId = BsonReaderTool.getLong(doc, MEMBER_ID_FIELD, -1);
@@ -187,7 +184,7 @@ public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdateP
             private BsonDocument marshall() {
                 BsonDocumentBuilder updateInfo = new BsonDocumentBuilder();
                 updateInfo.append(MEMBER_RID_FIELD, rid);
-                updateInfo.append(OP_TIME_FIELD, ts);
+                updateInfo.append(OP_TIME_FIELD, ts.getTimestamp());
                 updateInfo.append(MEMBER_ID_FIELD, memberId);
                 updateInfo.append(CONFIG_VERSION_FIELD, cfgVer);
                 if (config != null) {

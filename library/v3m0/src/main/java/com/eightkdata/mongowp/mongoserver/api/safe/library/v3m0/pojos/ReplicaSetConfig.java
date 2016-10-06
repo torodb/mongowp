@@ -327,7 +327,7 @@ public class ReplicaSetConfig {
         	builder.putCustomWriteConcern(customWriteConcern.getKey(), customWriteConcern.getValue());
         }
         
-        builder.setProtocolVersion(BsonReaderTool.getLong(settings, PROTOCOL_VERSION_FIELD));
+        builder.setProtocolVersion(BsonReaderTool.getLong(bson, PROTOCOL_VERSION_FIELD));
 
         return builder.build();
     }
@@ -539,17 +539,17 @@ public class ReplicaSetConfig {
     /**
      *
      * @param currentSource
-     * @return the index of the member with the given host and port or -1 if there is no member with
-     *         that host and port
+     * @return the index of the member with the given host and port or empty if
+     *         there is no member with that host and port
      */
-    public int findMemberIndexByHostAndPort(HostAndPort currentSource) {
+    public OptionalInt findMemberIndexByHostAndPort(HostAndPort currentSource) {
         for (int i = 0; i < members.size(); i++) {
             MemberConfig member = members.get(i);
             if (member.getHostAndPort().equals(currentSource)) {
-                return i;
+                return OptionalInt.of(i);
             }
         }
-        return -1;
+        return OptionalInt.empty();
     }
 
     /**

@@ -2,6 +2,8 @@ package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.intern
 
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonTimestamp;
+import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
@@ -13,7 +15,6 @@ import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.net.HostAndPort;
 import java.time.Instant;
-import java.time.temporal.ChronoField;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -67,20 +68,20 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
         private static final HostAndPortField WHO_FIELD = new HostAndPortField("who");
         private static final IntField ID_FIELD = new IntField("id");
         private static final LongField CFG_VER_FIELD = new LongField("cfgver");
-        private static final TimestampField OPTIME_FIELD = new TimestampField("opTime");
+        private static final DateTimeField OPTIME_FIELD = new DateTimeField("opTime");
 
         private final String setName;
         private final HostAndPort who;
         private final int clientId;
         private final long cfgVersion;
-        private final OpTime opTime;
+        private final BsonTimestamp opTime;
 
         public ReplSetFreshArgument(
                 String setName,
                 HostAndPort who,
                 int clientId,
                 long cfgVersion,
-                OpTime opTime) {
+                BsonTimestamp opTime) {
             this.setName = setName;
             this.who = who;
             this.clientId = clientId;
@@ -124,7 +125,7 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
          *
          * @return last optime seen by the member who sent the request
          */
-        public OpTime getOpTime() {
+        public BsonTimestamp getOpTime() {
             return opTime;
         }
         
@@ -133,7 +134,7 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
         	
         	builder.append(COMMAND_FIELD, 1);
         	builder.append(SET_NAME_FIELD, setName);
-        	builder.append(OPTIME_FIELD, opTime);
+        	builder.append(OPTIME_FIELD, opTime.toInstant());
         	builder.append(WHO_FIELD, who);
         	builder.append(CFG_VER_FIELD, cfgVersion);
         	builder.append(ID_FIELD, clientId);
@@ -147,7 +148,8 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
             String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD);
             HostAndPort who = BsonReaderTool.getHostAndPort(bson, WHO_FIELD);
             long cfgver = BsonReaderTool.getNumeric(bson, CFG_VER_FIELD).longValue();
-            OpTime optime = BsonReaderTool.getOpTime(bson, OPTIME_FIELD);
+            Instant optimeInstant = BsonReaderTool.getInstant(bson, OPTIME_FIELD);
+            BsonTimestamp optime = DefaultBsonValues.newTimestamp(optimeInstant);
 
             return new ReplSetFreshArgument(setName, who, clientId, cfgver, optime);
         }
@@ -221,9 +223,7 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
             if (getVetoMessage() != null) {
                 result.append(ERRMSG_FIELD, vetoMessage);
             }
-            result.append(OPTIME_FIELD, Instant.EPOCH
-            		.with(ChronoField.INSTANT_SECONDS, opTime.getSecs().longValue())
-            		.with(ChronoField.NANO_OF_SECOND, opTime.getTerm().longValue()));
+            result.append(OPTIME_FIELD, opTime.toInstant());
             result.append(VETO_FIELD, isDoVeto());
 
             return result.build();

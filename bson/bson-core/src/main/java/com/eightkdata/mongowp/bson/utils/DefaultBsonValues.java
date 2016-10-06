@@ -23,6 +23,7 @@ import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.*;
 import com.eightkdata.mongowp.bson.annotations.NotMutable;
 import com.eightkdata.mongowp.bson.impl.*;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -130,9 +131,13 @@ public class DefaultBsonValues {
         return new LongBsonDateTime(millis);
     }
 
-    @Override
-    public String toString() {
-        return "{}";
+    public static BsonTimestamp newTimestamp(long rawData) {
+        int secs = (int) (rawData >> 32);
+        int ordinal = (int) (rawData & 0xFFFFFFFF);
+        return new DefaultBsonTimestamp(secs, ordinal);
     }
 
+    public static BsonTimestamp newTimestamp(Instant instant) {
+        return newTimestamp(instant.toEpochMilli());
+    }
 }

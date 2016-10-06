@@ -368,7 +368,8 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             else {
                 //is primary
                 builder.append(MEMBER_ELECTION_TIME_FIELD, data.getElectionTime());
-                builder.appendInstant(MEMBER_ELECTION_DATE_FIELD, data.getElectionTime().toEpochMilli());
+                //TODO(gortiz): Check if that is consistent with MongoDB source code
+                builder.appendInstant(MEMBER_ELECTION_DATE_FIELD, data.getElectionTime().getSecondsSinceEpoch());
             }
 
             builder.appendNumber(MEMBER_CONFIG_VERSION_FIELD, data.getConfigVersion());
