@@ -89,7 +89,7 @@ public class MemberHeartbeatData {
         return lastResponse.getConfigVersion();
     }
 
-    public static enum Health {
+    public enum Health {
         NOT_CHECKED(-1),
         UNREACHABLE(0),
         UP(1);

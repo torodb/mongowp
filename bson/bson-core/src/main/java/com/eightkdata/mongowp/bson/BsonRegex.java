@@ -58,7 +58,7 @@ public interface BsonRegex extends BsonValue<BsonRegex> {
     @Override
     public int hashCode();
 
-    public static enum Options {
+    public enum Options {
         /**
          * Usually defined as <em>i</em>.
          */
