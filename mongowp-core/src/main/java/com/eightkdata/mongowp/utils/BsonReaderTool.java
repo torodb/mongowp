@@ -5,6 +5,7 @@ import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.*;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.bson.utils.TimestampToDateTime;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
@@ -629,7 +630,16 @@ public class BsonReaderTool {
         return value.asTimestamp();
     }
 
-    public static void getTimestamp(BsonDocument requestDoc, TimestampField W_OP_TIME_FIELD, Object object) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public static BsonTimestamp getTimestampFromDateTime(BsonDocument doc, DateTimeField field) throws NoSuchKeyException, TypesMismatchException {
+        return getTimestampFromDateTime(getEntry(doc, field));
+    }
+
+    public static BsonTimestamp getTimestampFromDateTime(Entry<?> entry) throws TypesMismatchException {
+        BsonValue<?> value = entry.getValue();
+        if (!value.isDateTime()) {
+            throw new TypesMismatchException(entry.getKey(), BsonType.DATETIME, value.getType());
+        }
+        return TimestampToDateTime.toTimestamp(
+                value.asDateTime(), DefaultBsonValues::newTimestamp);
     }
 }

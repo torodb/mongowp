@@ -1,19 +1,18 @@
 
 package com.eightkdata.mongowp;
 
-import com.eightkdata.mongowp.bson.BsonDocument;
-import com.eightkdata.mongowp.bson.BsonInt64;
-import com.eightkdata.mongowp.bson.BsonTimestamp;
+import com.eightkdata.mongowp.bson.*;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.bson.utils.TimestampToDateTime;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+import com.eightkdata.mongowp.fields.DateTimeField;
 import com.eightkdata.mongowp.fields.LongField;
 import com.eightkdata.mongowp.fields.TimestampField;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.primitives.UnsignedLongs;
 import java.io.Serializable;
-import java.time.Instant;
 import java.util.Objects;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
@@ -44,7 +43,7 @@ public class OpTime implements Comparable<OpTime>, Serializable {
      * Default OpTime, also the smallest one.
      */
     public static final OpTime EPOCH = new OpTime(
-            DefaultBsonValues.newTimestamp(0),
+            DefaultBsonValues.newTimestamp(0, 0),
             UNINITIALIZED_TERM);
 
     private final BsonTimestamp timestamp;
@@ -64,17 +63,8 @@ public class OpTime implements Comparable<OpTime>, Serializable {
         this(timestamp, UNINITIALIZED_TERM);
     }
 
-    /**
-     * Constructor used to create optimes from older replication versions, where
-     * {@link #getTerm()} is initialized to a default value.
-     * @param instant
-     */
-    public OpTime(Instant instant) {
-        this(DefaultBsonValues.newTimestamp(instant), UNINITIALIZED_TERM);
-    }
-
-    public static OpTime ofSeconds(long seconds) {
-        return new OpTime(Instant.ofEpochSecond(seconds));
+    public static OpTime ofSeconds(int seconds) {
+        return new OpTime(DefaultBsonValues.newTimestamp(seconds, 0));
     }
 
     @Nonnull
@@ -88,6 +78,28 @@ public class OpTime implements Comparable<OpTime>, Serializable {
         
     }
 
+    public static OpTime fromOldBson(BsonValue<?> val) {
+        BsonTimestamp ts = TimestampToDateTime.toTimestamp(
+                val.asDateTime(), DefaultBsonValues::newTimestamp);
+        return new OpTime(ts);
+    }
+
+    /**
+     *
+     * @return the serialization of this optime on a bson, using the old version
+     */
+    public BsonDateTime toOldBson() {
+        return DefaultBsonValues.newDateTime(getTimestamp());
+    }
+
+    public void appendAsOldBson(BsonDocumentBuilder builder, String fieldId) {
+        builder.appendUnsafe(fieldId, toOldBson());
+    }
+
+    public void appendAsOldBson(BsonDocumentBuilder builder, DateTimeField field) {
+        appendAsOldBson(builder, field.getFieldName());
+    }
+
     @Nonnull
     public static OpTime fromOplogEntry(BsonDocument doc) throws TypesMismatchException, NoSuchKeyException {
         BsonTimestamp ts = BsonReaderTool.getTimestamp(doc, TIMESTAMP_FIELD);
@@ -98,7 +110,7 @@ public class OpTime implements Comparable<OpTime>, Serializable {
         return new OpTime(ts, term);
     }
 
-    public long getSecs() {
+    public int getSecs() {
         return timestamp.getSecondsSinceEpoch();
     }
 
@@ -109,14 +121,6 @@ public class OpTime implements Comparable<OpTime>, Serializable {
 
     public BsonTimestamp getTimestamp() {
         return timestamp;
-    }
-
-    public long toEpochMilli() {
-        return timestamp.toInstant().toEpochMilli();
-    }
-    
-    public Instant toInstant() {
-        return timestamp.toInstant();
     }
 
     public BsonDocument toBson() {

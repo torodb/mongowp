@@ -4,7 +4,6 @@ package com.eightkdata.mongowp.server.api.pojos;
 import com.eightkdata.mongowp.exceptions.MongoException;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 

@@ -159,7 +159,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                     .append(STATE_STR_FIELD, state.name())
                     .append(UPTIME_FIELD, UnsignedInteger.valueOf(uptime.getSeconds()).intValue()) //TODO: Check if cast to int is correct
                     .append(OPTIME_FIELD, optime)
-                    .appendInstant(OPTIME_DATE_FIELD, optime.toEpochMilli());
+                    .appendInstant(OPTIME_DATE_FIELD, DefaultBsonValues.newDateTime(optime.getTimestamp()).getMillisFromUnix());
             if (maintenanceModeCalls != 0) {
                 builder.append(MAINTENANCE_MODE_FIELD, maintenanceModeCalls);
             }
@@ -300,8 +300,8 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
                     .append(MEMBER_UPTIME_FIELD, UnsignedInteger.valueOf(selfData.getUptime().getSeconds()).intValue()); //TODO: Check if cast to int is correct
 
             if (!selfData.getState().equals(MemberState.RS_ARBITER)) {
-                    builder.append(MEMBER_OPTIME_FIELD, selfData.getOpTime())
-                            .appendInstant(MEMBER_OPTIME_DATE_FIELD, selfData.getOpTime().toEpochMilli());
+                    builder.append(MEMBER_OPTIME_FIELD, selfData.getOpTime());
+                    selfData.getOpTime().appendAsOldBson(builder, MEMBER_OPTIME_DATE_FIELD);
             }
             if (syncTo != null && !selfData.getState().equals(MemberState.RS_PRIMARY)) {
                 builder.append(MEMBER_SYNCING_TO_FIELD, syncTo);
@@ -314,7 +314,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             }
             if (selfData.getState().equals(MemberState.RS_PRIMARY)) {
                 builder.append(MEMBER_ELECTION_TIME_FIELD, selfData.getElectionTime());
-                builder.appendInstant(MEMBER_ELECTION_DATE_FIELD, selfData.getElectionTime().toEpochMilli());
+                selfData.getElectionTime().appendAsOldBson(builder, MEMBER_ELECTION_DATE_FIELD);
             }
             builder.appendNumber(MEMBER_CONFIG_VERSION_FIELD, replConfig.getConfigVersion());
             builder.append(MEMBER_SELF_FIELD, true);
@@ -347,7 +347,7 @@ public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetSt
             if (!config.isArbiter()) {
                 OpTime opTime = data.getOpTime();
                 builder.append(MEMBER_OPTIME_FIELD, opTime);
-                builder.appendInstant(MEMBER_OPTIME_DATE_FIELD, opTime.toEpochMilli());
+                builder.appendUnsafe(MEMBER_OPTIME_DATE_FIELD.getFieldName(), opTime.toOldBson());
             }
             builder.append(MEMBER_LAST_HEARTBEAT, data.getLastHeartbeat());
             builder.append(MEMBER_LAST_HEARTBEAT_RECIVED, data.getLastHeartbeatRecv());

@@ -1,9 +1,11 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
 import com.eightkdata.mongowp.OpTime;
+import com.eightkdata.mongowp.bson.BsonDateTime;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonTimestamp;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
+import com.eightkdata.mongowp.bson.utils.TimestampToDateTime;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
@@ -14,7 +16,6 @@ import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.net.HostAndPort;
-import java.time.Instant;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -134,7 +135,9 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
         	
         	builder.append(COMMAND_FIELD, 1);
         	builder.append(SET_NAME_FIELD, setName);
-        	builder.append(OPTIME_FIELD, opTime.toInstant());
+            BsonDateTime dateTimeOpTime = TimestampToDateTime.toDateTime(
+                    opTime, DefaultBsonValues::newDateTime);
+        	builder.append(OPTIME_FIELD, dateTimeOpTime.getValue());
         	builder.append(WHO_FIELD, who);
         	builder.append(CFG_VER_FIELD, cfgVersion);
         	builder.append(ID_FIELD, clientId);
@@ -148,8 +151,7 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
             String setName = BsonReaderTool.getString(bson, SET_NAME_FIELD);
             HostAndPort who = BsonReaderTool.getHostAndPort(bson, WHO_FIELD);
             long cfgver = BsonReaderTool.getNumeric(bson, CFG_VER_FIELD).longValue();
-            Instant optimeInstant = BsonReaderTool.getInstant(bson, OPTIME_FIELD);
-            BsonTimestamp optime = DefaultBsonValues.newTimestamp(optimeInstant);
+            BsonTimestamp optime = BsonReaderTool.getTimestampFromDateTime(bson, OPTIME_FIELD);
 
             return new ReplSetFreshArgument(setName, who, clientId, cfgver, optime);
         }
@@ -223,7 +225,8 @@ public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, R
             if (getVetoMessage() != null) {
                 result.append(ERRMSG_FIELD, vetoMessage);
             }
-            result.append(OPTIME_FIELD, opTime.toInstant());
+            result.append(OPTIME_FIELD, DefaultBsonValues.newDateTime(
+                    opTime.getTimestamp()).getValue());
             result.append(VETO_FIELD, isDoVeto());
 
             return result.build();

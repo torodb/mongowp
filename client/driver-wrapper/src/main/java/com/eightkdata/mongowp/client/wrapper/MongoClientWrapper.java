@@ -38,24 +38,28 @@ public class MongoClientWrapper implements MongoClient {
 
     @Inject
     public MongoClientWrapper(MongoClientConfiguration configuration) throws UnreachableMongoServerException {
-        MongoClientOptions options = toMongoClientOptions(configuration);
-        ImmutableList<MongoCredential> credentials = toMongoCredentials(configuration);
-        
-        testAddress(configuration.getHostAndPort(), options);
+        try {
+            MongoClientOptions options = toMongoClientOptions(configuration);
+            ImmutableList<MongoCredential> credentials = toMongoCredentials(configuration);
 
-        this.configuration = configuration;
+            testAddress(configuration.getHostAndPort(), options);
 
-        this.driverClient = new com.mongodb.MongoClient(
-            new ServerAddress(
-                configuration.getHostAndPort().getHostText(),
-                configuration.getHostAndPort().getPort()),
-            credentials,
-            options
-        );
+            this.configuration = configuration;
 
-        version = calculateVersion();
-        codecRegistry = CodecRegistries.fromCodecs(new DocumentCodec());
-        closed = false;
+            this.driverClient = new com.mongodb.MongoClient(
+                new ServerAddress(
+                    configuration.getHostAndPort().getHostText(),
+                    configuration.getHostAndPort().getPort()),
+                credentials,
+                options
+            );
+
+            version = calculateVersion();
+            codecRegistry = CodecRegistries.fromCodecs(new DocumentCodec());
+            closed = false;
+        } catch (com.mongodb.MongoException ex) {
+            throw new UnreachableMongoServerException(configuration.getHostAndPort(), ex);
+        }
     }
     
     private MongoClientOptions toMongoClientOptions(MongoClientConfiguration configuration) {

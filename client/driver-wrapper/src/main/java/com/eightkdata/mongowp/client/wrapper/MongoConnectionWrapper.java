@@ -254,7 +254,7 @@ public class MongoConnectionWrapper implements MongoConnection {
         return true;
     }
 
-    private static final MongoException translateException(MongoServerException ex) {
+    static final MongoException translateException(MongoServerException ex) {
         try {
             ErrorCode errorCode = ErrorCode.fromErrorCode(ex.getCode());
             return new MongoException(ex.getMessage(), errorCode);
@@ -350,6 +350,8 @@ public class MongoConnectionWrapper implements MongoConnection {
             } catch (MongoCursorNotFoundException ex) {
                 this.close();
                 throw new DeadCursorException();
+            } catch (MongoServerException ex) {
+                throw MongoConnectionWrapper.translateException(ex);
             }
             return new CollectionBatch<>(docs, start);
         }
@@ -380,6 +382,8 @@ public class MongoConnectionWrapper implements MongoConnection {
             } catch (MongoCursorNotFoundException ex) {
                 this.close();
                 throw new DeadCursorException();
+            } catch (MongoServerException ex) {
+                throw MongoConnectionWrapper.translateException(ex);
             }
 
             return new CollectionBatch<>(docs, start);
@@ -394,8 +398,17 @@ public class MongoConnectionWrapper implements MongoConnection {
             return serverAddress;
         }
 
+        /**
+         * {@inheritDoc }
+         * This method can throw a {@link MongoServerException} if the
+         * underlaying cursor throws it. This breaks the abstraction and can
+         * be changed on future releases.
+         * @return
+         * @throws MongoServerException
+         */
         @Override
-        public boolean hasNext() {
+        public boolean hasNext() throws MongoServerException {
+            //TODO(gortiz): Wrap mongo driver exceptions on our own exceptions
             if (close) {
                 return false;
             }
@@ -407,8 +420,17 @@ public class MongoConnectionWrapper implements MongoConnection {
             }
         }
 
+        /**
+         * {@inheritDoc }
+         * This method can throw a {@link MongoServerException} if the
+         * underlaying cursor throws it. This breaks the abstraction and can
+         * be changed on future releases.
+         * @return
+         * @throws MongoServerException
+         */
         @Override
-        public BsonDocument next() {
+        public BsonDocument next() throws MongoServerException {
+            //TODO(gortiz): Wrap mongo driver exceptions on our own exceptions
             Preconditions.checkState(!close, "This cursor is closed");
             try {
                 return MongoBsonTranslator.translate(cursor.next());
@@ -418,8 +440,17 @@ public class MongoConnectionWrapper implements MongoConnection {
             }
         }
 
+        /**
+         * {@inheritDoc }
+         * This method can throw a {@link MongoServerException} if the
+         * underlaying cursor throws it. This breaks the abstraction and can
+         * be changed on future releases.
+         * @return
+         * @throws MongoServerException
+         */
         @Override
-        public BsonDocument tryNext() {
+        public BsonDocument tryNext() throws MongoServerException {
+            //TODO(gortiz): Wrap mongo driver exceptions on our own exceptions
             try {
                 return MongoBsonTranslator.translate(cursor.tryNext());
             } catch (MongoCursorNotFoundException ex) {

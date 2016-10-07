@@ -131,13 +131,15 @@ public class DefaultBsonValues {
         return new LongBsonDateTime(millis);
     }
 
-    public static BsonTimestamp newTimestamp(long rawData) {
-        int secs = (int) (rawData >> 32);
-        int ordinal = (int) (rawData & 0xFFFFFFFF);
-        return new DefaultBsonTimestamp(secs, ordinal);
+    public static final BsonDateTime newDateTime(Instant instant) {
+        return new InstantBsonDateTime(instant);
     }
 
-    public static BsonTimestamp newTimestamp(Instant instant) {
-        return newTimestamp(instant.toEpochMilli());
+    public static final BsonDateTime newDateTime(BsonTimestamp timestamp) {
+        return TimestampToDateTime.toDateTime(timestamp, LongBsonDateTime::new);
+    }
+
+    public static BsonTimestamp newTimestamp(int secs, int ordinal) {
+        return new DefaultBsonTimestamp(secs, ordinal);
     }
 }

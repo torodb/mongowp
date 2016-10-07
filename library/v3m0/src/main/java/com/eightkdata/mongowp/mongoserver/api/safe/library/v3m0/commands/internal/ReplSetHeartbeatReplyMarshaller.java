@@ -25,7 +25,6 @@ import com.eightkdata.mongowp.MongoConstants;
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.*;
-import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.*;
 import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
@@ -124,13 +123,11 @@ public class ReplSetHeartbeatReplyMarshaller {
                 doc.append(PRIMARY_ID_FIELD, primaryId));
         reply.getDurableOptime().ifPresent(durableOptime ->
                 doc.append(DURABLE_OP_TIME_FIELD, durableOptime.toBson()));
-        reply.getAppliedOptime().ifPresent(appleidOptime -> {
+        reply.getAppliedOptime().ifPresent(applyied -> {
             if (asV1) {
-                doc.append(APPLIED_OP_TIME_DOC_FIELD, appleidOptime.toBson());
+                doc.append(APPLIED_OP_TIME_DOC_FIELD, applyied.toBson());
             } else {
-                doc.append(APPLIED_OP_TIME_DT_FIELD, appleidOptime
-                        .getTimestamp().toInstant()
-                );
+                applyied.appendAsOldBson(doc, APPLIED_OP_TIME_FIELD_NAME);
             }
         });
         return doc.build();
@@ -189,12 +186,9 @@ public class ReplSetHeartbeatReplyMarshaller {
                 ELECTION_TIME_FIELD.getFieldName(), null);
         if (electionTimeEntry != null) {
             switch (electionTimeEntry.getValue().getType()) {
-                case DATETIME:
-                    {
-                        long rawData
-                                = electionTimeEntry.getValue().asDateTime().getValue().toEpochMilli();
-                        return DefaultBsonValues.newTimestamp(rawData);
-                    }
+                case DATETIME: {
+                    return BsonReaderTool.getTimestampFromDateTime(electionTimeEntry);
+                }
                 case TIMESTAMP:
                     return electionTimeEntry.getValue().asTimestamp();
                 default:
@@ -274,7 +268,8 @@ public class ReplSetHeartbeatReplyMarshaller {
                 opTime = new OpTime(value.asTimestamp(), term);
                 break;
             case DATETIME:
-                opTime = new OpTime(DefaultBsonValues.newTimestamp(value.asDateTime().getMillisFromUnix()), term);
+                BsonTimestamp ts = BsonReaderTool.getTimestampFromDateTime(entry);
+                opTime = new OpTime(ts, term);
                 break;
             case DOCUMENT: //repl v1
                 opTime = OpTime.fromBson(value.asDocument());

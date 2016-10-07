@@ -37,7 +37,7 @@ public class MemberHeartbeatData {
 
         lastResponse = new ReplSetHeartbeatReplyBuilder()
         		.setSetName("_unnamed")
-        		.setElectionTime(DefaultBsonValues.newTimestamp(0))
+        		.setElectionTime(DefaultBsonValues.newTimestamp(0, 0))
                 .setState(MemberState.RS_UNKNOWN)
                 .setAppliedOpTime(OpTime.EPOCH)
                 .build();
@@ -168,7 +168,7 @@ public class MemberHeartbeatData {
 
         lastResponse = new ReplSetHeartbeatReplyBuilder()
         		.setSetName(lastResponse.getSetName())
-        		.setElectionTime(DefaultBsonValues.newTimestamp(0))
+        		.setElectionTime(DefaultBsonValues.newTimestamp(0, 0))
                 .setState(MemberState.RS_UNKNOWN)
                 .setAppliedOpTime(OpTime.EPOCH)
                 .setSyncingTo(null)
@@ -183,7 +183,7 @@ public class MemberHeartbeatData {
 
         lastResponse = new ReplSetHeartbeatReplyBuilder()
         		.setSetName(lastResponse.getSetName())
-                .setElectionTime(DefaultBsonValues.newTimestamp(0))
+                .setElectionTime(DefaultBsonValues.newTimestamp(0, 0))
                 .setHbmsg(errorDesc)
                 .setState(MemberState.RS_DOWN)
                 .setAppliedOpTime(OpTime.EPOCH)
