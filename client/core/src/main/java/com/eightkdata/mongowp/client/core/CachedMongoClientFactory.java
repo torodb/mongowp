@@ -31,4 +31,8 @@ public interface CachedMongoClientFactory extends MongoClientFactory {
 
     Optional<MongoClient> getCachedClient(HostAndPort address);
 
+    void invalidate(HostAndPort address);
+
+    void invalidateAll();
+
 }

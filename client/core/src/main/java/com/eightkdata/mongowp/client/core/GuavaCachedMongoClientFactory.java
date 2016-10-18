@@ -72,6 +72,16 @@ public class GuavaCachedMongoClientFactory implements CachedMongoClientFactory {
         }
     }
 
+    @Override
+    public void invalidate(HostAndPort address) {
+        cachedClients.invalidate(address);
+    }
+
+    @Override
+    public void invalidateAll() {
+        cachedClients.invalidateAll();
+    }
+
     private void onRemoval(RemovalNotification<HostAndPort, CachedMongoClient> notification) {
         notification.getValue().delegate.close();
     }
