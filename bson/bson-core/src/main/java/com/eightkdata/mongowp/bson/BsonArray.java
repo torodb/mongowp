@@ -22,7 +22,10 @@ package com.eightkdata.mongowp.bson;
 
 import com.eightkdata.mongowp.bson.utils.IntBaseHasher;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.google.common.collect.UnmodifiableIterator;
+import java.util.List;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 /**
@@ -60,4 +63,12 @@ public interface BsonArray extends BsonValue<BsonArray>, Iterable<BsonValue<?>> 
 
     @Override
     UnmodifiableIterator<BsonValue<?>> iterator();
+
+    default List<BsonValue<?>> asList() {
+        return Lists.newArrayList(iterator());
+    }
+
+    default Stream<BsonValue<?>> stream() {
+        return asList().stream();
+    }
 }

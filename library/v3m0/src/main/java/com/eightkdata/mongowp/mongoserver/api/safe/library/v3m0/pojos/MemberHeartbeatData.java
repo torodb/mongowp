@@ -95,7 +95,7 @@ public class MemberHeartbeatData {
 
     @Nullable
     public OpTime getOpTime() {
-        return lastResponse.getAppliedOptime().orElse(null);
+        return lastResponse.getAppliedOpTime().orElse(null);
     }
 
     @Nonnull
@@ -148,8 +148,8 @@ public class MemberHeartbeatData {
         if (hbResponse.getElectionTime() == null) {
             lastResponseBuilder.setElectionTime(lastResponse.getElectionTime());
         }
-        if (hbResponse.getAppliedOptime()== null) {
-            lastResponseBuilder.setAppliedOpTime(lastResponse.getAppliedOptime());
+        if (hbResponse.getAppliedOpTime()== null) {
+            lastResponseBuilder.setAppliedOpTime(lastResponse.getAppliedOpTime());
         }
 
         // Log if the state changes

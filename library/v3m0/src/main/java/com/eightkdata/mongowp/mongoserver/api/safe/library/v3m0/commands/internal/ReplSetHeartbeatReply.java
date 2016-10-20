@@ -43,7 +43,7 @@ public interface ReplSetHeartbeatReply {
 
     public Optional<Duration> getTime();
 
-    public Optional<OpTime> getAppliedOptime();
+    public Optional<OpTime> getAppliedOpTime();
 
     public Optional<OpTime> getDurableOptime();
 

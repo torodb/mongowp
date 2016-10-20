@@ -61,7 +61,7 @@ public class ReplSetHeartbeatReplyBuilder {
     public ReplSetHeartbeatReplyBuilder(ReplSetHeartbeatReply other) {
         this.electionTime = other.getElectionTime();
         this.time = other.getTime();
-        this.appliedOpTime = other.getAppliedOptime();
+        this.appliedOpTime = other.getAppliedOpTime();
         this.electable = other.getElectable();
         this.hasData = other.getHasData();
         this.mismatch = other.isMismatch();

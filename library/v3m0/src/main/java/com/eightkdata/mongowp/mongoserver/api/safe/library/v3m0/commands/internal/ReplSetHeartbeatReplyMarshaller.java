@@ -123,7 +123,7 @@ public class ReplSetHeartbeatReplyMarshaller {
                 doc.append(PRIMARY_ID_FIELD, primaryId));
         reply.getDurableOptime().ifPresent(durableOptime ->
                 doc.append(DURABLE_OP_TIME_FIELD, durableOptime.toBson()));
-        reply.getAppliedOptime().ifPresent(applyied -> {
+        reply.getAppliedOpTime().ifPresent(applyied -> {
             if (asV1) {
                 doc.append(APPLIED_OP_TIME_DOC_FIELD, applyied.toBson());
             } else {

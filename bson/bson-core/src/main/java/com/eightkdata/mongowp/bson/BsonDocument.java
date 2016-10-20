@@ -25,6 +25,8 @@ import com.eightkdata.mongowp.bson.utils.IntBaseHasher;
 import com.google.common.collect.UnmodifiableIterator;
 import java.io.Serializable;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -54,6 +56,10 @@ public interface BsonDocument extends BsonValue<BsonDocument>, Iterable<Entry<?>
 
     @Override
     public UnmodifiableIterator<Entry<?>> iterator();
+
+    public default Stream<Entry<?>> stream() {
+        return StreamSupport.stream(this.spliterator(), false);
+    }
 
     /**
      * Two documents are equal if they contain the same entries in the same
