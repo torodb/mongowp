@@ -38,14 +38,12 @@ class ErroneousReplSetHeartbeatReply implements ReplSetHeartbeatReply {
     private final ErrorCode errorCode;
     private final Optional<String> errMsg;
     private final boolean mismatch;
-    private final Optional<String> setName;
 
     public ErroneousReplSetHeartbeatReply(ErrorCode errorCode,
-            String errMsg, boolean mismatch, Optional<String> setName) {
+            String errMsg, boolean mismatch) {
         this.errorCode = errorCode;
         this.errMsg = Optional.of(errMsg);
         this.mismatch = mismatch;
-        this.setName = setName;
     }
 
     @Override
@@ -69,7 +67,7 @@ class ErroneousReplSetHeartbeatReply implements ReplSetHeartbeatReply {
     }
 
     @Override
-    public Optional<OpTime> getAppliedOptime() {
+    public Optional<OpTime> getAppliedOpTime() {
         return Optional.empty();
     }
 

@@ -14,7 +14,6 @@ import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.primitives.UnsignedLongs;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 /**
@@ -49,7 +48,7 @@ public class OpTime implements Comparable<OpTime>, Serializable {
     private final BsonTimestamp timestamp;
     private final long term;
 
-    public OpTime(BsonTimestamp timestamp, @Nonnegative long term) {
+    public OpTime(BsonTimestamp timestamp, long term) {
         this.timestamp = timestamp;
         this.term = term;
     }
@@ -114,7 +113,6 @@ public class OpTime implements Comparable<OpTime>, Serializable {
         return timestamp.getSecondsSinceEpoch();
     }
 
-    @Nonnegative
     public long getTerm() {
         return term;
     }

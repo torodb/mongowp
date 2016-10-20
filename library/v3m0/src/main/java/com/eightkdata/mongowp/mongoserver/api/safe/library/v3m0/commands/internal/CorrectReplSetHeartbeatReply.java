@@ -100,7 +100,7 @@ class CorrectReplSetHeartbeatReply implements ReplSetHeartbeatReply {
     }
 
     @Override
-    public Optional<OpTime> getAppliedOptime() {
+    public Optional<OpTime> getAppliedOpTime() {
         return appliedOptime;
     }
 
