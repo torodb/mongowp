@@ -34,7 +34,7 @@ public class IndexOptions {
     private static final String VERSION_FIELD_NAME = "v";
     private static final String NAME_FIELD_NAME = "name";
     private static final String NAMESPACE_FIELD_NAME = "ns";
-    private static final String BACKGROUND_FIELD_NAME = "blackground";
+    private static final String BACKGROUND_FIELD_NAME = "background";
     private static final String UNIQUE_FIELD_NAME = "unique";
     private static final String SPARSE_FIELD_NAME = "sparse";
     private static final String EXPIRE_AFTER_SECONDS_FIELD_NAME = "expireAfterSeconds";
@@ -215,15 +215,15 @@ public class IndexOptions {
                     break;
                 }
                 case BACKGROUND_FIELD_NAME: {
-                    background = BsonReaderTool.getBoolean(entry, BACKGROUND_FIELD);
+                    background = BsonReaderTool.getBooleanOrNumeric(entry, BACKGROUND_FIELD);
                     break;
                 }
                 case UNIQUE_FIELD_NAME: {
-                    unique = BsonReaderTool.getBoolean(entry, UNIQUE_FIELD);
+                    unique = BsonReaderTool.getBooleanOrNumeric(entry, UNIQUE_FIELD);
                     break;
                 }
                 case SPARSE_FIELD_NAME: {
-                    sparse = BsonReaderTool.getBoolean(entry, SPARSE_FIELD);
+                    sparse = BsonReaderTool.getBooleanOrNumeric(entry, SPARSE_FIELD);
                     break;
                 }
                 case EXPIRE_AFTER_SECONDS_FIELD_NAME: {
