@@ -1,6 +1,7 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -263,7 +264,7 @@ public class IndexOptions {
             throw new NoSuchKeyException(KEYS_FIELD_NAME, "Indexes need at least one key to index");
         }
 
-        List<Key> keys = Lists.newArrayListWithExpectedSize(keyDoc.size());
+        List<Key> keys = new ArrayList<>(keyDoc.size());
         for (Entry<?> entry : keyDoc) {
             List<String> key = PATH_SPLITER.splitToList(entry.getKey());
             IndexType value = null;
@@ -355,9 +356,11 @@ public class IndexOptions {
             }
         },
         text(DefaultBsonValues.newString("text")),
-        geospatial(DefaultBsonValues.newString("geospatial")),
-        hashed(DefaultBsonValues.newString("hashed")); 
-        
+        twodsphere(DefaultBsonValues.newString("2dsphere")),
+        geoHaystack(DefaultBsonValues.newString("geoHaystack")),
+        twod(DefaultBsonValues.newString("2d")),
+        hashed(DefaultBsonValues.newString("hashed"));
+    	
         private final BsonValue<?> bsonValue;
         
         private IndexType(BsonValue<?> bsonValue) {
