@@ -1,5 +1,5 @@
 
-package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos;
+package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,11 +21,18 @@ import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.fields.IntField;
 import com.eightkdata.mongowp.fields.NumberField;
 import com.eightkdata.mongowp.fields.StringField;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index.type.AscIndexType;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index.type.DescIndexType;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index.type.GeoHaystackIndexType;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index.type.HashedIndexType;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index.type.IndexType;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index.type.TextIndexType;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index.type.TwoDIndexType;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index.type.UnknownIndexType;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 
 /**
  *
@@ -159,7 +166,7 @@ public class IndexOptions {
         BsonDocumentBuilder keysDoc = new BsonDocumentBuilder();
         for (Key key : keys) {
             String path = PATH_JOINER.join(key.getKeys());
-            BsonValue value = key.getType().toBsonValue();
+            BsonValue<?> value = key.getType().toBsonValue();
             keysDoc.appendUnsafe(path, value);
         }
 
@@ -264,26 +271,7 @@ public class IndexOptions {
             throw new NoSuchKeyException(KEYS_FIELD_NAME, "Indexes need at least one key to index");
         }
 
-        List<Key> keys = new ArrayList<>(keyDoc.size());
-        for (Entry<?> entry : keyDoc) {
-            List<String> key = PATH_SPLITER.splitToList(entry.getKey());
-            IndexType value = null;
-            
-            for (IndexType indexType : IndexType.values()) {
-                if (indexType.equalsToBsonValue(entry.getValue())) {
-                    value = indexType;
-                    break;
-                }
-            }
-                
-            if (value == null) {
-                String fieldId = KEYS_FIELD.getFieldName() + '.' + entry.getKey();
-                throw new BadValueException("It was expected 1, -1, text, geospatial or hashed as "
-                        + "value of " + fieldId + " but " + entry.getValue().toString() + " was found");
-            }
-
-            keys.add(new Key(key, value));
-        }
+        List<Key> keys = unmarshllKeys(keyDoc);
 
         return new IndexOptions(
                 version,
@@ -298,6 +286,28 @@ public class IndexOptions {
                 storageEngine,
                 otherBuilder.build()
         );
+    }
+
+    public static List<Key> unmarshllKeys(BsonDocument keyDoc) {
+        List<Key> keys = new ArrayList<>(keyDoc.size());
+        for (Entry<?> entry : keyDoc) {
+            List<String> key = PATH_SPLITER.splitToList(entry.getKey());
+            IndexType value = null;
+            
+            for (KnownType knownType : KnownType.values()) {
+                if (knownType.getIndexType().equalsToBsonValue(entry.getValue())) {
+                    value = knownType.getIndexType();
+                    break;
+                }
+            }
+                
+            if (value == null) {
+                value = new UnknownIndexType(entry.getValue());
+            }
+
+            keys.add(new Key(key, value));
+        }
+        return keys;
     }
 
     public static enum IndexVersion {
@@ -341,44 +351,34 @@ public class IndexOptions {
             }
         }
     }
-
-    public enum IndexType {
-        asc(DefaultBsonValues.newInt(1)) {
-            @Override
-            public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
-                return sameNumber(bsonValue);
-            }
-        }, 
-        desc(DefaultBsonValues.newInt(-1)) {
-            @Override
-            public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
-                return sameNumber(bsonValue);
-            }
-        },
-        text(DefaultBsonValues.newString("text")),
-        twodsphere(DefaultBsonValues.newString("2dsphere")),
-        geoHaystack(DefaultBsonValues.newString("geoHaystack")),
-        twod(DefaultBsonValues.newString("2d")),
-        hashed(DefaultBsonValues.newString("hashed"));
+    
+    public enum KnownType {
+        asc(AscIndexType.INSTANCE), 
+        desc(DescIndexType.INSTANCE),
+        text(TextIndexType.INSTANCE),
+        twodsphere(TwoDIndexType.INSTANCE),
+        geoHaystack(GeoHaystackIndexType.INSTANCE),
+        twod(TwoDIndexType.INSTANCE),
+        hashed(HashedIndexType.INSTANCE);
     	
-        private final BsonValue<?> bsonValue;
+        private final IndexType indexType;
         
-        private IndexType(BsonValue<?> bsonValue) {
-            this.bsonValue = bsonValue;
+        private KnownType(IndexType indexType) {
+            this.indexType = indexType;
         }
         
-        public BsonValue<?> toBsonValue() {
-            return bsonValue;
+        public IndexType getIndexType() {
+            return indexType;
         }
         
-        public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
-            return this.bsonValue.equals(bsonValue);
-        }
-        
-        protected boolean sameNumber(BsonValue<?> bsonValue) {
-            return bsonValue.isNumber() && 
-                    toBsonValue().asInt32()
-                        .equals(bsonValue.asInt32());
+        public static boolean contains(IndexType indexType) {
+            for (KnownType knownType : values()) {
+                if (knownType.indexType == indexType) {
+                    return true;
+                }
+            }
+            
+            return false;
         }
     }
     
