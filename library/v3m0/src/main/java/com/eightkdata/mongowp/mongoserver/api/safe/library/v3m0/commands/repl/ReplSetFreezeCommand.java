@@ -10,7 +10,7 @@ import com.eightkdata.mongowp.fields.IntField;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetFreezeCommand.ReplSetFreezeArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetFreezeCommand.ReplSetFreezeReply;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 
@@ -20,7 +20,7 @@ import com.eightkdata.mongowp.utils.BsonReaderTool;
  * This node will not attempt to become primary until the time period specified
  * expires. Calling {replSetFreeze:0} will unfreeze the node.
  */
-public class ReplSetFreezeCommand extends AbstractCommand<ReplSetFreezeArgument, ReplSetFreezeReply>{
+public class ReplSetFreezeCommand extends AbstractNotAliasableCommand<ReplSetFreezeArgument, ReplSetFreezeReply>{
 	private static final IntField COMMAND_FIELD = new IntField("replSetFreeze");
 
 	public static final ReplSetFreezeCommand INSTANCE = new ReplSetFreezeCommand();

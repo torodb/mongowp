@@ -11,9 +11,9 @@ import com.eightkdata.mongowp.fields.BooleanField;
 import com.eightkdata.mongowp.fields.NumberField;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.BuildInfoCommand.BuildInfoResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
@@ -22,7 +22,7 @@ import com.eightkdata.mongowp.utils.BsonReaderTool;
 /**
  *
  */
-public class BuildInfoCommand extends AbstractCommand<Empty, BuildInfoResult> {
+public class BuildInfoCommand extends AbstractNotAliasableCommand<Empty, BuildInfoResult> {
 
     public static final BuildInfoCommand INSTANCE = new BuildInfoCommand();
 

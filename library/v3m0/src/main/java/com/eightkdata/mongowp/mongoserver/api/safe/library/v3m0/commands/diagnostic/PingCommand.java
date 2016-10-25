@@ -24,13 +24,13 @@ import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.exceptions.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
 import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 
 /**
  *
  */
-public class PingCommand extends AbstractCommand<Empty, Empty> {
+public class PingCommand extends AbstractNotAliasableCommand<Empty, Empty> {
 
     public static final PingCommand INSTANCE = new PingCommand();
     private static final String COMMAND_NAME = "ping";

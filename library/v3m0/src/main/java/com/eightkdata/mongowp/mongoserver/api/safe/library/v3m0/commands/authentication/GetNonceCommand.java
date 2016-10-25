@@ -25,7 +25,7 @@ import com.eightkdata.mongowp.exceptions.*;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
 import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
@@ -33,7 +33,7 @@ import com.eightkdata.mongowp.utils.BsonReaderTool;
 /**
  *
  */
-public class GetNonceCommand extends AbstractCommand<Empty, String>{
+public class GetNonceCommand extends AbstractNotAliasableCommand<Empty, String>{
 
     public static final GetNonceCommand INSTANCE = new GetNonceCommand();
     private static final String COMMAND_NAME = "getnonce";

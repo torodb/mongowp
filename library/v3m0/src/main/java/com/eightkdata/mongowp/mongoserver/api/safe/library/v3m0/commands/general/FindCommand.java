@@ -30,7 +30,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.FindCommand.FindResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CursorResult;
 import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.UnmodifiableIterator;
@@ -44,7 +44,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
-public class FindCommand extends AbstractCommand<FindArgument, FindResult> {
+public class FindCommand extends AbstractNotAliasableCommand<FindArgument, FindResult> {
 
     public static final FindCommand INSTANCE = new FindCommand();
     private static final String COMMAND_NAME = "find";

@@ -43,14 +43,14 @@ public class DropIndexesCommand extends AbstractCommand<DropIndexesArgument, Dro
     }
 
     @Override
-    public DropIndexesArgument unmarshallArg(BsonDocument requestDoc)
+    public DropIndexesArgument unmarshallArg(BsonDocument requestDoc, String aliasedAs)
             throws TypesMismatchException, NoSuchKeyException, BadValueException {
-        return DropIndexesArgument.unmarshall(requestDoc, getCommandName());
+        return DropIndexesArgument.unmarshall(requestDoc, aliasedAs);
     }
 
     @Override
-    public BsonDocument marshallArg(DropIndexesArgument request) {
-        return request.marshall();
+    public BsonDocument marshallArg(DropIndexesArgument request, String aliasedAs) {
+        return request.marshall(aliasedAs);
     }
 
     @Override
@@ -69,7 +69,6 @@ public class DropIndexesCommand extends AbstractCommand<DropIndexesArgument, Dro
     }
 
     public static class DropIndexesArgument {
-        private final static StringField COLLECTION_FIELD = new StringField(COMMAND_NAME);
         private final static StringField INDEX_NAME_FIELD = new StringField("index");
         private final static DocField INDEX_KEYS_FIELD = new DocField("index");
 
@@ -117,9 +116,10 @@ public class DropIndexesCommand extends AbstractCommand<DropIndexesArgument, Dro
             return dropByKeys;
         }
 
-        private BsonDocument marshall() {
+        private BsonDocument marshall(String aliasedAs) {
+            StringField collectionField = new StringField(aliasedAs);
             return new BsonDocumentBuilder()
-                    .append(COLLECTION_FIELD, collection)
+                    .append(collectionField, collection)
                     .append(INDEX_NAME_FIELD, indexToDrop)
                     .build();
         }

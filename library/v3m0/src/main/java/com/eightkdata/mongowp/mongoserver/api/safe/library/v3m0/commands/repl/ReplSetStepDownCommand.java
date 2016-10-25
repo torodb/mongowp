@@ -7,7 +7,7 @@ import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.BooleanField;
 import com.eightkdata.mongowp.fields.LongField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetStepDownCommand.ReplSetStepDownArgument;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.concurrent.Immutable;
@@ -15,7 +15,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  *
  */
-public class ReplSetStepDownCommand extends AbstractCommand<ReplSetStepDownArgument, Empty> {
+public class ReplSetStepDownCommand extends AbstractNotAliasableCommand<ReplSetStepDownArgument, Empty> {
 	private static final String COMMAND_FIELD_NAME = "replSetStepDown";
 
     private static final BsonInt32 DEFAULT_STEP_DOWN_SECS = DefaultBsonValues.newInt(60);

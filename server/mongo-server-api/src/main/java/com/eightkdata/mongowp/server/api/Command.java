@@ -73,10 +73,15 @@ public interface Command<Arg, Result> {
     public Class<? extends Arg> getArgClass();
 
     @Nonnull
-    public Arg unmarshallArg(@Nonnull BsonDocument requestDoc) throws MongoException;
+    public default Arg unmarshallArg(@Nonnull BsonDocument requestDoc) throws MongoException {
+        return unmarshallArg(requestDoc, requestDoc.getFirstEntry().getKey());
+    }
 
     @Nonnull
-    public BsonDocument marshallArg(Arg request) throws MarshalException;
+    public Arg unmarshallArg(@Nonnull BsonDocument requestDoc, String aliasedAs) throws MongoException;
+
+    @Nonnull
+    public BsonDocument marshallArg(Arg request, String aliasedAs) throws MarshalException;
     
     public Class<? extends Result> getResultClass();
 
@@ -93,8 +98,8 @@ public interface Command<Arg, Result> {
      * @throws MongoException
      */
     @Nullable
-    public BsonDocument marshallResult(Result result) throws MarshalException ;
-    
+    public BsonDocument marshallResult(Result result) throws MarshalException;
+
     /**
      * Two commands are equal iff their class is the same.
      * 

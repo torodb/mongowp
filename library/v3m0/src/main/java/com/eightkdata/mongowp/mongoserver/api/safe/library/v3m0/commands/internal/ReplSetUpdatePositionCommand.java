@@ -17,7 +17,7 @@ import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetUpdatePositionCommand.ReplSetUpdatePositionArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberConfig;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableSet;
  *
  */
 //TODO: this command is not compatible with MongoDB 3.2.4+
-public class ReplSetUpdatePositionCommand extends AbstractCommand<ReplSetUpdatePositionArgument, Empty> {
+public class ReplSetUpdatePositionCommand extends AbstractNotAliasableCommand<ReplSetUpdatePositionArgument, Empty> {
 
     public static final ReplSetUpdatePositionCommand INSTANCE = new ReplSetUpdatePositionCommand();
 

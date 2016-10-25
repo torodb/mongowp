@@ -9,7 +9,7 @@ import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListIndexesCommand.ListIndexesArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.ListIndexesCommand.ListIndexesResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CursorResult;
@@ -21,7 +21,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
-public class ListIndexesCommand extends AbstractCommand<ListIndexesArgument, ListIndexesResult>{
+public class ListIndexesCommand extends AbstractNotAliasableCommand<ListIndexesArgument, ListIndexesResult>{
 
     public static final ListIndexesCommand INSTANCE = new ListIndexesCommand();
     private static final String COMMAND_NAME = "listIndexes";

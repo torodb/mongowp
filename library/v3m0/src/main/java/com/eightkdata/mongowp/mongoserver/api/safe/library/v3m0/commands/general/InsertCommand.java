@@ -16,7 +16,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertResult;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteConcernError;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteError;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
@@ -32,7 +32,7 @@ import javax.annotation.concurrent.Immutable;
  *
  */
 @Immutable
-public class InsertCommand extends AbstractCommand<InsertArgument, InsertResult>{
+public class InsertCommand extends AbstractNotAliasableCommand<InsertArgument, InsertResult>{
 
     public static final InsertCommand INSTANCE = new InsertCommand();
 

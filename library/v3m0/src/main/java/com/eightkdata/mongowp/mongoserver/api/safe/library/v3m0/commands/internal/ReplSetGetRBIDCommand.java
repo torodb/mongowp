@@ -2,18 +2,17 @@
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal;
 
 import com.eightkdata.mongowp.bson.BsonDocument;
-import com.eightkdata.mongowp.fields.BsonField;
 import com.eightkdata.mongowp.fields.IntField;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetGetRBIDCommand.ReplSetGetRBIDReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 
 /**
  *
  */
-public class ReplSetGetRBIDCommand extends AbstractCommand<Empty, ReplSetGetRBIDReply>{
+public class ReplSetGetRBIDCommand extends AbstractNotAliasableCommand<Empty, ReplSetGetRBIDReply>{
 
     public static final ReplSetGetRBIDCommand INSTANCE = new ReplSetGetRBIDCommand();
 

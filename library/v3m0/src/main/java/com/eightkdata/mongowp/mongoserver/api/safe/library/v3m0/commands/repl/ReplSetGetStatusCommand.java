@@ -15,7 +15,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberHear
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.MemberState;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.google.common.collect.Lists;
@@ -36,7 +36,7 @@ import javax.annotation.concurrent.Immutable;
  * Report status of a replica set from the POV of this server.
  */
 @Immutable
-public class ReplSetGetStatusCommand extends AbstractCommand<Empty, ReplSetGetStatusReply>{
+public class ReplSetGetStatusCommand extends AbstractNotAliasableCommand<Empty, ReplSetGetStatusReply>{
 
     public static final ReplSetGetStatusCommand INSTANCE = new ReplSetGetStatusCommand();
 

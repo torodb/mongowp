@@ -10,7 +10,7 @@ import com.eightkdata.mongowp.fields.BooleanField;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.messages.utils.NamespaceUtils;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.RenameCollectionCommand.RenameCollectionArgument;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
@@ -18,7 +18,7 @@ import com.eightkdata.mongowp.utils.BsonReaderTool;
 /**
  *
  */
-public class RenameCollectionCommand extends AbstractCommand<RenameCollectionArgument, Empty> {
+public class RenameCollectionCommand extends AbstractNotAliasableCommand<RenameCollectionArgument, Empty> {
     private static final String COMMAND_NAME = "renameCollection";
     public static final RenameCollectionCommand INSTANCE = new RenameCollectionCommand();
 

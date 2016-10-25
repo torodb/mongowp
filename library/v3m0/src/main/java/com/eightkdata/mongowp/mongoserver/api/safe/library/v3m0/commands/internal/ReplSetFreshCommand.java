@@ -12,7 +12,7 @@ import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetFreshCommand.ReplSetFreshArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetFreshCommand.ReplSetFreshReply;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.net.HostAndPort;
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public class ReplSetFreshCommand extends AbstractCommand<ReplSetFreshArgument, ReplSetFreshReply>{
+public class ReplSetFreshCommand extends AbstractNotAliasableCommand<ReplSetFreshArgument, ReplSetFreshReply>{
 	private static final IntField COMMAND_FIELD = new IntField("replSetFresh");
 
     public static final ReplSetFreshCommand INSTANCE = new ReplSetFreshCommand();

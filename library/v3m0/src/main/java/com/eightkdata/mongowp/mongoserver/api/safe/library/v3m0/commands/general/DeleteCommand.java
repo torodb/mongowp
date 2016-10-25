@@ -12,7 +12,7 @@ import com.eightkdata.mongowp.exceptions.*;
 import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.DeleteCommand.DeleteArgument;
 import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
  *
  */
 //TODO: Change the command to return writeErrors like InsertCommand
-public class DeleteCommand extends AbstractCommand<DeleteArgument, Long>{
+public class DeleteCommand extends AbstractNotAliasableCommand<DeleteArgument, Long>{
 
     private static final NumberField<?> N_FIELD = new NumberField<>("n");
     private static final String COMMAND_NAME = "delete";

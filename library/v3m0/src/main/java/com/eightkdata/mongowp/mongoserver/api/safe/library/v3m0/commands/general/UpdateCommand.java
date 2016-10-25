@@ -12,7 +12,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteConcernError;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.WriteError;
 import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
@@ -22,7 +22,7 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public class UpdateCommand extends AbstractCommand<UpdateArgument, UpdateResult>{
+public class UpdateCommand extends AbstractNotAliasableCommand<UpdateArgument, UpdateResult>{
 
     public static final UpdateCommand INSTANCE = new UpdateCommand();
     private static final String COMMAND_NAME = "update";

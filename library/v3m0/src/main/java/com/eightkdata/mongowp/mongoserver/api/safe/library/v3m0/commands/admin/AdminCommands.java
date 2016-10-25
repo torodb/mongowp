@@ -34,7 +34,6 @@ public class AdminCommands implements Iterable<Command> {
             ListIndexesCommand.INSTANCE,
             CreateIndexesCommand.INSTANCE,
             DropIndexesCommand.INSTANCE,
-            DeleteIndexesCommand.INSTANCE,
             RenameCollectionCommand.INSTANCE
     );
 
@@ -70,7 +69,6 @@ public class AdminCommands implements Iterable<Command> {
                     .put(ListIndexesCommand.INSTANCE, getListIndexesImplementation())
                     .put(CreateIndexesCommand.INSTANCE, getCreateIndexesImplementation())
                     .put(DropIndexesCommand.INSTANCE, getDropIndexesImplementation())
-                    .put(DeleteIndexesCommand.INSTANCE, getDropIndexesImplementation())
                     .put(RenameCollectionCommand.INSTANCE, getRenameCollectionImplementation())
                     .build();
         }

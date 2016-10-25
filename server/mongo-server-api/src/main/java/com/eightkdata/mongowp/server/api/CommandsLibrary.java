@@ -45,5 +45,10 @@ public interface CommandsLibrary {
     public Set<Command> getSupportedCommands();
 
     @Nullable
-    public Command find(BsonDocument requestDocument) ;
+    public LibraryEntry find(BsonDocument requestDocument) ;
+
+    public static interface LibraryEntry {
+        Command getCommand();
+        String getAlias();
+    }
 }

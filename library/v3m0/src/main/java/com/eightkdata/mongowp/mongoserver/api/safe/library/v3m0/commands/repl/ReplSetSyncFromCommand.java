@@ -9,7 +9,7 @@ import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.HostAndPortField;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ReplSetSyncFromCommand.ReplSetSyncFromReply;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.net.HostAndPort;
@@ -17,7 +17,7 @@ import com.google.common.net.HostAndPort;
 /**
  *
  */
-public class ReplSetSyncFromCommand extends AbstractCommand<HostAndPort, ReplSetSyncFromReply>{
+public class ReplSetSyncFromCommand extends AbstractNotAliasableCommand<HostAndPort, ReplSetSyncFromReply>{
 
     public static final ReplSetSyncFromCommand INSTANCE = new ReplSetSyncFromCommand();
 

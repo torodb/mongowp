@@ -10,9 +10,9 @@ import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.ListDatabasesCommand.ListDatabasesReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
@@ -26,7 +26,7 @@ import org.apache.logging.log4j.LogManager;
 /**
  *
  */
-public class ListDatabasesCommand extends AbstractCommand<Empty, ListDatabasesReply>{
+public class ListDatabasesCommand extends AbstractNotAliasableCommand<Empty, ListDatabasesReply>{
     private static final org.apache.logging.log4j.Logger LOGGER
             = LogManager.getLogger(ListDatabasesCommand.class);
     public static final ListDatabasesCommand INSTANCE = new ListDatabasesCommand();
