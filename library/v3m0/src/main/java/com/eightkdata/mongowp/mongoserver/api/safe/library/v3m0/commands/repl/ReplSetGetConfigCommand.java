@@ -9,14 +9,14 @@ import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplicaSetConfig;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.tools.EmptyCommandArgumentMarshaller;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 
 /**
  * Returns the current replica set configuration.
  */
-public class ReplSetGetConfigCommand extends AbstractCommand<Empty, ReplicaSetConfig> {
+public class ReplSetGetConfigCommand extends AbstractNotAliasableCommand<Empty, ReplicaSetConfig> {
 
     public static final ReplSetGetConfigCommand INSTANCE = new ReplSetGetConfigCommand();
     private static final DocField CONFIG_FIELD = new DocField("config");

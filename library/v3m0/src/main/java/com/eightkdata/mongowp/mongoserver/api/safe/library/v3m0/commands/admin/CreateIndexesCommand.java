@@ -13,9 +13,8 @@ import com.eightkdata.mongowp.fields.IntField;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateIndexesCommand.CreateIndexesResult;
-import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.InsertCommand.InsertArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.IndexOptions;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.collect.Lists;
@@ -27,7 +26,7 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public class CreateIndexesCommand extends AbstractCommand<CreateIndexesArgument, CreateIndexesResult> {
+public class CreateIndexesCommand extends AbstractNotAliasableCommand<CreateIndexesArgument, CreateIndexesResult> {
     private static final String COMMAND_NAME = "createIndexes";
     public static final CreateIndexesCommand INSTANCE = new CreateIndexesCommand();
 

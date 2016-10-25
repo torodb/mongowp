@@ -15,7 +15,7 @@ import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.L
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CollectionOptions;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CursorResult;
 import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import java.util.function.Function;
@@ -27,7 +27,7 @@ import javax.annotation.concurrent.Immutable;
  *
  */
 @Immutable
-public class ListCollectionsCommand extends AbstractCommand<ListCollectionsArgument, ListCollectionsResult> {
+public class ListCollectionsCommand extends AbstractNotAliasableCommand<ListCollectionsArgument, ListCollectionsResult> {
 
     public static final ListCollectionsCommand INSTANCE = new ListCollectionsCommand();
     private static final String COMMAND_NAME = "listCollections";

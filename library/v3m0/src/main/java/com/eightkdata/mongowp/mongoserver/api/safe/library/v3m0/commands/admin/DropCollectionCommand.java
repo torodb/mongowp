@@ -5,14 +5,14 @@ import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.impl.CollectionCommandArgument;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 
 /**
  *
  */
-public class DropCollectionCommand extends AbstractCommand<CollectionCommandArgument, Empty> {
+public class DropCollectionCommand extends AbstractNotAliasableCommand<CollectionCommandArgument, Empty> {
 
     public static final DropCollectionCommand INSTANCE = new DropCollectionCommand();
 

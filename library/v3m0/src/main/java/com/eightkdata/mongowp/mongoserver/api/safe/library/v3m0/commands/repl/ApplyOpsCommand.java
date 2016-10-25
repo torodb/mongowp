@@ -9,11 +9,11 @@ import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.server.api.oplog.OplogOperation;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.repl.ApplyOpsCommand.ApplyOpsReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.OplogOperationParser;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
@@ -24,7 +24,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  *
  */
-public class ApplyOpsCommand extends AbstractCommand<ApplyOpsArgument, ApplyOpsReply> {
+public class ApplyOpsCommand extends AbstractNotAliasableCommand<ApplyOpsArgument, ApplyOpsReply> {
 
     public static final ApplyOpsCommand INSTANCE = new ApplyOpsCommand();
 

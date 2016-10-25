@@ -6,9 +6,9 @@ import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.CollStatsCommand.CollStatsArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.CollStatsCommand.CollStatsReply;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Preconditions;
@@ -25,7 +25,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  *
  */
-public class CollStatsCommand extends AbstractCommand<CollStatsArgument, CollStatsReply> {
+public class CollStatsCommand extends AbstractNotAliasableCommand<CollStatsArgument, CollStatsReply> {
 
     public static final CollStatsCommand INSTANCE = new CollStatsCommand();
 

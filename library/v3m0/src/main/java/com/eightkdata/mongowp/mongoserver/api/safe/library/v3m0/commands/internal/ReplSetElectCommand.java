@@ -15,7 +15,7 @@ import com.eightkdata.mongowp.fields.ObjectIdField;
 import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetElectCommand.ReplSetElectReply;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.net.HostAndPort;
@@ -23,7 +23,7 @@ import com.google.common.net.HostAndPort;
 /**
  *
  */
-public class ReplSetElectCommand extends AbstractCommand<ReplSetElectArgument, ReplSetElectReply>{
+public class ReplSetElectCommand extends AbstractNotAliasableCommand<ReplSetElectArgument, ReplSetElectReply>{
 	public static final IntField COMMAND_FIELD = new IntField("replSetElect");
 	
     public static final ReplSetElectCommand INSTANCE = new ReplSetElectCommand();

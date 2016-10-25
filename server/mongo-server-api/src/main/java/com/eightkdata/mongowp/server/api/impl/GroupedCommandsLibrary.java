@@ -43,9 +43,9 @@ public class GroupedCommandsLibrary implements CommandsLibrary {
     }
 
     @Override
-    public Command find(BsonDocument requestDocument) {
+    public LibraryEntry find(BsonDocument requestDocument) {
         for (CommandsLibrary subLibrary : subLibraries) {
-            Command found = subLibrary.find(requestDocument);
+            LibraryEntry found = subLibrary.find(requestDocument);
             if (found != null) {
                 return found;
             }

@@ -17,7 +17,7 @@ import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.general.GetLastErrorCommand.GetLastErrorReply;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.callback.WriteOpResult;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
@@ -32,7 +32,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  *
  */
-public class GetLastErrorCommand extends AbstractCommand<GetLastErrorArgument, GetLastErrorReply>{
+public class GetLastErrorCommand extends AbstractNotAliasableCommand<GetLastErrorArgument, GetLastErrorReply>{
 
     public static final GetLastErrorCommand INSTANCE = new GetLastErrorCommand();
     

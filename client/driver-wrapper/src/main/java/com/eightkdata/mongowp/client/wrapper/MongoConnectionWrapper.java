@@ -203,7 +203,7 @@ public class MongoConnectionWrapper implements MongoConnection {
             Document document = owner.getDriverClient()
                     .getDatabase(database)
                     .runCommand(
-                            MongoBsonTranslator.translate(command.marshallArg(arg)),
+                            MongoBsonTranslator.translate(command.marshallArg(arg, command.getCommandName())),
                             readPreference
                     );
             org.bson.BsonDocument bsonDoc

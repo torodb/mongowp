@@ -6,9 +6,9 @@ import com.eightkdata.mongowp.exceptions.BadValueException;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.StringField;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CreateCollectionCommand.CreateCollectionArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.CollectionOptions;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
@@ -16,7 +16,7 @@ import com.eightkdata.mongowp.utils.BsonReaderTool;
 /**
  *
  */
-public class CreateCollectionCommand extends AbstractCommand<CreateCollectionArgument, Empty> {
+public class CreateCollectionCommand extends AbstractNotAliasableCommand<CreateCollectionArgument, Empty> {
 
     public static final CreateCollectionCommand INSTANCE = new CreateCollectionCommand();
 

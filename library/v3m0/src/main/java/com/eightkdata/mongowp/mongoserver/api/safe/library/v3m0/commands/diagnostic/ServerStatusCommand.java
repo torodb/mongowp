@@ -8,7 +8,7 @@ import com.eightkdata.mongowp.exceptions.TypesMismatchException;
 import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.ServerStatusCommand.ServerStatusArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.ServerStatusCommand.ServerStatusReply;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
@@ -20,7 +20,7 @@ import javax.annotation.concurrent.Immutable;
 /**
  *
  */
-public class ServerStatusCommand extends AbstractCommand<ServerStatusArgument, ServerStatusReply> {
+public class ServerStatusCommand extends AbstractNotAliasableCommand<ServerStatusArgument, ServerStatusReply> {
 
     public static final ServerStatusCommand INSTANCE = new ServerStatusCommand();
 

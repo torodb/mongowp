@@ -30,7 +30,7 @@ import com.eightkdata.mongowp.fields.StringField;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.GetLogCommand.GetLogArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.diagnostic.GetLogCommand.GetLogReply;
 import com.eightkdata.mongowp.server.api.MarshalException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonArrayBuilder;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
 /**
  *
  */
-public class GetLogCommand extends AbstractCommand<GetLogArgument, GetLogReply> {
+public class GetLogCommand extends AbstractNotAliasableCommand<GetLogArgument, GetLogReply> {
 
     private static final String COMMAND_NAME = "getLog";
     public static final GetLogCommand INSTANCE = new GetLogCommand();

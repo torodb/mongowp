@@ -27,28 +27,19 @@ import com.google.common.collect.Sets;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  *
  */
 public class NameBasedCommandsLibrary implements CommandsLibrary {
 
-    private static final Logger LOGGER = LogManager.getLogger(NameBasedCommandsLibrary.class);
     private final String version;
-    private final ImmutableMap<String, Command> commandsMap;
+    private final ImmutableMap<String, Command<?, ?>> commandsMap;
 
-    public NameBasedCommandsLibrary(String version, Iterable<Command<?,?>> commands) {
+    public NameBasedCommandsLibrary(String version,
+            ImmutableMap<String, Command<?,?>> commandsMap) {
         this.version = version;
-        
-        ImmutableMap.Builder<String, Command> commandsMapBuilder = ImmutableMap.builder();
-        
-        for (Command command : commands) {
-            commandsMapBuilder.put(command.getCommandName().toLowerCase(Locale.ENGLISH), command);
-        }
-        
-        this.commandsMap = commandsMapBuilder.build();
+        this.commandsMap = commandsMap;
     }
 
     @Override
@@ -59,20 +50,53 @@ public class NameBasedCommandsLibrary implements CommandsLibrary {
     @Override
     public Set<Command> getSupportedCommands() {
         HashSet<Command> supportedCommands = Sets.newHashSet(commandsMap.values());
-        assert supportedCommands.size() == commandsMap.size();
         
         return supportedCommands;
     }
 
     @Override
-    public Command find(BsonDocument requestDocument) {
+    public LibraryEntry find(BsonDocument requestDocument) {
         if (requestDocument.isEmpty()) {
             return null;
         }
-        String commandName = requestDocument.getFirstEntry().getKey().toLowerCase(Locale.ENGLISH);
-        Command result = commandsMap.get(commandName);
+        String commandAlias = requestDocument.getFirstEntry().getKey();
+        String key = commandAlias.toLowerCase(Locale.ENGLISH);
+        Command<?, ?> command = commandsMap.get(key);
+        if (command == null) {
+            return null;
+        }
         
-        return result;
+        return new PojoLibraryEntry(commandAlias, command);
+    }
+
+    public static class Builder {
+        private String version;
+        private final ImmutableMap.Builder<String, Command<?, ?>> commandsMapBuilder;
+
+        public Builder(String version) {
+            commandsMapBuilder = new ImmutableMap.Builder<>();
+            this.version = version;
+        }
+
+        public Builder addCommand(Command<?, ?> command) {
+            return addAsAlias(command, command.getCommandName());
+        }
+
+        public Builder addAsAlias(Command<?, ?> command, String alias) {
+            commandsMapBuilder.put(alias.toLowerCase(Locale.ENGLISH), command);
+            return this;
+        }
+
+        public Builder addCommands(Iterable<Command<?, ?>> commands) {
+            for (Command<?, ?> command : commands) {
+                addCommand(command);
+            }
+            return this;
+        }
+
+        public NameBasedCommandsLibrary build() {
+            return new NameBasedCommandsLibrary(version, commandsMapBuilder.build());
+        }
     }
     
 }

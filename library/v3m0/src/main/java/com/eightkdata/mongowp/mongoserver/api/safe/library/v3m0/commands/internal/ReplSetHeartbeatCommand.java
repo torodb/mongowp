@@ -6,7 +6,7 @@ import com.eightkdata.mongowp.fields.*;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatCommand.ReplSetHeartbeatArgument;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.internal.ReplSetHeartbeatReply;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.ReplSetProtocolVersion;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import com.google.common.base.Preconditions;
@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public class ReplSetHeartbeatCommand extends AbstractCommand<ReplSetHeartbeatArgument, ReplSetHeartbeatReply>{
+public class ReplSetHeartbeatCommand extends AbstractNotAliasableCommand<ReplSetHeartbeatArgument, ReplSetHeartbeatReply>{
     private static final StringField COMMAND_FIELD = new StringField("replSetHeartbeat");
 	
     public static final ReplSetHeartbeatCommand INSTANCE = new ReplSetHeartbeatCommand();

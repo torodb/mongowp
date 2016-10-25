@@ -12,8 +12,8 @@ import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.fields.LongField;
 import com.eightkdata.mongowp.fields.NumberField;
 import com.eightkdata.mongowp.fields.StringField;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
 import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.aggregation.CountCommand.CountArgument;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 import javax.annotation.Nonnegative;
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 /**
  *
  */
-public class CountCommand extends AbstractCommand<CountArgument, Long>{
+public class CountCommand extends AbstractNotAliasableCommand<CountArgument, Long>{
 
     private static final NumberField N_FIELD = new NumberField("n");
 

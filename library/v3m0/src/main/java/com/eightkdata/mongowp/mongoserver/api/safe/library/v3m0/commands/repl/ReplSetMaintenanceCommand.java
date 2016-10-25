@@ -4,14 +4,14 @@ import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.utils.DefaultBsonValues;
 import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
 import com.eightkdata.mongowp.exceptions.TypesMismatchException;
-import com.eightkdata.mongowp.server.api.impl.AbstractCommand;
+import com.eightkdata.mongowp.server.api.impl.AbstractNotAliasableCommand;
 import com.eightkdata.mongowp.server.api.tools.Empty;
 import com.eightkdata.mongowp.utils.BsonReaderTool;
 
 /**
  *
  */
-public class ReplSetMaintenanceCommand extends AbstractCommand<Boolean, Empty>{
+public class ReplSetMaintenanceCommand extends AbstractNotAliasableCommand<Boolean, Empty>{
 
     public static final ReplSetMaintenanceCommand INSTANCE = new ReplSetMaintenanceCommand();
 
