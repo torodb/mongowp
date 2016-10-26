@@ -1,6 +1,8 @@
 
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin;
 
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CollModCommand.CollModArgument;
+import com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.commands.admin.CollModCommand.CollModResult;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -44,6 +46,8 @@ public class AdminCommands implements Iterable<Command> {
 
     public static abstract class AdminCommandsImplementationsBuilder<Context> implements Iterable<Map.Entry<Command<?,?>, CommandImplementation<?, ?, ? super Context>>> {
 
+        public abstract CommandImplementation<CollModArgument, CollModResult, ? super Context> getCollModImplementation();
+
         public abstract CommandImplementation<ListCollectionsArgument, ListCollectionsResult, ? super Context> getListCollectionsImplementation();
 
         public abstract CommandImplementation<Empty, Empty, ? super Context> getDropDatabaseImplementation();
@@ -62,6 +66,7 @@ public class AdminCommands implements Iterable<Command> {
 
         private Map<Command<?,?>, CommandImplementation<?, ?, ? super Context>> createMap() {
             return ImmutableMap.<Command<?,?>, CommandImplementation<?, ?, ? super Context>>builder()
+                    .put(CollModCommand.INSTANCE, getCollModImplementation())
                     .put(ListCollectionsCommand.INSTANCE, getListCollectionsImplementation())
                     .put(DropDatabaseCommand.INSTANCE, getDropDatabaseImplementation())
                     .put(DropCollectionCommand.INSTANCE, getDropCollectionImplementation())

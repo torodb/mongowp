@@ -483,7 +483,7 @@ public class BsonReaderTool {
         return isPseudoTrue(doc.getEntry(fieldId));
     }
 
-    private static boolean isPseudoTrue(Entry<?> entry) {
+    public static boolean isPseudoTrue(Entry<?> entry) {
         if (entry == null) {
             return false;
         }
@@ -499,17 +499,12 @@ public class BsonReaderTool {
     }
 
     @Nonnull
-    public static String getString(Entry<?> entry, String fieldId) throws TypesMismatchException {
+    public static String getString(Entry<?> entry) throws TypesMismatchException {
         BsonValue object = entry.getValue();
         if (!object.isString()) {
-            throw new TypesMismatchException(fieldId, "string", object.getType());
+            throw new TypesMismatchException(entry.getKey(), "string", object.getType());
         }
         return object.asString().getValue();
-    }
-
-    @Nonnull
-    public static String getString(Entry<?> entry, StringField field) throws TypesMismatchException {
-        return getString(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -524,7 +519,7 @@ public class BsonReaderTool {
 
     @Nonnull
     public static String getString(BsonDocument doc, String fieldId) throws TypesMismatchException, NoSuchKeyException {
-        return getString(getEntry(doc, fieldId), fieldId);
+        return getString(getEntry(doc, fieldId));
     }
 
     @Nullable
@@ -533,23 +528,18 @@ public class BsonReaderTool {
         if (entry == null) {
             return defaultValue;
         }
-        return getString(entry, fieldId);
+        return getString(entry);
     }
 
     @Nonnull
-    public static HostAndPort getHostAndPort(Entry<?> entry, String fieldId) throws TypesMismatchException {
-        String string = getString(entry, fieldId);
+    public static HostAndPort getHostAndPort(Entry<?> entry) throws TypesMismatchException {
+        String string = getString(entry);
         return getHostAndPort(string);
     }
     
     public static HostAndPort getHostAndPort(String hostPortString) {
         return HostAndPort.fromString(hostPortString)
                 .withDefaultPort(MongoConstants.DEFAULT_PORT);
-    }
-
-    @Nonnull
-    public static HostAndPort getHostAndPort(Entry<?> entry, HostAndPortField field) throws TypesMismatchException {
-        return getHostAndPort(entry, field.getFieldName());
     }
 
     @Nonnull
@@ -564,7 +554,7 @@ public class BsonReaderTool {
     
     @Nonnull
     public static HostAndPort getHostAndPort(BsonDocument doc, String fieldName) throws TypesMismatchException, NoSuchKeyException {
-        return getHostAndPort(getEntry(doc, fieldName), fieldName);
+        return getHostAndPort(getEntry(doc, fieldName));
     }
 
     @Nullable
@@ -573,7 +563,7 @@ public class BsonReaderTool {
         if (entry == null) {
             return defaultValue;
         }
-        return getHostAndPort(entry, fieldId);
+        return getHostAndPort(entry);
     }
 
     @Nonnull

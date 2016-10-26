@@ -215,11 +215,11 @@ public class IndexOptions {
                     break;
                 }
                 case NAME_FIELD_NAME: {
-                    name = BsonReaderTool.getString(entry, NAME_FIELD);
+                    name = BsonReaderTool.getString(entry);
                     break;
                 }
                 case NAMESPACE_FIELD_NAME: {
-                    namespace = BsonReaderTool.getString(entry, NAMESPACE_FIELD);
+                    namespace = BsonReaderTool.getString(entry);
                     break;
                 }
                 case BACKGROUND_FIELD_NAME: {
