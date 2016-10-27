@@ -25,8 +25,10 @@ import com.eightkdata.mongowp.bson.BsonValue;
 public abstract class AbstractIndexType implements IndexType {
     
     public final BsonValue<?> bsonValue;
+    public final String name;
     
     protected AbstractIndexType(BsonValue<?> bsonValue) {
+        this.name = bsonValue.isString() ? bsonValue.asString().getValue() : bsonValue.toString();
         this.bsonValue = bsonValue;
     }
 
@@ -35,6 +37,11 @@ public abstract class AbstractIndexType implements IndexType {
         return bsonValue;
     }
     
+    @Override
+    public String getName() {
+        return name;
+    }
+
     @Override
     public boolean equalsToBsonValue(BsonValue<?> bsonValue) {
         return this.bsonValue.equals(bsonValue);

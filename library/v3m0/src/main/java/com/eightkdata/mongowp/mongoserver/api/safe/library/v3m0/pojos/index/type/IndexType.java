@@ -26,6 +26,8 @@ public interface IndexType {
     
     public BsonValue<?> toBsonValue();
     
+    public String getName();
+    
     public boolean equalsToBsonValue(BsonValue<?> bsonValue);
     
     public <Arg,Result> Result accept(IndexTypeVisitor<Arg,Result> visitor, Arg arg);
