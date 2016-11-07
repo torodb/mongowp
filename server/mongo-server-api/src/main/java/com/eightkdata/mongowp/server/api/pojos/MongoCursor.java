@@ -2,6 +2,7 @@
 package com.eightkdata.mongowp.server.api.pojos;
 
 import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.server.api.MongoRuntimeException;
 import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.net.HostAndPort;
 import java.util.Iterator;
@@ -22,7 +23,7 @@ public interface MongoCursor<E> extends Iterator<E> {
     public String getCollection();
 
     @Nonnull
-    public Batch<E> fetchBatch() throws MongoException, DeadCursorException;
+    public Batch<E> fetchBatch() throws MongoException, DeadCursorException, MongoRuntimeException;
 
     /**
      * Like {@link #fetchBatch() } but do not block when there are no more elements on the remote side.
@@ -33,7 +34,7 @@ public interface MongoCursor<E> extends Iterator<E> {
      * @throws com.eightkdata.mongowp.server.api.pojos.MongoCursor.DeadCursorException
      * @see #tryNext() 
      */
-    public Batch<E> tryFetchBatch() throws MongoException, DeadCursorException;
+    public Batch<E> tryFetchBatch() throws MongoException, DeadCursorException, MongoRuntimeException;
 
     public long getId();
 
@@ -45,7 +46,7 @@ public interface MongoCursor<E> extends Iterator<E> {
 
     @Nonnull
     @Override
-    public E next();
+    public E next() throws MongoRuntimeException;
 
     /**
      * Like {@link #next() } but do not block when there are not more elements on the remote side,
@@ -57,7 +58,7 @@ public interface MongoCursor<E> extends Iterator<E> {
      * @return
      */
     @Nullable
-    public E tryNext();
+    public E tryNext() throws MongoRuntimeException;
 
     /**
      * Returns {@code true} if the cursor has more elements.
@@ -69,7 +70,7 @@ public interface MongoCursor<E> extends Iterator<E> {
      * @return
      */
     @Override
-    public boolean hasNext();
+    public boolean hasNext() throws MongoRuntimeException;
 
     HostAndPort getServerAddress();
 
@@ -151,8 +152,8 @@ public interface MongoCursor<E> extends Iterator<E> {
         }
     }
 
-    public static class DeadCursorException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
+    public static class DeadCursorException extends MongoRuntimeException {
+        private static final long serialVersionUID = 848130492319548920L;
 
     }
 

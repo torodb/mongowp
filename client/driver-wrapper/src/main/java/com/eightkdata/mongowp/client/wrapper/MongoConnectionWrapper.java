@@ -11,8 +11,10 @@ import com.eightkdata.mongowp.exceptions.MongoException;
 import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.MarshalException;
+import com.eightkdata.mongowp.server.api.MongoRuntimeException;
 import com.eightkdata.mongowp.server.api.pojos.MongoCursor;
 import com.eightkdata.mongowp.server.api.pojos.CollectionBatch;
+import com.eightkdata.mongowp.server.api.pojos.MongoCursor.DeadCursorException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
@@ -94,6 +96,12 @@ public class MongoConnectionWrapper implements MongoConnection {
                     queryOptions.isTailable(),
                     findIterable.iterator()
             );
+        } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+            if (ErrorCode.isErrorCode(ex.getCode())) {
+                throw toMongoException(ex);
+            } else {
+                throw toRuntimeMongoException(ex);
+            }
         } catch (IOException ex) {
             throw new BadValueException("Unexpected IO exception", ex);
         }
@@ -127,10 +135,20 @@ public class MongoConnectionWrapper implements MongoConnection {
             String collection,
             boolean continueOnError,
             List<? extends BsonDocument> docsToInsert) throws MongoException {
-        owner.getDriverClient()
-                .getDatabase(database)
-                .getCollection(collection, BsonDocument.class)
-                .insertMany(docsToInsert, new InsertManyOptions().ordered(continueOnError));
+        try {
+            owner.getDriverClient()
+                    .getDatabase(database)
+                    .getCollection(collection, BsonDocument.class)
+                    .insertMany(docsToInsert, new InsertManyOptions()
+                            .ordered(continueOnError)
+                    );
+        } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+            if (ErrorCode.isErrorCode(ex.getCode())) {
+                throw toMongoException(ex);
+            } else {
+                throw toRuntimeMongoException(ex);
+            }
+        }
     }
 
     @Override
@@ -158,6 +176,12 @@ public class MongoConnectionWrapper implements MongoConnection {
             } else {
                 mongoCollection.updateOne(translatedUpdate, translatedUpdate, updateOptions);
             }
+        } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+            if (ErrorCode.isErrorCode(ex.getCode())) {
+                throw toMongoException(ex);
+            } else {
+                throw toRuntimeMongoException(ex);
+            }
         } catch (IOException ex) {
             throw new BadValueException("Unexpected IO exception", ex);
         }
@@ -180,6 +204,12 @@ public class MongoConnectionWrapper implements MongoConnection {
                 collectionObject.deleteOne(mongoSelector);
             } else {
                 collectionObject.deleteMany(mongoSelector);
+            }
+        } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+            if (ErrorCode.isErrorCode(ex.getCode())) {
+                throw toMongoException(ex);
+            } else {
+                throw toRuntimeMongoException(ex);
             }
         } catch (IOException ex) {
             throw new BadValueException("Unexpected IO exception", ex);
@@ -227,9 +257,13 @@ public class MongoConnectionWrapper implements MongoConnection {
         } catch (MongoException ex) { //our MongoWP exception
             Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
             return new FromExceptionRemoteCommandRequest<>(ex, d);
-        } catch (MongoServerException ex) { //a general Mongo driver exception
-            Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
-            return new FromExceptionRemoteCommandRequest<>(translateException(ex), d);
+        } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+            if (ErrorCode.isErrorCode(ex.getCode())) {
+                Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
+                return new FromExceptionRemoteCommandRequest<>(toMongoException(ex), d);
+            } else {
+                throw toRuntimeMongoException(ex);
+            }
         }
     }
 
@@ -254,7 +288,13 @@ public class MongoConnectionWrapper implements MongoConnection {
         return true;
     }
 
-    static final MongoException translateException(MongoServerException ex) {
+    /**
+     *
+     * @param ex an exception whose {@link com.mongodb.MongoException#getCode()}
+     *           is valid (as specified by {@link ErrorCode#isErrorCode(int)}
+     * @return
+     */
+    static final MongoException toMongoException(com.mongodb.MongoException ex) {
         try {
             ErrorCode errorCode = ErrorCode.fromErrorCode(ex.getCode());
             return new MongoException(ex.getMessage(), errorCode);
@@ -262,6 +302,14 @@ public class MongoConnectionWrapper implements MongoConnection {
             throw new RuntimeException("Unrecognized error code "
                     + ex.getCode() + " from a mongo client exception", ex);
         }
+    }
+
+    static private MongoRuntimeException toRuntimeMongoException(
+            com.mongodb.MongoException ex) {
+        if (ex instanceof com.mongodb.MongoSocketException) {
+            return new com.eightkdata.mongowp.server.api.MongoSocketException(ex);
+        }
+        throw new MongoRuntimeException(ex);
     }
 
     @Override
@@ -350,8 +398,12 @@ public class MongoConnectionWrapper implements MongoConnection {
             } catch (MongoCursorNotFoundException ex) {
                 this.close();
                 throw new DeadCursorException();
-            } catch (MongoServerException ex) {
-                throw MongoConnectionWrapper.translateException(ex);
+            } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+                if (ErrorCode.isErrorCode(ex.getCode())) {
+                    throw toMongoException(ex);
+                } else {
+                    throw toRuntimeMongoException(ex);
+                }
             }
             return new CollectionBatch<>(docs, start);
         }
@@ -382,8 +434,12 @@ public class MongoConnectionWrapper implements MongoConnection {
             } catch (MongoCursorNotFoundException ex) {
                 this.close();
                 throw new DeadCursorException();
-            } catch (MongoServerException ex) {
-                throw MongoConnectionWrapper.translateException(ex);
+            } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+                if (ErrorCode.isErrorCode(ex.getCode())) {
+                    throw toMongoException(ex);
+                } else {
+                    throw toRuntimeMongoException(ex);
+                }
             }
 
             return new CollectionBatch<>(docs, start);
@@ -417,6 +473,8 @@ public class MongoConnectionWrapper implements MongoConnection {
             } catch (MongoCursorNotFoundException ex) {
                 this.close();
                 return false;
+            } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+                throw toRuntimeMongoException(ex);
             }
         }
 
@@ -437,6 +495,8 @@ public class MongoConnectionWrapper implements MongoConnection {
             } catch (MongoCursorNotFoundException ex) {
                 this.close();
                 throw new DeadCursorException();
+            } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+                throw toRuntimeMongoException(ex);
             }
         }
 
@@ -456,6 +516,8 @@ public class MongoConnectionWrapper implements MongoConnection {
             } catch (MongoCursorNotFoundException ex) {
                 this.close();
                 throw new DeadCursorException();
+            } catch (com.mongodb.MongoException ex) { //a general Mongo driver exception
+                throw toRuntimeMongoException(ex);
             }
         }
 
@@ -468,7 +530,12 @@ public class MongoConnectionWrapper implements MongoConnection {
         public void close() {
             if (!close) {
                 close = true;
-                cursor.close();
+                try {
+                    cursor.close();
+                } catch (com.mongodb.MongoException ex) {
+                    LOGGER.debug("Ignoring an exception while closing a "
+                            + "remote cursor", ex);
+                }
             }
         }
 

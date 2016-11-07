@@ -1,7 +1,9 @@
 
 package com.eightkdata.mongowp;
 
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 /**
  *
@@ -160,25 +162,32 @@ public enum ErrorCode {
         this.errorMessageToken = errorMessageToken;
     }
 
+    public static boolean isErrorCode(int code) {
+        return fromErrorCodeOpt(code).isPresent();
+    }
+
     public int getErrorCode() {
         return errorCode;
     }
 
     /**
      *
-     * @param id
+     * @param code
      * @return
      * @throws IllegalArgumentException if there is no error code with the given id
      */
-    public static ErrorCode fromErrorCode(int id) throws
+    public static ErrorCode fromErrorCode(int code) throws
             IllegalArgumentException {
-        for (ErrorCode error : ErrorCode.values()) {
-            if (error.getErrorCode() == id) {
-                return error;
-            }
-        }
-        throw new IllegalArgumentException("There is no error with the error code '" +
-                id + "'");
+        return fromErrorCodeOpt(code)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "There is no error with the error code '" +code + "'")
+                );
+    }
+
+    public static Optional<ErrorCode> fromErrorCodeOpt(int code) {
+        return Stream.of(values())
+                .filter(ec -> ec.getErrorCode() == code)
+                .findAny();
     }
 
     public boolean isOk() {

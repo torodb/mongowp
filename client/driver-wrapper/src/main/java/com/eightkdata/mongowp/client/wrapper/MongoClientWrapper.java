@@ -24,12 +24,16 @@ import com.google.inject.Inject;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  *
  */
 public class MongoClientWrapper implements MongoClient {
 
+    private static final Logger LOGGER
+            = LogManager.getLogger(MongoClientWrapper.class);
     private boolean closed;
     private final MongoClientConfiguration configuration;
     private final MongoVersion version;
@@ -153,7 +157,12 @@ public class MongoClientWrapper implements MongoClient {
     @Override
     public void close() {
         closed = true;
-        driverClient.close();
+        try {
+            driverClient.close();
+        } catch (RuntimeException ex) {
+            LOGGER.debug("Ignored an error while closing the client to "
+                    + getAddress(), ex);
+        }
     }
 
     @Override
