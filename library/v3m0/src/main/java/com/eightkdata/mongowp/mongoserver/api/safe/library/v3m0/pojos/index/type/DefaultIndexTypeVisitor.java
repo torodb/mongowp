@@ -1,23 +1,20 @@
 /*
- *     This file is part of ToroDB.
+ * MongoWP - MongoWP: v3.0 Library
+ * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
- *     ToroDB is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     ToroDB is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with ToroDB. If not, see <http://www.gnu.org/licenses/>.
- *
- *     Copyright (c) 2014, 8Kdata Technology
- *     
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.eightkdata.mongowp.mongoserver.api.safe.library.v3m0.pojos.index.type;
 
 public abstract class DefaultIndexTypeVisitor<Arg, Result> implements IndexTypeVisitor<Arg, Result> {
