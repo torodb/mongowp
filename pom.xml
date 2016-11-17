@@ -13,7 +13,6 @@
 
     <modules>
         <module>server</module>
-        <module>library</module>
         <module>client</module>
         <module>mongowp-core</module>
         <module>bson</module>
