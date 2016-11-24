@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,45 +13,42 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty;
 
 import com.eightkdata.mongowp.bson.netty.annotations.Loose;
 import com.eightkdata.mongowp.bson.netty.annotations.ModifiesIndexes;
 import io.netty.buffer.ByteBuf;
 
-import static com.eightkdata.mongowp.bson.netty.PooledNettyStringReader.*;
-
 /**
  *
  */
 public interface NettyStringReader {
 
+  /**
+   * A method that reads a C-string from a ByteBuf. This method modified the internal state of the
+   * ByteBuf, advancing the read pointer to the position after the cstring.
+   *
+   * @param buffer
+   * @param likelyCacheable
+   * @return The C-String as a String object or null if there was no C-String in the ByteBuf
+   * @throws com.eightkdata.mongowp.bson.netty.NettyBsonReaderException
+   */
+  public String readCString(ByteBuf buffer, boolean likelyCacheable)
+      throws NettyBsonReaderException;
 
-    /**
-     * A method that reads a C-string from a ByteBuf.
-     * This method modified the internal state of the ByteBuf, advancing the read pointer to the position after the
-     * cstring.
-     *
-     * @param buffer
-     * @param likelyCacheable
-     * @return The C-String as a String object or null if there was no C-String in the ByteBuf
-     * @throws com.eightkdata.mongowp.bson.netty.NettyBsonReaderException
-     */
-    public String readCString(ByteBuf buffer, boolean likelyCacheable) throws NettyBsonReaderException;
+  /**
+   * A method that skips a C-string from a ByteBuf. This method modified the internal state of the
+   * ByteBuf, advancing the read pointer to the position after the cstring.
+   *
+   * @param buffer
+   * @throws com.eightkdata.mongowp.bson.netty.NettyBsonReaderException
+   */
+  public void skipCString(ByteBuf buffer) throws NettyBsonReaderException;
 
-    /**
-     * A method that skips a C-string from a ByteBuf.
-     * This method modified the internal state of the ByteBuf, advancing the read pointer to the position after the
-     * cstring.
-     *
-     * @param buffer
-     * @throws com.eightkdata.mongowp.bson.netty.NettyBsonReaderException
-     */
-    public void skipCString(ByteBuf buffer) throws NettyBsonReaderException;
+  public String readString(@Loose @ModifiesIndexes ByteBuf byteBuf, boolean likelyCacheable);
 
-    public String readString(@Loose @ModifiesIndexes ByteBuf byteBuf, boolean likelyCacheable);
-
-    public ByteBuf readStringAsSlice(@Loose @ModifiesIndexes ByteBuf byteBuf);
+  public ByteBuf readStringAsSlice(@Loose @ModifiesIndexes ByteBuf byteBuf);
 }

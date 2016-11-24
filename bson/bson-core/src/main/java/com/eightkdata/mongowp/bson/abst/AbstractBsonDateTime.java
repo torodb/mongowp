@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonDateTime;
@@ -22,74 +23,73 @@ import com.eightkdata.mongowp.bson.BsonType;
 import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
 import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
+
 import java.time.Instant;
 
-/**
- *
- */
-public abstract class AbstractBsonDateTime extends AbstractBsonValue<Instant> implements BsonDateTime {
+public abstract class AbstractBsonDateTime extends AbstractBsonValue<Instant>
+    implements BsonDateTime {
 
-    @Override
-    public Class<? extends Instant> getValueClass() {
-        return Instant.class;
+  @Override
+  public Class<? extends Instant> getValueClass() {
+    return Instant.class;
+  }
+
+  @Override
+  public BsonType getType() {
+    return BsonType.DATETIME;
+  }
+
+  @Override
+  public BsonDateTime asDateTime() {
+    return this;
+  }
+
+  @Override
+  public boolean isDateTime() {
+    return true;
+  }
+
+  @Override
+  public int compareTo(BsonValue<?> obj) {
+    if (obj == this) {
+      return 0;
+    }
+    int diff = BsonTypeComparator.INSTANCE.compare(getType(), obj.getType());
+    if (diff != 0) {
+      return diff;
     }
 
-    @Override
-    public BsonType getType() {
-        return BsonType.DATETIME;
-    }
+    assert obj instanceof BsonDateTime;
+    BsonDateTime other = obj.asDateTime();
+    return this.getValue().compareTo(other.getValue());
+  }
 
-    @Override
-    public BsonDateTime asDateTime() {
-        return this;
+  @Override
+  public final boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-
-    @Override
-    public boolean isDateTime() {
-        return true;
+    if (obj == null) {
+      return false;
     }
-
-    @Override
-    public int compareTo(BsonValue<?> o) {
-        if (o == this) {
-            return 0;
-        }
-        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
-        if (diff != 0) {
-            return diff;
-        }
-
-        assert o instanceof BsonDateTime;
-        BsonDateTime other = o.asDateTime();
-        return this.getValue().compareTo(other.getValue());
+    if (!(obj instanceof BsonDateTime)) {
+      return false;
     }
+    return this.getMillisFromUnix() == ((BsonDateTime) obj).getMillisFromUnix();
+  }
 
-    @Override
-    public final boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof BsonDateTime)) {
-            return false;
-        }
-        return this.getMillisFromUnix() == ((BsonDateTime) obj).getMillisFromUnix();
-    }
+  @Override
+  public final int hashCode() {
+    return getValue().hashCode();
+  }
 
-    @Override
-    public final int hashCode() {
-        return getValue().hashCode();
-    }
+  @Override
+  public String toString() {
+    return "{$date: " + getValue() + "}";
+  }
 
-    @Override
-    public String toString() {
-        return "{$date: " + getValue()+ "}";
-    }
-
-    @Override
-    public <Result, Arg> Result accept(BsonValueVisitor<Result, Arg> visitor, Arg arg) {
-        return visitor.visit(this, arg);
-    }
+  @Override
+  public <R, A> R accept(BsonValueVisitor<R, A> visitor, A arg) {
+    return visitor.visit(this, arg);
+  }
 }

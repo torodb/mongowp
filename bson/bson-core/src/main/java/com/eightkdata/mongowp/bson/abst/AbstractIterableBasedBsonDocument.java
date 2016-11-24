@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,50 +13,48 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonValue;
 import com.google.common.collect.Iterables;
 
-/**
- *
- */
 public abstract class AbstractIterableBasedBsonDocument extends AbstractBsonDocument {
 
-    private int cachedSize = -1;
+  private int cachedSize = -1;
 
-    @Override
-    public BsonValue<?> get(String key) {
-        Entry<?> entry = getEntry(key);
-        if (entry == null) {
-            return null;
-        }
-        return entry.getValue();
+  @Override
+  public BsonValue<?> get(String key) {
+    Entry<?> entry = getEntry(key);
+    if (entry == null) {
+      return null;
     }
+    return entry.getValue();
+  }
 
-    @Override
-    public boolean containsKey(String key) {
-        return getEntry(key) != null;
-    }
+  @Override
+  public boolean containsKey(String key) {
+    return getEntry(key) != null;
+  }
 
-    @Override
-    public Entry<?> getEntry(String key) {
-        for (Entry<?> entry : this) {
-            if (entry.getKey().equals(key)) {
-                return entry;
-            }
-        }
-        return null;
+  @Override
+  public Entry<?> getEntry(String key) {
+    for (Entry<?> entry : this) {
+      if (entry.getKey().equals(key)) {
+        return entry;
+      }
     }
+    return null;
+  }
 
-    @Override
-    public int size() {
-        if (cachedSize < -1) {
-            cachedSize = Iterables.size(this);
-        }
-        return cachedSize;
+  @Override
+  public int size() {
+    if (cachedSize < -1) {
+      cachedSize = Iterables.size(this);
     }
+    return cachedSize;
+  }
 
 }

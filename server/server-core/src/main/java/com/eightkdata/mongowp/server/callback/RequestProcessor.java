@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Core
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,25 +13,46 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.callback;
 
-import com.eightkdata.mongowp.messages.request.*;
+import com.eightkdata.mongowp.messages.request.DeleteMessage;
+import com.eightkdata.mongowp.messages.request.GetMoreMessage;
+import com.eightkdata.mongowp.messages.request.InsertMessage;
+import com.eightkdata.mongowp.messages.request.KillCursorsMessage;
+import com.eightkdata.mongowp.messages.request.QueryMessage;
+import com.eightkdata.mongowp.messages.request.RequestOpCode;
+import com.eightkdata.mongowp.messages.request.UpdateMessage;
 import io.netty.util.AttributeMap;
+
 import javax.annotation.Nonnull;
 
-/**
- *
- */
 public interface RequestProcessor {
-	public void onChannelActive(@Nonnull AttributeMap attributeMap);
-	public void onChannelInactive(@Nonnull AttributeMap attributeMap);
-    public void queryMessage(@Nonnull QueryMessage queryMessage, @Nonnull MessageReplier messageReplier) throws Exception;
-    public void getMore(@Nonnull GetMoreMessage getMoreMessage, @Nonnull MessageReplier messageReplier) throws Exception;
-    public void killCursors(@Nonnull KillCursorsMessage killCursorsMessage, @Nonnull MessageReplier messageReplier) throws Exception;
-    public void insert(@Nonnull InsertMessage insertMessage, @Nonnull MessageReplier messageReplier) throws Exception;
-    public void update(@Nonnull UpdateMessage updateMessage, @Nonnull MessageReplier messageReplier) throws Exception;
-    public void delete(@Nonnull DeleteMessage deleteMessage, @Nonnull MessageReplier messageReplier) throws Exception;
-    public boolean handleError(@Nonnull RequestOpCode requestOpCode, @Nonnull MessageReplier messageReplier, @Nonnull Throwable throwable) throws Exception;
+
+  public void onChannelActive(@Nonnull AttributeMap attributeMap);
+
+  public void onChannelInactive(@Nonnull AttributeMap attributeMap);
+
+  public void queryMessage(@Nonnull QueryMessage queryMessage,
+      @Nonnull MessageReplier messageReplier) throws Exception;
+
+  public void getMore(@Nonnull GetMoreMessage getMoreMessage, 
+      @Nonnull MessageReplier messageReplier) throws Exception;
+
+  public void killCursors(@Nonnull KillCursorsMessage killCursorsMessage,
+      @Nonnull MessageReplier messageReplier) throws Exception;
+
+  public void insert(@Nonnull InsertMessage insertMessage, @Nonnull MessageReplier messageReplier)
+      throws Exception;
+
+  public void update(@Nonnull UpdateMessage updateMessage, @Nonnull MessageReplier messageReplier)
+      throws Exception;
+
+  public void delete(@Nonnull DeleteMessage deleteMessage, @Nonnull MessageReplier messageReplier)
+      throws Exception;
+
+  public boolean handleError(@Nonnull RequestOpCode requestOpCode,
+      @Nonnull MessageReplier messageReplier, @Nonnull Throwable throwable) throws Exception;
 }

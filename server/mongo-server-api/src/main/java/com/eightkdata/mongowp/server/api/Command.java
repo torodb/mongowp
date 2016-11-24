@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,97 +13,106 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api;
 
 import com.eightkdata.mongowp.bson.BsonDocument;
-import com.eightkdata.mongowp.exceptions.*;
+import com.eightkdata.mongowp.exceptions.BadValueException;
+import com.eightkdata.mongowp.exceptions.FailedToParseException;
+import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.exceptions.NoSuchKeyException;
+import com.eightkdata.mongowp.exceptions.TypesMismatchException;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * A Command represents a MongoDB command as a function signature represents a
- * function in programming languages like C++ or Java.
- * @param <Arg>
- * @param <Result>
+ * A Command represents a MongoDB command as a function signature represents a function in
+ * programming languages like C++ or Java.
+ *
+ * @param <A> the class of the command argument
+ * @param <R> the class of the command response
  */
-public interface Command<Arg, Result> {
-    
-    public String getCommandName();
+public interface Command<A, R> {
 
-    /**
-     * @return iff the command must be executed on the admin namespace
-     */
-    public boolean isAdminOnly();
+  public String getCommandName();
 
-    /**
-     * @return iff can be directly executed on a slave
-     */
-    public boolean isSlaveOk();
+  /**
+   * @return iff the command must be executed on the admin namespace
+   */
+  public boolean isAdminOnly();
 
-    /**
-     * @return iff clients can force the execution of this command on slave nodes
-     * with <em>slaveOk</em> option
-     */
-    public boolean isSlaveOverrideOk();
+  /**
+   * @return iff can be directly executed on a slave
+   */
+  public boolean isSlaveOk();
 
-    /**
-     * @return iff the command execution should increment the command counter
-     */
-    public boolean shouldAffectCommandCounter();
+  /**
+   * @return iff clients can force the execution of this command on slave nodes with
+   * <em>slaveOk</em> option
+   */
+  public boolean isSlaveOverrideOk();
 
-    /**
-     * @return iff the command can be executed while the server is in recovering state
-     */
-    public boolean isAllowedOnMaintenance();
+  /**
+   * @return iff the command execution should increment the command counter
+   */
+  public boolean shouldAffectCommandCounter();
 
-    public default boolean supportsReadConcern() {
-        return false;
-    }
+  /**
+   * @return iff the command can be executed while the server is in recovering state
+   */
+  public boolean isAllowedOnMaintenance();
 
-    /**
-     *
-     * @return iff the command can change the replication state
-     */
-    public boolean canChangeReplicationState();
+  public default boolean supportsReadConcern() {
+    return false;
+  }
 
-    public Class<? extends Arg> getArgClass();
+  /**
+   *
+   * @return iff the command can change the replication state
+   */
+  public boolean canChangeReplicationState();
 
-    @Nonnull
-    public default Arg unmarshallArg(@Nonnull BsonDocument requestDoc) throws MongoException {
-        return unmarshallArg(requestDoc, requestDoc.getFirstEntry().getKey());
-    }
+  public Class<? extends A> getArgClass();
 
-    @Nonnull
-    public Arg unmarshallArg(@Nonnull BsonDocument requestDoc, String aliasedAs) throws MongoException;
+  @Nonnull
+  public default A unmarshallArg(@Nonnull BsonDocument requestDoc) throws MongoException {
+    return unmarshallArg(requestDoc, requestDoc.getFirstEntry().getKey());
+  }
 
-    @Nonnull
-    public BsonDocument marshallArg(Arg request, String aliasedAs) throws MarshalException;
-    
-    public Class<? extends Result> getResultClass();
+  @Nonnull
+  public A unmarshallArg(@Nonnull BsonDocument requestDoc, String aliasedAs) throws MongoException;
 
-    @Nonnull
-    public Result unmarshallResult(@Nonnull BsonDocument resultDoc) throws BadValueException, TypesMismatchException, NoSuchKeyException, FailedToParseException, MongoException;
+  @Nonnull
+  public BsonDocument marshallArg(A request, String aliasedAs) throws MarshalException;
 
-    /**
-     * Translate the result to a bson document.
-     *
-     * The fields
-     * @param result
-     * @return
-     * @throws com.eightkdata.mongowp.server.api.MarshalException
-     * @throws MongoException
-     */
-    @Nullable
-    public BsonDocument marshallResult(Result result) throws MarshalException;
+  public Class<? extends R> getResultClass();
 
-    /**
-     * Two commands are equal iff their class is the same.
-     * 
-     * @param obj
-     * @return 
-     */
-    @Override
-    public boolean equals(Object obj);
+  @Nonnull
+  public R unmarshallResult(@Nonnull BsonDocument resultDoc) throws BadValueException,
+      TypesMismatchException, NoSuchKeyException, FailedToParseException, MongoException;
+
+  /**
+   * Translate the result to a bson document.
+   *
+   * The fields
+   *
+   * @param result
+   * @return
+   * @throws com.eightkdata.mongowp.server.api.MarshalException
+   * @throws MongoException
+   */
+  @Nullable
+  public BsonDocument marshallResult(R result) throws MarshalException;
+
+  /**
+   * Two commands are equal iff their class is the same.
+   *
+   * @param obj
+   * @return
+   */
+  @Override
+  public boolean equals(Object obj);
 }

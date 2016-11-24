@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.decoder;
 
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
@@ -27,20 +28,23 @@ import java.net.InetSocketAddress;
  *
  */
 public class BaseMessageDecoder {
-    /**
-     * Method that constructs a RequestBaseMessage object based on a correctly-positioned ByteBuf.
-     * This method modifies the internal state of the ByteBuf.
-     * It expects the ByteBuf to be positioned just before the start of the requestId field.
-     * After running, the method will leave the ByteBuf positioned just after the responseTo field,
-     * i.e., just before reading the opCode.
-     *
-     * @param channelHandlerContext
-     * @param byteBuf
-     * @return
-     */
-    public static RequestBaseMessage decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf) {
-        InetSocketAddress socketAddress = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
 
-        return new RequestBaseMessage(socketAddress.getAddress(), socketAddress.getPort(), byteBuf.readInt());
-    }
+  /**
+   * Method that constructs a RequestBaseMessage object based on a correctly-positioned ByteBuf.
+   * This method modifies the internal state of the ByteBuf. It expects the ByteBuf to be positioned
+   * just before the start of the requestId field. After running, the method will leave the ByteBuf
+   * positioned just after the responseTo field, i.e., just before reading the opCode.
+   *
+   * @param channelHandlerContext
+   * @param byteBuf
+   * @return
+   */
+  public static RequestBaseMessage decode(ChannelHandlerContext channelHandlerContext,
+      ByteBuf byteBuf) {
+    InetSocketAddress socketAddress = (InetSocketAddress) channelHandlerContext.channel()
+        .remoteAddress();
+
+    return new RequestBaseMessage(socketAddress.getAddress(), socketAddress.getPort(), byteBuf
+        .readInt());
+  }
 }

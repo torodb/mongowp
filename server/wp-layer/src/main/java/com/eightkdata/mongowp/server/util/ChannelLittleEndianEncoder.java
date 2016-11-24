@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.util;
 
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
@@ -28,11 +29,13 @@ import java.nio.ByteOrder;
  *
  */
 public abstract class ChannelLittleEndianEncoder extends MessageToByteEncoder<ReplyMessage> {
-    @Override
-    protected void encode(ChannelHandlerContext ctx, ReplyMessage msg, ByteBuf out) throws Exception {
-        encodeLittleEndian(ctx, msg, out.order(ByteOrder.LITTLE_ENDIAN));
-    }
 
-    protected abstract void encodeLittleEndian(ChannelHandlerContext ctx, ReplyMessage msg, ByteBuf out)
-    throws Exception;
+  @Override
+  protected void encode(ChannelHandlerContext ctx, ReplyMessage msg, ByteBuf out) throws Exception {
+    encodeLittleEndian(ctx, msg, out.order(ByteOrder.LITTLE_ENDIAN));
+  }
+
+  protected abstract void encodeLittleEndian(ChannelHandlerContext ctx, ReplyMessage msg,
+      ByteBuf out)
+      throws Exception;
 }

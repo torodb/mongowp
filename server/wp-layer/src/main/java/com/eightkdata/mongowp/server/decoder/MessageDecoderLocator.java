@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,15 +13,18 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.decoder;
 
 import com.eightkdata.mongowp.messages.request.RequestOpCode;
+
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,42 +35,42 @@ import javax.inject.Singleton;
 @Singleton
 public class MessageDecoderLocator {
 
-    private final EnumMap<RequestOpCode, MessageDecoder<?>> decoderMap;
+  private final EnumMap<RequestOpCode, MessageDecoder<?>> decoderMap;
 
-    @Inject
-    public MessageDecoderLocator(
-            DeleteMessageDecoder deleteDecoder,
-            GetMoreMessageDecoder getMoreDecoder,
-            InsertMessageDecoder insertDecoder,
-            KillCursorsMessageDecoder killCursorsDecoder,
-            QueryMessageDecoder queryDecoder,
-            UpdateMessageDecoder updateDecoder
-    ) {
-        this.decoderMap = new EnumMap<>(RequestOpCode.class);
+  @Inject
+  public MessageDecoderLocator(
+      DeleteMessageDecoder deleteDecoder,
+      GetMoreMessageDecoder getMoreDecoder,
+      InsertMessageDecoder insertDecoder,
+      KillCursorsMessageDecoder killCursorsDecoder,
+      QueryMessageDecoder queryDecoder,
+      UpdateMessageDecoder updateDecoder
+  ) {
+    this.decoderMap = new EnumMap<>(RequestOpCode.class);
 
-        decoderMap.put(RequestOpCode.OP_DELETE, deleteDecoder);
-        decoderMap.put(RequestOpCode.OP_GET_MORE, getMoreDecoder);
-        decoderMap.put(RequestOpCode.OP_INSERT, insertDecoder);
-        decoderMap.put(RequestOpCode.OP_KILL_CURSORS, killCursorsDecoder);
-        decoderMap.put(RequestOpCode.OP_QUERY, queryDecoder);
-        decoderMap.put(RequestOpCode.OP_UPDATE, updateDecoder);
+    decoderMap.put(RequestOpCode.OP_DELETE, deleteDecoder);
+    decoderMap.put(RequestOpCode.OP_GET_MORE, getMoreDecoder);
+    decoderMap.put(RequestOpCode.OP_INSERT, insertDecoder);
+    decoderMap.put(RequestOpCode.OP_KILL_CURSORS, killCursorsDecoder);
+    decoderMap.put(RequestOpCode.OP_QUERY, queryDecoder);
+    decoderMap.put(RequestOpCode.OP_UPDATE, updateDecoder);
 
-        checkDecoderMap(decoderMap);
+    checkDecoderMap(decoderMap);
+  }
+
+  public MessageDecoder<?> getByOpCode(@Nonnull RequestOpCode requestOpCode) {
+    return decoderMap.get(requestOpCode);
+  }
+
+  private static void checkDecoderMap(Map<RequestOpCode, MessageDecoder<?>> decoderMap) {
+    Set<RequestOpCode> opsWithoutDecoder = EnumSet.of(RequestOpCode.OP_MSG, RequestOpCode.RESERVED);
+    for (RequestOpCode value : RequestOpCode.values()) {
+      if (opsWithoutDecoder.contains(value)) {
+        continue;
+      }
+      if (!decoderMap.containsKey(value)) {
+        throw new AssertionError("There is no decoder for operation " + value);
+      }
     }
-
-    public MessageDecoder<?> getByOpCode(@Nonnull RequestOpCode requestOpCode) {
-        return decoderMap.get(requestOpCode);
-    }
-
-    private static void checkDecoderMap(Map<RequestOpCode, MessageDecoder<?>> decoderMap) {
-        Set<RequestOpCode> opsWithoutDecoder = EnumSet.of(RequestOpCode.OP_MSG, RequestOpCode.RESERVED);
-        for (RequestOpCode value : RequestOpCode.values()) {
-            if (opsWithoutDecoder.contains(value)) {
-                continue;
-            }
-            if (!decoderMap.containsKey(value)) {
-                throw new AssertionError("There is no decoder for operation " + value);
-            }
-        }
-    }
+  }
 }

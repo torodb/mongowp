@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,13 +13,18 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api;
 
 import com.eightkdata.mongowp.Status;
 import com.eightkdata.mongowp.exceptions.MongoException;
-import com.eightkdata.mongowp.messages.request.*;
+import com.eightkdata.mongowp.messages.request.DeleteMessage;
+import com.eightkdata.mongowp.messages.request.GetMoreMessage;
+import com.eightkdata.mongowp.messages.request.InsertMessage;
+import com.eightkdata.mongowp.messages.request.KillCursorsMessage;
+import com.eightkdata.mongowp.messages.request.UpdateMessage;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
 import com.eightkdata.mongowp.server.api.pojos.QueryRequest;
 
@@ -28,22 +33,26 @@ import com.eightkdata.mongowp.server.api.pojos.QueryRequest;
  */
 public interface SafeRequestProcessor<C extends Connection> extends CommandsExecutor<C> {
 
-    public C openConnection();
+  public C openConnection();
 
-    public CommandsLibrary getCommandsLibrary();
+  public CommandsLibrary getCommandsLibrary();
 
-    @Override
-    public <Arg, Result> Status<Result> execute(Request request, Command<? super Arg, ? super Result> command, Arg arg, C context);
-    
-    public ReplyMessage query(C connection, Request req, int requestId, QueryRequest queryRequest) throws MongoException;
+  @Override
+  public <A, R> Status<R> execute(Request request,
+      Command<? super A, ? super R> command, A arg, C context);
 
-    public ReplyMessage getMore(C connection, Request req, int requestId, GetMoreMessage moreMessage) throws MongoException;
+  public ReplyMessage query(C connection, Request req, int requestId, QueryRequest queryRequest)
+      throws MongoException;
 
-    public void killCursors(C connection, Request req, KillCursorsMessage killCursorsMessage) throws MongoException;
+  public ReplyMessage getMore(C connection, Request req, int requestId, GetMoreMessage moreMessage)
+      throws MongoException;
 
-    public void insert(C connection, Request req, InsertMessage insertMessage) throws MongoException;
+  public void killCursors(C connection, Request req, KillCursorsMessage killCursorsMessage) throws
+      MongoException;
 
-    public void update(C connection, Request req, UpdateMessage updateMessage) throws MongoException;
+  public void insert(C connection, Request req, InsertMessage insertMessage) throws MongoException;
 
-    public void delete(C connection, Request req, DeleteMessage deleteMessage) throws MongoException;
+  public void update(C connection, Request req, UpdateMessage updateMessage) throws MongoException;
+
+  public void delete(C connection, Request req, DeleteMessage deleteMessage) throws MongoException;
 }

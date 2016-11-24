@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.mongoserver.util;
 
 import com.google.common.collect.Sets;
@@ -25,13 +26,14 @@ import java.util.Set;
  *
  */
 public class AssertSetsUtil {
-    public static <T> boolean assertSetsEqual(Set<T> a, Set<T> b) {
-        if(a == null || b == null) {
-            return a == b;
-        }
-        Set<T> diff1 = Sets.difference(a, b);
-        Set<T> diff2 = Sets.difference(b, a);
 
-        return diff1.size() == 0 && diff1.size() == diff2.size();
+  public static <T> boolean assertSetsEqual(Set<T> a, Set<T> b) {
+    if (a == null || b == null) {
+      return a == b;
     }
+    Set<T> diff1 = Sets.difference(a, b);
+    Set<T> diff2 = Sets.difference(b, a);
+
+    return diff1.size() == 0 && diff1.size() == diff2.size();
+  }
 }

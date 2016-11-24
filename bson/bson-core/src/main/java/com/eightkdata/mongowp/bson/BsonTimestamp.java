@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson;
 
 /**
@@ -22,27 +23,29 @@ package com.eightkdata.mongowp.bson;
  */
 public interface BsonTimestamp extends BsonValue<BsonTimestamp> {
 
-    int getSecondsSinceEpoch();
+  int getSecondsSinceEpoch();
 
-    int getOrdinal();
+  int getOrdinal();
 
-    /**
-     * Two BsonTimestap are equal if their secondsSinceEpoch and ordinal
-     * properties are equal.
-     * @param obj
-     * @return
-     */
-    @Override
-    public boolean equals(Object obj);
+  /**
+   * Two BsonTimestap are equal if their secondsSinceEpoch and ordinal properties are equal.
+   *
+   * @param obj
+   * @return
+   */
+  @Override
+  public boolean equals(Object obj);
 
-    /**
-     * The hashCode of a BsonTimestamp is <code>getSecondsSinceEpoch() &lt;&lt; 4 | (getOrdinal() &amp; 0xf)</code>.
-     * @return
-     */
-    @Override
-    public int hashCode();
+  /**
+   * The hashCode of a BsonTimestamp is
+   * <code>getSecondsSinceEpoch() &lt;&lt; 4 | (getOrdinal() &amp; 0xf)</code>.
+   *
+   * @return
+   */
+  @Override
+  public int hashCode();
 
-    public default long toRawData() {
-        return getSecondsSinceEpoch() << 32 + getOrdinal();
-    }
+  public default long toRawData() {
+    return getSecondsSinceEpoch() << 32 + getOrdinal();
+  }
 }

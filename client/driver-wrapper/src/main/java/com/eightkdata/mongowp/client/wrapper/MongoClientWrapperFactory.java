@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Client: Driver Wrapper
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.client.wrapper;
 
 import com.eightkdata.mongowp.client.core.MongoClientFactory;
@@ -27,16 +28,17 @@ import com.google.inject.Inject;
  */
 public class MongoClientWrapperFactory implements MongoClientFactory {
 
-    private final MongoClientConfiguration mongoClientConfiguration;
+  private final MongoClientConfiguration mongoClientConfiguration;
 
-    @Inject
-    public MongoClientWrapperFactory(MongoClientConfiguration mongoClientConfiguration) {
-        this.mongoClientConfiguration = mongoClientConfiguration;
-    }
+  @Inject
+  public MongoClientWrapperFactory(MongoClientConfiguration mongoClientConfiguration) {
+    this.mongoClientConfiguration = mongoClientConfiguration;
+  }
 
-    @Override
-    public MongoClientWrapper createClient(HostAndPort address) throws UnreachableMongoServerException {
-        return new MongoClientWrapper(mongoClientConfiguration.builder(address).build());
-    }
+  @Override
+  public MongoClientWrapper createClient(HostAndPort address)
+      throws UnreachableMongoServerException {
+    return new MongoClientWrapper(mongoClientConfiguration.builder(address).build());
+  }
 
 }

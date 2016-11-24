@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonBoolean;
@@ -24,26 +25,27 @@ import com.eightkdata.mongowp.bson.abst.AbstractBsonBoolean;
  */
 public class TrueBsonBoolean extends AbstractBsonBoolean {
 
-    private static final long serialVersionUID = 2065588109899170349L;
+  private static final long serialVersionUID = 2065588109899170349L;
 
-    private TrueBsonBoolean() {
-    }
+  private TrueBsonBoolean() {
+  }
 
-    @Override
-    public boolean getPrimitiveValue() {
-        return true;
-    }
+  @Override
+  public boolean getPrimitiveValue() {
+    return true;
+  }
 
-    public static TrueBsonBoolean getInstance() {
-        return SimpleBsonTrueHolder.INSTANCE;
-    }
+  public static TrueBsonBoolean getInstance() {
+    return SimpleBsonTrueHolder.INSTANCE;
+  }
 
-    private static class SimpleBsonTrueHolder {
-        private static final TrueBsonBoolean INSTANCE = new TrueBsonBoolean();
-    }
+  private static class SimpleBsonTrueHolder {
 
-    //@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD")
-    private Object readResolve()  {
-        return TrueBsonBoolean.getInstance();
-    }
- }
+    private static final TrueBsonBoolean INSTANCE = new TrueBsonBoolean();
+  }
+
+  // @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD")
+  private Object readResolve() {
+    return TrueBsonBoolean.getInstance();
+  }
+}

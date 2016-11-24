@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,12 +13,14 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.utils;
 
 import com.eightkdata.mongowp.bson.BsonDateTime;
 import com.eightkdata.mongowp.bson.BsonTimestamp;
+
 import java.util.function.BiFunction;
 import java.util.function.LongFunction;
 
@@ -27,22 +29,25 @@ import java.util.function.LongFunction;
  */
 public class TimestampToDateTime {
 
-    private TimestampToDateTime() {}
+  private TimestampToDateTime() {
+  }
 
-    public static BsonDateTime toDateTime(BsonTimestamp timestamp, LongFunction<BsonDateTime> dateTimeCreator) {
-        long rawData = timestamp.getSecondsSinceEpoch();
-        rawData <<= 32;
-        rawData |= timestamp.getOrdinal();
-        return dateTimeCreator.apply(rawData);
-    }
+  public static BsonDateTime toDateTime(BsonTimestamp timestamp,
+      LongFunction<BsonDateTime> dateTimeCreator) {
+    long rawData = timestamp.getSecondsSinceEpoch();
+    rawData <<= 32;
+    rawData |= timestamp.getOrdinal();
+    return dateTimeCreator.apply(rawData);
+  }
 
-    public static BsonTimestamp toTimestamp(BsonDateTime dateTime, BiFunction<Integer, Integer, BsonTimestamp> tsCreator) {
-        long millisFromUnix = dateTime.getMillisFromUnix();
+  public static BsonTimestamp toTimestamp(BsonDateTime dateTime,
+      BiFunction<Integer, Integer, BsonTimestamp> tsCreator) {
+    long millisFromUnix = dateTime.getMillisFromUnix();
 
-        int secs = (int) (millisFromUnix >> 32);
-        int ordinal = (int) (millisFromUnix & 0xFFFFFFFF);
+    int secs = (int) (millisFromUnix >> 32);
+    int ordinal = (int) (millisFromUnix & 0xFFFFFFFF);
 
-        return tsCreator.apply(secs, ordinal);
-    }
+    return tsCreator.apply(secs, ordinal);
+  }
 
 }

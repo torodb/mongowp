@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson;
 
 /**
@@ -22,19 +23,21 @@ package com.eightkdata.mongowp.bson;
  */
 public interface BsonDeprecated extends BsonValue<String> {
 
-    /**
-     * Two BsonDeprecated are equal if their values are equal.
-     * @param obj
-     * @return
-     */
-    @Override
-    public boolean equals(Object obj);
+  /**
+   * Two BsonDeprecated are equal if their values are equal.
+   *
+   * @param obj
+   * @return
+   */
+  @Override
+  public boolean equals(Object obj);
 
-    /**
-     * The hashCode of a BsonDeprecated is the hashCode of its value.
-     * @return
-     */
-    @Override
-    public int hashCode();
+  /**
+   * The hashCode of a BsonDeprecated is the hashCode of its value.
+   *
+   * @return
+   */
+  @Override
+  public int hashCode();
 
 }

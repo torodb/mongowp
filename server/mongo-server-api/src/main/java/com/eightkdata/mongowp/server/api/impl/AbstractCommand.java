@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,60 +13,58 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api.impl;
 
 import com.eightkdata.mongowp.server.api.Command;
 
-/**
- *
- */
-public abstract class AbstractCommand<Arg, Result> implements Command<Arg, Result> {
+public abstract class AbstractCommand<A, R> implements Command<A, R> {
 
-    private final String commandName;
+  private final String commandName;
 
-    public AbstractCommand(String commandName) {
-        this.commandName = commandName;
-    }
-    
-    @Override
-    public String getCommandName() {
-        return commandName;
-    }
+  public AbstractCommand(String commandName) {
+    this.commandName = commandName;
+  }
 
-    @Override
-    public boolean isAdminOnly() {
-        return false;
-    }
+  @Override
+  public String getCommandName() {
+    return commandName;
+  }
 
-    @Override
-    public boolean isSlaveOk() {
-        return false;
-    }
+  @Override
+  public boolean isAdminOnly() {
+    return false;
+  }
 
-    @Override
-    public boolean isSlaveOverrideOk() {
-        return false;
-    }
+  @Override
+  public boolean isSlaveOk() {
+    return false;
+  }
 
-    @Override
-    public boolean canChangeReplicationState() {
-        return false;
-    }
+  @Override
+  public boolean isSlaveOverrideOk() {
+    return false;
+  }
 
-    @Override
-    public boolean shouldAffectCommandCounter() {
-        return true;
-    }
+  @Override
+  public boolean canChangeReplicationState() {
+    return false;
+  }
 
-    @Override
-    public boolean isAllowedOnMaintenance() {
-        return true;
-    }
+  @Override
+  public boolean shouldAffectCommandCounter() {
+    return true;
+  }
 
-    @Override
-    public String toString() {
-        return getCommandName();
-    }
+  @Override
+  public boolean isAllowedOnMaintenance() {
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return getCommandName();
+  }
 }

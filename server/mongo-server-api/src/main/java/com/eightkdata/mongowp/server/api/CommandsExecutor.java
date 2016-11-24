@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,23 +13,25 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api;
 
 import com.eightkdata.mongowp.Status;
+
 import javax.annotation.Nonnull;
 
 /**
  *
  */
-public interface CommandsExecutor<Context> {
+public interface CommandsExecutor<ContextT> {
 
-    @Nonnull
-    public <Arg, Result> Status<Result> execute(
-            @Nonnull Request request,
-            @Nonnull Command<? super Arg, ? super Result> command,
-            @Nonnull Arg arg,
-            @Nonnull Context context);
-    
+  @Nonnull
+  public <A, R> Status<R> execute(
+      @Nonnull Request request,
+      @Nonnull Command<? super A, ? super R> command,
+      @Nonnull A arg,
+      @Nonnull ContextT context);
+
 }

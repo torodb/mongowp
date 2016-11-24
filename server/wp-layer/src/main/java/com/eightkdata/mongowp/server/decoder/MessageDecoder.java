@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,29 +13,33 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.decoder;
 
-import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
-import com.eightkdata.mongowp.messages.request.RequestMessage;
 import com.eightkdata.mongowp.exceptions.InvalidNamespaceException;
 import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
+import com.eightkdata.mongowp.messages.request.RequestMessage;
 import io.netty.buffer.ByteBuf;
 
 /**
  *
  */
 public interface MessageDecoder<T extends RequestMessage> {
-    /**
-     * Decodes a message from a ByteBuf, positioned just before the body's content beginning
-     * @param buffer
-     * @param requestBaseMessage
-     * @return
-     * @throws MongoException If it was impossible to decode the message
-     * @throws InvalidNamespaceException If the message expected a namespace but
-     *                                   an invalid namespace is provided
-     *
-     */
-    public T decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws MongoException, InvalidNamespaceException;
+
+  /**
+   * Decodes a message from a ByteBuf, positioned just before the body's content beginning
+   *
+   * @param buffer
+   * @param requestBaseMessage
+   * @return
+   * @throws MongoException            If it was impossible to decode the message
+   * @throws InvalidNamespaceException If the message expected a namespace but an invalid namespace
+   *                                   is provided
+   *
+   */
+  public T decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws MongoException,
+      InvalidNamespaceException;
 }

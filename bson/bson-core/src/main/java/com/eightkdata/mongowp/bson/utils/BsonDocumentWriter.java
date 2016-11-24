@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,18 +13,20 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.utils;
 
 import com.eightkdata.mongowp.bson.BsonDocument;
 
 /**
+ * Writes a document into a storage or <em>sink</em>.
  *
- * @param <Sink> the class were documents will be written
+ * @param <SinkT> the class were documents will be written
  */
-public interface BsonDocumentWriter<Sink> {
+public interface BsonDocumentWriter<SinkT> {
 
-    public void writeInto(Sink byteBuf, BsonDocument doc);
+  public void writeInto(SinkT byteBuf, BsonDocument doc);
 
 }

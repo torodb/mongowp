@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,12 +13,14 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api.impl;
 
 import com.eightkdata.mongowp.server.api.CommandResult;
 import com.eightkdata.mongowp.server.callback.WriteOpResult;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -26,25 +28,25 @@ import javax.annotation.Nonnull;
  */
 public class WriteCommandResult<R> implements CommandResult<R> {
 
-    @Nonnull 
-    private final R result;
-    private final WriteOpResult writeOpResult;
+  @Nonnull
+  private final R result;
+  private final WriteOpResult writeOpResult;
 
-    public WriteCommandResult(@Nonnull R result, @Nonnull WriteOpResult writeOpResult) {
-        this.result = result;
-        this.writeOpResult = writeOpResult;
-    }
+  public WriteCommandResult(@Nonnull R result, @Nonnull WriteOpResult writeOpResult) {
+    this.result = result;
+    this.writeOpResult = writeOpResult;
+  }
 
-    @Nonnull 
-    @Override
-    public WriteOpResult getWriteOpResult() {
-        return writeOpResult;
-    }
+  @Nonnull
+  @Override
+  public WriteOpResult getWriteOpResult() {
+    return writeOpResult;
+  }
 
-    @Override
-    @Nonnull 
-    public R getResult() {
-        return result;
-    }
+  @Override
+  @Nonnull
+  public R getResult() {
+    return result;
+  }
 
 }

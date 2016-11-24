@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api.oplog;
 
 import com.eightkdata.mongowp.OpTime;
@@ -23,6 +24,7 @@ import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.fields.BooleanField;
 import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -30,67 +32,68 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class UpdateOplogOperation extends CollectionOplogOperation {
-    private static final long serialVersionUID = 1L;
-    
-    private static final DocField FILTER_FIELD = new DocField("o");
-    private static final DocField MODIFICATION_FIELD = new DocField("o2");
-    private static final BooleanField UPSERT_FIELD = new BooleanField("b");
 
-    private final BsonDocument filter;
-    //TODO: Change to a type safe object
-    private final BsonDocument modification;
-    private final boolean upsert;
+  private static final long serialVersionUID = 1L;
 
-    public UpdateOplogOperation(
-            BsonDocument filter,
-            String database,
-            String collection,
-            OpTime optime,
-            long h,
-            OplogVersion version,
-            boolean fromMigrate,
-            BsonDocument modification,
-            boolean upsert) {
-        super(database, collection, optime, h, version, fromMigrate);
-        this.filter = filter;
-        this.modification = modification;
-        this.upsert = upsert;
-    }
+  private static final DocField FILTER_FIELD = new DocField("o");
+  private static final DocField MODIFICATION_FIELD = new DocField("o2");
+  private static final BooleanField UPSERT_FIELD = new BooleanField("b");
 
-    public BsonDocument getFilter() {
-        return filter;
-    }
+  private final BsonDocument filter;
+  //TODO: Change to a type safe object
+  private final BsonDocument modification;
+  private final boolean upsert;
 
-    public BsonDocument getModification() {
-        return modification;
-    }
+  public UpdateOplogOperation(
+      BsonDocument filter,
+      String database,
+      String collection,
+      OpTime optime,
+      long h,
+      OplogVersion version,
+      boolean fromMigrate,
+      BsonDocument modification,
+      boolean upsert) {
+    super(database, collection, optime, h, version, fromMigrate);
+    this.filter = filter;
+    this.modification = modification;
+    this.upsert = upsert;
+  }
 
-    public boolean isUpsert() {
-        return upsert;
-    }
+  public BsonDocument getFilter() {
+    return filter;
+  }
 
-    @Override
-    public OplogOperationType getType() {
-        return OplogOperationType.UPDATE;
-    }
+  public BsonDocument getModification() {
+    return modification;
+  }
 
-    @Override
-    public BsonValue<?> getDocId() {
-        return getFilter().get("_id");
-    }
+  public boolean isUpsert() {
+    return upsert;
+  }
 
-    @Override
-    public BsonDocumentBuilder toDescriptiveBson() {
-        return super.toDescriptiveBson()
-                .append(OP_FIELD, getType().getOplogName())
-                .append(FILTER_FIELD, filter)
-                .append(MODIFICATION_FIELD, modification)
-                .append(UPSERT_FIELD, upsert);
-    }
+  @Override
+  public OplogOperationType getType() {
+    return OplogOperationType.UPDATE;
+  }
 
-    @Override
-    public <Result, Arg> Result accept(OplogOperationVisitor<Result, Arg> visitor, Arg arg) {
-        return visitor.visit(this, arg);
-    }
-    
+  @Override
+  public BsonValue<?> getDocId() {
+    return getFilter().get("_id");
+  }
+
+  @Override
+  public BsonDocumentBuilder toDescriptiveBson() {
+    return super.toDescriptiveBson()
+        .append(OP_FIELD, getType().getOplogName())
+        .append(FILTER_FIELD, filter)
+        .append(MODIFICATION_FIELD, modification)
+        .append(UPSERT_FIELD, upsert);
+  }
+
+  @Override
+  public <R, A> R accept(OplogOperationVisitor<R, A> visitor, A arg) {
+    return visitor.visit(this, arg);
+  }
+
 }

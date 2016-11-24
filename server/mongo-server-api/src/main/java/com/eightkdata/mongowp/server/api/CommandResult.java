@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,11 +13,13 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api;
 
 import com.eightkdata.mongowp.server.callback.WriteOpResult;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -26,10 +28,10 @@ import javax.annotation.Nullable;
  */
 public interface CommandResult<R> {
 
-    @Nullable
-    public WriteOpResult getWriteOpResult();
+  @Nullable
+  public WriteOpResult getWriteOpResult();
 
-    @Nonnull
-    public R getResult();
+  @Nonnull
+  public R getResult();
 
 }

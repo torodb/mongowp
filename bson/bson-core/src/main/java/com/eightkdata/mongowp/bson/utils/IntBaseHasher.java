@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.utils;
 
 import com.google.common.hash.HashFunction;
@@ -26,23 +27,20 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class IntBaseHasher {
-    private static final Logger LOGGER = LogManager.getLogger(IntBaseHasher.class);
-    private static final HashFunction FUNCTION = Hashing.goodFastHash(32);
 
-    public static int hash(int lenght) {
-        int hash = FUNCTION
-                .newHasher()
-                .putInt(lenght)
-                .hash()
-                .asInt();
-        if (hash == 0) {
-            LOGGER.warn("Hash function returns 0");
-            hash = 1;
-        }
-        return hash;
-    }
+  private static final Logger LOGGER = LogManager.getLogger(IntBaseHasher.class);
+  private static final HashFunction FUNCTION = Hashing.goodFastHash(32);
 
-    private IntBaseHasher() {
+  public static int hash(int lenght) {
+    int hash = FUNCTION.newHasher().putInt(lenght).hash().asInt();
+    if (hash == 0) {
+      LOGGER.warn("Hash function returns 0");
+      hash = 1;
     }
+    return hash;
+  }
+
+  private IntBaseHasher() {
+  }
 
 }

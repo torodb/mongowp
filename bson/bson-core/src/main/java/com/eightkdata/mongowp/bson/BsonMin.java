@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson;
 
 /**
@@ -22,20 +23,22 @@ package com.eightkdata.mongowp.bson;
  */
 public interface BsonMin extends BsonValue<BsonMin> {
 
-    public static final int HASH = BsonType.MIN.hashCode();
+  public static final int HASH = BsonType.MIN.hashCode();
 
-    /**
-     * Two BsonMin values are always equal.
-     * @param obj
-     * @return
-     */
-    @Override
-    public boolean equals(Object obj);
+  /**
+   * Two BsonMin values are always equal.
+   *
+   * @param obj
+   * @return
+   */
+  @Override
+  public boolean equals(Object obj);
 
-    /**
-     * The hashCode of a BsonMin is {@link #HASH}.
-     * @return
-     */
-    @Override
-    public int hashCode();
+  /**
+   * The hashCode of a BsonMin is {@link #HASH}.
+   *
+   * @return
+   */
+  @Override
+  public int hashCode();
 }

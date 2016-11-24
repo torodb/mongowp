@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson;
 
 import javax.annotation.Nonnull;
@@ -24,27 +25,28 @@ import javax.annotation.Nonnull;
  */
 public interface BsonJavaScriptWithScope extends BsonValue<BsonJavaScriptWithScope> {
 
-    @Nonnull
-    BsonDocument getScope();
+  @Nonnull
+  BsonDocument getScope();
 
-    @Nonnull
-    String getJavaScript();
+  @Nonnull
+  String getJavaScript();
 
-    /**
-     * Two BsonJavaScriptWithScope values are equal if their scope and javaScript
- properties are equal.
-     * @param obj
-     * @return
-     */
-    @Override
-    public boolean equals(Object obj);
+  /**
+   * Two BsonJavaScriptWithScope values are equal if their scope and javaScript properties are
+   * equal.
+   *
+   * @param obj
+   * @return
+   */
+  @Override
+  public boolean equals(Object obj);
 
-    /**
-     * The hashCode of a BsonJavaScriptWithScope is the hashCode of its
- javaScript property.
-     * @return
-     * @see String#hashCode() 
-     */
-    @Override
-    public int hashCode();
+  /**
+   * The hashCode of a BsonJavaScriptWithScope is the hashCode of its javaScript property.
+   *
+   * @return
+   * @see String#hashCode()
+   */
+  @Override
+  public int hashCode();
 }

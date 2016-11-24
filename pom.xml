@@ -12,6 +12,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>build-tools</module>
         <module>server</module>
         <module>client</module>
         <module>mongowp-core</module>
@@ -73,7 +74,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <netty.version>4.0.33.Final</netty.version>
-        <license.header.file>com/mycila/maven/plugin/license/templates/AGPL-3.txt</license.header.file>
+        <license.header.file>com/eightkdata/mongowp/buildtools/mongowp-license.txt</license.header.file>
+        <checkstyle.config.location>com/eightkdata/mongowp/buildtools/checkstyle.xml</checkstyle.config.location>
     </properties>
 
     <dependencyManagement>
@@ -261,7 +263,6 @@
                     <failIfMissing>true</failIfMissing>
                     <properties>
                         <project.name>MongoWP</project.name>
-                        <project.description>${project.name}</project.description>
                         <project.inceptionYear>2014</project.inceptionYear>
                         <owner>${project.organization.name}</owner>
                         <email>${project.organization.url}</email>
@@ -282,6 +283,45 @@
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.8kdata.mongowp</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>2.17</version>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <configuration>
+                            <!--<configLocation>google_checks.xml</configLocation>-->
+                            <consoleOutput>true</consoleOutput>
+                            <!--<failsOnError>true</failsOnError>-->
+                            <linkXRef>false</linkXRef>
+                            <violationSeverity>error</violationSeverity>
+                        </configuration>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>            
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>7.2</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.8kdata.mongowp</groupId>
+                        <artifactId>build-tools</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>

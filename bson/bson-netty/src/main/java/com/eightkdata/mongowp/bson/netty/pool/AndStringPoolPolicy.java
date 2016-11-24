@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty.pool;
 
 import io.netty.buffer.ByteBuf;
@@ -24,21 +25,21 @@ import io.netty.buffer.ByteBuf;
  */
 public class AndStringPoolPolicy extends StringPoolPolicy {
 
-    private final StringPoolPolicy policy1;
-    private final StringPoolPolicy policy2;
+  private final StringPoolPolicy policy1;
+  private final StringPoolPolicy policy2;
 
-    public AndStringPoolPolicy(StringPoolPolicy policy1, StringPoolPolicy policy2) {
-        this.policy1 = policy1;
-        this.policy2 = policy2;
-    }
+  public AndStringPoolPolicy(StringPoolPolicy policy1, StringPoolPolicy policy2) {
+    this.policy1 = policy1;
+    this.policy2 = policy2;
+  }
 
-    @Override
-    public boolean apply(boolean likelyCacheable, ByteBuf input) {
-        return policy1.apply(likelyCacheable, input) && policy2.apply(likelyCacheable, input);
-    }
+  @Override
+  public boolean apply(boolean likelyCacheable, ByteBuf input) {
+    return policy1.apply(likelyCacheable, input) && policy2.apply(likelyCacheable, input);
+  }
 
-    @Override
-    public String toString() {
-        return policy1 + " and " + policy2;
-    }
+  @Override
+  public String toString() {
+    return policy1 + " and " + policy2;
+  }
 }

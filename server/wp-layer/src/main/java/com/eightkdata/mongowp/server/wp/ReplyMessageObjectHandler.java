@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.wp;
 
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
@@ -22,25 +23,29 @@ import com.eightkdata.mongowp.server.encoder.ReplyMessageEncoder;
 import com.eightkdata.mongowp.server.util.ChannelLittleEndianEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+
 import javax.inject.Inject;
 
 /**
  *
  */
 public class ReplyMessageObjectHandler extends ChannelLittleEndianEncoder {
-    private final RequestIdGenerator requestIdGenerator;
 
-    private final ReplyMessageEncoder encoder;
+  private final RequestIdGenerator requestIdGenerator;
 
-    @Inject
-    public ReplyMessageObjectHandler(RequestIdGenerator requestIdGenerator, ReplyMessageEncoder encoder) {
-        this.requestIdGenerator = requestIdGenerator;
-        this.encoder = encoder;
-    }
+  private final ReplyMessageEncoder encoder;
 
-    @Override
-    protected void encodeLittleEndian(ChannelHandlerContext ctx, ReplyMessage message, ByteBuf out) throws Exception {
-        encoder.encodeMessageHeader(out, message, requestIdGenerator.getNextRequestId());
-        encoder.encodeMessageBody(out, message);
-    }
+  @Inject
+  public ReplyMessageObjectHandler(RequestIdGenerator requestIdGenerator,
+      ReplyMessageEncoder encoder) {
+    this.requestIdGenerator = requestIdGenerator;
+    this.encoder = encoder;
+  }
+
+  @Override
+  protected void encodeLittleEndian(ChannelHandlerContext ctx, ReplyMessage message, ByteBuf out)
+      throws Exception {
+    encoder.encodeMessageHeader(out, message, requestIdGenerator.getNextRequestId());
+    encoder.encodeMessageBody(out, message);
+  }
 }

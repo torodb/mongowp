@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.exception;
 
 import com.eightkdata.mongowp.exceptions.MongoException;
@@ -25,19 +26,20 @@ import com.google.common.base.Preconditions;
  *
  */
 public class ErrorOnWriteException extends MongoException {
-    private static final long serialVersionUID = 1L;
 
-    private transient final WriteOpResult writeOpResult;
+  private static final long serialVersionUID = 1L;
 
-    public ErrorOnWriteException(WriteOpResult writeOpResult, String customMessage) {
-        super(customMessage, writeOpResult.getErrorCode());
-        Preconditions.checkArgument(writeOpResult.errorOcurred(),
-                "trying to create an " + getClass().getName() +" with a "
-                        + "WriteOpResult that does not contain an error!");
-        this.writeOpResult = writeOpResult;
-    }
+  private final transient WriteOpResult writeOpResult;
 
-    public WriteOpResult getWriteOpResult() {
-        return writeOpResult;
-    }
+  public ErrorOnWriteException(WriteOpResult writeOpResult, String customMessage) {
+    super(customMessage, writeOpResult.getErrorCode());
+    Preconditions.checkArgument(writeOpResult.errorOcurred(),
+        "trying to create an " + getClass().getName() + " with a "
+        + "WriteOpResult that does not contain an error!");
+    this.writeOpResult = writeOpResult;
+  }
+
+  public WriteOpResult getWriteOpResult() {
+    return writeOpResult;
+  }
 }

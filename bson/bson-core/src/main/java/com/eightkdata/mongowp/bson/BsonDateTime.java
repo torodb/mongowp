@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson;
 
 import java.time.Instant;
@@ -24,23 +25,22 @@ import java.time.Instant;
  */
 public interface BsonDateTime extends BsonValue<Instant> {
 
-    long getMillisFromUnix();
+  long getMillisFromUnix();
 
-    /**
-     * Two BsonDateTime values are equal if the Instant objects their
-     * contain are equal.
-     *
-     * @param obj
-     * @return 
-     */
-    @Override
-    public boolean equals(Object obj);
+  /**
+   * Two BsonDateTime values are equal if the Instant objects their contain are equal.
+   *
+   * @param obj
+   * @return
+   */
+  @Override
+  public boolean equals(Object obj);
 
-    /**
-     * The hashCode of a BsonDateTime is the hashCode of the Instant it
-     * contains.
-     * @return
-     */
-    @Override
-    public int hashCode();
+  /**
+   * The hashCode of a BsonDateTime is the hashCode of the Instant it contains.
+   *
+   * @return
+   */
+  @Override
+  public int hashCode();
 }

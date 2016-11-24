@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonDeprecated;
@@ -24,17 +25,17 @@ import com.eightkdata.mongowp.bson.abst.AbstractBsonDeprecated;
  */
 public class StringBsonDeprecated extends AbstractBsonDeprecated {
 
-    private static final long serialVersionUID = -3939180598062621489L;
+  private static final long serialVersionUID = -3939180598062621489L;
 
-    private final String value;
+  private final String value;
 
-    public StringBsonDeprecated(String value) {
-        this.value = value;
-    }
+  public StringBsonDeprecated(String value) {
+    this.value = value;
+  }
 
-    @Override
-    public String getValue() {
-        return value;
-    }
+  @Override
+  public String getValue() {
+    return value;
+  }
 
 }

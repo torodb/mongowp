@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,13 +13,15 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonObjectId;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.UnsignedInteger;
+
 import java.util.Arrays;
 
 /**
@@ -27,47 +29,47 @@ import java.util.Arrays;
  */
 public class ByteArrayBsonObjectId extends AbstractBsonObjectId {
 
-    private static final long serialVersionUID = -8871610748330532954L;
+  private static final long serialVersionUID = -8871610748330532954L;
 
-    private final byte[] bytes;
+  private final byte[] bytes;
 
-    public ByteArrayBsonObjectId(byte[] bytes) {
-        Preconditions.checkArgument(bytes.length >= 12, "The given array of bytes is too short");
-        this.bytes = Arrays.copyOf(bytes, 12);
-    }
+  public ByteArrayBsonObjectId(byte[] bytes) {
+    Preconditions.checkArgument(bytes.length >= 12, "The given array of bytes is too short");
+    this.bytes = Arrays.copyOf(bytes, 12);
+  }
 
-    @Override
-    protected byte[] getBytesUnsafe() {
-        return bytes;
-    }
+  @Override
+  protected byte[] getBytesUnsafe() {
+    return bytes;
+  }
 
-    @Override
-    public byte[] toByteArray() {
-        return Arrays.copyOf(bytes, 12);
-    }
+  @Override
+  public byte[] toByteArray() {
+    return Arrays.copyOf(bytes, 12);
+  }
 
-    @Override
-    public UnsignedInteger getUnsignedTimestamp() {
-        return UnsignedInteger.fromIntBits(getIntTimestamp());
-    }
+  @Override
+  public UnsignedInteger getUnsignedTimestamp() {
+    return UnsignedInteger.fromIntBits(getIntTimestamp());
+  }
 
-    private int getIntTimestamp() {
-        return bytesAsInt(bytes[0], bytes[1], bytes[2], bytes[3]);
-    }
+  private int getIntTimestamp() {
+    return bytesAsInt(bytes[0], bytes[1], bytes[2], bytes[3]);
+  }
 
-    @Override
-    public int getMachineIdentifier() {
-        return bytesAsInt((byte) 0, bytes[4], bytes[5], bytes[6]);
-    }
+  @Override
+  public int getMachineIdentifier() {
+    return bytesAsInt((byte) 0, bytes[4], bytes[5], bytes[6]);
+  }
 
-    @Override
-    public int getProcessId() {
-        return bytesAsInt((byte) 0, (byte) 0, bytes[7], bytes[8]);
-    }
+  @Override
+  public int getProcessId() {
+    return bytesAsInt((byte) 0, (byte) 0, bytes[7], bytes[8]);
+  }
 
-    @Override
-    public int getCounter() {
-        return bytesAsInt((byte) 0, bytes[9], bytes[10], bytes[11]);
-    }
+  @Override
+  public int getCounter() {
+    return bytesAsInt((byte) 0, bytes[9], bytes[10], bytes[11]);
+  }
 
 }

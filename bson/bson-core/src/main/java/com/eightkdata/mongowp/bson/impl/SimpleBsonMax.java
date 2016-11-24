@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonMax;
@@ -24,21 +25,22 @@ import com.eightkdata.mongowp.bson.abst.AbstractBsonMax;
  */
 public class SimpleBsonMax extends AbstractBsonMax {
 
-    private static final long serialVersionUID = 6559102896469243159L;
+  private static final long serialVersionUID = 6559102896469243159L;
 
-    private SimpleBsonMax() {
-    }
+  private SimpleBsonMax() {
+  }
 
-    public static SimpleBsonMax getInstance() {
-        return SimpleBsonMaxHolder.INSTANCE;
-    }
+  public static SimpleBsonMax getInstance() {
+    return SimpleBsonMaxHolder.INSTANCE;
+  }
 
-    private static class SimpleBsonMaxHolder {
-        private static final SimpleBsonMax INSTANCE = new SimpleBsonMax();
-    }
+  private static class SimpleBsonMaxHolder {
 
-    //@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD")
-    private Object readResolve()  {
-        return SimpleBsonMax.getInstance();
-    }
- }
+    private static final SimpleBsonMax INSTANCE = new SimpleBsonMax();
+  }
+
+  // @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD")
+  private Object readResolve() {
+    return SimpleBsonMax.getInstance();
+  }
+}

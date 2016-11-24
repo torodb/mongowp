@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Core
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,26 +13,23 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.callback;
 
 import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.bson.BsonDocument;
-import java.io.Serializable;
 
-/**
- * 
- */
 public interface WriteOpResult {
 
-    public boolean errorOcurred();
+  public boolean errorOcurred();
 
-    public ErrorCode getErrorCode();
+  public ErrorCode getErrorCode();
 
-	public BsonDocument marshall();
+  public BsonDocument marshall();
 
-    public OpTime getOpTime();
-	
+  public OpTime getOpTime();
+
 }

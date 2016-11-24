@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,9 +13,12 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty;
+
+import org.bson.BsonValue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,35 +26,32 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
-import org.bson.BsonValue;
 
 /**
  *
  */
 public class MongoDocumentProvider {
 
-    private static final String testDocumentsFileName = "test-documents.json";
+  private static final String testDocumentsFileName = "test-documents.json";
 
-    public static Collection<Object[]> readTestDocuments() throws IOException {
-        try (InputStream is = MongoDocumentProvider.class.getResourceAsStream('/' + testDocumentsFileName)) {
-            BsonValue value = MongoBsonUtils.read(is);
+  public static Collection<Object[]> readTestDocuments() throws IOException {
+    try (InputStream is =
+        MongoDocumentProvider.class.getResourceAsStream('/' + testDocumentsFileName)) {
+      BsonValue value = MongoBsonUtils.read(is);
 
-            if (!value.isDocument()) {
-                throw new AssertionError("A JSON document on \"extended\" JavaScript "
-                        + "format was expected, but a " + value.getBsonType()
-                        + " was found");
-            }
-            List<Object[]> parameters = new ArrayList<>();
-            for (Entry<String, BsonValue> entry : value.asDocument().entrySet()) {
-                assert entry.getValue().isDocument() :
-                        "/" + testDocumentsFileName
-                        + " contains the illegal value for key '"
-                        + entry.getKey() + "'. A document was expected but a "
-                        + entry.getValue().getBsonType() + " was found";
-                parameters.add(new Object[]{entry.getKey(), entry.getValue().asDocument()});
-            }
-            return parameters;
-        }
+      if (!value.isDocument()) {
+        throw new AssertionError("A JSON document on \"extended\" JavaScript "
+            + "format was expected, but a " + value.getBsonType() + " was found");
+      }
+      List<Object[]> parameters = new ArrayList<>();
+      for (Entry<String, BsonValue> entry : value.asDocument().entrySet()) {
+        assert entry.getValue().isDocument() : "/" + testDocumentsFileName
+            + " contains the illegal value for key '" + entry.getKey()
+            + "'. A document was expected but a " + entry.getValue().getBsonType() + " was found";
+        parameters.add(new Object[]{entry.getKey(), entry.getValue().asDocument()});
+      }
+      return parameters;
     }
+  }
 
 }

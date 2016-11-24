@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonDeprecated;
@@ -23,65 +24,63 @@ import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
 import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 
-/**
- *
- */
-public abstract class AbstractBsonDeprecated extends AbstractBsonValue<String> implements BsonDeprecated {
+public abstract class AbstractBsonDeprecated extends AbstractBsonValue<String>
+    implements BsonDeprecated {
 
-    @Override
-    public Class<? extends String> getValueClass() {
-        return String.class;
+  @Override
+  public Class<? extends String> getValueClass() {
+    return String.class;
+  }
+
+  @Override
+  public BsonType getType() {
+    return BsonType.DEPRECATED;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof BsonDeprecated)) {
+      return false;
+    }
+    return this.getValue().equals(((BsonDeprecated) obj).getValue());
+  }
+
+  @Override
+  public int compareTo(BsonValue<?> obj) {
+    if (obj == this) {
+      return 0;
+    }
+    int diff = BsonTypeComparator.INSTANCE.compare(getType(), obj.getType());
+    if (diff != 0) {
+      return diff;
     }
 
-    @Override
-    public BsonType getType() {
-        return BsonType.DEPRECATED;
+    if (obj.isNull()) {
+      return 1;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof BsonDeprecated)) {
-            return false;
-        }
-        return this.getValue().equals(((BsonDeprecated) obj).getValue());
+    if (obj.isUndefined()) {
+      return 1;
     }
 
-    @Override
-    public int compareTo(BsonValue<?> o) {
-        if (o == this) {
-            return 0;
-        }
-        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
-        if (diff != 0) {
-            return diff;
-        }
-        
-        if (o.isNull()) {
-        	return 1;
-        }
+    assert obj.isDeprecated();
+    return 0;
+  }
 
-        if (o.isUndefined()) {
-        	return 1;
-        }
+  @Override
+  public final int hashCode() {
+    return getValue().hashCode();
+  }
 
-        assert o.isDeprecated();
-        return 0;
-    }
-
-    @Override
-    public final int hashCode() {
-        return getValue().hashCode();
-    }
-
-    @Override
-    public <Result, Arg> Result accept(BsonValueVisitor<Result, Arg> visitor, Arg arg) {
-        return visitor.visit(this, arg);
-    }
+  @Override
+  public <R, A> R accept(BsonValueVisitor<R, A> visitor, A arg) {
+    return visitor.visit(this, arg);
+  }
 
 }

@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,45 +13,53 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty.pool;
 
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import io.netty.buffer.ByteBuf;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
 import javax.inject.Inject;
 import javax.inject.Qualifier;
-
-import static java.lang.annotation.ElementType.*;
-import static java.lang.annotation.RetentionPolicy.*;
 
 /**
  *
  */
 public class ShortStringPoolPolicy extends StringPoolPolicy {
 
-    final int sizeLimit;
+  final int sizeLimit;
 
-    @Inject
-    public ShortStringPoolPolicy(@SizeLimit int sizeLimit) {
-        this.sizeLimit = sizeLimit;
-    }
+  @Inject
+  public ShortStringPoolPolicy(@SizeLimit int sizeLimit) {
+    this.sizeLimit = sizeLimit;
+  }
 
-    @Override
-    public boolean apply(boolean likelyCacheable, ByteBuf input) {
-        return isShort(input);
-    }
+  @Override
+  public boolean apply(boolean likelyCacheable, ByteBuf input) {
+    return isShort(input);
+  }
 
-    protected final boolean isShort(ByteBuf input) {
-        return input.readableBytes() < sizeLimit;
-    }
+  protected final boolean isShort(ByteBuf input) {
+    return input.readableBytes() < sizeLimit;
+  }
 
-    @Override
-    public String toString() {
-        return "size < " + sizeLimit;
-    }
+  @Override
+  public String toString() {
+    return "size < " + sizeLimit;
+  }
 
-    @Qualifier @Target({ FIELD, PARAMETER, METHOD }) @Retention(RUNTIME)
-    public static @interface SizeLimit {}
+  @Qualifier
+  @Target({FIELD, PARAMETER, METHOD})
+  @Retention(RUNTIME)
+  public static @interface SizeLimit {
+  }
 }

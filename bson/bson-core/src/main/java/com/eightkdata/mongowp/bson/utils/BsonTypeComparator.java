@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,18 +13,39 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.utils;
+
+import static com.eightkdata.mongowp.bson.BsonType.ARRAY;
+import static com.eightkdata.mongowp.bson.BsonType.BINARY;
+import static com.eightkdata.mongowp.bson.BsonType.BOOLEAN;
+import static com.eightkdata.mongowp.bson.BsonType.DATETIME;
+import static com.eightkdata.mongowp.bson.BsonType.DB_POINTER;
+import static com.eightkdata.mongowp.bson.BsonType.DEPRECATED;
+import static com.eightkdata.mongowp.bson.BsonType.DOCUMENT;
+import static com.eightkdata.mongowp.bson.BsonType.DOUBLE;
+import static com.eightkdata.mongowp.bson.BsonType.INT32;
+import static com.eightkdata.mongowp.bson.BsonType.INT64;
+import static com.eightkdata.mongowp.bson.BsonType.JAVA_SCRIPT;
+import static com.eightkdata.mongowp.bson.BsonType.JAVA_SCRIPT_WITH_SCOPE;
+import static com.eightkdata.mongowp.bson.BsonType.MAX;
+import static com.eightkdata.mongowp.bson.BsonType.MIN;
+import static com.eightkdata.mongowp.bson.BsonType.NULL;
+import static com.eightkdata.mongowp.bson.BsonType.OBJECT_ID;
+import static com.eightkdata.mongowp.bson.BsonType.REGEX;
+import static com.eightkdata.mongowp.bson.BsonType.STRING;
+import static com.eightkdata.mongowp.bson.BsonType.TIMESTAMP;
+import static com.eightkdata.mongowp.bson.BsonType.UNDEFINED;
 
 import com.eightkdata.mongowp.bson.BsonType;
 import com.google.common.collect.Lists;
+
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
-
-import static com.eightkdata.mongowp.bson.BsonType.*;
 
 /**
  * An object that comparares {@link BsonType bson types} as specified by
@@ -33,75 +54,77 @@ import static com.eightkdata.mongowp.bson.BsonType.*;
  */
 public final class BsonTypeComparator implements Comparator<BsonType>, Serializable {
 
-    private static final long serialVersionUID = -2424698084404486227L;
+  private static final long serialVersionUID = -2424698084404486227L;
 
-    private static final List<BsonType> ORDERED_TYPES = Lists.newArrayList(
-            MIN,
-            NULL,
-            DOUBLE, //also int32 and int64
-            STRING, //also symbol
-            DOCUMENT,
-            ARRAY,
-            BINARY,
-            OBJECT_ID,
-            BOOLEAN,
-            DATETIME,
-            TIMESTAMP,
-            REGEX,
-            JAVA_SCRIPT, //Documentation does not indicate JS and JS_WITH_SCOPE order. We choose to place them before MAX
-            JAVA_SCRIPT_WITH_SCOPE,
-            MAX
-    );
+  private static final List<BsonType> ORDERED_TYPES = Lists.newArrayList(
+      MIN,
+      NULL,
+      DOUBLE, //also int32 and int64
+      STRING, //also symbol
+      DOCUMENT,
+      ARRAY,
+      BINARY,
+      OBJECT_ID,
+      BOOLEAN,
+      DATETIME,
+      TIMESTAMP,
+      REGEX,
+      /*
+       * Documentation does not indicate JS and JS_WITH_SCOPE order. We choose to place them before
+       * MAX
+       */
+      JAVA_SCRIPT,
+      JAVA_SCRIPT_WITH_SCOPE,
+      MAX
+  );
 
-    private static final EnumMap<BsonType, Integer> TO_POS_MAP;
+  private static final EnumMap<BsonType, Integer> TO_POS_MAP;
 
-    public static final BsonTypeComparator INSTANCE = new BsonTypeComparator();
+  public static final BsonTypeComparator INSTANCE = new BsonTypeComparator();
 
-    static {
-        EnumMap<BsonType, Integer> map = new EnumMap<>(BsonType.class);
-        for (BsonType type : BsonType.values()) {
-            int pos = ORDERED_TYPES.indexOf(generalize(type));
-            if (pos == -1) {
-                throw new AssertionError("BsonType " + type + " does not have a defined order");
-            }
-            map.put(type, pos);
-        }
-        TO_POS_MAP = map;
+  static {
+    EnumMap<BsonType, Integer> map = new EnumMap<>(BsonType.class);
+    for (BsonType type : BsonType.values()) {
+      int pos = ORDERED_TYPES.indexOf(generalize(type));
+      if (pos == -1) {
+        throw new AssertionError("BsonType " + type + " does not have a defined order");
+      }
+      map.put(type, pos);
+    }
+    TO_POS_MAP = map;
+  }
+
+  @Override
+  public int compare(BsonType t1, BsonType t2) {
+    assert TO_POS_MAP.containsKey(t1);
+    assert TO_POS_MAP.containsKey(t2);
+
+    if (t1 == t2) {
+      return 0;
     }
 
-    @Override
-    public int compare(BsonType t1, BsonType t2) {
-        assert TO_POS_MAP.containsKey(t1);
-        assert TO_POS_MAP.containsKey(t2);
+    return TO_POS_MAP.get(t1) - TO_POS_MAP.get(t2);
+  }
 
-        if (t1 == t2) {
-            return 0;
-        }
-
-        return TO_POS_MAP.get(t1) - TO_POS_MAP.get(t2);
+  /**
+   * Generalize the given type to a type that is present on {@link #ORDERED_TYPES}.
+   */
+  static BsonType generalize(BsonType type) {
+    if (isNumeric(type)) {
+      return DOUBLE;
     }
-
-    /**
-     * Generalize the given type to a type that is present on {@link #ORDERED_TYPES}.
-     * @param type
-     * @return
-     */
-    static BsonType generalize(BsonType type) {
-        if (isNumeric(type)) {
-            return DOUBLE;
-        }
-        if (type == UNDEFINED || type == DEPRECATED) {
-        	return NULL;
-        }
-        if (type == DB_POINTER) {
-        	return OBJECT_ID;
-        }
-        assert ORDERED_TYPES.contains(type);
-        return type;
+    if (type == UNDEFINED || type == DEPRECATED) {
+      return NULL;
     }
-
-    private static boolean isNumeric(BsonType type) {
-        return type == INT32 || type == INT64 || type == DOUBLE;
+    if (type == DB_POINTER) {
+      return OBJECT_ID;
     }
+    assert ORDERED_TYPES.contains(type);
+    return type;
+  }
+
+  private static boolean isNumeric(BsonType type) {
+    return type == INT32 || type == INT64 || type == DOUBLE;
+  }
 
 }

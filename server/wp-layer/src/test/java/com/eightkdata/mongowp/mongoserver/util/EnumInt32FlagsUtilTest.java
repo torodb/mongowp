@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,56 +13,61 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.eightkdata.mongowp.mongoserver.util;
 
-import com.eightkdata.mongowp.server.util.EnumInt32FlagsUtil;
-import com.eightkdata.mongowp.server.util.EnumBitFlags;
-import java.util.EnumSet;
-import org.junit.Test;
+package com.eightkdata.mongowp.mongoserver.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import com.eightkdata.mongowp.server.util.EnumBitFlags;
+import com.eightkdata.mongowp.server.util.EnumInt32FlagsUtil;
+import org.junit.Test;
+
+import java.util.EnumSet;
 
 /**
  *
  */
 public class EnumInt32FlagsUtilTest {
-    private enum BasicEnum implements EnumBitFlags {
-        A(1),
-        B(29);
 
-        private final int position;
+  private enum BasicEnum implements EnumBitFlags {
+    A(1),
+    B(29);
 
-        private BasicEnum(int position) {
-            this.position = position;
-        }
+    private final int position;
 
-        @Override
-        public int getFlagBitPosition() {
-            return position;
-        }
-
-        public static final int NON_COMPUTED_MASK = 0x20000002;
+    private BasicEnum(int position) {
+      this.position = position;
     }
 
-    @Test
-    public void getInt32PossibleMaskBasicCorrectnessTest() {
-        assertEquals(BasicEnum.NON_COMPUTED_MASK, EnumInt32FlagsUtil.getInt32AllFlagsMask(BasicEnum.class));
+    @Override
+    public int getFlagBitPosition() {
+      return position;
     }
 
-    @Test
-    public void getActiveFlagsBasicCorrectnessTest() {
-        int basicEnumMask = EnumInt32FlagsUtil.getInt32AllFlagsMask(BasicEnum.class);
+    public static final int NON_COMPUTED_MASK = 0x20000002;
+  }
 
-        EnumSet<BasicEnum> enumFlags = EnumInt32FlagsUtil.getActiveFlags(BasicEnum.class, basicEnumMask, 0x00000002);
-        assertTrue(AssertSetsUtil.assertSetsEqual(EnumSet.of(BasicEnum.A), enumFlags));
+  @Test
+  public void getInt32PossibleMaskBasicCorrectnessTest() {
+    assertEquals(BasicEnum.NON_COMPUTED_MASK, EnumInt32FlagsUtil.getInt32AllFlagsMask(
+        BasicEnum.class));
+  }
 
-        enumFlags = EnumInt32FlagsUtil.getActiveFlags(BasicEnum.class, basicEnumMask, 0x20000000);
-        assertTrue(AssertSetsUtil.assertSetsEqual(EnumSet.of(BasicEnum.B), enumFlags));
+  @Test
+  public void getActiveFlagsBasicCorrectnessTest() {
+    int basicEnumMask = EnumInt32FlagsUtil.getInt32AllFlagsMask(BasicEnum.class);
 
-        enumFlags = EnumInt32FlagsUtil.getActiveFlags(BasicEnum.class, basicEnumMask, 0x20000002);
-        assertTrue(AssertSetsUtil.assertSetsEqual(EnumSet.of(BasicEnum.B, BasicEnum.A), enumFlags));
-    }
+    EnumSet<BasicEnum> enumFlags = EnumInt32FlagsUtil.getActiveFlags(BasicEnum.class, basicEnumMask,
+        0x00000002);
+    assertTrue(AssertSetsUtil.assertSetsEqual(EnumSet.of(BasicEnum.A), enumFlags));
+
+    enumFlags = EnumInt32FlagsUtil.getActiveFlags(BasicEnum.class, basicEnumMask, 0x20000000);
+    assertTrue(AssertSetsUtil.assertSetsEqual(EnumSet.of(BasicEnum.B), enumFlags));
+
+    enumFlags = EnumInt32FlagsUtil.getActiveFlags(BasicEnum.class, basicEnumMask, 0x20000002);
+    assertTrue(AssertSetsUtil.assertSetsEqual(EnumSet.of(BasicEnum.B, BasicEnum.A), enumFlags));
+  }
 }

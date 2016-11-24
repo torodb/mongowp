@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,21 +13,28 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty.annotations;
 
 import io.netty.buffer.ByteBuf;
-import java.lang.annotation.*;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * This annotation is used to identify when the indexes of a {@link ByteBuf}
- * parameter will be modified by the method that recives the parameter or the
- * constructor (and the created object) that recives the parameter.
+ * This annotation is used to identify when the indexes of a {@link ByteBuf} parameter will be
+ * modified by the method that recives the parameter or the constructor (and the created object)
+ * that recives the parameter.
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.PARAMETER})
 @Documented
 public @interface ModifiesIndexes {
-    boolean value() default true;
+
+  boolean value() default true;
 }

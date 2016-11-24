@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty.pool;
 
 import io.netty.buffer.ByteBuf;
@@ -24,39 +25,40 @@ import io.netty.buffer.ByteBuf;
  */
 public class NeverStringPoolPolicy extends StringPoolPolicy {
 
-    private NeverStringPoolPolicy() {
-    }
+  private NeverStringPoolPolicy() {
+  }
 
-    @Override
-    public boolean apply(boolean likelyCacheable, ByteBuf input) {
-        return false;
-    }
+  @Override
+  public boolean apply(boolean likelyCacheable, ByteBuf input) {
+    return false;
+  }
 
-    @Override
-    public StringPoolPolicy or(StringPoolPolicy other) {
-        return other;
-    }
+  @Override
+  public StringPoolPolicy or(StringPoolPolicy other) {
+    return other;
+  }
 
-    @Override
-    public StringPoolPolicy and(StringPoolPolicy other) {
-        return this;
-    }
+  @Override
+  public StringPoolPolicy and(StringPoolPolicy other) {
+    return this;
+  }
 
-    @Override
-    public String toString() {
-        return "never";
-    }
-    
-    public static NeverStringPoolPolicy getInstance() {
-        return NeverStringPoolPolicyHolder.INSTANCE;
-    }
+  @Override
+  public String toString() {
+    return "never";
+  }
 
-    private static class NeverStringPoolPolicyHolder {
-        private static final NeverStringPoolPolicy INSTANCE = new NeverStringPoolPolicy();
-    }
+  public static NeverStringPoolPolicy getInstance() {
+    return NeverStringPoolPolicyHolder.INSTANCE;
+  }
 
-    //@edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD")
-    private Object readResolve()  {
-        return NeverStringPoolPolicy.getInstance();
-    }
- }
+  private static class NeverStringPoolPolicyHolder {
+
+    private static final NeverStringPoolPolicy INSTANCE = new NeverStringPoolPolicy();
+  }
+
+  // @edu.umd.cs.findbugs.annotations.SuppressFBWarnings(value = "UPM_UNCALLED_PRIVATE_METHOD")
+  private Object readResolve() {
+    return NeverStringPoolPolicy.getInstance();
+  }
+}

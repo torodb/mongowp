@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,99 +13,98 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonDbPointer;
-import com.eightkdata.mongowp.bson.BsonJavaScript;
 import com.eightkdata.mongowp.bson.BsonType;
 import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.BsonValueVisitor;
 import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
+
 import java.util.Objects;
 
-/**
- *
- */
-public abstract class AbstractBsonDbPointer extends AbstractBsonValue<BsonDbPointer> implements BsonDbPointer {
+public abstract class AbstractBsonDbPointer extends AbstractBsonValue<BsonDbPointer>
+    implements BsonDbPointer {
 
-    @Override
-    public Class<? extends BsonDbPointer> getValueClass() {
-        return this.getClass();
+  @Override
+  public Class<? extends BsonDbPointer> getValueClass() {
+    return this.getClass();
+  }
+
+  @Override
+  public BsonDbPointer getValue() {
+    return this;
+  }
+
+  @Override
+  public BsonDbPointer asDbPointer() {
+    return this;
+  }
+
+  @Override
+  public boolean isDbPointer() {
+    return true;
+  }
+
+  @Override
+  public BsonType getType() {
+    return BsonType.DB_POINTER;
+  }
+
+  @Override
+  public int compareTo(BsonValue<?> obj) {
+    if (obj == this) {
+      return 0;
+    }
+    int diff = BsonTypeComparator.INSTANCE.compare(getType(), obj.getType());
+    if (diff != 0) {
+      return diff;
     }
 
-    @Override
-    public BsonDbPointer getValue() {
-        return this;
+    if (obj.isObjectId()) {
+      return 1;
     }
 
-    @Override
-    public BsonDbPointer asDbPointer() {
-        return this;
+    assert obj instanceof BsonDbPointer;
+    BsonDbPointer other = (BsonDbPointer) obj;
+    // TODO: Check how MongoDB compares pointers!
+
+    diff = this.getNamespace().compareTo(other.getNamespace());
+    if (diff != 0) {
+      return diff;
     }
+    return this.getId().compareTo(other.getId());
+  }
 
-    @Override
-    public boolean isDbPointer() {
-        return true;
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-
-    @Override
-    public BsonType getType() {
-        return BsonType.DB_POINTER;
+    if (obj == null) {
+      return false;
     }
-
-    @Override
-    public int compareTo(BsonValue<?> o) {
-        if (o == this) {
-            return 0;
-        }
-        int diff = BsonTypeComparator.INSTANCE.compare(getType(), o.getType());
-        if (diff != 0) {
-            return diff;
-        }
-        
-        if (o.isObjectId()) {
-        	return 1;
-        }
-
-        assert o instanceof BsonDbPointer;
-        BsonDbPointer other = (BsonDbPointer) o;
-        //TODO: Check how MongoDB compares pointers!
-
-        diff = this.getNamespace().compareTo(other.getNamespace());
-        if (diff != 0) {
-            return diff;
-        }
-        return this.getId().compareTo(other.getId());
+    if (!(obj instanceof BsonDbPointer)) {
+      return false;
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof BsonDbPointer)) {
-            return false;
-        }
-        BsonDbPointer other = (BsonDbPointer) obj;
-        if (!Objects.equals(this.getNamespace(), other.getNamespace())) {
-            return false;
-        }
-        return this.getId().equals(other.getId());
+    BsonDbPointer other = (BsonDbPointer) obj;
+    if (!Objects.equals(this.getNamespace(), other.getNamespace())) {
+      return false;
     }
+    return this.getId().equals(other.getId());
+  }
 
-    @Override
-    public final int hashCode() {
-        return getId().hashCode();
-    }
+  @Override
+  public final int hashCode() {
+    return getId().hashCode();
+  }
 
-    @Override
-    public <Result, Arg> Result accept(BsonValueVisitor<Result, Arg> visitor, Arg arg) {
-        return visitor.visit(this, arg);
-    }
+  @Override
+  public <R, A> R accept(BsonValueVisitor<R, A> visitor, A arg) {
+    return visitor.visit(this, arg);
+  }
 
 }

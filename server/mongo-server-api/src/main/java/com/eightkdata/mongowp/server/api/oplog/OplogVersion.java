@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,33 +13,34 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api.oplog;
 
 /**
  *
  */
 public enum OplogVersion {
-    V1(1),
-    V2(2);
+  V1(1),
+  V2(2);
 
-    private final int numericValue;
+  private final int numericValue;
 
-    private OplogVersion(int numericValue) {
-        this.numericValue = numericValue;
+  private OplogVersion(int numericValue) {
+    this.numericValue = numericValue;
+  }
+
+  public static OplogVersion valueOf(int i) {
+    for (OplogVersion oplogVersion : OplogVersion.values()) {
+      if (oplogVersion.numericValue == i) {
+        return oplogVersion;
+      }
     }
+    throw new IllegalArgumentException("Unknown version " + i);
+  }
 
-    public static OplogVersion valueOf(int i) {
-        for (OplogVersion oplogVersion : OplogVersion.values()) {
-            if (oplogVersion.numericValue == i) {
-                return oplogVersion;
-            }
-        }
-        throw new IllegalArgumentException("Unknown version "+ i);
-    }
-
-    public int getNumericValue() {
-        return numericValue;
-    }
+  public int getNumericValue() {
+    return numericValue;
+  }
 }

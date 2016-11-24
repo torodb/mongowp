@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,24 +13,29 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson;
 
 /**
  *
  */
-public interface BsonNumber<V extends Number> extends BsonValue<V>{
+public interface BsonNumber<V extends Number> extends BsonValue<V> {
 
-    @Override
-    BsonDouble asDouble();
-    @Override
-    BsonInt32 asInt32();
-    @Override
-    BsonInt64 asInt64();
+  @Override
+  BsonDouble asDouble();
 
-    int intValue();
-    long longValue();
-    double doubleValue();
+  @Override
+  BsonInt32 asInt32();
+
+  @Override
+  BsonInt64 asInt64();
+
+  int intValue();
+
+  long longValue();
+
+  double doubleValue();
 
 }

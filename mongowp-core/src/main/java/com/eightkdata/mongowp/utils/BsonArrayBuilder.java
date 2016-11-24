@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Core
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,93 +13,26 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * MongoWP: Core - mongowp is a Java layer that enables the development of server-side MongoDB wire protocol implementations.
-        Any application designed to act as a mongo server could rely on this layer to implement the wire protocol.
-        Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
-        to name a few.
- * Copyright © 2014 8Kdata (www.8kdata.com)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * MongoWP: Core - mongowp is a Java layer that enables the development of server-side MongoDB wire protocol implementations.
-        Any application designed to act as a mongo server could rely on this layer to implement the wire protocol.
-        Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
-        to name a few.
- * Copyright © 2014 8Kdata (www.8kdata.com)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * MongoWP: Core - mongowp is a Java layer that enables the development of server-side MongoDB wire protocol implementations.
-        Any application designed to act as a mongo server could rely on this layer to implement the wire protocol.
-        Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
-        to name a few.
- * Copyright © ${project.inceptionYear} 8Kdata (www.8kdata.com)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * MongoWP: Core - mongowp is a Java layer that enables the development of server-side MongoDB wire protocol implementations.
-        Any application designed to act as a mongo server could rely on this layer to implement the wire protocol.
-        Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
-        to name a few.
- * Copyright © ${project.inceptionYear} ${owner} (${email})
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+
 package com.eightkdata.mongowp.utils;
+
+import static com.eightkdata.mongowp.bson.utils.DefaultBsonValues.NULL;
+import static com.eightkdata.mongowp.bson.utils.DefaultBsonValues.newArray;
+import static com.eightkdata.mongowp.bson.utils.DefaultBsonValues.newBoolean;
+import static com.eightkdata.mongowp.bson.utils.DefaultBsonValues.newDouble;
+import static com.eightkdata.mongowp.bson.utils.DefaultBsonValues.newInt;
+import static com.eightkdata.mongowp.bson.utils.DefaultBsonValues.newLong;
+import static com.eightkdata.mongowp.bson.utils.DefaultBsonValues.newString;
 
 import com.eightkdata.mongowp.OpTime;
 import com.eightkdata.mongowp.annotations.Material;
-import com.eightkdata.mongowp.bson.*;
+import com.eightkdata.mongowp.bson.BsonArray;
+import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.bson.BsonNumber;
+import com.eightkdata.mongowp.bson.BsonObjectId;
+import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.annotations.NotMutable;
 import com.eightkdata.mongowp.bson.impl.InstantBsonDateTime;
 import com.eightkdata.mongowp.bson.impl.LongBsonDateTime;
@@ -109,227 +42,223 @@ import com.eightkdata.mongowp.fields.ObjectIdField;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import static com.eightkdata.mongowp.bson.utils.DefaultBsonValues.*;
-
-/**
- *
- */
 public class BsonArrayBuilder {
 
-    private final List<BsonValue<?>> list;
-    private boolean built;
+  private final List<BsonValue<?>> list;
+  private boolean built;
 
-    public BsonArrayBuilder() {
-        this(new ArrayList<BsonValue<?>>());
-    }
+  public BsonArrayBuilder() {
+    this(new ArrayList<BsonValue<?>>());
+  }
 
-    public BsonArrayBuilder(int initialSize) {
-        this(new ArrayList<BsonValue<?>>(initialSize));
-    }
+  public BsonArrayBuilder(int initialSize) {
+    this(new ArrayList<BsonValue<?>>(initialSize));
+  }
 
-    public BsonArrayBuilder(@NotMutable List<BsonValue<?>> list) {
-        this.list = list;
-        built = false;
-    }
+  public BsonArrayBuilder(@NotMutable List<BsonValue<?>> list) {
+    this.list = list;
+    built = false;
+  }
 
-    public BsonArrayBuilder addAll(@Nonnull List<BsonValue<?>> otherList) {
-        Preconditions.checkState(!built);
-        for (BsonValue<?> val : otherList) {
-            list.add(val);
-        }
-        return this;
+  public BsonArrayBuilder addAll(@Nonnull List<BsonValue<?>> otherList) {
+    Preconditions.checkState(!built);
+    for (BsonValue<?> val : otherList) {
+      list.add(val);
     }
+    return this;
+  }
 
-    public <JV> BsonArrayBuilder add(@Nullable BsonValue<JV> value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            list.add(NULL);
-        }
-        else {
-            list.add(value);
-        }
-        return this;
+  public <JavaValueT> BsonArrayBuilder add(@Nullable BsonValue<JavaValueT> value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      list.add(NULL);
+    } else {
+      list.add(value);
     }
+    return this;
+  }
 
-    public <T> BsonArrayBuilder add(T value, Function<T, BsonValue<T>> translator) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(translator.apply(value));
-        return this;
+  public <T> BsonArrayBuilder add(T value, Function<T, BsonValue<T>> translator) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(translator.apply(value));
+    return this;
+  }
 
-    public BsonArrayBuilder add(boolean value) {
-        Preconditions.checkState(!built);
-        list.add(newBoolean(value));
-        return this;
-    }
+  public BsonArrayBuilder add(boolean value) {
+    Preconditions.checkState(!built);
+    list.add(newBoolean(value));
+    return this;
+  }
 
-    public BsonArrayBuilder addNumber(Number value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(toBsonNumber(value));
-        return this;
-    }
+  public BsonArrayBuilder add(int value) {
+    Preconditions.checkState(!built);
+    list.add(newInt(value));
+    return this;
+  }
 
-    private BsonNumber toBsonNumber(Number number) {
-        if (number instanceof Double || number instanceof Float) {
-            return newDouble(number.doubleValue());
-        }
-        if (number instanceof Long) {
-            long longValue = number.longValue();
-            if (longValue <= Integer.MAX_VALUE && longValue >= Integer.MAX_VALUE) {
-                return newInt((int) longValue);
-            }
-            return newLong(longValue);
-        }
-        if (number instanceof Integer || number instanceof Byte || number instanceof Short) {
-            return newInt(number.intValue());
-        }
-        throw new IllegalArgumentException("Numbers of class " + number.getClass() + " are not supported");
-    }
+  public BsonArrayBuilder add(long value) {
+    Preconditions.checkState(!built);
+    list.add(newLong(value));
+    return this;
+  }
 
-    public BsonArrayBuilder addNumber(int value) {
-        Preconditions.checkState(!built);
-        list.add(newInt(value));
-        return this;
+  public BsonArrayBuilder add(String value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(newString(value));
+    return this;
+  }
 
-    public BsonArrayBuilder addNumber(long value) {
-        Preconditions.checkState(!built);
-        if (value < Integer.MAX_VALUE && value > Integer.MIN_VALUE) {
-            list.add(newInt((int) value));
-        }
-        else {
-            list.add(newLong(value));
-        }
-        return this;
-    }
+  public BsonArrayBuilder add(double value) {
+    Preconditions.checkState(!built);
+    list.add(newDouble(value));
+    return this;
+  }
 
-    public BsonArrayBuilder add(int value) {
-        Preconditions.checkState(!built);
-        list.add(newInt(value));
-        return this;
+  public BsonArrayBuilder add(Instant value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(new InstantBsonDateTime(value));
+    return this;
+  }
 
-    public BsonArrayBuilder add(long value) {
-        Preconditions.checkState(!built);
-        list.add(newLong(value));
-        return this;
+  public BsonArrayBuilder add(OpTime value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(value.getTimestamp());
+    return this;
+  }
 
-    public BsonArrayBuilder add(String value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(newString(value));
-        return this;
+  public BsonArrayBuilder add(BsonArray value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(value);
+    return this;
+  }
 
-    public BsonArrayBuilder add(double value) {
-        Preconditions.checkState(!built);
-        list.add(newDouble(value));
-        return this;
+  public BsonArrayBuilder add(DocField field, BsonDocument value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(value);
+    return this;
+  }
 
-    public BsonArrayBuilder add(Instant value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(new InstantBsonDateTime(value));
-        return this;
+  public BsonArrayBuilder add(DocField field, BsonArrayBuilder value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(value.build());
+    return this;
+  }
 
-    /**
-     *
-     * @param value millis since Epoch
-     * @return
-     */
-    public BsonArrayBuilder addInstant(long value) {
-        Preconditions.checkState(!built);
-        list.add(new LongBsonDateTime(value));
-        return this;
+  public BsonArrayBuilder add(HostAndPortField field, HostAndPort value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(newString(value.toString()));
+    return this;
+  }
 
-    public BsonArrayBuilder add(OpTime value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(value.getTimestamp());
-        return this;
+  public BsonArrayBuilder add(ObjectIdField field, BsonObjectId value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(value);
+    return this;
+  }
 
-    public BsonArrayBuilder addArray(List<BsonValue<?>> list) {
-        return add(newArray(list));
+  public BsonArrayBuilder addNumber(Number value) {
+    Preconditions.checkState(!built);
+    if (value == null) {
+      return addNull();
     }
+    list.add(toBsonNumber(value));
+    return this;
+  }
 
-    public BsonArrayBuilder add(BsonArray value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(value);
-        return this;
-    }
+  public BsonArrayBuilder addNumber(int value) {
+    Preconditions.checkState(!built);
+    list.add(newInt(value));
+    return this;
+  }
 
-    public BsonArrayBuilder add(DocField field, BsonDocument value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(value);
-        return this;
+  public BsonArrayBuilder addNumber(long value) {
+    Preconditions.checkState(!built);
+    if (value < Integer.MAX_VALUE && value > Integer.MIN_VALUE) {
+      list.add(newInt((int) value));
+    } else {
+      list.add(newLong(value));
     }
+    return this;
+  }
 
-    public BsonArrayBuilder add(DocField field, BsonArrayBuilder value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(value.build());
-        return this;
+  private BsonNumber toBsonNumber(Number number) {
+    if (number instanceof Double || number instanceof Float) {
+      return newDouble(number.doubleValue());
     }
+    if (number instanceof Long) {
+      long longValue = number.longValue();
+      if (longValue <= Integer.MAX_VALUE && longValue >= Integer.MAX_VALUE) {
+        return newInt((int) longValue);
+      }
+      return newLong(longValue);
+    }
+    if (number instanceof Integer || number instanceof Byte || number instanceof Short) {
+      return newInt(number.intValue());
+    }
+    throw new IllegalArgumentException("Numbers of class " + number.getClass()
+        + " are not supported");
+  }
 
-    public BsonArrayBuilder add(HostAndPortField field, HostAndPort value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(newString(value.toString()));
-        return this;
-    }
+  /**
+   *
+   * @param value millis since Epoch
+   * @return
+   */
+  public BsonArrayBuilder addInstant(long value) {
+    Preconditions.checkState(!built);
+    list.add(new LongBsonDateTime(value));
+    return this;
+  }
 
-    public BsonArrayBuilder add(ObjectIdField field, BsonObjectId value) {
-        Preconditions.checkState(!built);
-        if (value == null) {
-            return addNull();
-        }
-        list.add(value);
-        return this;
-    }
+  public BsonArrayBuilder addArray(List<BsonValue<?>> list) {
+    return add(newArray(list));
+  }
 
-    public BsonArrayBuilder addNull() {
-        Preconditions.checkState(!built);
-        list.add(NULL);
-        return this;
-    }
+  public BsonArrayBuilder addNull() {
+    Preconditions.checkState(!built);
+    list.add(NULL);
+    return this;
+  }
 
-    @Material
-    public BsonArray build() {
-        built = true;
-        return newArray(list);
-    }
+  @Material
+  public BsonArray build() {
+    built = true;
+    return newArray(list);
+  }
 
 }

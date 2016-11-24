@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Core
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.callback;
 
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
@@ -24,32 +25,33 @@ import io.netty.util.AttributeMap;
  * This message replier stores the recived reply to be consumed later.
  */
 public class PojoMessageReplier extends MessageReplier {
-    private final int requestId;
-    private final AttributeMap attributeMap;
-    private ReplyMessage reply;
 
-    public PojoMessageReplier(int requestId, AttributeMap attributeMap) {
-        this.requestId = requestId;
-        this.attributeMap = attributeMap;
-    }
+  private final int requestId;
+  private final AttributeMap attributeMap;
+  private ReplyMessage reply;
 
-    public ReplyMessage getReply() {
-        return reply;
-    }
+  public PojoMessageReplier(int requestId, AttributeMap attributeMap) {
+    this.requestId = requestId;
+    this.attributeMap = attributeMap;
+  }
 
-    @Override
-    public void replyMessage(ReplyMessage replyMessage) {
-        reply = replyMessage;
-    }
+  public ReplyMessage getReply() {
+    return reply;
+  }
 
-    @Override
-    public int getRequestId() {
-        return requestId;
-    }
+  @Override
+  public void replyMessage(ReplyMessage replyMessage) {
+    reply = replyMessage;
+  }
 
-    @Override
-    public AttributeMap getAttributeMap() {
-        return attributeMap;
-    }
+  @Override
+  public int getRequestId() {
+    return requestId;
+  }
+
+  @Override
+  public AttributeMap getAttributeMap() {
+    return attributeMap;
+  }
 
 }

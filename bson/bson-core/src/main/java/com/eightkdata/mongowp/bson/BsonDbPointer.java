@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson;
 
 import java.util.Arrays;
@@ -24,26 +25,26 @@ import java.util.Arrays;
  */
 public interface BsonDbPointer extends BsonValue<BsonDbPointer> {
 
-    String getNamespace();
+  String getNamespace();
 
-    BsonObjectId getId();
+  BsonObjectId getId();
 
-    /**
-     * The hashCode of a BsonDbPointer is the hash code of its object id.
-     * @return
-     * @see Arrays#hashCode(byte[]) 
-     */
-    @Override
-    public int hashCode();
+  /**
+   * The hashCode of a BsonDbPointer is the hash code of its object id.
+   *
+   * @return
+   * @see Arrays#hashCode(byte[])
+   */
+  @Override
+  public int hashCode();
 
-    /**
-     * Two BsonDbPointer values are equal if their namespace and id properties
-     * are the equal.
-     *
-     * @param obj
-     * @return 
-     */
-    @Override
-    public boolean equals(Object obj);
+  /**
+   * Two BsonDbPointer values are equal if their namespace and id properties are the equal.
+   *
+   * @param obj
+   * @return
+   */
+  @Override
+  public boolean equals(Object obj);
 
 }

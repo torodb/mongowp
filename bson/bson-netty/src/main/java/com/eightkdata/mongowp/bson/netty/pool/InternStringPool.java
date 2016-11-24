@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,11 +13,13 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty.pool;
 
 import io.netty.buffer.ByteBuf;
+
 import javax.inject.Inject;
 
 /**
@@ -25,14 +27,14 @@ import javax.inject.Inject;
  */
 public class InternStringPool extends StringPool {
 
-    @Inject
-    public InternStringPool(StringPoolPolicy heuristic) {
-        super(heuristic);
-    }
+  @Inject
+  public InternStringPool(StringPoolPolicy heuristic) {
+    super(heuristic);
+  }
 
-    @Override
-    protected String retrieveFromPool(ByteBuf stringBuf) {
-        return getString(stringBuf).intern();
-    }
+  @Override
+  protected String retrieveFromPool(ByteBuf stringBuf) {
+    return getString(stringBuf).intern();
+  }
 
 }

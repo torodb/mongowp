@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty;
 
 import com.eightkdata.mongowp.bson.BsonArray;
@@ -22,6 +23,7 @@ import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.netty.annotations.Loose;
 import com.eightkdata.mongowp.bson.netty.annotations.ModifiesIndexes;
 import io.netty.buffer.ByteBuf;
+
 import javax.inject.Inject;
 
 /**
@@ -29,34 +31,34 @@ import javax.inject.Inject;
  */
 public class OffHeapNettyBsonLowLevelReader extends OffHeapValuesNettyBsonLowLevelReader {
 
-    @Inject
-    public OffHeapNettyBsonLowLevelReader(NettyStringReader stringReader) {
-        super(stringReader);
-    }
+  @Inject
+  public OffHeapNettyBsonLowLevelReader(NettyStringReader stringReader) {
+    super(stringReader);
+  }
 
-    @Override
-    BsonDocument readDocument(@Loose @ModifiesIndexes ByteBuf byteBuf)
-            throws NettyBsonReaderException {
-        int length = byteBuf.readInt();
-        int significantLenght = length - 4; //the final 0x00 must be included
+  @Override
+  BsonDocument readDocument(@Loose @ModifiesIndexes ByteBuf byteBuf)
+      throws NettyBsonReaderException {
+    int length = byteBuf.readInt();
+    int significantLenght = length - 4; //the final 0x00 must be included
 
-        ByteBuf significantSlice = byteBuf.readSlice(significantLenght);
+    ByteBuf significantSlice = byteBuf.readSlice(significantLenght);
 
-        assert byteBuf.getByte(byteBuf.readerIndex() - 1) == 0x00;
+    assert byteBuf.getByte(byteBuf.readerIndex() - 1) == 0x00;
 
-        return new IterableNettyBsonDocument(significantSlice, this);
-    }
+    return new IterableNettyBsonDocument(significantSlice, this);
+  }
 
-    @Override
-    BsonArray readArray(@Loose @ModifiesIndexes ByteBuf byteBuf)
-            throws NettyBsonReaderException {
-        int length = byteBuf.readInt();
-        int significantLenght = length - 4; //the final 0x00 must be included
+  @Override
+  BsonArray readArray(@Loose @ModifiesIndexes ByteBuf byteBuf)
+      throws NettyBsonReaderException {
+    int length = byteBuf.readInt();
+    int significantLenght = length - 4; //the final 0x00 must be included
 
-        ByteBuf significantSlice = byteBuf.readSlice(significantLenght);
+    ByteBuf significantSlice = byteBuf.readSlice(significantLenght);
 
-        assert byteBuf.getByte(byteBuf.readerIndex() - 1) == 0x00;
+    assert byteBuf.getByte(byteBuf.readerIndex() - 1) == 0x00;
 
-        return new IterableNettyBsonArray(significantSlice, this);
-    }
+    return new IterableNettyBsonArray(significantSlice, this);
+  }
 }

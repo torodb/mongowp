@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api.oplog;
 
 import com.eightkdata.mongowp.OpTime;
@@ -23,6 +24,7 @@ import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.fields.BooleanField;
 import com.eightkdata.mongowp.fields.DocField;
 import com.eightkdata.mongowp.utils.BsonDocumentBuilder;
+
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -30,58 +32,58 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 public class DeleteOplogOperation extends CollectionOplogOperation {
-    private static final long serialVersionUID = 1L;
-    
-    private static final DocField FILFER_FIELD = new DocField("o");
-    private static final BooleanField JUST_ONE_FIELD = new BooleanField("b");
 
+  private static final long serialVersionUID = 1L;
 
-    private final BsonDocument filter;
-    private final boolean justOne;
+  private static final DocField FILFER_FIELD = new DocField("o");
+  private static final BooleanField JUST_ONE_FIELD = new BooleanField("b");
 
-    public DeleteOplogOperation(
-            BsonDocument filter,
-            String database,
-            String collection,
-            OpTime optime,
-            long h,
-            OplogVersion version,
-            boolean fromMigrate,
-            boolean justOne) {
-        super(database, collection, optime, h, version, fromMigrate);
-        this.filter = filter;
-        this.justOne = justOne;
-    }
+  private final BsonDocument filter;
+  private final boolean justOne;
 
-    public BsonDocument getFilter() {
-        return filter;
-    }
+  public DeleteOplogOperation(
+      BsonDocument filter,
+      String database,
+      String collection,
+      OpTime optime,
+      long h,
+      OplogVersion version,
+      boolean fromMigrate,
+      boolean justOne) {
+    super(database, collection, optime, h, version, fromMigrate);
+    this.filter = filter;
+    this.justOne = justOne;
+  }
 
-    public boolean isJustOne() {
-        return justOne;
-    }
+  public BsonDocument getFilter() {
+    return filter;
+  }
 
-    @Override
-    public OplogOperationType getType() {
-        return OplogOperationType.DELETE;
-    }
+  public boolean isJustOne() {
+    return justOne;
+  }
 
-    @Override
-    public BsonValue<?> getDocId() {
-        return getFilter().get("_id");
-    }
+  @Override
+  public OplogOperationType getType() {
+    return OplogOperationType.DELETE;
+  }
 
-    @Override
-    public BsonDocumentBuilder toDescriptiveBson() {
-        return super.toDescriptiveBson()
-                .append(OP_FIELD, getType().getOplogName())
-                .append(FILFER_FIELD, filter)
-                .append(JUST_ONE_FIELD, justOne);
-    }
+  @Override
+  public BsonValue<?> getDocId() {
+    return getFilter().get("_id");
+  }
 
-    @Override
-    public <Result, Arg> Result accept(OplogOperationVisitor<Result, Arg> visitor, Arg arg) {
-        return visitor.visit(this, arg);
-    }
+  @Override
+  public BsonDocumentBuilder toDescriptiveBson() {
+    return super.toDescriptiveBson()
+        .append(OP_FIELD, getType().getOplogName())
+        .append(FILFER_FIELD, filter)
+        .append(JUST_ONE_FIELD, justOne);
+  }
+
+  @Override
+  public <R, A> R accept(OplogOperationVisitor<R, A> visitor, A arg) {
+    return visitor.visit(this, arg);
+  }
 
 }

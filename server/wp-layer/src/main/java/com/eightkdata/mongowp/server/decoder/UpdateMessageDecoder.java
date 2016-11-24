@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,9 +13,12 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.decoder;
+
+import static com.eightkdata.mongowp.bson.utils.BsonDocumentReader.AllocationType.HEAP;
 
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.netty.NettyBsonDocumentReader;
@@ -29,11 +32,10 @@ import com.eightkdata.mongowp.messages.request.UpdateMessage;
 import com.eightkdata.mongowp.server.util.EnumBitFlags;
 import com.eightkdata.mongowp.server.util.EnumInt32FlagsUtil;
 import io.netty.buffer.ByteBuf;
+
 import javax.annotation.Nonnegative;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import static com.eightkdata.mongowp.bson.utils.BsonDocumentReader.AllocationType.*;
 
 /**
  *
@@ -41,54 +43,55 @@ import static com.eightkdata.mongowp.bson.utils.BsonDocumentReader.AllocationTyp
 @Singleton
 public class UpdateMessageDecoder extends AbstractMessageDecoder<UpdateMessage> {
 
-    private final NettyStringReader stringReader;
-    private final NettyBsonDocumentReader docReader;
+  private final NettyStringReader stringReader;
+  private final NettyBsonDocumentReader docReader;
 
-    @Inject
-    public UpdateMessageDecoder(NettyStringReader stringReader, NettyBsonDocumentReader docReader) {
-        this.stringReader = stringReader;
-        this.docReader = docReader;
+  @Inject
+  public UpdateMessageDecoder(NettyStringReader stringReader, NettyBsonDocumentReader docReader) {
+    this.stringReader = stringReader;
+    this.docReader = docReader;
+  }
+
+  @Override
+  public UpdateMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws
+      InvalidNamespaceException, InvalidBsonException {
+    try {
+      buffer.skipBytes(4);
+      String fullCollectionName = stringReader.readCString(buffer, true);
+      int flags = buffer.readInt();
+      BsonDocument selector = docReader.readDocument(HEAP, buffer);
+      BsonDocument update = docReader.readDocument(HEAP, buffer);
+
+      //TODO: improve the way database and cache are pooled
+      return new UpdateMessage(
+          requestBaseMessage,
+          EmptyBsonContext.getInstance(),
+          getDatabase(fullCollectionName).intern(),
+          getCollection(fullCollectionName).intern(),
+          selector,
+          update,
+          EnumInt32FlagsUtil.isActive(Flag.UPSERT, flags),
+          EnumInt32FlagsUtil.isActive(Flag.MULTI_UPDATE, flags)
+      );
+    } catch (NettyBsonReaderException ex) {
+      throw new InvalidBsonException(ex);
+    }
+  }
+
+  private enum Flag implements EnumBitFlags {
+    UPSERT(0),
+    MULTI_UPDATE(1);
+
+    @Nonnegative
+    private final int flagBitPosition;
+
+    private Flag(@Nonnegative int flagBitPosition) {
+      this.flagBitPosition = flagBitPosition;
     }
 
     @Override
-    public @Nonnegative
-    UpdateMessage decode(ByteBuf buffer, RequestBaseMessage requestBaseMessage) throws InvalidNamespaceException, InvalidBsonException {
-        try {
-            buffer.skipBytes(4);
-            String fullCollectionName = stringReader.readCString(buffer, true);
-            int flags = buffer.readInt();
-            BsonDocument selector = docReader.readDocument(HEAP, buffer);
-            BsonDocument update = docReader.readDocument(HEAP, buffer);
-            
-            //TODO: improve the way database and cache are pooled
-            return new UpdateMessage(
-                    requestBaseMessage,
-                    EmptyBsonContext.getInstance(),
-                    getDatabase(fullCollectionName).intern(),
-                    getCollection(fullCollectionName).intern(),
-                    selector,
-                    update,
-                    EnumInt32FlagsUtil.isActive(Flag.UPSERT, flags),
-                    EnumInt32FlagsUtil.isActive(Flag.MULTI_UPDATE, flags)
-            );
-        } catch (NettyBsonReaderException ex) {
-            throw new InvalidBsonException(ex);
-        }
+    public int getFlagBitPosition() {
+      return flagBitPosition;
     }
-    
-    private enum Flag implements EnumBitFlags {
-        UPSERT(0),
-        MULTI_UPDATE(1);
-
-        @Nonnegative private final int flagBitPosition;
-
-        private Flag(@Nonnegative int flagBitPosition) {
-            this.flagBitPosition = flagBitPosition;
-        }
-
-        @Override
-        public int getFlagBitPosition() {
-            return flagBitPosition;
-        }
-    }
+  }
 }

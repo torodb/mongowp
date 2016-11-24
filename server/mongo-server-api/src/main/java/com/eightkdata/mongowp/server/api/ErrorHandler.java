@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,12 +13,14 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api;
 
-import com.eightkdata.mongowp.messages.response.ReplyMessage;
 import com.eightkdata.mongowp.exceptions.MongoException;
+import com.eightkdata.mongowp.messages.response.ReplyMessage;
+
 import javax.annotation.Nullable;
 
 /**
@@ -26,17 +28,17 @@ import javax.annotation.Nullable;
  */
 public interface ErrorHandler {
 
-    @Nullable
-    public ReplyMessage handleUnexpectedError(
-            Connection connection,
-            int requestId,
-            boolean canReply,
-            Throwable error);
+  @Nullable
+  public ReplyMessage handleUnexpectedError(
+      Connection connection,
+      int requestId,
+      boolean canReply,
+      Throwable error);
 
-    @Nullable
-    public ReplyMessage handleMongodbException(
-            Connection connection,
-            int requestId,
-            boolean canReply,
-            MongoException exception);
+  @Nullable
+  public ReplyMessage handleMongodbException(
+      Connection connection,
+      int requestId,
+      boolean canReply,
+      MongoException exception);
 }

@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty;
 
 import com.eightkdata.mongowp.bson.utils.BsonDocumentReaderException;
@@ -24,13 +25,13 @@ import com.eightkdata.mongowp.bson.utils.BsonDocumentReaderException;
  */
 public class NettyBsonReaderException extends BsonDocumentReaderException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public NettyBsonReaderException() {
-    }
+  public NettyBsonReaderException() {
+  }
 
-    public NettyBsonReaderException(String message) {
-        super(message);
-    }
+  public NettyBsonReaderException(String message) {
+    super(message);
+  }
 
 }

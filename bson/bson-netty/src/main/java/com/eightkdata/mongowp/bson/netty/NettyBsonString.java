@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonString;
@@ -24,40 +25,42 @@ import com.eightkdata.mongowp.bson.netty.annotations.Tight;
 import com.google.common.base.Charsets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
+
 import java.io.ObjectStreamException;
 
 /**
  *
  */
 @SuppressFBWarnings(value = {"SE_BAD_FIELD", "SE_NO_SERIALVERSIONID"},
-        justification = "writeReplace is used")
+    justification = "writeReplace is used")
 public class NettyBsonString extends AbstractBsonString {
 
-    private static final long serialVersionUID = 7152154519026299154L;
+  private static final long serialVersionUID = 7152154519026299154L;
 
-    @Tight private final ByteBuf byteBuf;
+  @Tight
+  private final ByteBuf byteBuf;
 
-    public NettyBsonString(@Tight @ModifiesIndexes ByteBuf byteBuf) {
-        this.byteBuf = byteBuf;
-    }
+  public NettyBsonString(@Tight @ModifiesIndexes ByteBuf byteBuf) {
+    this.byteBuf = byteBuf;
+  }
 
-    @Override
-    public String getValue() {
-        return getString(byteBuf);
-    }
+  @Override
+  public String getValue() {
+    return getString(byteBuf);
+  }
 
-    private String getString(@Tight ByteBuf byteBuf) {
-        int lenght = getStringLenght(byteBuf);
-        byte[] bytes = new byte[lenght];
-        byteBuf.getBytes(0, bytes);
-        return new String(bytes, Charsets.UTF_8);
-    }
+  private String getString(@Tight ByteBuf byteBuf) {
+    int lenght = getStringLenght(byteBuf);
+    byte[] bytes = new byte[lenght];
+    byteBuf.getBytes(0, bytes);
+    return new String(bytes, Charsets.UTF_8);
+  }
 
-    private int getStringLenght(@Tight ByteBuf byteBuf) {
-        return byteBuf.readableBytes();
-    }
+  private int getStringLenght(@Tight ByteBuf byteBuf) {
+    return byteBuf.readableBytes();
+  }
 
-    private Object writeReplace() throws ObjectStreamException {
-        return new StringBsonString(getValue());
-    }
+  private Object writeReplace() throws ObjectStreamException {
+    return new StringBsonString(getValue());
+  }
 }

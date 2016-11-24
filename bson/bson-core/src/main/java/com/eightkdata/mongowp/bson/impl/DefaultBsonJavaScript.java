@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonJavaScript;
@@ -24,15 +25,15 @@ import com.eightkdata.mongowp.bson.abst.AbstractBsonJavaScript;
  */
 public class DefaultBsonJavaScript extends AbstractBsonJavaScript {
 
-    private static final long serialVersionUID = -4164644621238236069L;
-    private final String js;
+  private static final long serialVersionUID = -4164644621238236069L;
+  private final String js;
 
-    public DefaultBsonJavaScript(String js) {
-        this.js = js;
-    }
+  public DefaultBsonJavaScript(String js) {
+    this.js = js;
+  }
 
-    @Override
-    public String getValue() {
-        return js;
-    }
+  @Override
+  public String getValue() {
+    return js;
+  }
 }

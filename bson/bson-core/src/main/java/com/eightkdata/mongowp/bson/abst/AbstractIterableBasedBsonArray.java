@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,39 +13,35 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.abst;
 
 import com.eightkdata.mongowp.bson.BsonValue;
-import com.eightkdata.mongowp.bson.abst.AbstractBsonArray;
 import com.google.common.collect.Iterables;
-import java.util.Collection;
 
-/**
- *
- */
 public abstract class AbstractIterableBasedBsonArray extends AbstractBsonArray {
 
-    private int cachedSize = -1;
+  private int cachedSize = -1;
 
-    @Override
-    public BsonValue<?> get(int index) {
-        return Iterables.get(this, index);
-    }
+  @Override
+  public BsonValue<?> get(int index) {
+    return Iterables.get(this, index);
+  }
 
-    @Override
-    public boolean contains(BsonValue<?> element) {
-        return Iterables.contains(this, element);
-    }
+  @Override
+  public boolean contains(BsonValue<?> element) {
+    return Iterables.contains(this, element);
+  }
 
-    @Override
-    public int size() {
-        if (cachedSize == -1) {
-            cachedSize = Iterables.size(this);
-            assert cachedSize != -1;
-        }
-        return cachedSize;
+  @Override
+  public int size() {
+    if (cachedSize == -1) {
+      cachedSize = Iterables.size(this);
+      assert cachedSize != -1;
     }
+    return cachedSize;
+  }
 
 }

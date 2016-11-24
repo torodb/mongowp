@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,27 +13,29 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api.oplog;
 
 /**
+ * A visitor that visits {@link OplogOperation oplog operations}.
  *
- * @param <Result> the result of the visit methods.
- * @param <Arg> An argument the visit method can take. If it is not needed, use {@link Void}
+ * @param <R> the result of the visit methods.
+ * @param <A>    An argument the visit method can take. If it is not needed, use {@link Void}
  */
-public interface OplogOperationVisitor<Result, Arg> {
+public interface OplogOperationVisitor<R, A> {
 
-    public Result visit(DbCmdOplogOperation op, Arg arg);
+  public R visit(DbCmdOplogOperation op, A arg);
 
-    public Result visit(DbOplogOperation op, Arg arg);
+  public R visit(DbOplogOperation op, A arg);
 
-    public Result visit(DeleteOplogOperation op, Arg arg);
+  public R visit(DeleteOplogOperation op, A arg);
 
-    public Result visit(InsertOplogOperation op, Arg arg);
+  public R visit(InsertOplogOperation op, A arg);
 
-    public Result visit(NoopOplogOperation op, Arg arg);
+  public R visit(NoopOplogOperation op, A arg);
 
-    public Result visit(UpdateOplogOperation op, Arg arg);
+  public R visit(UpdateOplogOperation op, A arg);
 
 }

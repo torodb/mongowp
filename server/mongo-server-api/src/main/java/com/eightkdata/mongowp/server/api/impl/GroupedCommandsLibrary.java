@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: API
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api.impl;
 
 import com.eightkdata.mongowp.bson.BsonDocument;
@@ -22,6 +23,7 @@ import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.CommandsLibrary;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,43 +32,44 @@ import java.util.Set;
  */
 public class GroupedCommandsLibrary implements CommandsLibrary {
 
-    private final String supportedVersion;
-    private final ImmutableList<CommandsLibrary> subLibraries;
+  private final String supportedVersion;
+  private final ImmutableList<CommandsLibrary> subLibraries;
 
-    public GroupedCommandsLibrary(String supportedVersion, ImmutableList<CommandsLibrary> subLibraries) {
-        this.supportedVersion = supportedVersion;
-        this.subLibraries = subLibraries;
-    }
+  public GroupedCommandsLibrary(String supportedVersion,
+      ImmutableList<CommandsLibrary> subLibraries) {
+    this.supportedVersion = supportedVersion;
+    this.subLibraries = subLibraries;
+  }
 
-    @Override
-    public String getSupportedVersion() {
-        return supportedVersion;
-    }
+  @Override
+  public String getSupportedVersion() {
+    return supportedVersion;
+  }
 
-    @Override
-    public Set<Command> getSupportedCommands() {
-        HashSet<Command> supportedCommands = Sets.newHashSet();
+  @Override
+  public Set<Command> getSupportedCommands() {
+    HashSet<Command> supportedCommands = Sets.newHashSet();
 
-        for (CommandsLibrary subLibrary : subLibraries) {
-            Set<Command> subSupportedCommands = subLibrary.getSupportedCommands();
-            if (subSupportedCommands == null) {
-                return null;
-            }
-            supportedCommands.addAll(subSupportedCommands);
-        }
-
-        return supportedCommands;
-    }
-
-    @Override
-    public LibraryEntry find(BsonDocument requestDocument) {
-        for (CommandsLibrary subLibrary : subLibraries) {
-            LibraryEntry found = subLibrary.find(requestDocument);
-            if (found != null) {
-                return found;
-            }
-        }
+    for (CommandsLibrary subLibrary : subLibraries) {
+      Set<Command> subSupportedCommands = subLibrary.getSupportedCommands();
+      if (subSupportedCommands == null) {
         return null;
+      }
+      supportedCommands.addAll(subSupportedCommands);
     }
+
+    return supportedCommands;
+  }
+
+  @Override
+  public LibraryEntry find(BsonDocument requestDocument) {
+    for (CommandsLibrary subLibrary : subLibraries) {
+      LibraryEntry found = subLibrary.find(requestDocument);
+      if (found != null) {
+        return found;
+      }
+    }
+    return null;
+  }
 
 }

@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Core
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,92 +13,14 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * MongoWP: Core - mongowp is a Java layer that enables the development of server-side MongoDB wire protocol implementations.
-        Any application designed to act as a mongo server could rely on this layer to implement the wire protocol.
-        Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
-        to name a few.
- * Copyright © 2014 8Kdata (www.8kdata.com)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * MongoWP: Core - mongowp is a Java layer that enables the development of server-side MongoDB wire protocol implementations.
-        Any application designed to act as a mongo server could rely on this layer to implement the wire protocol.
-        Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
-        to name a few.
- * Copyright © 2014 8Kdata (www.8kdata.com)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * MongoWP: Core - mongowp is a Java layer that enables the development of server-side MongoDB wire protocol implementations.
-        Any application designed to act as a mongo server could rely on this layer to implement the wire protocol.
-        Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
-        to name a few.
- * Copyright © ${project.inceptionYear} 8Kdata (www.8kdata.com)
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * MongoWP: Core - mongowp is a Java layer that enables the development of server-side MongoDB wire protocol implementations.
-        Any application designed to act as a mongo server could rely on this layer to implement the wire protocol.
-        Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
-        to name a few.
- * Copyright © ${project.inceptionYear} ${owner} (${email})
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+
 package com.eightkdata.mongowp.exceptions;
 
 import com.eightkdata.mongowp.ErrorCode;
 import com.eightkdata.mongowp.bson.BsonDocument;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -107,44 +29,46 @@ import javax.annotation.Nullable;
  */
 public class NewReplicaSetConfigurationIncompatibleException extends MongoException {
 
-    private static final long serialVersionUID = -2709675821399927014L;
+  private static final long serialVersionUID = -2709675821399927014L;
 
-    @Nonnull
-    private final BsonDocument newReplSetConf;
-    @Nullable
-    private final BsonDocument oldReplSetConf;
+  @Nonnull
+  private final BsonDocument newReplSetConf;
+  @Nullable
+  private final BsonDocument oldReplSetConf;
 
-    public NewReplicaSetConfigurationIncompatibleException(BsonDocument newReplSetConf) {
-        this(newReplSetConf, (BsonDocument) null);
-    }
+  public NewReplicaSetConfigurationIncompatibleException(BsonDocument newReplSetConf) {
+    this(newReplSetConf, (BsonDocument) null);
+  }
 
-    public NewReplicaSetConfigurationIncompatibleException(BsonDocument newReplSetConf, BsonDocument oldReplSetConf) {
-        super(ErrorCode.NEW_REPLICA_SET_CONFIGURATION_INCOMPATIBLE);
-        this.newReplSetConf = newReplSetConf;
-        this.oldReplSetConf = oldReplSetConf;
-    }
+  public NewReplicaSetConfigurationIncompatibleException(BsonDocument newReplSetConf,
+      BsonDocument oldReplSetConf) {
+    super(ErrorCode.NEW_REPLICA_SET_CONFIGURATION_INCOMPATIBLE);
+    this.newReplSetConf = newReplSetConf;
+    this.oldReplSetConf = oldReplSetConf;
+  }
 
-    public NewReplicaSetConfigurationIncompatibleException(BsonDocument newReplSetConf, String customMessage) {
-        this(newReplSetConf, null, customMessage);
-    }
+  public NewReplicaSetConfigurationIncompatibleException(BsonDocument newReplSetConf,
+      String customMessage) {
+    this(newReplSetConf, null, customMessage);
+  }
 
-    public NewReplicaSetConfigurationIncompatibleException(
-            BsonDocument replicaSetConfDoc,
-            BsonDocument olBsonDocument,
-            String customMessage) {
-        super(customMessage, ErrorCode.NEW_REPLICA_SET_CONFIGURATION_INCOMPATIBLE);
-        this.newReplSetConf = replicaSetConfDoc;
-        this.oldReplSetConf = olBsonDocument;
-    }
+  public NewReplicaSetConfigurationIncompatibleException(
+      BsonDocument replicaSetConfDoc,
+      BsonDocument olBsonDocument,
+      String customMessage) {
+    super(customMessage, ErrorCode.NEW_REPLICA_SET_CONFIGURATION_INCOMPATIBLE);
+    this.newReplSetConf = replicaSetConfDoc;
+    this.oldReplSetConf = olBsonDocument;
+  }
 
-    @Nonnull
-    public BsonDocument getNewReplSetConf() {
-        return newReplSetConf;
-    }
+  @Nonnull
+  public BsonDocument getNewReplSetConf() {
+    return newReplSetConf;
+  }
 
-    @Nullable
-    public BsonDocument getOldReplSetConf() {
-        return oldReplSetConf;
-    }
+  @Nullable
+  public BsonDocument getOldReplSetConf() {
+    return oldReplSetConf;
+  }
 
 }

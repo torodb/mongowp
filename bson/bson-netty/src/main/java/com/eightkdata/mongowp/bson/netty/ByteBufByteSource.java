@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty;
 
 import com.eightkdata.mongowp.bson.netty.annotations.ConservesIndexes;
@@ -22,6 +23,7 @@ import com.eightkdata.mongowp.bson.netty.annotations.Tight;
 import com.google.common.io.ByteSource;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
+
 import java.io.InputStream;
 
 /**
@@ -29,15 +31,15 @@ import java.io.InputStream;
  */
 public class ByteBufByteSource extends ByteSource {
 
-    private final ByteBuf byteBuf;
+  private final ByteBuf byteBuf;
 
-    public ByteBufByteSource(@Tight @ConservesIndexes ByteBuf byteBuf) {
-        this.byteBuf = byteBuf.slice();
-    }
+  public ByteBufByteSource(@Tight @ConservesIndexes ByteBuf byteBuf) {
+    this.byteBuf = byteBuf.slice();
+  }
 
-    @Override
-    public InputStream openStream() {
-        return new ByteBufInputStream(byteBuf.slice());
-    }
+  @Override
+  public InputStream openStream() {
+    return new ByteBufInputStream(byteBuf.slice());
+  }
 
 }

@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson Netty
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.netty;
 
 import com.eightkdata.mongowp.bson.netty.annotations.Loose;
@@ -22,87 +23,84 @@ import com.eightkdata.mongowp.bson.netty.annotations.ModifiesIndexes;
 import com.eightkdata.mongowp.bson.netty.pool.StringPool;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
+
 import javax.inject.Inject;
 
 /**
  *
  */
-@SuppressFBWarnings(
-        value="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-        justification = "It seems FindBugs considers ByteBuf methods are not side effect"
-)
+@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+    justification = "It seems FindBugs considers ByteBuf methods are not side effect")
 public class PooledNettyStringReader implements NettyStringReader {
-    public static final byte CSTRING_BYTE_TERMINATION = 0x00;
 
-    private final StringPool stringPool;
+  public static final byte CSTRING_BYTE_TERMINATION = 0x00;
 
-    @Inject
-    public PooledNettyStringReader(StringPool stringPool) {
-        this.stringPool = stringPool;
+  private final StringPool stringPool;
+
+  @Inject
+  public PooledNettyStringReader(StringPool stringPool) {
+    this.stringPool = stringPool;
+  }
+
+  /**
+   * A method that reads a C-string from a ByteBuf. This method modified the internal state of the
+   * ByteBuf, advancing the read pointer to the position after the cstring.
+   *
+   * @param buffer
+   * @param likelyCacheable
+   * @return The C-String as a String object or null if there was no C-String in the ByteBuf
+   * @throws com.eightkdata.mongowp.bson.netty.NettyBsonReaderException
+   */
+  @Override
+  public String readCString(ByteBuf buffer, boolean likelyCacheable)
+      throws NettyBsonReaderException {
+    int pos = buffer.bytesBefore(CSTRING_BYTE_TERMINATION);
+    if (pos == -1) {
+      throw new NettyBsonReaderException("A cstring was expected but no 0x00 byte was found");
     }
 
-    /**
-     * A method that reads a C-string from a ByteBuf.
-     * This method modified the internal state of the ByteBuf, advancing the read pointer to the position after the
-     * cstring.
-     *
-     * @param buffer
-     * @param likelyCacheable
-     * @return The C-String as a String object or null if there was no C-String in the ByteBuf
-     * @throws com.eightkdata.mongowp.bson.netty.NettyBsonReaderException
-     */
-    @Override
-    public String readCString(ByteBuf buffer, boolean likelyCacheable) throws NettyBsonReaderException {
-        int pos = buffer.bytesBefore(CSTRING_BYTE_TERMINATION);
-        if(pos == -1) {
-            throw new NettyBsonReaderException("A cstring was expected but no 0x00 byte was found");
-        }
+    String result = stringPool.fromPool(likelyCacheable, buffer.readSlice(pos));
 
-        String result = stringPool.fromPool(likelyCacheable, buffer.readSlice(pos));
+    buffer.readByte(); // Discard the termination byte
 
-        buffer.readByte();  // Discard the termination byte
+    return result;
+  }
 
-        return result;
+  @Override
+  /**
+   * A method that skips a C-string from a ByteBuf. This method modified the internal state of the
+   * ByteBuf, advancing the read pointer to the position after the cstring.
+   *
+   * @param buffer
+   * @throws com.eightkdata.mongowp.bson.netty.NettyBsonReaderException
+   */
+  public void skipCString(ByteBuf buffer) throws NettyBsonReaderException {
+    int bytesBefore = buffer.bytesBefore(CSTRING_BYTE_TERMINATION);
+    if (bytesBefore == -1) {
+      throw new NettyBsonReaderException("A cstring was expected but no 0x00 byte was found");
     }
+    buffer.skipBytes(bytesBefore + 1);
+  }
 
-    @Override
-    /**
-     * A method that skips a C-string from a ByteBuf.
-     * This method modified the internal state of the ByteBuf, advancing the read pointer to the position after the
-     * cstring.
-     *
-     * @param buffer
-     * @throws com.eightkdata.mongowp.bson.netty.NettyBsonReaderException
-     */
-    public void skipCString(ByteBuf buffer) throws NettyBsonReaderException {
-        int bytesBefore = buffer.bytesBefore(CSTRING_BYTE_TERMINATION);
-        if(bytesBefore == -1) {
-            throw new NettyBsonReaderException("A cstring was expected but no 0x00 byte was found");
-        }
-        buffer.skipBytes(bytesBefore + 1);
-    }
+  @Override
+  public String readString(@Loose @ModifiesIndexes ByteBuf byteBuf, boolean likelyCacheable) {
+    int stringLength = byteBuf.readInt();
 
-    @Override
-    public String readString(@Loose @ModifiesIndexes ByteBuf byteBuf, boolean likelyCacheable) {
-        int stringLength = byteBuf.readInt();
-        
-        String str = stringPool.fromPool(
-                likelyCacheable,
-                byteBuf.slice(byteBuf.readerIndex(), stringLength - 1)
-        );
+    String str = stringPool.fromPool(likelyCacheable,
+        byteBuf.slice(byteBuf.readerIndex(), stringLength - 1));
 
-        byteBuf.skipBytes(stringLength);
+    byteBuf.skipBytes(stringLength);
 
-        return str;
-    }
+    return str;
+  }
 
-    @Override
-    public ByteBuf readStringAsSlice(@Loose @ModifiesIndexes ByteBuf byteBuf) {
-        int stringLength = byteBuf.readInt();
-        ByteBuf result = byteBuf.readSlice(stringLength - 1);
-        byte b = byteBuf.readByte(); //discard the last 0x00
-        assert b == 0x00;
+  @Override
+  public ByteBuf readStringAsSlice(@Loose @ModifiesIndexes ByteBuf byteBuf) {
+    int stringLength = byteBuf.readInt();
+    ByteBuf result = byteBuf.readSlice(stringLength - 1);
+    byte b = byteBuf.readByte(); // discard the last 0x00
+    assert b == 0x00;
 
-        return result;
-    }
+    return result;
+  }
 }

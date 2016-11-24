@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,11 +13,13 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonDateTime;
+
 import java.time.Instant;
 
 /**
@@ -25,22 +27,22 @@ import java.time.Instant;
  */
 public class LongBsonDateTime extends AbstractBsonDateTime {
 
-    private static final long serialVersionUID = -6469977865641228229L;
+  private static final long serialVersionUID = -6469977865641228229L;
 
-    private final long millis;
+  private final long millis;
 
-    public LongBsonDateTime(long millis) {
-        this.millis = millis;
-    }
-    
-    @Override
-    public long getMillisFromUnix() {
-        return millis;
-    }
+  public LongBsonDateTime(long millis) {
+    this.millis = millis;
+  }
 
-    @Override
-    public Instant getValue() {
-        return Instant.ofEpochMilli(millis);
-    }
+  @Override
+  public long getMillisFromUnix() {
+    return millis;
+  }
+
+  @Override
+  public Instant getValue() {
+    return Instant.ofEpochMilli(millis);
+  }
 
 }

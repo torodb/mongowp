@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,14 +13,16 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.BsonValue;
 import com.eightkdata.mongowp.bson.abst.AbstractBsonArray;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.UnmodifiableIterator;
+
 import java.util.Collections;
 
 /**
@@ -28,35 +30,35 @@ import java.util.Collections;
  */
 public class SingleValueBsonArray extends AbstractBsonArray {
 
-    private static final long serialVersionUID = -1073107257449881416L;
+  private static final long serialVersionUID = -1073107257449881416L;
 
-    private final BsonValue<?> child;
+  private final BsonValue<?> child;
 
-    public SingleValueBsonArray(BsonValue<?> child) {
-        this.child = child;
+  public SingleValueBsonArray(BsonValue<?> child) {
+    this.child = child;
+  }
+
+  @Override
+  public BsonValue<?> get(int index) throws IndexOutOfBoundsException {
+    if (index == 0) {
+      return child;
     }
+    throw new IndexOutOfBoundsException();
+  }
 
-    @Override
-    public BsonValue<?> get(int index) throws IndexOutOfBoundsException {
-        if (index == 0) {
-            return child;
-        }
-        throw new IndexOutOfBoundsException();
-    }
+  @Override
+  public boolean contains(BsonValue<?> element) {
+    return child.equals(element);
+  }
 
-    @Override
-    public boolean contains(BsonValue<?> element) {
-        return child.equals(element);
-    }
+  @Override
+  public int size() {
+    return 1;
+  }
 
-    @Override
-    public int size() {
-        return 1;
-    }
-
-    @Override
-    public UnmodifiableIterator<BsonValue<?>> iterator() {
-        return Iterators.unmodifiableIterator(Collections.<BsonValue<?>>singleton(child).iterator());
-    }
+  @Override
+  public UnmodifiableIterator<BsonValue<?>> iterator() {
+    return Iterators.unmodifiableIterator(Collections.<BsonValue<?>>singleton(child).iterator());
+  }
 
 }

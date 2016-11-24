@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,8 +13,9 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonTimestamp;
@@ -24,22 +25,22 @@ import com.eightkdata.mongowp.bson.abst.AbstractBsonTimestamp;
  */
 public class DefaultBsonTimestamp extends AbstractBsonTimestamp {
 
-    private static final long serialVersionUID = 8902213292168089542L;
-    private final int secondsSinceEpoch;
-    private final int ordinal;
+  private static final long serialVersionUID = 8902213292168089542L;
+  private final int secondsSinceEpoch;
+  private final int ordinal;
 
-    public DefaultBsonTimestamp(int secondsSinceEpoch, int ordinal) {
-        this.secondsSinceEpoch = secondsSinceEpoch;
-        this.ordinal = ordinal;
-    }
+  public DefaultBsonTimestamp(int secondsSinceEpoch, int ordinal) {
+    this.secondsSinceEpoch = secondsSinceEpoch;
+    this.ordinal = ordinal;
+  }
 
-    @Override
-    public int getSecondsSinceEpoch() {
-        return secondsSinceEpoch;
-    }
+  @Override
+  public int getSecondsSinceEpoch() {
+    return secondsSinceEpoch;
+  }
 
-    @Override
-    public int getOrdinal() {
-        return ordinal;
-    }
+  @Override
+  public int getOrdinal() {
+    return ordinal;
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,19 +13,20 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson;
 
 /**
  *
  */
 public enum BinarySubtype {
-    GENERIC,
-    FUNCTION,
-    OLD_BINARY,
-    OLD_UUID,
-    UUID,
-    MD5,
-    USER_DEFINED
+  GENERIC,
+  FUNCTION,
+  OLD_BINARY,
+  OLD_UUID,
+  UUID,
+  MD5,
+  USER_DEFINED
 }

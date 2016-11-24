@@ -1,5 +1,5 @@
 /*
- * MongoWP - MongoWP: Bson
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,11 +13,13 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonRegex;
+
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
@@ -27,23 +29,23 @@ import java.util.Set;
  */
 public class DefaultBsonRegex extends AbstractBsonRegex {
 
-    private static final long serialVersionUID = 3874198083590003304L;
-    private final Set<Options> options;
-    private final String pattern;
+  private static final long serialVersionUID = 3874198083590003304L;
+  private final Set<Options> options;
+  private final String pattern;
 
-    public DefaultBsonRegex(EnumSet<Options> options, String pattern) {
-        this.options = Collections.unmodifiableSet(EnumSet.copyOf(options));
-        this.pattern = pattern;
-    }
+  public DefaultBsonRegex(EnumSet<Options> options, String pattern) {
+    this.options = Collections.unmodifiableSet(EnumSet.copyOf(options));
+    this.pattern = pattern;
+  }
 
-    @Override
-    public Set<Options> getOptions() {
-        return options;
-    }
+  @Override
+  public Set<Options> getOptions() {
+    return options;
+  }
 
-    @Override
-    public String getPattern() {
-        return pattern;
-    }
+  @Override
+  public String getPattern() {
+    return pattern;
+  }
 
 }

@@ -1,5 +1,5 @@
 /*
- * MongoWP - Mongo Server: Wire Protocol Layer
+ * MongoWP
  * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
  * This program is free software: you can redistribute it and/or modify
@@ -13,13 +13,15 @@
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+
 import java.nio.ByteOrder;
 import java.util.List;
 
@@ -27,13 +29,15 @@ import java.util.List;
  *
  */
 public abstract class ChannelLittleEndianHandler extends ByteToMessageDecoder {
-    @Override
-    protected final void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> objects)
-    throws Exception {
-        decodeLittleEndian(channelHandlerContext, byteBuf.order(ByteOrder.LITTLE_ENDIAN), objects);
-    }
 
-    protected abstract void decodeLittleEndian(
-            ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> objects
-    ) throws Exception;
+  @Override
+  protected final void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf,
+      List<Object> objects)
+      throws Exception {
+    decodeLittleEndian(channelHandlerContext, byteBuf.order(ByteOrder.LITTLE_ENDIAN), objects);
+  }
+
+  protected abstract void decodeLittleEndian(
+      ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> objects
+  ) throws Exception;
 }
