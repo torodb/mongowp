@@ -1,27 +1,25 @@
 /*
- *     This file is part of mongowp.
+ * MongoWP
+ * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
- *     mongowp is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     mongowp is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with mongowp. If not, see <http://www.gnu.org/licenses/>.
- *
- *     Copyright (c) 2014, 8Kdata Technology
- *     
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 package com.eightkdata.mongowp.messages.request;
 
 import java.net.InetAddress;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -29,52 +27,54 @@ import javax.annotation.Nullable;
  *
  */
 public abstract class AbstractRequestMessage implements RequestMessage {
-    @Nonnull private final RequestBaseMessage requestBaseMessage;
-    @Nonnull private final BsonContext dataContext;
 
-    protected AbstractRequestMessage(
-            @Nonnull RequestBaseMessage requestBaseMessage,
-            @Nonnull BsonContext dataContext) {
-        this.requestBaseMessage = requestBaseMessage;
-        this.dataContext = dataContext;
-    }
+  @Nonnull
+  private final RequestBaseMessage requestBaseMessage;
+  @Nonnull
+  private final BsonContext dataContext;
 
-    @Nonnull
-    public RequestBaseMessage getBaseMessage() {
-        return requestBaseMessage;
-    }
+  protected AbstractRequestMessage(
+      @Nonnull RequestBaseMessage requestBaseMessage,
+      @Nonnull BsonContext dataContext) {
+    this.requestBaseMessage = requestBaseMessage;
+    this.dataContext = dataContext;
+  }
 
-    @Nullable 
-    public InetAddress getClientAddress() {
-        return requestBaseMessage.getClientAddress();
-    }
+  @Nonnull
+  public RequestBaseMessage getBaseMessage() {
+    return requestBaseMessage;
+  }
 
-    @Nullable 
-    public String getClientAddressString() {
-        return requestBaseMessage.getClientAddressString();
-    }
+  @Nullable
+  public InetAddress getClientAddress() {
+    return requestBaseMessage.getClientAddress();
+  }
 
-    public int getClientPort() {
-        return requestBaseMessage.getClientPort();
-    }
+  @Nullable
+  public String getClientAddressString() {
+    return requestBaseMessage.getClientAddressString();
+  }
 
-    public int getRequestId() {
-        return requestBaseMessage.getRequestId();
-    }
+  public int getClientPort() {
+    return requestBaseMessage.getClientPort();
+  }
 
-    BsonContext getDataContext() {
-        return dataContext;
-    }
+  public int getRequestId() {
+    return requestBaseMessage.getRequestId();
+  }
 
-    @Override
-    public void close() throws Exception {
-        dataContext.close();
-    }
+  BsonContext getDataContext() {
+    return dataContext;
+  }
 
-    @Override
-    public String toString() {
-        return "clientAddress=" + requestBaseMessage.getClientAddressString() +
-                ", clientPort=" + getClientPort() +
-                ", requestId=" + getRequestId();
-    }
+  @Override
+  public void close() throws Exception {
+    dataContext.close();
+  }
+
+  @Override
+  public String toString() {
+    return "clientAddress=" + requestBaseMessage.getClientAddressString() + ", clientPort="
+        + getClientPort() + ", requestId=" + getRequestId();
+  }
 }

@@ -4,17 +4,13 @@
     <parent>
         <groupId>com.8kdata.mongowp.bson</groupId>
         <artifactId>bson-pom</artifactId>
-        <version>0.41-SNAPSHOT</version>
+        <version>0.50.0-SNAPSHOT</version>
     </parent>
     <artifactId>bson-core</artifactId>
     <packaging>jar</packaging>
     
     <name>MongoWP: Bson</name>
     <dependencies>
-        <dependency>
-            <groupId>org.threeten</groupId>
-            <artifactId>threetenbp</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
@@ -24,8 +20,8 @@
             <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
         </dependency>
     </dependencies>
 </project>

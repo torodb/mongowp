@@ -1,57 +1,51 @@
 /*
- * This file is part of MongoWP.
+ * MongoWP
+ * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
- * MongoWP is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * MongoWP is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with bson. If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright (C) 2016 8Kdata.
- * 
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.eightkdata.mongowp.bson;
 
 import com.eightkdata.mongowp.bson.utils.IntBaseHasher;
-import com.eightkdata.mongowp.bson.utils.NonIOByteSource;
+import com.eightkdata.mongowp.bson.utils.NonIoByteSource;
 import com.google.common.io.ByteSource;
 
-/**
- *
- */
-public interface BsonBinary extends BsonValue<BsonBinary>{
+public interface BsonBinary extends BsonValue<BsonBinary> {
 
-    byte getNumericSubType();
+  byte getNumericSubType();
 
-    BinarySubtype getSubtype();
+  BinarySubtype getSubtype();
 
-    int size();
+  int size();
 
-    NonIOByteSource getByteSource();
+  NonIoByteSource getByteSource();
 
-    /**
-     * @return {@link IntBaseHasher#hash(int) IntBaseHasher.hash(this.size())}
-     */
-    @Override
-    public int hashCode();
+  /**
+   * @return {@link IntBaseHasher#hash(int) IntBaseHasher.hash(this.size())}
+   */
+  @Override
+  public int hashCode();
 
-    /**
-     * Two BsonBinary values are equal if their subtypes are the same and
-     * their contain the same bytes.
-     *
-     * An easy way to implement that is to check the sub types and delegate on
-     * {@link ByteSource#contentEquals(com.google.common.io.ByteSource) }
-     * @param obj
-     * @return 
-     */
-    @Override
-    public boolean equals(Object obj);
+  /**
+   * Two BsonBinary values are equal if their subtypes are the same and their contain the same
+   * bytes.
+   *
+   * <p>
+   * An easy way to implement that is to check the sub types and delegate on
+   * {@link ByteSource#contentEquals(com.google.common.io.ByteSource) }
+   */
+  @Override
+  public boolean equals(Object obj);
 }
