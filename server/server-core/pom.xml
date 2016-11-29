@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.8kdata.mongowp.server</groupId>
         <artifactId>mongo-server-pom</artifactId>
-        <version>0.40</version>
+        <version>0.50.0</version>
     </parent>
 
     <artifactId>mongo-server-core</artifactId>
@@ -34,20 +34,12 @@
             <artifactId>javax.inject</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.threeten</groupId>
-            <artifactId>threetenbp</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>

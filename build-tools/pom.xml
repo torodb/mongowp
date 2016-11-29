@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.8kdata.mongowp</groupId>
+    <artifactId>build-tools</artifactId>
+    <version>0.50.0</version>
+    <packaging>jar</packaging>
+    
+    <name>MongoWP: Build Tools</name>
+    <description>A project used to store resources and tools that the build
+        process can import as a dependency</description>
+    <url>https://www.8kdata.com</url>
+    <inceptionYear>2014</inceptionYear>
+    
+    <properties>
+        <checkstyle.skipExec>true</checkstyle.skipExec>
+        <license.skip>true</license.skip>
+    </properties>
+    
+    <organization>
+        <name>8Kdata Technology</name>
+        <url>www.8kdata.com</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>GNU AFFERO PUBLIC LICENSE, Version 3, 19 November 2007</name>
+            <url>http://www.gnu.org/licenses/agpl-3.0-standalone.html</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>Commercial License</name>
+            <distribution>manual</distribution>
+            <comments>
+                Commercial licensing for use is available upon request.
+                Please contact sales at 8kdata dot com
+            </comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>mongowp.8kdata.com</id>
+            <name>MongoWP Project Contributors</name>
+            <email>mongowp@8kdata.com</email>
+            <url>https://github.com/8kdata/mongowp</url>
+            <organization>The MongoWP Project</organization>
+            <organizationUrl>https://8kdata.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git@github.com:8kdata/mongowp.git</connection>
+        <developerConnection>scm:git:git@github.com:8kdata/mongowp.git</developerConnection>
+        <url>git@github.com:8kdata/mongowp.git</url>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/8kdata/mongowp/issues</url>
+    </issueManagement>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh-snapshot</id>
+            <name>OSSRH Snapshot repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh-release</id>
+            <name>OSSRH Release repository</name>  
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+    </distributionManagement>
+
+</project>

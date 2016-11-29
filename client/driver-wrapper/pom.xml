@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.8kdata.mongowp.client</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>0.40</version>
+        <version>0.50.0</version>
     </parent>
 
     <artifactId>driver-wrapper</artifactId>
@@ -35,6 +35,18 @@
             <groupId>com.8kdata.mongowp.bson</groupId>
             <artifactId>org-bson-utils</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
         </dependency>
     </dependencies>
 

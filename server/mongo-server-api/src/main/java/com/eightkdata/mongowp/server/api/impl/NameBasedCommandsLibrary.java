@@ -1,80 +1,103 @@
 /*
- *     This file is part of mongowp.
+ * MongoWP
+ * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
- *     mongowp is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU Affero General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *     mongowp is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU Affero General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
  *
- *     You should have received a copy of the GNU Affero General Public License
- *     along with mongowp. If not, see <http://www.gnu.org/licenses/>.
- *
- *     Copyright (c) 2014, 8Kdata Technology
- *     
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.eightkdata.mongowp.server.api.impl;
 
 import com.eightkdata.mongowp.bson.BsonDocument;
-import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.server.api.Command;
 import com.eightkdata.mongowp.server.api.CommandsLibrary;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class NameBasedCommandsLibrary implements CommandsLibrary {
 
-    private static final Logger LOGGER
-            = LoggerFactory.getLogger(NameBasedCommandsLibrary.class);
-    private final String version;
-    private final ImmutableMap<String, Command> commandsMap;
+  private final String version;
+  private final ImmutableMap<String, Command<?, ?>> commandsMap;
 
-    public NameBasedCommandsLibrary(String version, Iterable<Command> commands) {
-        this.version = version;
-        
-        ImmutableMap.Builder<String, Command> commandsMapBuilder = ImmutableMap.builder();
-        
-        for (Command command : commands) {
-            commandsMapBuilder.put(command.getCommandName().toLowerCase(Locale.ENGLISH), command);
-        }
-        
-        this.commandsMap = commandsMapBuilder.build();
+  public NameBasedCommandsLibrary(String version,
+      ImmutableMap<String, Command<?, ?>> commandsMap) {
+    this.version = version;
+    this.commandsMap = commandsMap;
+  }
+
+  @Override
+  public String getSupportedVersion() {
+    return version;
+  }
+
+  @Override
+  public Set<Command> getSupportedCommands() {
+    HashSet<Command> supportedCommands = Sets.newHashSet(commandsMap.values());
+
+    return supportedCommands;
+  }
+
+  @Override
+  public LibraryEntry find(BsonDocument requestDocument) {
+    if (requestDocument.isEmpty()) {
+      return null;
+    }
+    String commandAlias = requestDocument.getFirstEntry().getKey();
+    String key = commandAlias.toLowerCase(Locale.ENGLISH);
+    Command<?, ?> command = commandsMap.get(key);
+    if (command == null) {
+      return null;
     }
 
-    @Override
-    public String getSupportedVersion() {
-        return version;
+    return new PojoLibraryEntry(commandAlias, command);
+  }
+
+  public static class Builder {
+
+    private String version;
+    private final ImmutableMap.Builder<String, Command<?, ?>> commandsMapBuilder;
+
+    public Builder(String version) {
+      commandsMapBuilder = new ImmutableMap.Builder<>();
+      this.version = version;
     }
 
-    @Override
-    public Set<Command> getSupportedCommands() {
-        HashSet<Command> supportedCommands = Sets.newHashSet(commandsMap.values());
-        assert supportedCommands.size() == commandsMap.size();
-        
-        return supportedCommands;
+    public Builder addCommand(Command<?, ?> command) {
+      return addAsAlias(command, command.getCommandName());
     }
 
-    @Override
-    public Command find(BsonDocument requestDocument) {
-        if (requestDocument.isEmpty()) {
-            return null;
-        }
-        String commandName = requestDocument.getFirstEntry().getKey().toLowerCase(Locale.ENGLISH);
-        Command result = commandsMap.get(commandName);
-        
-        return result;
+    public Builder addAsAlias(Command<?, ?> command, String alias) {
+      commandsMapBuilder.put(alias.toLowerCase(Locale.ENGLISH), command);
+      return this;
     }
-    
+
+    public Builder addCommands(Iterable<Command<?, ?>> commands) {
+      for (Command<?, ?> command : commands) {
+        addCommand(command);
+      }
+      return this;
+    }
+
+    public NameBasedCommandsLibrary build() {
+      return new NameBasedCommandsLibrary(version, commandsMapBuilder.build());
+    }
+  }
+
 }

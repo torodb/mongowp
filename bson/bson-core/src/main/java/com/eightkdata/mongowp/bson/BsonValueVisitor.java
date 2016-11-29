@@ -1,72 +1,68 @@
 /*
- * This file is part of MongoWP.
+ * MongoWP
+ * Copyright © 2014 8Kdata Technology (www.8kdata.com)
  *
- * MongoWP is free software: you can redistribute it and/or modify
+ * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * MongoWP is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with bson. If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright (C) 2016 8Kdata.
- * 
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 package com.eightkdata.mongowp.bson;
 
-import com.eightkdata.mongowp.bson.abst.AbstractBsonTimestamp;
-
 /**
+ * A visitor that visits {@link BsonValue bson values}.
  *
- * @param <Result> The type returned by this visitor
- * @param <Arg>    The argument used by this visitor (or {@link Void} if no
- *                 argument is needed
+ * @param <R> The type returned by this visitor
+ * @param <A> The argument used by this visitor (or {@link Void} if no argument is needed
  */
-public interface BsonValueVisitor<Result, Arg> {
+public interface BsonValueVisitor<R, A> {
 
-    Result visit(BsonArray value, Arg arg);
+  R visit(BsonArray value, A arg);
 
-    Result visit(BsonBinary value, Arg arg);
+  R visit(BsonBinary value, A arg);
 
-    Result visit(BsonDbPointer value, Arg arg);
+  R visit(BsonDbPointer value, A arg);
 
-    Result visit(BsonDateTime value, Arg arg);
+  R visit(BsonDateTime value, A arg);
 
-    Result visit(BsonDocument value, Arg arg);
+  R visit(BsonDocument value, A arg);
 
-    Result visit(BsonDouble value, Arg arg);
+  R visit(BsonDouble value, A arg);
 
-    Result visit(BsonInt32 value, Arg arg);
+  R visit(BsonInt32 value, A arg);
 
-    Result visit(BsonInt64 value, Arg arg);
+  R visit(BsonInt64 value, A arg);
 
-    Result visit(BsonBoolean value, Arg arg);
+  R visit(BsonBoolean value, A arg);
 
-    Result visit(BsonJavaScript value, Arg arg);
+  R visit(BsonJavaScript value, A arg);
 
-    Result visit(BsonJavaScriptWithScope value, Arg arg);
+  R visit(BsonJavaScriptWithScope value, A arg);
 
-    Result visit(BsonMax value, Arg arg);
+  R visit(BsonMax value, A arg);
 
-    Result visit(BsonMin value, Arg arg);
+  R visit(BsonMin value, A arg);
 
-    Result visit(BsonNull value, Arg arg);
+  R visit(BsonNull value, A arg);
 
-    Result visit(BsonObjectId value, Arg arg);
+  R visit(BsonObjectId value, A arg);
 
-    Result visit(BsonRegex value, Arg arg);
+  R visit(BsonRegex value, A arg);
 
-    Result visit(BsonString value, Arg arg);
+  R visit(BsonString value, A arg);
 
-    Result visit(BsonUndefined value, Arg arg);
+  R visit(BsonUndefined value, A arg);
 
-    Result visit(BsonTimestamp value, Arg arg);
+  R visit(BsonTimestamp value, A arg);
 
-    Result visit(BsonDeprecated value, Arg arg);
+  R visit(BsonDeprecated value, A arg);
 }
