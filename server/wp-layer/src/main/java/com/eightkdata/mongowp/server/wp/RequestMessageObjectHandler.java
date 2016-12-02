@@ -66,8 +66,8 @@ public class RequestMessageObjectHandler extends ChannelInboundHandlerAdapter {
   public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
     try (RequestMessage requestMessage = (RequestMessage) msg) {
       ctx.attr(NettyMessageReplier.REQUEST_ID).set(requestMessage.getBaseMessage().getRequestId());
-      LOGGER
-          .debug("Received message type: {}, data: {}", requestMessage.getOpCode(), requestMessage);
+      LOGGER.debug("Received message type: {}, data: {}", 
+          requestMessage.getOpCode(), requestMessage);
 
       MessageReplier messageReplier = new NettyMessageReplier(ctx);
       ctx.attr(REQUEST_OP_CODE).set(requestMessage.getOpCode());
