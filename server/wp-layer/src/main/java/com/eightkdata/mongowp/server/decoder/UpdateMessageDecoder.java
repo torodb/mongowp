@@ -34,13 +34,13 @@ import com.eightkdata.mongowp.server.util.EnumInt32FlagsUtil;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnegative;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  *
  */
-@Singleton
+@ThreadSafe
 public class UpdateMessageDecoder extends AbstractMessageDecoder<UpdateMessage> {
 
   private final NettyStringReader stringReader;

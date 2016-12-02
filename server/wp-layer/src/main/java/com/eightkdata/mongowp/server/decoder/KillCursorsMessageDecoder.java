@@ -23,12 +23,12 @@ import com.eightkdata.mongowp.messages.request.KillCursorsMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import io.netty.buffer.ByteBuf;
 
-import javax.inject.Singleton;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  *
  */
-@Singleton
+@ThreadSafe
 public class KillCursorsMessageDecoder implements MessageDecoder<KillCursorsMessage> {
 
   @Override

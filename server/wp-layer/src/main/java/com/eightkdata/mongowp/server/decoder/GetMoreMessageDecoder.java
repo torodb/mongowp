@@ -26,13 +26,13 @@ import com.eightkdata.mongowp.messages.request.GetMoreMessage;
 import com.eightkdata.mongowp.messages.request.RequestBaseMessage;
 import io.netty.buffer.ByteBuf;
 
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  *
  */
-@Singleton
+@ThreadSafe
 public class GetMoreMessageDecoder extends AbstractMessageDecoder<GetMoreMessage> {
 
   private final NettyStringReader stringReader;
