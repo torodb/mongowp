@@ -32,8 +32,8 @@ import io.netty.buffer.ByteBuf;
 import java.util.EnumSet;
 
 import javax.annotation.Nonnegative;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  *
@@ -41,7 +41,7 @@ import javax.inject.Singleton;
 @SuppressFBWarnings(
     value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
     justification = "It seems FindBugs considers ByteBuf methods are not side effect")
-@Singleton
+@ThreadSafe
 public class ReplyMessageEncoder {
 
   private final NettyBsonDocumentWriter writer;

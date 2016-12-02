@@ -32,13 +32,13 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 
 import javax.annotation.Nonnegative;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  *
  */
-@Singleton
+@ThreadSafe
 public class InsertMessageDecoder extends AbstractMessageDecoder<InsertMessage> {
 
   private final NettyStringReader stringReader;

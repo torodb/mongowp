@@ -26,13 +26,13 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  *
  */
-@Singleton
+@ThreadSafe
 public class MessageDecoderLocator {
 
   private final EnumMap<RequestOpCode, MessageDecoder<?>> decoderMap;

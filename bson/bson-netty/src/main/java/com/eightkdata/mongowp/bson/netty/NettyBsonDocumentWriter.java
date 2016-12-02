@@ -50,12 +50,12 @@ import io.netty.buffer.ByteBufOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.inject.Singleton;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  *
  */
-@Singleton
+@ThreadSafe
 public class NettyBsonDocumentWriter {
 
   private static final WriterBsonValueVisitor VISITOR = new WriterBsonValueVisitor();

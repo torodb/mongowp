@@ -39,8 +39,8 @@ public abstract class AbstractIterableBasedBsonArray extends AbstractBsonArray {
   public int size() {
     if (cachedSize == -1) {
       cachedSize = Iterables.size(this);
-      assert cachedSize != -1;
     }
+    assert cachedSize >= 0;
     return cachedSize;
   }
 
