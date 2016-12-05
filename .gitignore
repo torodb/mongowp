@@ -6,4 +6,5 @@ nb-configuration.xml
 .settings/
 .project
 .classpath
+.checkstyle
 nbproject/
