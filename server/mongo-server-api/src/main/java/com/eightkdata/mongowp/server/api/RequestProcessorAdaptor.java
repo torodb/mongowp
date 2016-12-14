@@ -163,7 +163,12 @@ public class RequestProcessorAdaptor<C extends Connection> implements RequestPro
     BsonDocument document = queryMessage.getQuery();
     LibraryEntry libraryEntry = safeRequestProcessor.getCommandsLibrary()
         .find(document);
-    Command command = libraryEntry.getCommand();
+    Command command;
+    if (libraryEntry == null) {
+      command = null;
+    } else {
+      command = libraryEntry.getCommand();
+    }
     if (command == null) {
       if (document.isEmpty()) {
         throw new CommandNotFoundException("Empty document query");

@@ -63,13 +63,13 @@ import java.util.Locale;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  *
  */
-@Singleton
+@ThreadSafe
 public class QueryMessageDecoder extends AbstractMessageDecoder<QueryMessage> {
 
   private static final Logger LOGGER = LogManager.getLogger(QueryMessageDecoder.class);

@@ -51,9 +51,10 @@ public abstract class AbstractIterableBasedBsonDocument extends AbstractBsonDocu
 
   @Override
   public int size() {
-    if (cachedSize < -1) {
+    if (cachedSize == -1) {
       cachedSize = Iterables.size(this);
     }
+    assert cachedSize >= 0;
     return cachedSize;
   }
 
