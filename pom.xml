@@ -76,6 +76,13 @@
         <netty.version>4.0.33.Final</netty.version>
         <license.header.file>com/eightkdata/mongowp/buildtools/mongowp-license.txt</license.header.file>
         <checkstyle.config.location>com/eightkdata/mongowp/buildtools/checkstyle.xml</checkstyle.config.location>
+        
+        <!-- SonarQube properties -->
+        <sonar.projectName>MongoWP</sonar.projectName>
+        <sonar.links.homepage>https://github.com/8kdata/mongowp</sonar.links.homepage>
+        <sonar.links.ci>https://travis-ci.org/8kdata/mongowp</sonar.links.ci>
+        <sonar.links.scm>https://github.com/8kdata/mongowp</sonar.links.scm>
+        <sonar.links.issue>https://github.com/8kdata/mongowp/issues</sonar.links.issue>
     </properties>
 
     <dependencyManagement>
