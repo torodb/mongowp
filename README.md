@@ -1,7 +1,7 @@
 Mongo Wire Protocol project
 ===========================
 
-[![Build status](https://travis-ci.org/SonarSource/sq-com_example_java-maven-travis.svg?branch=master)](https://travis-ci.org/SonarSource/sq-com_example_java-maven-travis) [![Quality Gate](https://sonarqube.com/api/badges/gate?key=com.8kdata.mongowp:mongowp-parent)](https://sonarqube.com/dashboard/index/com.8kdata.mongowp:mongowp-parent)
+[![Master branch build status](https://travis-ci.org/8kdata/mongowp.svg?branch=master)](https://travis-ci.org/8kdata/mongowp) [![Quality Gate](https://sonarqube.com/api/badges/gate?key=com.8kdata.mongowp:mongowp-parent)](https://sonarqube.com/dashboard/index/com.8kdata.mongowp:mongowp-parent)
 
 MongoWP is a Java layer that enables the development of 
 [MongoDB wire protocol][1] applications (client or server side).
