@@ -42,4 +42,4 @@ deploy:
   on:
     repo: 8kdata/mongowp
     branch: devel
-jdk: oraclejdk8
+    jdk: oraclejdk8
