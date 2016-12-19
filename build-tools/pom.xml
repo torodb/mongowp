@@ -13,6 +13,7 @@
     <inceptionYear>2014</inceptionYear>
     
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <checkstyle.skipExec>true</checkstyle.skipExec>
         <license.skip>true</license.skip>
     </properties>
