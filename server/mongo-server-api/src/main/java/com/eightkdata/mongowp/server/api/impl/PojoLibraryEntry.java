@@ -19,7 +19,7 @@
 package com.eightkdata.mongowp.server.api.impl;
 
 import com.eightkdata.mongowp.server.api.Command;
-import com.eightkdata.mongowp.server.api.CommandsLibrary.LibraryEntry;
+import com.eightkdata.mongowp.server.api.CommandLibrary.LibraryEntry;
 
 /**
  *

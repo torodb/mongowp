@@ -28,14 +28,11 @@ import com.eightkdata.mongowp.messages.request.UpdateMessage;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
 import com.eightkdata.mongowp.server.api.pojos.QueryRequest;
 
-/**
- *
- */
-public interface SafeRequestProcessor<C extends Connection> extends CommandsExecutor<C> {
+public interface SafeRequestProcessor<C extends Connection> extends CommandExecutor<C> {
 
   public C openConnection();
 
-  public CommandsLibrary getCommandsLibrary();
+  public CommandLibrary getCommandsLibrary();
 
   @Override
   public <A, R> Status<R> execute(Request request,

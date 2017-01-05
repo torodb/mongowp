@@ -18,40 +18,17 @@
 
 package com.eightkdata.mongowp.server.api;
 
-import com.eightkdata.mongowp.bson.BsonDocument;
+import com.eightkdata.mongowp.Status;
 
-import java.util.Set;
+import javax.annotation.Nonnull;
 
-import javax.annotation.Nullable;
+public interface CommandExecutor<ContextT> {
 
-/**
- *
- */
-public interface CommandsLibrary {
+  @Nonnull
+  public <A, R> Status<R> execute(
+      @Nonnull Request request,
+      @Nonnull Command<? super A, ? super R> command,
+      @Nonnull A arg,
+      @Nonnull ContextT context);
 
-  /**
-   * A brief description of the version supported by this library.
-   *
-   * Examples: MongoDB 3.0
-   *
-   * @return
-   */
-  public String getSupportedVersion();
-
-  /**
-   *
-   * @return a set with the supported commands or null if the supported commands are not known
-   */
-  @Nullable
-  public Set<Command> getSupportedCommands();
-
-  @Nullable
-  public LibraryEntry find(BsonDocument requestDocument);
-
-  public static interface LibraryEntry {
-
-    Command getCommand();
-
-    String getAlias();
-  }
 }
