@@ -45,6 +45,10 @@ public class MongoClientConfiguration {
     this.authenticationConfigurations = authenticationConfiguration;
   }
 
+  public static MongoClientConfiguration unsecure(HostAndPort hostAndPort) {
+    return new MongoClientConfiguration(hostAndPort, null, false, false, ImmutableList.of());
+  }
+
   public HostAndPort getHostAndPort() {
     return hostAndPort;
   }
@@ -87,7 +91,7 @@ public class MongoClientConfiguration {
     private boolean sslEnabled;
     private boolean sslAllowInvalidHostnames;
     private List<MongoAuthenticationConfiguration> authenticationConfigurations =
-        new ArrayList<MongoAuthenticationConfiguration>();
+        new ArrayList<>();
 
     public Builder(HostAndPort hostAndPort) {
       this.hostAndPort = hostAndPort;
@@ -134,6 +138,7 @@ public class MongoClientConfiguration {
       return this;
     }
 
+    @SuppressWarnings("checkstyle:JavadocMethod")
     public MongoClientConfiguration build() {
       return new MongoClientConfiguration(hostAndPort, socketFactory,
           sslEnabled, sslAllowInvalidHostnames,
