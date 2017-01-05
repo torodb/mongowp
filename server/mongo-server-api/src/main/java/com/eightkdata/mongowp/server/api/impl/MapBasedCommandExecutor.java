@@ -21,9 +21,9 @@ package com.eightkdata.mongowp.server.api.impl;
 import com.eightkdata.mongowp.Status;
 import com.eightkdata.mongowp.exceptions.CommandNotSupportedException;
 import com.eightkdata.mongowp.server.api.Command;
+import com.eightkdata.mongowp.server.api.CommandExecutor;
 import com.eightkdata.mongowp.server.api.CommandImplementation;
-import com.eightkdata.mongowp.server.api.CommandsExecutor;
-import com.eightkdata.mongowp.server.api.CommandsLibrary;
+import com.eightkdata.mongowp.server.api.CommandLibrary;
 import com.eightkdata.mongowp.server.api.Request;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -38,13 +38,10 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- *
- */
 @SuppressWarnings("unchecked")
-public class MapBasedCommandsExecutor<ContextT> implements CommandsExecutor<ContextT> {
+public class MapBasedCommandExecutor<ContextT> implements CommandExecutor<ContextT> {
 
-  private static final Logger LOGGER = LogManager.getLogger(MapBasedCommandsExecutor.class);
+  private static final Logger LOGGER = LogManager.getLogger(MapBasedCommandExecutor.class);
 
   /**
    * A map that associates each command with its implementation.
@@ -54,14 +51,16 @@ public class MapBasedCommandsExecutor<ContextT> implements CommandsExecutor<Cont
    */
   private final Map<Command<?, ?>, CommandImplementation<?, ?, ? super ContextT>> implementations;
 
-  private MapBasedCommandsExecutor(
+  private MapBasedCommandExecutor(
       ImmutableMap<Command<?, ?>, CommandImplementation<?, ?, ? super ContextT>> implementations) {
     this.implementations = implementations;
   }
 
-  public static <ContextT> CommandsExecutor<ContextT> fromMap(
-      ImmutableMap<Command<?, ?>, CommandImplementation<?, ?, ? super ContextT>> map) {
-    return new MapBasedCommandsExecutor<>(map);
+  public static <ContextT> CommandExecutor<ContextT> fromMap(
+      Map<Command<?, ?>, CommandImplementation<?, ?, ? super ContextT>> map) {
+    ImmutableMap<Command<?, ?>, CommandImplementation<?, ?, ? super ContextT>> copyMap =
+        ImmutableMap.<Command<?, ?>, CommandImplementation<?, ?, ? super ContextT>>copyOf(map);
+    return new MapBasedCommandExecutor<>(copyMap);
   }
 
   @Override
@@ -75,7 +74,7 @@ public class MapBasedCommandsExecutor<ContextT> implements CommandsExecutor<Cont
     return implementation.apply(request, command, arg, context);
   }
 
-  public static <ContextT> Builder<ContextT> fromLibraryBuilder(CommandsLibrary library) {
+  public static <ContextT> Builder<ContextT> fromLibraryBuilder(CommandLibrary library) {
     return new FromLibraryBuilder<>(library);
   }
 
@@ -92,7 +91,7 @@ public class MapBasedCommandsExecutor<ContextT> implements CommandsExecutor<Cont
     public <RequestT, ResultT> Builder<ContextT> addImplementations(
         Iterable<Map.Entry<Command<?, ?>, CommandImplementation<?, ?, ? super ContextT>>> entries);
 
-    public MapBasedCommandsExecutor<ContextT> build();
+    public MapBasedCommandExecutor<ContextT> build();
   }
 
   private static class UnsafeBuilder<ContextT> implements Builder<ContextT> {
@@ -132,8 +131,8 @@ public class MapBasedCommandsExecutor<ContextT> implements CommandsExecutor<Cont
     }
 
     @Override
-    public MapBasedCommandsExecutor<ContextT> build() {
-      return new MapBasedCommandsExecutor(
+    public MapBasedCommandExecutor<ContextT> build() {
+      return new MapBasedCommandExecutor(
           ImmutableMap.copyOf(implementations)
       );
     }
@@ -144,8 +143,8 @@ public class MapBasedCommandsExecutor<ContextT> implements CommandsExecutor<Cont
     @Nullable
     private final Set<Command> notImplementedCommands;
 
-    public FromLibraryBuilder(CommandsLibrary library) {
-      this.notImplementedCommands = library.getSupportedCommands();
+    public FromLibraryBuilder(CommandLibrary library) {
+      this.notImplementedCommands = library.getSupportedCommands().orElse(null);
       if (this.notImplementedCommands == null) {
         LOGGER.debug("An unsafe commands library has been used to "
             + "create an executor. It is impossible to check at "
@@ -181,7 +180,7 @@ public class MapBasedCommandsExecutor<ContextT> implements CommandsExecutor<Cont
     }
 
     @Override
-    public MapBasedCommandsExecutor<ContextT> build() {
+    public MapBasedCommandExecutor<ContextT> build() {
       if (notImplementedCommands != null) {
         Preconditions.checkState(
             notImplementedCommands.isEmpty(),
