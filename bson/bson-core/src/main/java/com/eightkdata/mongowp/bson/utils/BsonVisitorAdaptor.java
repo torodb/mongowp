@@ -23,6 +23,7 @@ import com.eightkdata.mongowp.bson.BsonBinary;
 import com.eightkdata.mongowp.bson.BsonBoolean;
 import com.eightkdata.mongowp.bson.BsonDateTime;
 import com.eightkdata.mongowp.bson.BsonDbPointer;
+import com.eightkdata.mongowp.bson.BsonDecimal128;
 import com.eightkdata.mongowp.bson.BsonDeprecated;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDouble;
@@ -150,6 +151,11 @@ public class BsonVisitorAdaptor<R, A> implements BsonValueVisitor<R, A> {
 
   @Override
   public R visit(BsonDeprecated value, A arg) {
+    return defaultCase(value, arg);
+  }
+
+  @Override
+  public R visit(BsonDecimal128 value, A arg) {
     return defaultCase(value, arg);
   }
 

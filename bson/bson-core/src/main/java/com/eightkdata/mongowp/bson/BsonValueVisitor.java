@@ -65,4 +65,6 @@ public interface BsonValueVisitor<R, A> {
   R visit(BsonTimestamp value, A arg);
 
   R visit(BsonDeprecated value, A arg);
+
+  R visit(BsonDecimal128 value, A arg);
 }

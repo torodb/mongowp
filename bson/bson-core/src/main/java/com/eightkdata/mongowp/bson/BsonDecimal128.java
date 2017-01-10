@@ -18,27 +18,28 @@
 
 package com.eightkdata.mongowp.bson;
 
-/**
- *
- */
-public interface BsonNumber<V extends Number> extends BsonValue<V> {
+import java.math.BigDecimal;
 
-  @Override
-  BsonDouble asDouble();
+public interface BsonDecimal128 extends BsonNumber<BigDecimal> {
 
-  @Override
-  BsonInt32 asInt32();
+  long getHigh();
 
-  @Override
-  BsonInt64 asInt64();
+  long getLow();
+
+  byte[] getBytes();
   
+  /**
+   * Equals should compare the two longs 
+   * @param obj the object to compare for equality
+   * @return true if the instances are equal
+   */
   @Override
-  BsonDecimal128 asDecimal128();
+  public boolean equals(Object obj);
 
-  int intValue();
-
-  long longValue();
-
-  double doubleValue();
+  /**
+   * 
+   */
+  @Override
+  public int hashCode();
 
 }

@@ -23,6 +23,7 @@ import static com.eightkdata.mongowp.bson.BsonType.BINARY;
 import static com.eightkdata.mongowp.bson.BsonType.BOOLEAN;
 import static com.eightkdata.mongowp.bson.BsonType.DATETIME;
 import static com.eightkdata.mongowp.bson.BsonType.DB_POINTER;
+import static com.eightkdata.mongowp.bson.BsonType.DECIMAL128;
 import static com.eightkdata.mongowp.bson.BsonType.DEPRECATED;
 import static com.eightkdata.mongowp.bson.BsonType.DOCUMENT;
 import static com.eightkdata.mongowp.bson.BsonType.DOUBLE;
@@ -43,6 +44,7 @@ import com.eightkdata.mongowp.bson.BinarySubtype;
 import com.eightkdata.mongowp.bson.BsonRegex.Options;
 import com.eightkdata.mongowp.bson.BsonType;
 import com.google.common.primitives.UnsignedBytes;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -106,6 +108,8 @@ class ParsingTools {
         return TIMESTAMP;
       case 0x12:
         return INT64;
+      case 0x13:
+        return DECIMAL128;
       case UnsignedBytes.MAX_VALUE:
         return MIN;
       case 0x7F:
@@ -154,6 +158,8 @@ class ParsingTools {
         return 0x11;
       case INT64:
         return 0x12;
+      case DECIMAL128:
+        return 0x13;
       case MIN:
         return UnsignedBytes.MAX_VALUE;
       case MAX:

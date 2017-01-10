@@ -77,6 +77,8 @@ public interface BsonValue<V> extends Serializable, Comparable<BsonValue<?>> {
   boolean isInt32();
 
   boolean isInt64();
+  
+  boolean isDecimal128();
 
   boolean isString();
 
@@ -143,6 +145,8 @@ public interface BsonValue<V> extends Serializable, Comparable<BsonValue<?>> {
   BsonTimestamp asTimestamp() throws UnsupportedOperationException;
 
   BsonInt64 asInt64() throws UnsupportedOperationException;
+  
+  BsonDecimal128 asDecimal128() throws UnsupportedOperationException;
 
   BsonDeprecated asDeprecated() throws UnsupportedOperationException;
 
