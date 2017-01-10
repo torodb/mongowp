@@ -73,6 +73,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <mongowp.buildtools.version>0.50.0</mongowp.buildtools.version>
         <netty.version>4.0.42.Final</netty.version>
         <mongodriver.version>3.4.1</mongodriver.version>
         <license.header.file>com/eightkdata/mongowp/buildtools/mongowp-license.txt</license.header.file>
@@ -88,12 +89,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>com.8kdata.netty-bson</groupId>
-                <artifactId>netty-bson-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-common</artifactId>
@@ -295,7 +290,7 @@
                     <dependency>
                         <groupId>com.8kdata.mongowp</groupId>
                         <artifactId>build-tools</artifactId>
-                        <version>0.50.1-SNAPSHOT</version>
+                        <version>${mongowp.buildtools.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -327,7 +322,7 @@
                     <dependency>
                         <groupId>com.8kdata.mongowp</groupId>
                         <artifactId>build-tools</artifactId>
-                        <version>0.50.1-SNAPSHOT</version>
+                        <version>${mongowp.buildtools.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>

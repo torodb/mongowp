@@ -38,7 +38,7 @@ import com.eightkdata.mongowp.messages.request.QueryMessage.QueryOptions;
 import com.eightkdata.mongowp.messages.request.RequestOpCode;
 import com.eightkdata.mongowp.messages.request.UpdateMessage;
 import com.eightkdata.mongowp.messages.response.ReplyMessage;
-import com.eightkdata.mongowp.server.api.CommandsLibrary.LibraryEntry;
+import com.eightkdata.mongowp.server.api.CommandLibrary.LibraryEntry;
 import com.eightkdata.mongowp.server.api.Request.ExternalClientInfo;
 import com.eightkdata.mongowp.server.api.pojos.QueryRequest;
 import com.eightkdata.mongowp.server.callback.MessageReplier;
@@ -161,8 +161,7 @@ public class RequestProcessorAdaptor<C extends Connection> implements RequestPro
       QueryMessage queryMessage,
       MessageReplier messageReplier) throws MongoException {
     BsonDocument document = queryMessage.getQuery();
-    LibraryEntry libraryEntry = safeRequestProcessor.getCommandsLibrary()
-        .find(document);
+    LibraryEntry libraryEntry = safeRequestProcessor.getCommandsLibrary().find(document);
     Command command;
     if (libraryEntry == null) {
       command = null;

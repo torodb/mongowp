@@ -20,23 +20,21 @@ package com.eightkdata.mongowp.server.api.impl;
 
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.server.api.Command;
-import com.eightkdata.mongowp.server.api.CommandsLibrary;
+import com.eightkdata.mongowp.server.api.CommandLibrary;
+import com.eightkdata.mongowp.server.api.CommandLibrary.LibraryEntry;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
-/**
- *
- */
-public class GroupedCommandsLibrary implements CommandsLibrary {
+public class GroupedCommandLibrary implements CommandLibrary {
 
   private final String supportedVersion;
-  private final ImmutableList<CommandsLibrary> subLibraries;
+  private final ImmutableList<CommandLibrary> subLibraries;
 
-  public GroupedCommandsLibrary(String supportedVersion,
-      ImmutableList<CommandsLibrary> subLibraries) {
+  public GroupedCommandLibrary(String supportedVersion,
+      ImmutableList<CommandLibrary> subLibraries) {
     this.supportedVersion = supportedVersion;
     this.subLibraries = subLibraries;
   }
@@ -47,29 +45,28 @@ public class GroupedCommandsLibrary implements CommandsLibrary {
   }
 
   @Override
-  public Set<Command> getSupportedCommands() {
-    HashSet<Command> supportedCommands = Sets.newHashSet();
-
-    for (CommandsLibrary subLibrary : subLibraries) {
-      Set<Command> subSupportedCommands = subLibrary.getSupportedCommands();
-      if (subSupportedCommands == null) {
-        return null;
-      }
-      supportedCommands.addAll(subSupportedCommands);
-    }
-
-    return supportedCommands;
-  }
-
-  @Override
   public LibraryEntry find(BsonDocument requestDocument) {
-    for (CommandsLibrary subLibrary : subLibraries) {
+    for (CommandLibrary subLibrary : subLibraries) {
       LibraryEntry found = subLibrary.find(requestDocument);
       if (found != null) {
         return found;
       }
     }
     return null;
+  }
+
+  @Override
+  public Optional<Map<String, Command>> asMap() {
+    HashMap<String, Command> map = new HashMap<>();
+
+    for (CommandLibrary subLibrary : subLibraries) {
+      Map<String, Command> subEntries = subLibrary.asMap().orElse(null);
+      if (subEntries == null) {
+        return Optional.empty();
+      }
+      map.putAll(subEntries);
+    }
+    return Optional.of(map);
   }
 
 }

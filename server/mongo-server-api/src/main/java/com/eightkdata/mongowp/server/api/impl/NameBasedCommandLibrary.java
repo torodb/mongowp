@@ -20,26 +20,24 @@ package com.eightkdata.mongowp.server.api.impl;
 
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.server.api.Command;
-import com.eightkdata.mongowp.server.api.CommandsLibrary;
+import com.eightkdata.mongowp.server.api.CommandLibrary;
+import com.eightkdata.mongowp.server.api.CommandLibrary.LibraryEntry;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Locale;
-import java.util.Set;
+import java.util.Map;
+import java.util.Optional;
 
-/**
- *
- */
-public class NameBasedCommandsLibrary implements CommandsLibrary {
+public class NameBasedCommandLibrary implements CommandLibrary {
 
   private final String version;
-  private final ImmutableMap<String, Command<?, ?>> commandsMap;
+  private final ImmutableMap<String, Command<?, ?>> commandMap;
 
-  public NameBasedCommandsLibrary(String version,
+  public NameBasedCommandLibrary(String version,
       ImmutableMap<String, Command<?, ?>> commandsMap) {
     this.version = version;
-    this.commandsMap = commandsMap;
+    this.commandMap = commandsMap;
   }
 
   @Override
@@ -48,10 +46,8 @@ public class NameBasedCommandsLibrary implements CommandsLibrary {
   }
 
   @Override
-  public Set<Command> getSupportedCommands() {
-    HashSet<Command> supportedCommands = Sets.newHashSet(commandsMap.values());
-
-    return supportedCommands;
+  public Optional<Map<String, Command>> asMap() {
+    return Optional.of(Collections.unmodifiableMap(commandMap));
   }
 
   @Override
@@ -61,7 +57,7 @@ public class NameBasedCommandsLibrary implements CommandsLibrary {
     }
     String commandAlias = requestDocument.getFirstEntry().getKey();
     String key = commandAlias.toLowerCase(Locale.ENGLISH);
-    Command<?, ?> command = commandsMap.get(key);
+    Command<?, ?> command = commandMap.get(key);
     if (command == null) {
       return null;
     }
@@ -95,8 +91,8 @@ public class NameBasedCommandsLibrary implements CommandsLibrary {
       return this;
     }
 
-    public NameBasedCommandsLibrary build() {
-      return new NameBasedCommandsLibrary(version, commandsMapBuilder.build());
+    public NameBasedCommandLibrary build() {
+      return new NameBasedCommandLibrary(version, commandsMapBuilder.build());
     }
   }
 
