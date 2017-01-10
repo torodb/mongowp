@@ -23,6 +23,7 @@ import static com.eightkdata.mongowp.bson.BsonType.BINARY;
 import static com.eightkdata.mongowp.bson.BsonType.BOOLEAN;
 import static com.eightkdata.mongowp.bson.BsonType.DATETIME;
 import static com.eightkdata.mongowp.bson.BsonType.DB_POINTER;
+import static com.eightkdata.mongowp.bson.BsonType.DECIMAL128;
 import static com.eightkdata.mongowp.bson.BsonType.DEPRECATED;
 import static com.eightkdata.mongowp.bson.BsonType.DOCUMENT;
 import static com.eightkdata.mongowp.bson.BsonType.DOUBLE;
@@ -124,7 +125,7 @@ public final class BsonTypeComparator implements Comparator<BsonType>, Serializa
   }
 
   private static boolean isNumeric(BsonType type) {
-    return type == INT32 || type == INT64 || type == DOUBLE;
+    return type == INT32 || type == INT64 || type == DOUBLE || type == DECIMAL128;
   }
 
 }

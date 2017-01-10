@@ -29,7 +29,8 @@ public enum MongoVersion {
   V2_4(2, 4),
   V2_6(2, 6),
   V3_0(3, 0),
-  V3_2(3, 2);
+  V3_2(3, 2),
+  V3_4(3, 4);
 
   private final int major;
   private final int minor;

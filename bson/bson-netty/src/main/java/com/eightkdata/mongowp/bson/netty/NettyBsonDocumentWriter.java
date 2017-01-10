@@ -23,6 +23,7 @@ import com.eightkdata.mongowp.bson.BsonBinary;
 import com.eightkdata.mongowp.bson.BsonBoolean;
 import com.eightkdata.mongowp.bson.BsonDateTime;
 import com.eightkdata.mongowp.bson.BsonDbPointer;
+import com.eightkdata.mongowp.bson.BsonDecimal128;
 import com.eightkdata.mongowp.bson.BsonDeprecated;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
@@ -270,6 +271,15 @@ public class NettyBsonDocumentWriter {
     public Void visit(BsonDeprecated value, ByteBuf arg) {
       writeString(arg, value.getValue());
 
+      return null;
+    }
+
+    // TODO Review this method
+    @Override
+    public Void visit(BsonDecimal128 value, ByteBuf arg) {
+      byte[] bytes = value.getBytes();
+      // Assert.assertTrue("Expected 16 bytes but lenght is ", bytes.length == 15);
+      arg.writeBytes(bytes);
       return null;
     }
 

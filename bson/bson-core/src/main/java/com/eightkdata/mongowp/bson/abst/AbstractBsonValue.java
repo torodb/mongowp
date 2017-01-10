@@ -23,6 +23,7 @@ import com.eightkdata.mongowp.bson.BsonBinary;
 import com.eightkdata.mongowp.bson.BsonBoolean;
 import com.eightkdata.mongowp.bson.BsonDateTime;
 import com.eightkdata.mongowp.bson.BsonDbPointer;
+import com.eightkdata.mongowp.bson.BsonDecimal128;
 import com.eightkdata.mongowp.bson.BsonDeprecated;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDouble;
@@ -137,6 +138,11 @@ abstract class AbstractBsonValue<V> implements BsonValue<V> {
   }
 
   @Override
+  public boolean isDecimal128() {
+    return false;
+  }
+  
+  @Override
   public BsonNumber asNumber() throws UnsupportedOperationException {
     throw new UnsupportedOperationException(
         "Values of type " + getType() + " cannot be casted to number");
@@ -244,6 +250,12 @@ abstract class AbstractBsonValue<V> implements BsonValue<V> {
         "Values of type " + getType() + " cannot be casted to int64");
   }
 
+  @Override
+  public BsonDecimal128 asDecimal128() throws UnsupportedOperationException {
+    throw new UnsupportedOperationException(
+        "Values of type " + getType() + " cannot be casted to decimal128");
+  }
+  
   @Override
   public BsonDeprecated asDeprecated() throws UnsupportedOperationException {
     throw new UnsupportedOperationException(
