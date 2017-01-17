@@ -76,7 +76,6 @@
         <mongowp.buildtools.version>0.50.0</mongowp.buildtools.version>
         <netty.version>4.0.42.Final</netty.version>
         <license.header.file>com/eightkdata/mongowp/buildtools/mongowp-license.txt</license.header.file>
-        <checkstyle.config.location>com/eightkdata/mongowp/buildtools/checkstyle.xml</checkstyle.config.location>
         
         <!-- SonarQube properties -->
         <sonar.projectName>MongoWP</sonar.projectName>
@@ -84,6 +83,10 @@
         <sonar.links.ci>https://travis-ci.org/8kdata/mongowp</sonar.links.ci>
         <sonar.links.scm>https://github.com/8kdata/mongowp</sonar.links.scm>
         <sonar.links.issue>https://github.com/8kdata/mongowp/issues</sonar.links.issue>
+        
+        <!-- Checkstyle properties-->
+        <checkstyle.config.location>com/eightkdata/mongowp/buildtools/checkstyle.xml</checkstyle.config.location>
+        <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
     </properties>
 
     <dependencyManagement>
@@ -301,9 +304,6 @@
                     <execution>
                         <id>validate</id>
                         <configuration>
-                            <!--<configLocation>google_checks.xml</configLocation>-->
-                            <consoleOutput>true</consoleOutput>
-                            <!--<failsOnError>true</failsOnError>-->
                             <linkXRef>false</linkXRef>
                             <violationSeverity>error</violationSeverity>
                         </configuration>
