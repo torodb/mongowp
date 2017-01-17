@@ -24,6 +24,7 @@ import static com.eightkdata.mongowp.bson.BsonType.BINARY;
 import static com.eightkdata.mongowp.bson.BsonType.BOOLEAN;
 import static com.eightkdata.mongowp.bson.BsonType.DATETIME;
 import static com.eightkdata.mongowp.bson.BsonType.DB_POINTER;
+import static com.eightkdata.mongowp.bson.BsonType.DECIMAL128;
 import static com.eightkdata.mongowp.bson.BsonType.DEPRECATED;
 import static com.eightkdata.mongowp.bson.BsonType.DOCUMENT;
 import static com.eightkdata.mongowp.bson.BsonType.DOUBLE;
@@ -45,6 +46,7 @@ import com.eightkdata.mongowp.bson.BsonBinary;
 import com.eightkdata.mongowp.bson.BsonBoolean;
 import com.eightkdata.mongowp.bson.BsonDateTime;
 import com.eightkdata.mongowp.bson.BsonDbPointer;
+import com.eightkdata.mongowp.bson.BsonDecimal128;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.BsonDouble;
@@ -95,7 +97,7 @@ public abstract class NettyBsonLowLevelReader {
       throws NettyBsonReaderException {
     BsonType bsonType = ParsingTools.getBsonType(byteBuf.readByte());
     stringReader.skipCString(byteBuf);
-    switch (bsonType) {
+    switch (bsonType) { 
       case ARRAY:
         return readArray(byteBuf);
       case BINARY:
@@ -104,6 +106,8 @@ public abstract class NettyBsonLowLevelReader {
         return readDateTime(byteBuf);
       case DB_POINTER:
         return readDbPointer(byteBuf);
+      case DECIMAL128:
+        return readDecimal128(byteBuf);
       case DEPRECATED:
         return readDeprecated(byteBuf);
       case DOCUMENT:
@@ -154,6 +158,8 @@ public abstract class NettyBsonLowLevelReader {
         return new SimpleEntry<>(key, readDateTime(byteBuf));
       case DB_POINTER:
         return new SimpleEntry<>(key, readDbPointer(byteBuf));
+      case DECIMAL128:
+        return new SimpleEntry<>(key, readDecimal128(byteBuf));
       case DEPRECATED:
         return new SimpleEntry<>(key, readDeprecated(byteBuf));
       case DOCUMENT:
@@ -207,6 +213,9 @@ public abstract class NettyBsonLowLevelReader {
   abstract BsonDbPointer readDbPointer(@Loose @ModifiesIndexes ByteBuf byteBuf)
       throws NettyBsonReaderException;
 
+  abstract BsonDecimal128 readDecimal128(@Loose @ModifiesIndexes ByteBuf byteBuf)
+      throws NettyBsonReaderException;
+  
   abstract BsonValue<?> readDeprecated(@Loose @ModifiesIndexes ByteBuf byteBuf)
       throws NettyBsonReaderException;
 

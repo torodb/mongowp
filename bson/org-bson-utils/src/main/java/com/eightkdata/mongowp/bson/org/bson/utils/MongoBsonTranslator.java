@@ -31,6 +31,7 @@ import com.eightkdata.mongowp.bson.impl.DefaultBsonTimestamp;
 import com.eightkdata.mongowp.bson.impl.FalseBsonBoolean;
 import com.eightkdata.mongowp.bson.impl.ListBsonArray;
 import com.eightkdata.mongowp.bson.impl.LongBsonDateTime;
+import com.eightkdata.mongowp.bson.impl.LongsBsonDecimal128;
 import com.eightkdata.mongowp.bson.impl.MapBasedBsonDocument;
 import com.eightkdata.mongowp.bson.impl.PrimitiveBsonDouble;
 import com.eightkdata.mongowp.bson.impl.PrimitiveBsonInt32;
@@ -42,6 +43,7 @@ import com.eightkdata.mongowp.bson.impl.SimpleBsonUndefined;
 import com.eightkdata.mongowp.bson.impl.StringBsonString;
 import com.eightkdata.mongowp.bson.impl.TrueBsonBoolean;
 import com.google.common.primitives.UnsignedBytes;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.BsonArray;
@@ -64,6 +66,7 @@ import org.bson.BsonString;
 import org.bson.BsonTimestamp;
 import org.bson.BsonUndefined;
 import org.bson.BsonValue;
+import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 
 import java.io.IOException;
@@ -152,6 +155,12 @@ public class MongoBsonTranslator {
         return new BsonInt32(((com.eightkdata.mongowp.bson.BsonInt32) value).intValue());
       case INT64:
         return new BsonInt64(((com.eightkdata.mongowp.bson.BsonInt64) value).longValue());
+      case DECIMAL128: {
+        com.eightkdata.mongowp.bson.BsonDecimal128 casted = 
+            (com.eightkdata.mongowp.bson.BsonDecimal128) value;
+        return new org.bson.BsonDecimal128(
+            Decimal128.fromIEEE754BIDEncoding(casted.getHigh(), casted.getLow())); 
+      }
       case JAVA_SCRIPT: {
         return new BsonJavaScript(((com.eightkdata.mongowp.bson.BsonJavaScript) value).getValue());
       }
@@ -241,6 +250,9 @@ public class MongoBsonTranslator {
       case JAVASCRIPT: {
         return new DefaultBsonJavaScript(value.asJavaScript().getCode());
       }
+      case DECIMAL128:
+        return new LongsBsonDecimal128(value.asDecimal128().decimal128Value().getHigh(), 
+            value.asDecimal128().decimal128Value().getLow());
       case JAVASCRIPT_WITH_SCOPE: {
         BsonJavaScriptWithScope casted = value.asJavaScriptWithScope();
         return new DefaultBsonJavaScriptWithCode(casted.getCode(), translate(casted.getScope()));

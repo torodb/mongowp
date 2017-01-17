@@ -75,6 +75,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mongowp.buildtools.version>0.50.0</mongowp.buildtools.version>
         <netty.version>4.0.42.Final</netty.version>
+        <mongodriver.version>3.4.1</mongodriver.version>
         <license.header.file>com/eightkdata/mongowp/buildtools/mongowp-license.txt</license.header.file>
         
         <!-- SonarQube properties -->
@@ -139,22 +140,22 @@
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver-core</artifactId>
-                <version>3.2.2</version>
+                <version>${mongodriver.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongodb-driver</artifactId>
-                <version>3.2.2</version>
+                <version>${mongodriver.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>bson</artifactId>
-                <version>3.2.2</version>
+                <version>${mongodriver.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mongodb</groupId>
                 <artifactId>mongo-java-driver</artifactId>
-                <version>3.2.2</version>
+                <version>${mongodriver.version}</version>
             </dependency>
 
             <dependency>

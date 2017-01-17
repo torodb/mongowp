@@ -23,6 +23,7 @@ import com.eightkdata.mongowp.bson.BsonBinary;
 import com.eightkdata.mongowp.bson.BsonBoolean;
 import com.eightkdata.mongowp.bson.BsonDateTime;
 import com.eightkdata.mongowp.bson.BsonDbPointer;
+import com.eightkdata.mongowp.bson.BsonDecimal128;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.BsonDouble;
@@ -49,6 +50,7 @@ import com.eightkdata.mongowp.bson.impl.DefaultBsonTimestamp;
 import com.eightkdata.mongowp.bson.impl.FalseBsonBoolean;
 import com.eightkdata.mongowp.bson.impl.ListBsonArray;
 import com.eightkdata.mongowp.bson.impl.LongBsonDateTime;
+import com.eightkdata.mongowp.bson.impl.LongsBsonDecimal128;
 import com.eightkdata.mongowp.bson.impl.MapBasedBsonDocument;
 import com.eightkdata.mongowp.bson.impl.PrimitiveBsonDouble;
 import com.eightkdata.mongowp.bson.impl.PrimitiveBsonInt32;
@@ -65,6 +67,7 @@ import com.eightkdata.mongowp.bson.netty.annotations.ModifiesIndexes;
 import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -161,6 +164,12 @@ public class DefaultNettyBsonLowLevelReader extends NettyBsonLowLevelReader {
     return PrimitiveBsonDouble.newInstance(byteBuf.readDouble());
   }
 
+  @Override
+  BsonDecimal128 readDecimal128(@Loose @ModifiesIndexes ByteBuf byteBuf) {
+    return LongsBsonDecimal128.newInstance(new BigDecimal(byteBuf.readDouble()));
+  }
+  
+  
   @Override
   BsonBoolean readBoolean(@Loose @ModifiesIndexes ByteBuf byteBuf) throws NettyBsonReaderException {
     byte readByte = byteBuf.readByte();

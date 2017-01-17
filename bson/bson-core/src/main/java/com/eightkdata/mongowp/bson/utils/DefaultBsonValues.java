@@ -21,6 +21,7 @@ package com.eightkdata.mongowp.bson.utils;
 import com.eightkdata.mongowp.bson.BsonArray;
 import com.eightkdata.mongowp.bson.BsonBoolean;
 import com.eightkdata.mongowp.bson.BsonDateTime;
+import com.eightkdata.mongowp.bson.BsonDecimal128;
 import com.eightkdata.mongowp.bson.BsonDocument;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.BsonDouble;
@@ -42,6 +43,7 @@ import com.eightkdata.mongowp.bson.impl.InstantBsonDateTime;
 import com.eightkdata.mongowp.bson.impl.ListBasedBsonDocument;
 import com.eightkdata.mongowp.bson.impl.ListBsonArray;
 import com.eightkdata.mongowp.bson.impl.LongBsonDateTime;
+import com.eightkdata.mongowp.bson.impl.LongsBsonDecimal128;
 import com.eightkdata.mongowp.bson.impl.MapBasedBsonDocument;
 import com.eightkdata.mongowp.bson.impl.PrimitiveBsonDouble;
 import com.eightkdata.mongowp.bson.impl.PrimitiveBsonInt32;
@@ -98,6 +100,10 @@ public class DefaultBsonValues {
     return PrimitiveBsonDouble.newInstance(value);
   }
 
+  public static BsonDecimal128 newDecimal128(long high, long low) {
+    return LongsBsonDecimal128.newInstance(high, low);
+  }
+  
   public static BsonString newString(String value) {
     if (value.isEmpty()) {
       return EMPTY_STRING;
