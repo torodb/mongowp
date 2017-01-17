@@ -1,7 +1,7 @@
 language: java
 sudo: false
 dist: trusty
-script: mvn -Psafer -Pintegration -B -e -T 1C verify
+script: mvn -Psafer -Pintegration -B -e -T 1C -Dcheckstyle.consoleOutput=false verify
 jdk: oraclejdk8
 
 env:
@@ -26,7 +26,7 @@ cache:
     - '$HOME/.sonar/cache'
 
 install:
-- mvn dependency:go-offline
+- mvn dependency:go-offline -q
   
 after_success:
   - if [[ $TRAVIS_REPO_SLUG = 8kdata/mongowp ]]; then bash <(curl -s https://codecov.io/bash) || echo 'Codecov did not collect coverage reports'; else echo 'Codecov not notified'; fi
