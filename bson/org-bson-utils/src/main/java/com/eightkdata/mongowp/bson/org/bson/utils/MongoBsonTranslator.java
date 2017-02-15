@@ -21,59 +21,17 @@ package com.eightkdata.mongowp.bson.org.bson.utils;
 import com.eightkdata.mongowp.bson.BinarySubtype;
 import com.eightkdata.mongowp.bson.BsonDocument.Entry;
 import com.eightkdata.mongowp.bson.BsonRegex.Options;
-import com.eightkdata.mongowp.bson.impl.ByteArrayBsonBinary;
-import com.eightkdata.mongowp.bson.impl.ByteArrayBsonObjectId;
-import com.eightkdata.mongowp.bson.impl.DefaultBsonDbPointer;
-import com.eightkdata.mongowp.bson.impl.DefaultBsonJavaScript;
-import com.eightkdata.mongowp.bson.impl.DefaultBsonJavaScriptWithCode;
-import com.eightkdata.mongowp.bson.impl.DefaultBsonRegex;
-import com.eightkdata.mongowp.bson.impl.DefaultBsonTimestamp;
-import com.eightkdata.mongowp.bson.impl.FalseBsonBoolean;
-import com.eightkdata.mongowp.bson.impl.ListBsonArray;
-import com.eightkdata.mongowp.bson.impl.LongBsonDateTime;
-import com.eightkdata.mongowp.bson.impl.LongsBsonDecimal128;
-import com.eightkdata.mongowp.bson.impl.MapBasedBsonDocument;
-import com.eightkdata.mongowp.bson.impl.PrimitiveBsonDouble;
-import com.eightkdata.mongowp.bson.impl.PrimitiveBsonInt32;
-import com.eightkdata.mongowp.bson.impl.PrimitiveBsonInt64;
-import com.eightkdata.mongowp.bson.impl.SimpleBsonMax;
-import com.eightkdata.mongowp.bson.impl.SimpleBsonMin;
-import com.eightkdata.mongowp.bson.impl.SimpleBsonNull;
-import com.eightkdata.mongowp.bson.impl.SimpleBsonUndefined;
-import com.eightkdata.mongowp.bson.impl.StringBsonString;
-import com.eightkdata.mongowp.bson.impl.TrueBsonBoolean;
+import com.eightkdata.mongowp.bson.impl.*;
 import com.google.common.primitives.UnsignedBytes;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bson.BsonArray;
-import org.bson.BsonBinary;
-import org.bson.BsonBoolean;
-import org.bson.BsonDateTime;
-import org.bson.BsonDbPointer;
-import org.bson.BsonDocument;
-import org.bson.BsonDouble;
-import org.bson.BsonInt32;
-import org.bson.BsonInt64;
-import org.bson.BsonJavaScript;
-import org.bson.BsonJavaScriptWithScope;
-import org.bson.BsonMaxKey;
-import org.bson.BsonMinKey;
-import org.bson.BsonNull;
-import org.bson.BsonObjectId;
-import org.bson.BsonRegularExpression;
-import org.bson.BsonString;
-import org.bson.BsonTimestamp;
-import org.bson.BsonUndefined;
-import org.bson.BsonValue;
+import org.bson.*;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 import javax.annotation.Nonnull;
@@ -82,6 +40,12 @@ import javax.annotation.Nullable;
 public class MongoBsonTranslator {
 
   private static final Logger LOGGER = LogManager.getLogger(MongoBsonTranslator.class);
+
+  public static List<org.bson.BsonType> deprecatedTypes = Arrays.asList(new BsonType[]{
+          org.bson.BsonType.END_OF_DOCUMENT,
+          org.bson.BsonType.SYMBOL
+  });
+
 
   public static final Function<BsonDocument, com.eightkdata.mongowp.bson.BsonDocument> 
       FROM_MONGO_FUNCTION = new FromMongoFunction();
@@ -193,6 +157,7 @@ public class MongoBsonTranslator {
       case UNDEFINED:
         return new BsonUndefined();
       case DEPRECATED:
+        return new BsonSymbol(value.asDeprecated().getValue());
       default:
         throw new AssertionError("It is not defined how to translate the type " + value.getType());
     }
@@ -279,6 +244,7 @@ public class MongoBsonTranslator {
         return SimpleBsonUndefined.getInstance();
       case END_OF_DOCUMENT:
       case SYMBOL:
+        return new StringBsonDeprecated(value.asSymbol().getSymbol());
       default:
         throw new AssertionError("It is not defined how to translate the type " + value
             .getBsonType());
