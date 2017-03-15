@@ -232,7 +232,7 @@ public class MongoBsonTranslator {
         return new ByteArrayBsonObjectId(value.asObjectId().getValue().toByteArray());
       case REGULAR_EXPRESSION: {
         BsonRegularExpression casted = value.asRegularExpression();
-        return new DefaultBsonRegex(parseRegexOptions(casted.getOptions()), casted.getPattern());
+        return new DefaultBsonRegex(casted.getOptions(), casted.getPattern());
       }
       case STRING:
         return new StringBsonString(value.asString().getValue());
@@ -280,68 +280,6 @@ public class MongoBsonTranslator {
     }
   }
 
-  protected static EnumSet<Options> parseRegexOptions(String optionsStr) {
-    EnumSet<Options> result = EnumSet.noneOf(Options.class);
-
-    if (optionsStr.isEmpty()) {
-      return result;
-    }
-
-    int i = 0;
-    if (optionsStr.charAt(i) == 'i') {
-      result.add(Options.CASE_INSENSITIVE);
-
-      i++;
-      if (i >= optionsStr.length()) {
-        return result;
-      }
-    }
-    if (optionsStr.charAt(i) == 'l') {
-      result.add(Options.LOCALE_DEPENDENT);
-
-      i++;
-      if (i >= optionsStr.length()) {
-        return result;
-      }
-    }
-    if (optionsStr.charAt(i) == 'm') {
-      result.add(Options.MULTILINE_MATCHING);
-
-      i++;
-      if (i >= optionsStr.length()) {
-        return result;
-      }
-    }
-    if (optionsStr.charAt(i) == 's') {
-      result.add(Options.DOTALL_MODE);
-
-      i++;
-      if (i >= optionsStr.length()) {
-        return result;
-      }
-    }
-    if (optionsStr.charAt(i) == 'u') {
-      result.add(Options.UNICODE);
-
-      i++;
-      if (i >= optionsStr.length()) {
-        return result;
-      }
-    }
-    if (optionsStr.charAt(i) == 'x') {
-      result.add(Options.VERBOSE_MODE);
-
-      i++;
-      if (i >= optionsStr.length()) {
-        return result;
-      }
-    }
-
-    assert i < optionsStr.length();
-    LOGGER.warn("Unexpected regex options '{}'", optionsStr.substring(i));
-
-    return result;
-  }
 
   private static class FromMongoFunction implements
       Function<BsonDocument, com.eightkdata.mongowp.bson.BsonDocument> {

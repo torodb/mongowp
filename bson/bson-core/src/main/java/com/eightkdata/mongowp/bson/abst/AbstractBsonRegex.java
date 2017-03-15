@@ -36,26 +36,6 @@ public abstract class AbstractBsonRegex extends AbstractBsonValue<BsonRegex> imp
   }
 
   @Override
-  public String getOptionsAsText() {
-    Set<Options> options = getOptions();
-    if (options.isEmpty()) {
-      return "";
-    }
-    if (options.size() == 1) {
-      return Character.toString(options.iterator().next().getCharId());
-    }
-
-    SortedSet<Options> sortedOptions = new TreeSet<>(Options.getLexicographicalComparator());
-    sortedOptions.addAll(options);
-
-    StringBuilder sb = new StringBuilder(6);
-    for (Options option : sortedOptions) {
-      sb.append(option.getCharId());
-    }
-    return sb.toString();
-  }
-
-  @Override
   public BsonRegex getValue() {
     return this;
   }
@@ -73,6 +53,11 @@ public abstract class AbstractBsonRegex extends AbstractBsonValue<BsonRegex> imp
   @Override
   public boolean isRegex() {
     return true;
+  }
+
+  @Override
+  public Set<Options> getOptions(){
+    return null;
   }
 
   @Override
@@ -108,7 +93,8 @@ public abstract class AbstractBsonRegex extends AbstractBsonValue<BsonRegex> imp
       return false;
     }
     BsonRegex other = (BsonRegex) obj;
-    if (!this.getOptions().equals(other.getOptions())) {
+    //We are comparing strings while the sets are ignored
+    if (this.getOptionsAsText().compareTo(other.getOptionsAsText())!=0) {
       return false;
     }
     return this.getPattern().equals(other.getPattern());

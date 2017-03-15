@@ -18,7 +18,10 @@
 
 package com.eightkdata.mongowp.bson.abst;
 
-import com.eightkdata.mongowp.bson.*;
+import com.eightkdata.mongowp.bson.BsonDeprecated;
+import com.eightkdata.mongowp.bson.BsonType;
+import com.eightkdata.mongowp.bson.BsonValue;
+import com.eightkdata.mongowp.bson.BsonValueVisitor;
 import com.eightkdata.mongowp.bson.utils.BsonTypeComparator;
 
 public abstract class AbstractBsonDeprecated extends AbstractBsonValue<String>

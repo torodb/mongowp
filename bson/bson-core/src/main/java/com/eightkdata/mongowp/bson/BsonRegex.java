@@ -33,10 +33,9 @@ import javax.annotation.Nonnull;
  */
 public interface BsonRegex extends BsonValue<BsonRegex> {
 
-  @Nonnull
   Set<Options> getOptions();
 
-  public String getOptionsAsText();
+  String getOptionsAsText();
 
   @Nonnull
   String getPattern();
