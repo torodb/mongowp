@@ -56,7 +56,7 @@ public abstract class AbstractBsonRegex extends AbstractBsonValue<BsonRegex> imp
   }
 
   @Override
-  public Set<Options> getOptions(){
+  public Set<Options> getOptions() {
     return null;
   }
 
@@ -94,7 +94,7 @@ public abstract class AbstractBsonRegex extends AbstractBsonValue<BsonRegex> imp
     }
     BsonRegex other = (BsonRegex) obj;
     //We are comparing strings while the sets are ignored
-    if (this.getOptionsAsText().compareTo(other.getOptionsAsText())!=0) {
+    if (this.getOptionsAsText().compareTo(other.getOptionsAsText()) != 0) {
       return false;
     }
     return this.getPattern().equals(other.getPattern());
