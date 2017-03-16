@@ -20,26 +20,23 @@ package com.eightkdata.mongowp.bson.impl;
 
 import com.eightkdata.mongowp.bson.abst.AbstractBsonRegex;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
-
 /**
  *
  */
 public class DefaultBsonRegex extends AbstractBsonRegex {
 
   private static final long serialVersionUID = 3874198083590003304L;
-  private final Set<Options> options;
+  private final String options;
   private final String pattern;
 
-  public DefaultBsonRegex(EnumSet<Options> options, String pattern) {
-    this.options = Collections.unmodifiableSet(EnumSet.copyOf(options));
+  public DefaultBsonRegex(String options, String pattern) {
+    this.options = options;
     this.pattern = pattern;
   }
 
+
   @Override
-  public Set<Options> getOptions() {
+  public String getOptionsAsText() {
     return options;
   }
 
