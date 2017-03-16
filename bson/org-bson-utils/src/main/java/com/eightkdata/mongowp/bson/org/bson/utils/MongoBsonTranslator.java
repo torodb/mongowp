@@ -114,8 +114,7 @@ public class MongoBsonTranslator {
     }
 
     switch (value.getType()) {
-      case ARRAY:
-      {
+      case ARRAY: {
         com.eightkdata.mongowp.bson.BsonArray casted =
                 (com.eightkdata.mongowp.bson.BsonArray) value;
         List<BsonValue> list = new ArrayList<>();
@@ -124,8 +123,7 @@ public class MongoBsonTranslator {
         }
         return new BsonArray(list);
       }
-      case BINARY:
-      {
+      case BINARY: {
         com.eightkdata.mongowp.bson.BsonBinary casted =
                 (com.eightkdata.mongowp.bson.BsonBinary) value;
         return new BsonBinary(casted.getNumericSubType(), casted.getByteSource().read());
@@ -133,14 +131,12 @@ public class MongoBsonTranslator {
       case DATETIME:
         return new BsonDateTime(
                 ((com.eightkdata.mongowp.bson.BsonDateTime) value).getMillisFromUnix());
-      case DB_POINTER:
-      {
+      case DB_POINTER: {
         com.eightkdata.mongowp.bson.BsonDbPointer casted =
                 (com.eightkdata.mongowp.bson.BsonDbPointer) value;
         return new BsonDbPointer(casted.getNamespace(), translateObjectId(casted.getId()));
       }
-      case DOCUMENT:
-      {
+      case DOCUMENT: {
         com.eightkdata.mongowp.bson.BsonDocument casted =
                 (com.eightkdata.mongowp.bson.BsonDocument) value;
         BsonDocument result = new org.bson.BsonDocument();
@@ -151,8 +147,7 @@ public class MongoBsonTranslator {
       }
       case DOUBLE:
         return new BsonDouble(((com.eightkdata.mongowp.bson.BsonDouble) value).doubleValue());
-      case BOOLEAN:
-      {
+      case BOOLEAN: {
         com.eightkdata.mongowp.bson.BsonBoolean casted =
                 (com.eightkdata.mongowp.bson.BsonBoolean) value;
         if (casted.getPrimitiveValue()) {
@@ -165,20 +160,17 @@ public class MongoBsonTranslator {
         return new BsonInt32(((com.eightkdata.mongowp.bson.BsonInt32) value).intValue());
       case INT64:
         return new BsonInt64(((com.eightkdata.mongowp.bson.BsonInt64) value).longValue());
-      case DECIMAL128:
-      {
+      case DECIMAL128: {
         com.eightkdata.mongowp.bson.BsonDecimal128 casted =
                 (com.eightkdata.mongowp.bson.BsonDecimal128) value;
         return new org.bson.BsonDecimal128(
                 Decimal128.fromIEEE754BIDEncoding(casted.getHigh(), casted.getLow()));
       }
-      case JAVA_SCRIPT:
-      {
+      case JAVA_SCRIPT: {
         return new BsonJavaScript(
                 ((com.eightkdata.mongowp.bson.BsonJavaScript) value).getValue());
       }
-      case JAVA_SCRIPT_WITH_SCOPE:
-      {
+      case JAVA_SCRIPT_WITH_SCOPE: {
         com.eightkdata.mongowp.bson.BsonJavaScriptWithScope casted =
                 (com.eightkdata.mongowp.bson.BsonJavaScriptWithScope) value;
         return new BsonJavaScriptWithScope(casted.getJavaScript(), translate(casted.getScope()));
@@ -192,16 +184,14 @@ public class MongoBsonTranslator {
       case OBJECT_ID:
         return new BsonObjectId(
                 translateObjectId((com.eightkdata.mongowp.bson.BsonObjectId) value));
-      case REGEX:
-      {
+      case REGEX: {
         com.eightkdata.mongowp.bson.BsonRegex casted =
                 (com.eightkdata.mongowp.bson.BsonRegex) value;
         return new BsonRegularExpression(casted.getPattern(), casted.getOptionsAsText());
       }
       case STRING:
         return new BsonString(((com.eightkdata.mongowp.bson.BsonString) value).getValue());
-      case TIMESTAMP:
-      {
+      case TIMESTAMP: {
         com.eightkdata.mongowp.bson.BsonTimestamp casted =
                 (com.eightkdata.mongowp.bson.BsonTimestamp) value;
         return new BsonTimestamp(casted.getSecondsSinceEpoch(), casted.getOrdinal());
@@ -222,30 +212,26 @@ public class MongoBsonTranslator {
       return null;
     }
     switch (value.getBsonType()) {
-      case ARRAY:
-      {
+      case ARRAY: {
         List<com.eightkdata.mongowp.bson.BsonValue<?>> list = new ArrayList<>();
         for (BsonValue mongoValue : value.asArray()) {
           list.add(translatePrivate(mongoValue));
         }
         return new ListBsonArray(list);
       }
-      case BINARY:
-      {
+      case BINARY: {
         BsonBinary casted = value.asBinary();
         return new ByteArrayBsonBinary(
                 getBinarySubtype(casted.getType()), casted.getType(), casted.getData());
       }
       case DATE_TIME:
         return new LongBsonDateTime(value.asDateTime().getValue());
-      case DB_POINTER:
-      {
+      case DB_POINTER: {
         BsonDbPointer casted = value.asDBPointer();
         return new DefaultBsonDbPointer(
                 casted.getNamespace(), new ByteArrayBsonObjectId(casted.getId().toByteArray()));
       }
-      case DOCUMENT:
-      {
+      case DOCUMENT: {
         LinkedHashMap<String, com.eightkdata.mongowp.bson.BsonValue<?>> map =
                 new LinkedHashMap<>(value.asDocument().size());
         for (java.util.Map.Entry<String, BsonValue> entry : value.asDocument().entrySet()) {
@@ -265,16 +251,14 @@ public class MongoBsonTranslator {
         return PrimitiveBsonInt32.newInstance(value.asInt32().getValue());
       case INT64:
         return PrimitiveBsonInt64.newInstance(value.asInt64().getValue());
-      case JAVASCRIPT:
-      {
+      case JAVASCRIPT: {
         return new DefaultBsonJavaScript(value.asJavaScript().getCode());
       }
       case DECIMAL128:
         return new LongsBsonDecimal128(
                 value.asDecimal128().decimal128Value().getHigh(),
                 value.asDecimal128().decimal128Value().getLow());
-      case JAVASCRIPT_WITH_SCOPE:
-      {
+      case JAVASCRIPT_WITH_SCOPE: {
         BsonJavaScriptWithScope casted = value.asJavaScriptWithScope();
         return new DefaultBsonJavaScriptWithCode(casted.getCode(), translate(casted.getScope()));
       }
@@ -286,15 +270,13 @@ public class MongoBsonTranslator {
         return SimpleBsonNull.getInstance();
       case OBJECT_ID:
         return new ByteArrayBsonObjectId(value.asObjectId().getValue().toByteArray());
-      case REGULAR_EXPRESSION:
-      {
+      case REGULAR_EXPRESSION: {
         BsonRegularExpression casted = value.asRegularExpression();
         return new DefaultBsonRegex(casted.getOptions(), casted.getPattern());
       }
       case STRING:
         return new StringBsonString(value.asString().getValue());
-      case TIMESTAMP:
-      {
+      case TIMESTAMP: {
         BsonTimestamp casted = value.asTimestamp();
         return new DefaultBsonTimestamp(casted.getTime(), casted.getInc());
       }

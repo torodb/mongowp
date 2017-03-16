@@ -34,6 +34,12 @@ import static org.junit.Assert.*;
 @RunWith(Parameterized.class)
 public class MongoBsonTranslatorTest {
 
+    @Parameterized.Parameter(0)
+    private String collName;
+
+    @Parameterized.Parameter(1)
+    private BsonValue value;
+
     @Parameterized.Parameters(name = "{index}: Collection {0}")
     public static Collection<Object[]> data() {
 
@@ -97,10 +103,5 @@ public class MongoBsonTranslatorTest {
     }
 
 
-    @Parameterized.Parameter(0)
-    private String collName;
-
-    @Parameterized.Parameter(1)
-    private BsonValue value;
 
 }
