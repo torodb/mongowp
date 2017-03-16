@@ -85,7 +85,7 @@ public class MongoBsonTranslator {
 
   private static final Logger LOGGER = LogManager.getLogger(MongoBsonTranslator.class);
 
-  public static List<org.bson.BsonType> deprecatedTypes =
+  static final List<org.bson.BsonType> deprecatedTypes =
       Arrays.asList(new BsonType[] {org.bson.BsonType.END_OF_DOCUMENT, org.bson.BsonType.SYMBOL});
 
   public static final Function<BsonDocument, com.eightkdata.mongowp.bson.BsonDocument>
