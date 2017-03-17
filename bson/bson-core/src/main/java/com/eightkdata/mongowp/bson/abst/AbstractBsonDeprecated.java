@@ -52,6 +52,16 @@ public abstract class AbstractBsonDeprecated extends AbstractBsonValue<String>
   }
 
   @Override
+  public BsonDeprecated asDeprecated() {
+    return this;
+  }
+
+  @Override
+  public boolean isDeprecated() {
+    return true;
+  }
+
+  @Override
   public int compareTo(BsonValue<?> obj) {
     if (obj == this) {
       return 0;

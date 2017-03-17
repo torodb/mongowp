@@ -236,9 +236,7 @@ public class DefaultNettyBsonLowLevelReader extends NettyBsonLowLevelReader {
     String pattern = getStringReader().readCString(byteBuf, false);
     String options = getStringReader().readCString(byteBuf, true);
 
-    EnumSet<BsonRegex.Options> optionsSet = ParsingTools.parseRegexOptions(options);
-
-    return new DefaultBsonRegex(optionsSet, pattern);
+    return new DefaultBsonRegex(options, pattern);
   }
 
   @Override
