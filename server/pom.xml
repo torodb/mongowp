@@ -3,16 +3,14 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 >
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.8kdata.mongowp</groupId>
+        <groupId>com.torodb.mongowp</groupId>
         <artifactId>mongowp-parent</artifactId>
         <version>0.50.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.8kdata.mongowp.server</groupId>
+    <groupId>com.torodb.mongowp.server</groupId>
     <artifactId>mongo-server-pom</artifactId>
     <packaging>pom</packaging>
     

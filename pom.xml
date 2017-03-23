@@ -5,14 +5,18 @@
 >
 
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.torodb</groupId>
+        <artifactId>parent-pom</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
 
-    <groupId>com.8kdata.mongowp</groupId>
+    <groupId>com.torodb.mongowp</groupId>
     <artifactId>mongowp-parent</artifactId>
     <version>0.50.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>build-tools</module>
         <module>server</module>
         <module>client</module>
         <module>mongowp-core</module>
@@ -26,7 +30,6 @@
         Examples of such applications may be mongo proxies, connection poolers or in-memory implementations,
         to name a few.
     </description>
-    <url>https://www.8kdata.com</url>
 
     <organization>
         <name>8Kdata Technology</name>
@@ -35,59 +38,36 @@
 
     <licenses>
         <license>
-            <name>GNU AFFERO PUBLIC LICENSE, Version 3, 19 November 2007</name>
-            <url>http://www.gnu.org/licenses/agpl-3.0-standalone.html</url>
-            <distribution>repo</distribution>
-        </license>
-        <license>
-            <name>Commercial License</name>
-            <distribution>manual</distribution>
-            <comments>
-                Commercial licensing for use is available upon request.
-                Please contact sales at 8kdata dot com
-            </comments>
+            <name>Apache License 2.0</name>
+            <url>http://opensource.org/licenses/Apache-2.0</url>
         </license>
     </licenses>
 
-    <developers>
-        <developer>
-            <id>mongowp.8kdata.com</id>
-            <name>MongoWP Project Contributors</name>
-            <email>mongowp@8kdata.com</email>
-            <url>https://github.com/8kdata/mongowp</url>
-            <organization>The MongoWP Project</organization>
-            <organizationUrl>https://8kdata.com</organizationUrl>
-        </developer>
-    </developers>
-
     <scm>
-        <connection>scm:git:git@github.com:8kdata/mongowp.git</connection>
-        <developerConnection>scm:git:git@github.com:8kdata/mongowp.git</developerConnection>
-        <url>git@github.com:8kdata/mongowp.git</url>
+        <connection>scm:git:git@github.com:torodb/mongowp.git</connection>
+        <developerConnection>scm:git:git@github.com:torodb/mongowp.git</developerConnection>
+        <url>git@github.com:torodb/mongowp.git</url>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/8kdata/mongowp/issues</url>
+        <url>https://github.com/torodb/mongowp/issues</url>
     </issueManagement>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mongowp.buildtools.version>0.50.0</mongowp.buildtools.version>
+        <mongowp.buildtools.version>0.50.1-SNAPSHOT</mongowp.buildtools.version>
         <netty.version>4.0.42.Final</netty.version>
-        <mongodriver.version>3.4.1</mongodriver.version>
-        <license.header.file>com/eightkdata/mongowp/buildtools/mongowp-license.txt</license.header.file>
+        
+        <license.header.license>apache20</license.header.license>
+        <license.header.project.name>MongoWP</license.header.project.name>
+        <license.header.project.inceptionYear>2014</license.header.project.inceptionYear>
         
         <!-- SonarQube properties -->
         <sonar.projectName>MongoWP</sonar.projectName>
-        <sonar.links.homepage>https://github.com/8kdata/mongowp</sonar.links.homepage>
-        <sonar.links.ci>https://travis-ci.org/8kdata/mongowp</sonar.links.ci>
-        <sonar.links.scm>https://github.com/8kdata/mongowp</sonar.links.scm>
-        <sonar.links.issue>https://github.com/8kdata/mongowp/issues</sonar.links.issue>
-        
-        <!-- Checkstyle properties-->
-        <checkstyle.config.location>com/eightkdata/mongowp/buildtools/checkstyle.xml</checkstyle.config.location>
-        <checkstyle.consoleOutput>true</checkstyle.consoleOutput>
+        <sonar.links.homepage>https://github.com/torodb/mongowp</sonar.links.homepage>
+        <sonar.links.ci>https://travis-ci.org/torodb/mongowp</sonar.links.ci>
+        <sonar.links.scm>https://github.com/torodb/mongowp</sonar.links.scm>
+        <sonar.links.issue>https://github.com/torodb/mongowp/issues</sonar.links.issue>
     </properties>
 
     <dependencyManagement>
@@ -107,418 +87,17 @@
                 <artifactId>netty-transport</artifactId>
                 <version>${netty.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-api</artifactId>
-                <version>2.7</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.logging.log4j</groupId>
-                <artifactId>log4j-core</artifactId>
-                <version>2.7</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>20.0</version>
-            </dependency>
-            <dependency>
-                <groupId>javax.inject</groupId>
-                <artifactId>javax.inject</artifactId>
-                <version>1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>4.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.inject.extensions</groupId>
-                <artifactId>guice-assistedinject</artifactId>
-                <version>4.1.0</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver-core</artifactId>
-                <version>${mongodriver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongodb-driver</artifactId>
-                <version>${mongodriver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>bson</artifactId>
-                <version>${mongodriver.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.mongodb</groupId>
-                <artifactId>mongo-java-driver</artifactId>
-                <version>${mongodriver.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>3.0.1</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>annotations</artifactId>
-                <version>3.0.1</version>
-                <scope>provided</scope>
-                <type>jar</type>
-            </dependency>
-
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.12</version>
-                <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
-
+    
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.0</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                    <compilerArgument>-Xlint:all</compilerArgument>
-                    <showDeprecation>true</showDeprecation>
-                    <showWarnings>true</showWarnings> 
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.7</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
-                <executions>
-                    <execution>
-                        <id>default-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>test</goal>
-                        </goals>
-                        <configuration>
-                            <trimStackTrace>false</trimStackTrace>
-                            <excludes>
-                                <exclude>%regex[.*integration.*]</exclude>
-                            </excludes>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
-                <executions>
-                    <execution>
-                        <id>enforce-dependencies</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <dependencyConvergence/>
-                                <requireReleaseDeps>
-                                    <message>Artifacts must not depend on external snapshot!</message>
-                                    <excludes>
-                                        <exclude>com.8kdata*:*</exclude>
-                                        <exclude>com.torodb*:*</exclude>
-                                    </excludes>
-                                    <failWhenParentIsSnapshot>false</failWhenParentIsSnapshot>
-                                </requireReleaseDeps>
-                            </rules>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>enforce-dependencies-release</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireReleaseDeps>
-                                    <message>Release artifacts must not depend on any snapshot!</message>
-                                    <onlyWhenRelease>true</onlyWhenRelease>
-                                </requireReleaseDeps>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
                 <version>3.0</version>
-                <configuration>
-                    <header>${license.header.file}</header>
-                    <failIfMissing>true</failIfMissing>
-                    <properties>
-                        <project.name>MongoWP</project.name>
-                        <project.inceptionYear>2014</project.inceptionYear>
-                        <owner>${project.organization.name}</owner>
-                        <email>${project.organization.url}</email>
-                    </properties>
-                    <includes>
-                        <include>src/**/*.java</include>
-                    </includes>
-                    <mapping>
-                        <java>SLASHSTAR_STYLE</java>
-                    </mapping>
-                    <errorMessage>Some files do not have the expected license header. Run com.mycila:license-maven-plugin:format to update all file headers</errorMessage>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>check-license</id>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.8kdata.mongowp</groupId>
-                        <artifactId>build-tools</artifactId>
-                        <version>${mongowp.buildtools.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <configuration>
-                            <linkXRef>false</linkXRef>
-                            <violationSeverity>error</violationSeverity>
-                        </configuration>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <dependencies>            
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>7.3</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.8kdata.mongowp</groupId>
-                        <artifactId>build-tools</artifactId>
-                        <version>${mongowp.buildtools.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.7.201606060606</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>deploy</id> <!-- It must be manually turn on when mvn deploy is executed -->
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>2.4</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.4</version>
-                        <configuration>
-                            <failOnError>false</failOnError>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>safer</id> <!-- Slower but safer profile used to look for errors before pushing to SCM -->
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>3.0.4</version>
-                        <configuration>
-                            <effort>Max</effort>
-                            <threshold>Low</threshold>
-                            <xmlOutput>true</xmlOutput>
-                            <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>analyze-compile</id>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>sign</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>integration</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.19.1</version>
-                        <executions>
-                            <execution>
-                                <id>integration-tests</id>
-                                <phase>integration-test</phase>
-                                <goals>
-                                    <goal>test</goal>
-                                </goals>
-                                <configuration>
-                                    <trimStackTrace>false</trimStackTrace>
-                                    <skip>false</skip>
-                                    <includes>
-                                        <include>%regex[.*integration.*]</include>
-                                    </includes>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <id>master-branch</id>
-            <activation>
-                <property> <!-- Used by Travis to modify the execution by branch -->
-                    <name>env.GIT_BRANCH</name>
-                    <value>master</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <version>1.4.1</version>
-                        <executions>
-                            <execution>
-                                <id>enforce-release</id>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <requireReleaseVersion>
-                                            <message>Artifacts on master branch must not be snapshot!</message>
-                                        </requireReleaseVersion>
-                                    </rules>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
-        
-    <repositories>  
-        <repository>
-            <id>OSSRH</id>
-            <url>https://oss.sonatype.org/content/groups/public</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh-snapshot</id>
-            <name>OSSRH Snapshot repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh-release</id>
-            <name>OSSRH Release repository</name>  
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-    </distributionManagement>
 
 </project>
