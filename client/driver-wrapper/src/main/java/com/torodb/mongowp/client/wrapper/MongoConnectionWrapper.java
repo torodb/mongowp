@@ -33,15 +33,16 @@ import com.torodb.mongowp.bson.org.bson.utils.MongoBsonTranslator;
 import com.torodb.mongowp.bson.utils.DefaultBsonValues;
 import com.torodb.mongowp.client.core.MongoClient;
 import com.torodb.mongowp.client.core.MongoConnection;
+import com.torodb.mongowp.commands.Command;
+import com.torodb.mongowp.commands.MarshalException;
+import com.torodb.mongowp.commands.MongoRuntimeException;
+import com.torodb.mongowp.commands.pojos.CollectionBatch;
+import com.torodb.mongowp.commands.pojos.MongoCursor;
+import com.torodb.mongowp.commands.pojos.MongoCursor.Batch;
+import com.torodb.mongowp.commands.pojos.MongoCursor.DeadCursorException;
 import com.torodb.mongowp.exceptions.BadValueException;
 import com.torodb.mongowp.exceptions.MongoException;
 import com.torodb.mongowp.messages.request.QueryMessage.QueryOptions;
-import com.torodb.mongowp.server.api.Command;
-import com.torodb.mongowp.server.api.MarshalException;
-import com.torodb.mongowp.server.api.MongoRuntimeException;
-import com.torodb.mongowp.server.api.pojos.CollectionBatch;
-import com.torodb.mongowp.server.api.pojos.MongoCursor;
-import com.torodb.mongowp.server.api.pojos.MongoCursor.DeadCursorException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
@@ -324,7 +325,7 @@ public class MongoConnectionWrapper implements MongoConnection {
 
   private static MongoRuntimeException toRuntimeMongoException(com.mongodb.MongoException ex) {
     if (ex instanceof com.mongodb.MongoSocketException) {
-      return new com.torodb.mongowp.server.api.MongoSocketException(ex);
+      return new com.torodb.mongowp.commands.MongoSocketException(ex);
     }
     throw new MongoRuntimeException(ex);
   }

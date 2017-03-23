@@ -13,7 +13,7 @@
     <artifactId>driver-wrapper</artifactId>
     <packaging>jar</packaging>
     
-    <name>Mongo Client: Driver Wrapper</name>
+    <name>MongoWP Client: Driver Wrapper</name>
     <description>
         MongoWP Client project that delegates on the official MongoDB Java Driver
     </description>

@@ -13,7 +13,7 @@
     <artifactId>core</artifactId>
     <packaging>jar</packaging>
     
-    <name>Mongo Client: Core</name>
+    <name>MongoWP Client: Core</name>
     <description>
         MongoWP Client core project, used by other client projects to share
         common platform independent implementations
@@ -21,8 +21,8 @@
     
     <dependencies>
         <dependency>
-            <groupId>com.torodb.mongowp.server</groupId>
-            <artifactId>mongo-server-api</artifactId>
+            <groupId>com.torodb.mongowp</groupId>
+            <artifactId>mongowp-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         
