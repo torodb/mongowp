@@ -61,13 +61,6 @@
         <license.header.license>apache20</license.header.license>
         <license.header.project.name>MongoWP</license.header.project.name>
         <license.header.project.inceptionYear>2014</license.header.project.inceptionYear>
-        
-        <!-- SonarQube properties -->
-        <sonar.projectName>MongoWP</sonar.projectName>
-        <sonar.links.homepage>https://github.com/torodb/mongowp</sonar.links.homepage>
-        <sonar.links.ci>https://travis-ci.org/torodb/mongowp</sonar.links.ci>
-        <sonar.links.scm>https://github.com/torodb/mongowp</sonar.links.scm>
-        <sonar.links.issue>https://github.com/torodb/mongowp/issues</sonar.links.issue>
     </properties>
 
     <dependencyManagement>
@@ -98,5 +91,18 @@
             </plugin>
         </plugins>
     </build>
+    
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>OSSRH</id>
+            <url>https://oss.sonatype.org/content/groups/public</url>
+        </repository>
+    </repositories>
 
 </project>
