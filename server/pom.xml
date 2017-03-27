@@ -3,28 +3,63 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 >
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.8kdata.mongowp</groupId>
+        <groupId>com.torodb.mongowp</groupId>
         <artifactId>mongowp-parent</artifactId>
         <version>0.50.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.8kdata.mongowp.server</groupId>
-    <artifactId>mongo-server-pom</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>server</artifactId>
     
-    <name>Mongo Server (POM)</name>
+    <name>MongoWP Server</name>
     <description>
-        Aggregation project that contains MongoWP server implementations
+        The MongoWP project that contains the core classes
     </description>
-    
-    <modules>
-        <module>server-core</module>
-        <module>mongo-server-api</module>
-        <module>wp-layer</module>
-    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.torodb.mongowp</groupId>
+            <artifactId>mongowp-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.torodb.mongowp.bson</groupId>
+            <artifactId>bson-netty</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

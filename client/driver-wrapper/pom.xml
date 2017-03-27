@@ -3,11 +3,9 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 >
-
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>com.8kdata.mongowp.client</groupId>
+        <groupId>com.torodb.mongowp.client</groupId>
         <artifactId>parent-pom</artifactId>
         <version>0.50.1-SNAPSHOT</version>
     </parent>
@@ -15,7 +13,7 @@
     <artifactId>driver-wrapper</artifactId>
     <packaging>jar</packaging>
     
-    <name>Mongo Client: Driver Wrapper</name>
+    <name>MongoWP Client: Driver Wrapper</name>
     <description>
         MongoWP Client project that delegates on the official MongoDB Java Driver
     </description>
@@ -32,7 +30,7 @@
             <artifactId>mongodb-driver</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.8kdata.mongowp.bson</groupId>
+            <groupId>com.torodb.mongowp.bson</groupId>
             <artifactId>org-bson-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
