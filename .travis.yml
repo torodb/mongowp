@@ -28,7 +28,7 @@ script: mvn -Psafer -Pintegration -B -e -T 1C -Dcheckstyle.consoleOutput=false v
 
 after_success:
   - |
-    if [ "$TRAVIS_EVENT_TYPE" != cron ] && [ "$TRAVIS_REPO_SLUG" == gortiz/mongowp ]
+    if [ "$TRAVIS_EVENT_TYPE" != cron ] && [ "$TRAVIS_REPO_SLUG" == torodb/mongowp ]
     then
         bash <(curl -s https://codecov.io/bash) || echo 'Codecov did not collect coverage reports'
     else
@@ -43,6 +43,6 @@ deploy:
   script: mvn -B -e -T 1C -Pdeploy -DskipTests=true deploy --settings ~/settings.xml
   skip_cleanup: true
   on:
-    repo: gortiz/mongowp
+    repo: torodb/mongowp
     branch: devel
     jdk: oraclejdk8
