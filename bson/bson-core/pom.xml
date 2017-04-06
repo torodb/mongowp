@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.torodb.mongowp.bson</groupId>
         <artifactId>bson-pom</artifactId>
-        <version>0.50.1-SNAPSHOT</version>
+        <version>0.50.1</version>
     </parent>
     <artifactId>bson-core</artifactId>
     <packaging>jar</packaging>
