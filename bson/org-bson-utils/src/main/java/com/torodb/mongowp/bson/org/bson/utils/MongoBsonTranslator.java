@@ -67,7 +67,6 @@ import org.bson.BsonValue;
 import org.bson.types.Decimal128;
 import org.bson.types.ObjectId;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -92,7 +91,7 @@ public class MongoBsonTranslator {
 
   @Nullable
   public static BsonDocument translate(
-      @Nullable com.torodb.mongowp.bson.BsonDocument wpDocument) throws IOException {
+      @Nullable com.torodb.mongowp.bson.BsonDocument wpDocument) {
     return (BsonDocument) translatePrivate(wpDocument);
   }
 
@@ -104,7 +103,7 @@ public class MongoBsonTranslator {
 
   @Nullable
   private static BsonValue translatePrivate(
-      @Nullable com.torodb.mongowp.bson.BsonValue<?> value) throws IOException {
+      @Nullable com.torodb.mongowp.bson.BsonValue<?> value) {
     if (value == null) {
       return null;
     }
@@ -331,11 +330,7 @@ public class MongoBsonTranslator {
 
     @Override
     public BsonDocument apply(@Nonnull com.torodb.mongowp.bson.BsonDocument t) {
-      try {
-        return translate(t);
-      } catch (IOException ex) {
-        throw new RuntimeException("Unexpected IO exception", ex);
-      }
+      return translate(t);
     }
   }
 }

@@ -24,6 +24,6 @@ import com.torodb.mongowp.bson.BsonDocument;
  */
 public interface BsonDocumentWriter<SinkT> {
 
-  public void writeInto(SinkT byteBuf, BsonDocument doc);
+  public void writeInto(SinkT sink, BsonDocument doc);
 
 }

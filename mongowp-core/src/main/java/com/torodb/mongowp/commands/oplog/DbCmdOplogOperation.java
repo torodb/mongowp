@@ -57,6 +57,11 @@ public class DbCmdOplogOperation extends OplogOperation {
     return OplogOperationType.DB_CMD;
   }
 
+  @Override
+  protected String getNamespace() {
+    return getDatabase() + ".$cmd";
+  }
+
   public Optional<String> getCommandName() {
     return Optional.ofNullable(getRequest().getFirstEntry().getKey());
   }
@@ -66,6 +71,22 @@ public class DbCmdOplogOperation extends OplogOperation {
     return super.toDescriptiveBson()
         .append(OP_FIELD, getType().getOplogName())
         .append(REQUEST_FIELD, request);
+  }
+
+  @Override
+  public int hashCode() {
+    //This is here to explicity say we know this hashCode is compatible with equals
+    //to avoid static check warnings
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!generalEquals(obj)) {
+      return false;
+    }
+    DbCmdOplogOperation other = (DbCmdOplogOperation) obj;
+    return other.getRequest().equals(this.getRequest());
   }
 
   @Override
