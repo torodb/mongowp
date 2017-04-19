@@ -20,6 +20,7 @@ import com.torodb.mongowp.bson.BsonDocument;
 import com.torodb.mongowp.fields.DocField;
 import com.torodb.mongowp.fields.StringField;
 import com.torodb.mongowp.utils.BsonDocumentBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nullable;
 
@@ -69,6 +70,7 @@ public class NoopOplogOperation extends OplogOperation {
   }
 
   @Override
+  @SuppressFBWarnings("BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS")
   public boolean equals(Object obj) {
     if (!generalEquals(obj)) {
       return false;
