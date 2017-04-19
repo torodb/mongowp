@@ -39,6 +39,18 @@ public class DbOplogOperation extends OplogOperation {
   }
 
   @Override
+  public int hashCode() {
+    //This is here to explicity say we know this hashCode is compatible with equals
+    //to avoid static check warnings
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return generalEquals(obj);
+  }
+
+  @Override
   public <R, A> R accept(OplogOperationVisitor<R, A> visitor, A arg) {
     return visitor.visit(this, arg);
   }

@@ -17,8 +17,6 @@ package com.torodb.mongowp.commands.oplog;
 
 import com.torodb.mongowp.OpTime;
 import com.torodb.mongowp.bson.BsonValue;
-import com.torodb.mongowp.fields.StringField;
-import com.torodb.mongowp.utils.BsonDocumentBuilder;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -31,7 +29,6 @@ public abstract class CollectionOplogOperation extends OplogOperation {
 
   private static final long serialVersionUID = 1L;
 
-  private static final StringField NS_FIELD = new StringField("ns");
   private final String collection;
 
   public CollectionOplogOperation(
@@ -50,10 +47,8 @@ public abstract class CollectionOplogOperation extends OplogOperation {
   }
 
   @Override
-  public BsonDocumentBuilder toDescriptiveBson() {
-    BsonDocumentBuilder result = super.toDescriptiveBson();
-    result.append(NS_FIELD, getDatabase() + '.' + collection);
-    return result;
+  protected String getNamespace() {
+    return getDatabase() + "." + getCollection();
   }
 
   @Nullable

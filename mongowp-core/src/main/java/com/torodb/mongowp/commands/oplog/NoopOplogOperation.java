@@ -57,6 +57,26 @@ public class NoopOplogOperation extends OplogOperation {
     return doc;
   }
 
+  public BsonDocument getMsg() {
+    return msg;
+  }
+
+  @Override
+  public int hashCode() {
+    //This is here to explicity say we know this hashCode is compatible with equals
+    //to avoid static check warnings
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!generalEquals(obj)) {
+      return false;
+    }
+    NoopOplogOperation other = (NoopOplogOperation) obj;
+    return other.getMsg().equals(this.getMsg());
+  }
+
   @Override
   public <R, A> R accept(OplogOperationVisitor<R, A> visitor, A arg) {
     return visitor.visit(this, arg);

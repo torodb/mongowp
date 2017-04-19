@@ -40,7 +40,6 @@ import com.torodb.mongowp.commands.pojos.CollectionBatch;
 import com.torodb.mongowp.commands.pojos.MongoCursor;
 import com.torodb.mongowp.commands.pojos.MongoCursor.Batch;
 import com.torodb.mongowp.commands.pojos.MongoCursor.DeadCursorException;
-import com.torodb.mongowp.exceptions.BadValueException;
 import com.torodb.mongowp.exceptions.MongoException;
 import com.torodb.mongowp.messages.request.QueryMessage.QueryOptions;
 import org.apache.logging.log4j.LogManager;
@@ -48,7 +47,6 @@ import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.bson.codecs.configuration.CodecRegistry;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -122,8 +120,6 @@ public class MongoConnectionWrapper implements MongoConnection {
       } else {
         throw toRuntimeMongoException(ex);
       }
-    } catch (IOException ex) {
-      throw new BadValueException("Unexpected IO exception", ex);
     }
   }
 
@@ -201,8 +197,6 @@ public class MongoConnectionWrapper implements MongoConnection {
       } else {
         throw toRuntimeMongoException(ex);
       }
-    } catch (IOException ex) {
-      throw new BadValueException("Unexpected IO exception", ex);
     }
   }
 
@@ -230,8 +224,6 @@ public class MongoConnectionWrapper implements MongoConnection {
       } else {
         throw toRuntimeMongoException(ex);
       }
-    } catch (IOException ex) {
-      throw new BadValueException("Unexpected IO exception", ex);
     }
   }
 
@@ -266,12 +258,6 @@ public class MongoConnectionWrapper implements MongoConnection {
       return new ErroneousRemoteCommandResponse<>(
           ErrorCode.BAD_VALUE,
           "It was impossible to marshall the given argument to " + command,
-          d, null, null);
-    } catch (IOException ex) {
-      Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);
-      return new ErroneousRemoteCommandResponse<>(
-          ErrorCode.BAD_VALUE,
-          "Unexpected IO exception",
           d, null, null);
     } catch (MongoException ex) { //our MongoWP exception
       Duration d = Duration.ofMillis(System.currentTimeMillis() - startMillis);

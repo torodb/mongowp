@@ -79,6 +79,22 @@ public class DeleteOplogOperation extends CollectionOplogOperation {
   }
 
   @Override
+  public int hashCode() {
+    //This is here to explicity say we know this hashCode is compatible with equals
+    //to avoid static check warnings
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!generalEquals(obj)) {
+      return false;
+    }
+    DeleteOplogOperation other = (DeleteOplogOperation) obj;
+    return other.isJustOne() == this.isJustOne() && other.filter.equals(this.filter);
+  }
+
+  @Override
   public <R, A> R accept(OplogOperationVisitor<R, A> visitor, A arg) {
     return visitor.visit(this, arg);
   }
