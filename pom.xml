@@ -13,7 +13,7 @@
 
     <groupId>com.torodb.mongowp</groupId>
     <artifactId>mongowp-parent</artifactId>
-    <version>0.50.1-SNAPSHOT</version>
+    <version>0.50.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -55,7 +55,7 @@
     </issueManagement>
 
     <properties>
-        <mongowp.buildtools.version>0.50.1-SNAPSHOT</mongowp.buildtools.version>
+        <mongowp.buildtools.version>0.50.1</mongowp.buildtools.version>
         <netty.version>4.0.42.Final</netty.version>
         
         <license.header.license>apache20</license.header.license>
