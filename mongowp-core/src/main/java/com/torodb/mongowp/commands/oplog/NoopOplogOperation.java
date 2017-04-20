@@ -20,6 +20,7 @@ import com.torodb.mongowp.bson.BsonDocument;
 import com.torodb.mongowp.fields.DocField;
 import com.torodb.mongowp.fields.StringField;
 import com.torodb.mongowp.utils.BsonDocumentBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.Nullable;
 
@@ -55,6 +56,27 @@ public class NoopOplogOperation extends OplogOperation {
       doc.append(MSG_FIELD, msg);
     }
     return doc;
+  }
+
+  public BsonDocument getMsg() {
+    return msg;
+  }
+
+  @Override
+  public int hashCode() {
+    //This is here to explicity say we know this hashCode is compatible with equals
+    //to avoid static check warnings
+    return super.hashCode();
+  }
+
+  @Override
+  @SuppressFBWarnings("BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS")
+  public boolean equals(Object obj) {
+    if (!generalEquals(obj)) {
+      return false;
+    }
+    NoopOplogOperation other = (NoopOplogOperation) obj;
+    return other.getMsg().equals(this.getMsg());
   }
 
   @Override

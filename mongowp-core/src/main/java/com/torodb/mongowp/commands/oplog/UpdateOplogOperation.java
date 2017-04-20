@@ -21,6 +21,7 @@ import com.torodb.mongowp.bson.BsonValue;
 import com.torodb.mongowp.fields.BooleanField;
 import com.torodb.mongowp.fields.DocField;
 import com.torodb.mongowp.utils.BsonDocumentBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -32,8 +33,8 @@ public class UpdateOplogOperation extends CollectionOplogOperation {
 
   private static final long serialVersionUID = 1L;
 
-  private static final DocField FILTER_FIELD = new DocField("o");
-  private static final DocField MODIFICATION_FIELD = new DocField("o2");
+  private static final DocField FILTER_FIELD = new DocField("o2");
+  private static final DocField MODIFICATION_FIELD = new DocField("o");
   private static final BooleanField UPSERT_FIELD = new BooleanField("b");
 
   private final BsonDocument filter;
@@ -86,6 +87,24 @@ public class UpdateOplogOperation extends CollectionOplogOperation {
         .append(FILTER_FIELD, filter)
         .append(MODIFICATION_FIELD, modification)
         .append(UPSERT_FIELD, upsert);
+  }
+
+  @Override
+  public int hashCode() {
+    //This is here to explicity say we know this hashCode is compatible with equals
+    //to avoid static check warnings
+    return super.hashCode();
+  }
+
+  @Override
+  @SuppressFBWarnings("BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS")
+  public boolean equals(Object obj) {
+    if (!generalEquals(obj)) {
+      return false;
+    }
+    UpdateOplogOperation other = (UpdateOplogOperation) obj;
+    return other.getFilter().equals(this.getFilter())
+        && other.getModification().equals(this.getModification());
   }
 
   @Override
