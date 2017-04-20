@@ -21,6 +21,7 @@
         <module>client</module>
         <module>mongowp-core</module>
         <module>bson</module>
+        <module>reporting</module>
     </modules>
     
     <name>MongoWP Parent</name>
