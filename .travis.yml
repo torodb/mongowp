@@ -9,13 +9,14 @@ before_install:
   - export M2_HOME=$PWD/apache-maven-3.2.2
   - export PATH=$M2_HOME/bin:$PATH
 #Required to use Codacy
-  - sudo apt-get install jq
   - wget -O ~/codacy-coverage-reporter-assembly-latest.jar $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r .assets[0].browser_download_url)
 
 addons:
   apt:
     packages:
       - oracle-java8-installer
+# jq is required to use Codacy      
+      - jq
    
 cache:
   directories:
