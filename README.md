@@ -1,7 +1,8 @@
 Mongo Wire Protocol project
 ===========================
 
-[![Master branch build status](https://travis-ci.org/8kdata/mongowp.svg?branch=master)](https://travis-ci.org/8kdata/mongowp) [![Quality Gate](https://sonarqube.com/api/badges/gate?key=com.8kdata.mongowp:mongowp-parent)](https://sonarqube.com/dashboard/index/com.8kdata.mongowp:mongowp-parent)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.torodb/mongowp/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.torodb/mongowp)
 
 MongoWP is a Java layer that enables the development of 
 [MongoDB wire protocol][1] applications (client or server side).
@@ -26,15 +27,26 @@ one implementation (`driver-wrapper`) that adapts the official MongoDB driver.
 How to use it
 -------------
 
-mongowp is built with maven, and the artifacts are currently hosted on a 
-[public repository][4]. You may build the source code by running "mvn package" 
-on the root directory of each project.
+MongoWP is built with Maven. Released artifacts are hosted on [Maven Central][4]
+and snapshot artifacts on [Nexus Repository Management][5]. 
+You may build the source code by running "mvn package" on the root directory.
 
 ## Code QA
- * Master branch build status: [![Master branch build status](https://travis-ci.org/8kdata/mongowp.svg?branch=master)](https://travis-ci.org/8kdata/mongowp) [![Quality Gate](https://sonarqube.com/api/badges/gate?key=com.8kdata.mongowp:mongowp-parent)](https://sonarqube.com/dashboard/index/com.8kdata.mongowp:mongowp-parent)
- * Devel branch build status :  [![Devel branch build status](https://travis-ci.org/8kdata/mongowp.svg?branch=devel)](https://travis-ci.org/8kdata/mongowp) [![Quality Gate](https://sonarqube.com/api/badges/gate?key=com.8kdata.mongowp:mongowp-parent:devel)](https://sonarqube.com/dashboard/index/com.8kdata.mongowp:mongowp-parent:devel)
+ * Master branch build status: [![Master branch build status](https://travis-ci.org/torodb/mongowp.svg?branch=master)](https://travis-ci.org/torodb/mongowp)
+ * Devel branch build status :  [![Devel branch build status](https://travis-ci.org/torodb/mongowp.svg?branch=devel)](https://travis-ci.org/torodb/mongowp)
+
+## Code QA
+ * Master branch: 
+[![Build Status](https://travis-ci.org/torodb/mongowp.svg?branch=master)](https://travis-ci.org/torodb/mongowp)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/0ab3aedf5eb7411aad8536fe3d447ee1?branch=master)](https://www.codacy.com/app/torodb/mongowp?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=torodb/mongowp&amp;utm_campaign=Badge_Grade)
+[![Codacy Coverage](https://api.codacy.com/project/badge/coverage/0ab3aedf5eb7411aad8536fe3d447ee1?branch=master)](https://www.codacy.com/app/torodb/mongowp?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=torodb/mongowp&amp;utm_campaign=Badge_Grade)
+ * Devel branch:
+[![Build Status](https://travis-ci.org/torodb/mongowp.svg?branch=devel)](https://travis-ci.org/torodb/mongowp)
+[![Codacy Badge](https://api.codacy.com/project/badge/grade/0ab3aedf5eb7411aad8536fe3d447ee1?branch=devel)](https://www.codacy.com/app/torodb/mongowp?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=torodb/mongowp&amp;utm_campaign=Badge_Grade)
+[![Codacy Coverage](https://api.codacy.com/project/badge/coverage/0ab3aedf5eb7411aad8536fe3d447ee1?branch=devel)](https://www.codacy.com/app/torodb/mongowp?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=torodb/mongowp&amp;utm_campaign=Badge_Grade)
 
 [1]: http://docs.mongodb.org/meta-driver/latest/legacy/mongodb-wire-protocol/
 [2]: http://netty.io/
 [3]: http://www.torodb.com
-[4]: https://oss.sonatype.org/content/groups/public/com/8kdata/mongowp/
+[4]: http://search.maven.org/#search%7Cga%7C1%7Cg:%22com.torodb%22%20AND%20a:%22mongowp)%22
+[5]: https://oss.sonatype.org/content/groups/public/com/torodb/mongowp/
