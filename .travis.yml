@@ -28,7 +28,7 @@ before_cache:
 before_script:
   - export GIT_BRANCH=$TRAVIS_BRANCH
   
-script: mvn -Psafer -Pintegration -B -e -T 1C -Dcheckstyle.consoleOutput=false verify
+script: mvn -Psafer -Pintegration -B -e -T 1C -Dcheckstyle.consoleOutput=false --update-snapshots verify
 
 after_success:
   - |
@@ -47,7 +47,7 @@ before_deploy:
 
 deploy:
 - provider: script
-  script: mvn -B -e -T 1C -Pdeploy -DskipTests=true deploy --settings ~/settings.xml
+  script: mvn -B -e -T 1C -Pdeploy -DskipTests=true -Dcheckstyle.consoleOutput=false deploy --settings ~/settings.xml
   skip_cleanup: true
   on:
     repo: torodb/mongowp
