@@ -98,11 +98,11 @@ public class LongsBsonDecimal128 extends AbstractBsonDecimal128 {
     return value;
   }
 
-  private boolean isNaN() {
+  public boolean isNaN() {
     return (high & NaN_MASK) == NaN_MASK;
   }
 
-  private boolean isInfinite() {
+  public boolean isInfinite() {
     return (high & INFINITY_MASK) == INFINITY_MASK;
   }
 
@@ -160,7 +160,8 @@ public class LongsBsonDecimal128 extends AbstractBsonDecimal128 {
    *
    * @return true if this Decimal128 is negative
    */
-  private boolean isNegative() {
+  @Override
+  public boolean isNegative() {
     return (high & SIGN_BIT_MASK) == SIGN_BIT_MASK;
   }
 
