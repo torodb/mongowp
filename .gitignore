@@ -8,3 +8,4 @@ nb-configuration.xml
 .classpath
 .checkstyle
 nbproject/
+.factorypath
