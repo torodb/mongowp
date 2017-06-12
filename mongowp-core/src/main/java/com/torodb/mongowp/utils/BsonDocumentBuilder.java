@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.torodb.mongowp.utils;
 
+package com.torodb.mongowp.utils;
 
 import static com.torodb.mongowp.bson.utils.DefaultBsonValues.NULL;
 import static com.torodb.mongowp.bson.utils.DefaultBsonValues.newArray;
