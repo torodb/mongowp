@@ -25,17 +25,19 @@ import com.torodb.mongowp.client.core.UnreachableMongoServerException;
  */
 public class MongoClientWrapperFactory implements MongoClientFactory {
 
-  private final MongoClientConfiguration mongoClientConfiguration;
+  private final MongoClientConfigurationProperties mongoClientConfigurationProperties;
 
   @Inject
-  public MongoClientWrapperFactory(MongoClientConfiguration mongoClientConfiguration) {
-    this.mongoClientConfiguration = mongoClientConfiguration;
+  public MongoClientWrapperFactory(
+      MongoClientConfigurationProperties mongoClientConfigurationProperties) {
+    this.mongoClientConfigurationProperties = mongoClientConfigurationProperties;
   }
 
   @Override
   public MongoClientWrapper createClient(HostAndPort address)
       throws UnreachableMongoServerException {
-    return new MongoClientWrapper(mongoClientConfiguration.builder(address).build());
+    return new MongoClientWrapper(new MongoClientConfiguration.Builder(address)
+        .setProperties(mongoClientConfigurationProperties).build());
   }
 
 }
