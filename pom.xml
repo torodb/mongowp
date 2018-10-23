@@ -8,12 +8,12 @@
     <parent>
         <groupId>com.torodb</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>1.0.1-SNAPSHOT</version>
+        <version>1.0.1</version>
     </parent>
 
     <groupId>com.torodb.mongowp</groupId>
     <artifactId>mongowp-parent</artifactId>
-    <version>0.50.2-SNAPSHOT</version>
+    <version>0.50.2</version>
     <packaging>pom</packaging>
 
     <modules>
