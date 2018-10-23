@@ -19,6 +19,7 @@ import com.torodb.mongowp.OpTime;
 import com.torodb.mongowp.bson.BsonDocument;
 import com.torodb.mongowp.fields.DocField;
 import com.torodb.mongowp.utils.BsonDocumentBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.Optional;
 
@@ -57,6 +58,11 @@ public class DbCmdOplogOperation extends OplogOperation {
     return OplogOperationType.DB_CMD;
   }
 
+  @Override
+  protected String getNamespace() {
+    return getDatabase() + ".$cmd";
+  }
+
   public Optional<String> getCommandName() {
     return Optional.ofNullable(getRequest().getFirstEntry().getKey());
   }
@@ -66,6 +72,23 @@ public class DbCmdOplogOperation extends OplogOperation {
     return super.toDescriptiveBson()
         .append(OP_FIELD, getType().getOplogName())
         .append(REQUEST_FIELD, request);
+  }
+
+  @Override
+  public int hashCode() {
+    //This is here to explicity say we know this hashCode is compatible with equals
+    //to avoid static check warnings
+    return super.hashCode();
+  }
+
+  @Override
+  @SuppressFBWarnings("BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS")
+  public boolean equals(Object obj) {
+    if (!generalEquals(obj)) {
+      return false;
+    }
+    DbCmdOplogOperation other = (DbCmdOplogOperation) obj;
+    return other.getRequest().equals(this.getRequest());
   }
 
   @Override

@@ -21,6 +21,7 @@ import com.torodb.mongowp.bson.BsonValue;
 import com.torodb.mongowp.fields.BooleanField;
 import com.torodb.mongowp.fields.DocField;
 import com.torodb.mongowp.utils.BsonDocumentBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -76,6 +77,23 @@ public class DeleteOplogOperation extends CollectionOplogOperation {
         .append(OP_FIELD, getType().getOplogName())
         .append(FILFER_FIELD, filter)
         .append(JUST_ONE_FIELD, justOne);
+  }
+
+  @Override
+  public int hashCode() {
+    //This is here to explicity say we know this hashCode is compatible with equals
+    //to avoid static check warnings
+    return super.hashCode();
+  }
+
+  @Override
+  @SuppressFBWarnings("BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS")
+  public boolean equals(Object obj) {
+    if (!generalEquals(obj)) {
+      return false;
+    }
+    DeleteOplogOperation other = (DeleteOplogOperation) obj;
+    return other.isJustOne() == this.isJustOne() && other.filter.equals(this.filter);
   }
 
   @Override

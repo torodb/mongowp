@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.torodb.mongowp.messages.request;
 
+package com.torodb.mongowp.messages.request;
 
 import static com.torodb.mongowp.messages.request.QueryMessage.QueryOption.AWAIT_DATA;
 import static com.torodb.mongowp.messages.request.QueryMessage.QueryOption.EXHAUST;

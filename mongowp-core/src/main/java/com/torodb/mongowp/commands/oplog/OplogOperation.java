@@ -24,6 +24,7 @@ import com.torodb.mongowp.fields.TimestampField;
 import com.torodb.mongowp.utils.BsonDocumentBuilder;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
@@ -36,10 +37,13 @@ public abstract class OplogOperation implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
+  private static final TimestampField TIMESTAMP_FIELD = new TimestampField("ts");
+  private static final LongField TERM_FIELD = new LongField("t");
   static final StringField OP_FIELD = new StringField("op");
   private static final TimestampField OPTIME_FIELD = new TimestampField("ts");
   private static final LongField HASH_FIELD = new LongField("h");
   private static final IntField VERSION_FIELD = new IntField("v");
+  private static final StringField NAMESPACE_FIELD = new StringField("ns");
   private static final BooleanField FROM_MIGRATE_FIELD = new BooleanField("fromMigrate");
 
   @Nonnull
@@ -91,11 +95,16 @@ public abstract class OplogOperation implements Serializable {
     return fromMigrate;
   }
 
+  protected String getNamespace() {
+    return getDatabase();
+  }
+
   public BsonDocumentBuilder toDescriptiveBson() {
     BsonDocumentBuilder result = new BsonDocumentBuilder()
-        .append(OPTIME_FIELD, optime)
         .append(HASH_FIELD, hash)
+        .append(NAMESPACE_FIELD, getNamespace())
         .append(VERSION_FIELD, version.getNumericValue());
+    addOpTime(result, optime);
     if (fromMigrate) {
       result.append(FROM_MIGRATE_FIELD, true);
     }
@@ -106,5 +115,48 @@ public abstract class OplogOperation implements Serializable {
   public String toString() {
     BsonDocumentBuilder bson = toDescriptiveBson();
     return bson.build().toString();
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash = 31 * hash + (int) (this.hash ^ (this.hash >>> 32));
+    return hash;
+  }
+
+  private static void addOpTime(BsonDocumentBuilder builder, OpTime optime) {
+    builder.append(TIMESTAMP_FIELD, optime.getTimestamp());
+    if (optime.getTerm() >= 0) {
+      builder.append(TERM_FIELD, optime.getTerm());
+    }
+  }
+
+  @Override
+  public abstract boolean equals(Object obj);
+
+  public boolean generalEquals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof OplogOperation)) {
+      return false;
+    }
+    final OplogOperation other = (OplogOperation) obj;
+    if (this.hash != other.hash) {
+      return false;
+    }
+    if (this.fromMigrate != other.fromMigrate) {
+      return false;
+    }
+    if (!Objects.equals(this.database, other.database)) {
+      return false;
+    }
+    if (!Objects.equals(this.optime, other.optime)) {
+      return false;
+    }
+    return this.version == other.version;
   }
 }

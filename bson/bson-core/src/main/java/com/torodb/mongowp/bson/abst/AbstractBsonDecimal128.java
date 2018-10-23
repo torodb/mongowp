@@ -59,6 +59,12 @@ public abstract class AbstractBsonDecimal128 extends AbstractBsonNumber<BigDecim
     return true;
   }
 
+  public abstract boolean isNaN();
+
+  public abstract boolean isInfinite();
+
+  public abstract boolean isNegative();
+
   @Override
   public final boolean equals(Object obj) {
     if (this == obj) {
@@ -92,6 +98,25 @@ public abstract class AbstractBsonDecimal128 extends AbstractBsonNumber<BigDecim
   @Override
   public <R, A> R accept(BsonValueVisitor<R, A> visitor, A arg) {
     return visitor.visit(this, arg);
+  }
+
+  @Override
+  public String toString() {
+    if (isNaN()) {
+      if (isNegative()) {
+        return "-NaN";
+      } else {
+        return "NaN";
+      }
+    }
+    if (isInfinite()) {
+      if (isNegative()) {
+        return "-Inf";
+      } else {
+        return "Inf";
+      }
+    }
+    return super.toString();
   }
 
 }

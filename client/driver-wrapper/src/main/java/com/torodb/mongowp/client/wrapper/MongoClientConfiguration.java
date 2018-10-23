@@ -18,32 +18,18 @@ package com.torodb.mongowp.client.wrapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.net.SocketFactory;
 
 public class MongoClientConfiguration {
 
   private final HostAndPort hostAndPort;
-  private final SocketFactory socketFactory;
-  private final boolean sslEnabled;
-  private final boolean sslAllowInvalidHostnames;
-  private final ImmutableList<MongoAuthenticationConfiguration> authenticationConfigurations;
+  private final MongoClientConfigurationProperties properties;
 
-  public MongoClientConfiguration(HostAndPort hostAndPort, SocketFactory socketFactory,
-      boolean sslEnabled, boolean sslAllowInvalidHostnames,
-      ImmutableList<MongoAuthenticationConfiguration> authenticationConfiguration) {
+  public MongoClientConfiguration(HostAndPort hostAndPort, 
+      MongoClientConfigurationProperties properties) {
     super();
     this.hostAndPort = hostAndPort.withDefaultPort(27017);
-    this.socketFactory = socketFactory;
-    this.sslEnabled = sslEnabled;
-    this.sslAllowInvalidHostnames = sslAllowInvalidHostnames;
-    this.authenticationConfigurations = authenticationConfiguration;
-  }
-
-  public static MongoClientConfiguration unsecure(HostAndPort hostAndPort) {
-    return new MongoClientConfiguration(hostAndPort, null, false, false, ImmutableList.of());
+    this.properties = properties;
   }
 
   public HostAndPort getHostAndPort() {
@@ -51,27 +37,24 @@ public class MongoClientConfiguration {
   }
 
   public SocketFactory getSocketFactory() {
-    return socketFactory;
+    return properties.getSocketFactory();
   }
 
   public boolean isSslEnabled() {
-    return sslEnabled;
+    return properties.isSslEnabled();
   }
 
   public boolean isSslAllowInvalidHostnames() {
-    return sslAllowInvalidHostnames;
+    return properties.isSslAllowInvalidHostnames();
   }
 
   public ImmutableList<MongoAuthenticationConfiguration> getAuthenticationConfigurations() {
-    return authenticationConfigurations;
+    return properties.getAuthenticationConfigurations();
   }
 
   public Builder builder(HostAndPort hostAndPort) {
     Builder builder = new Builder(hostAndPort);
-    builder.socketFactory = socketFactory;
-    builder.sslEnabled = sslEnabled;
-    builder.sslAllowInvalidHostnames = sslAllowInvalidHostnames;
-    builder.authenticationConfigurations.addAll(authenticationConfigurations);
+    builder.properties = properties;
 
     return builder;
   }
@@ -84,62 +67,20 @@ public class MongoClientConfiguration {
   public static class Builder {
 
     private HostAndPort hostAndPort;
-    private SocketFactory socketFactory;
-    private boolean sslEnabled;
-    private boolean sslAllowInvalidHostnames;
-    private List<MongoAuthenticationConfiguration> authenticationConfigurations =
-        new ArrayList<>();
+    private MongoClientConfigurationProperties properties;
 
     public Builder(HostAndPort hostAndPort) {
       this.hostAndPort = hostAndPort;
     }
 
-    public HostAndPort getHostAndPort() {
-      return hostAndPort;
-    }
-
-    public SocketFactory getSocketFactory() {
-      return socketFactory;
-    }
-
-    public Builder setSocketFactory(SocketFactory socketFactory) {
-      this.socketFactory = socketFactory;
-      return this;
-    }
-
-    public boolean isSslEnabled() {
-      return sslEnabled;
-    }
-
-    public Builder setSslEnabled(boolean sslEnabled) {
-      this.sslEnabled = sslEnabled;
-      return this;
-    }
-
-    public boolean isSslAllowInvalidHostnames() {
-      return sslAllowInvalidHostnames;
-    }
-
-    public Builder setSslAllowInvalidHostnames(boolean sslAllowInvalidHostnames) {
-      this.sslAllowInvalidHostnames = sslAllowInvalidHostnames;
-      return this;
-    }
-
-    public ImmutableList<MongoAuthenticationConfiguration> getAuthenticationConfiguration() {
-      return ImmutableList.copyOf(authenticationConfigurations);
-    }
-
-    public Builder addAuthenticationConfiguration(
-        MongoAuthenticationConfiguration authenticationConfiguration) {
-      this.authenticationConfigurations.add(authenticationConfiguration);
+    public Builder setProperties(MongoClientConfigurationProperties base) {
+      this.properties = base;
       return this;
     }
 
     @SuppressWarnings("checkstyle:JavadocMethod")
     public MongoClientConfiguration build() {
-      return new MongoClientConfiguration(hostAndPort, socketFactory,
-          sslEnabled, sslAllowInvalidHostnames,
-          ImmutableList.copyOf(authenticationConfigurations));
+      return new MongoClientConfiguration(hostAndPort, properties);
     }
   }
 }

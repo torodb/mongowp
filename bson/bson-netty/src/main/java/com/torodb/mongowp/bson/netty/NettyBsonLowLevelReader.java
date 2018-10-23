@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.torodb.mongowp.bson.netty;
 
+package com.torodb.mongowp.bson.netty;
 
 import static com.torodb.mongowp.bson.BsonType.ARRAY;
 import static com.torodb.mongowp.bson.BsonType.BINARY;
